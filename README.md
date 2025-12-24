@@ -22,7 +22,7 @@ Este é o meu portfólio pessoal, um espaço onde reúno meus principais projeto
 
 <div align="center">
   <img src="/img/portfolio.jpg" width="700px" alt="Screenshot do Portfólio">
-  <p><em>(Substitua esta imagem por um print ou GIF do seu site rodando)</em></p>
+  <p><em>Tela inicial do Portfólio</em></p>
 </div>
 
 ---
@@ -32,17 +32,12 @@ Este é o meu portfólio pessoal, um espaço onde reúno meus principais projeto
 Para a construção deste projeto, utilizei as seguintes ferramentas:
 
 * **Linguagem:** [Ex: HTML5, CSS3, JavaScript]
-* **Framework/Biblioteca:** [Ex: React, Next.js, Bootstrap]
-* **Estilização:** [Ex: Styled Components, Tailwind CSS]
-* **Deploy:** [Ex: Vercel, Netlify, GitHub Pages]
 
 ---
 
 ## ✨ Funcionalidades
 
 - [x] **Design Responsivo:** Adaptado para dispositivos móveis, tablets e desktop.
-- [x] **Formulário de Contato:** Integrado para recebimento de mensagens.
-- [x] **Dark/Light Mode:** Alternância de temas para melhor experiência do usuário.
 - [x] **Seção de Projetos:** Listagem dinâmica dos meus melhores repositórios.
 
 ---
