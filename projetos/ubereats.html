@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Case de Uso: UberEats</title>
+</head>
+    <body>
+        <header>
+            <h1>Case de Uso: UberEats</h1>
+            <p>Databricks</p>
+            <span>Publicado em: EM BREVE</span>
+        </header>
+
+        <main>
+            <!-- Introdução -->
+            <section>
+                <h2>Introdução</h2>
+                <p>Este projeto foi desenvolvido durante o Workshop: Semana Databricks 2.0 oferecida pela Engenharia de Dados Academy do Luan Moreno. Durante o Workshop, foi passado uma introdução de como funcionaria a arquitetura do projeto, porém não foi desenvolvido por completo.</p>
+                <p>Foi preciso ler a documentação fornecida pelo Luan e sua equipe para que eu pudesse finalizar o projeto.</p>
+                <p>Antes de apresentar o projeto é importante entender alguns conceitos e processos de engenharia de dados que foram utilizados neste projeto.</p>
+            </section>
+
+            <!-- Explicação da Arquitetura Medalhão-->
+            <section>
+                <h2>Arquitetura Medalhão</h2>
+                <p>A arquitetura medalhão, também conhecida como Arquitetura "Multi-Hop", é um padrão de design de dados que utiliza a lógica medalhão para organizar os dados em um Data Lakehouse.</p>
+                <p>A arquitetura divide o ambiente de dados em 3 camadas: Bronze, Silver (Prata) e Gold (Ouro).</p>
+                <p>O principal objetivo da Arquitetura Medalhão é garantir a qualidade, confiabilidade e desempenho dos dados, pois cada camada representa um estágio de qualidade dos dados.</p>
+            </section>
+
+            <!-- Como funciona -->
+            <section>
+                <h2>Como funciona a Arquitetura Medalhão?</h2>
+                <p>O processo de transição dos dados do banco de dados convencional para o Data Lakehouse e então o processamento desses dados é chamado de Pipeline.</p>
+                <p>No Pipeline uma série de etapas/processos trabalham juntos para chegar em um objetivo, o que é chamado de ETL ou ELT.</p>
+                
+                <br>
+                <ul>
+                    <!-- Explicação de ETL -->
+                    <h3>O que é um ETL/ELT?</h3>
+                    <p>A sigla signica:</p>
+                    <ul>
+                        <li>
+                            <strong>E: </strong> Extrair (Extract);
+                        </li>
+                        <li>
+                            <strong>T: </strong> Transformar (Transform);
+                        </li>
+                        <li>
+                            <strong>L: </strong> Carregar (Load)
+                        </li>
+                    </ul>
+                    <p>Processo automatizado para integrar os dados vindos da base de dados de origem para a base de dados de destino.</p>
+
+                    <br>
+                    <h3>Processo de Extração</h3>
+                    <p>É o processo responsável por extrair os dados da base de origem, seja ela um banco de dados relacional, não relacional, um formulário, etc.</p>
+
+                    <br>
+                    <h3>Processo de Transformação</h3>
+                    <p>A transformação é processo de adaptação do dados, pode incluir filtragem de dados, limpeza, validação, agregação, união. O objetivo aqui é preparar os dados para serem carregados.</p>
+
+                    <br>
+                    <h3>Processo de Carregamento</h3>
+                    <p>Processo onde os dados serão carregados no novo destino,um data lakehouse/warehouse por exemplo, para que possam ser armazenados e utilizados posteriormente para BI, ML, entre outros.</p>
+                    <p>Pipelines são muito comuns no mundo dos dados, machine learning e esteiras de CI/CD.</p>
+                    <p>Na questão dos Data Lakehouses, o pipeline é utilizado para pegar os dados da origem e processar entre as camadas do lakehouse.</p>
+                </ul>
+                
+                <br>
+            </section>
+            
+            <!-- Camadas da Arquitetura Medalhão-->
+            <section>
+                <h2>Camadas da Arquitetura Medalhão</h2>
+                <ul>
+                    <!-- Explicação da Camada Bronze -->
+                    <h3>Camada Bronze</h3>
+                    <p>Camada responsável por armazenar todos os dados de origem externa. A estrutura original das tabelas são a mesma, os dados são basicamente duplicados, é o que conhecemos como "AS-IS", uma expressão que significa "como estão" e signica que não houve tratamento interno nas tabelas de origem após chegar ao Data Lakehouse.</p>
+                    
+                    <br>
+                    <ul>
+                        <li>
+                            <h4>Principais Características da Camada Bronze:</h4>
+                        </li>
+                        <ul>
+                            <li><p>Raw Data (Dados Brutos): os dados chegam ao lakehouse como "AS-IS", ou seja, os dados da origem são duplicados da origem no lakehouse.</p></li>
+                            
+                            <li><p>Schema-on-Read: A estrutura só é interpretada no momento da leitura.</p></li>
+                            
+                            <li><p>Imutabilidade: Nada é excluído ou sobrescrito. Até mesmo os erros ficam armazenados.</p></li>
+                            
+                            <li><p>Otimização: Estamos falando de uma quantidade massiva de dados, por isso, formatos de dados como Parquet e técnicas de compressão de dados são utilizados para economizar espaço em disco e aumentar o desempenho do processamento.</p></li>
+                        </ul>
+                    </ul>
+
+                    <br>
+                    <!-- Explicação da Camada Silver -->
+                    <h3>Camada Silver / Camada Prata</h3>
+                    <p>Camada responsável por enriquecer os dados. Ela combina, limpa, faz merge e outros processos para melhorar a qualidade dos dados vindos da camada bronze.</p>
+                    <p>De acordo com o post da <a href="#">Databricks</a>, a camada prata "trás dados de fontes diferentes para uma visão corporativa". Ela permite análises de relatório ad hoc, treinamento de máquina, entre outros.</p>
+                    <p>Essa camada é a fonte utilizada para projetos e análises de analistas, engenheiros e cientistas.</p>
+
+                    <br>
+                    <!-- Explicação Camada Gold-->
+                    <h3>Camada Gold / Camada Ouro</h3>
+                    <p>Os dados são passados para bancos de dados consumíveis, isso significa que é otimizado para leitura e projetos que exigem dados desnormalizados, por exemplo: análise de estoque, vendas e clientes, recomendação de produtos, segmentação, entre outros.</p>
+                    <p>É a camada final referente a transformação, qualidade e apresentação dos dados (Business Inteligence).</p>
+
+                </ul>
+                
+                
+
+                
+                
+            </section>
+            <!-- Ferramentas -->
+            <section>
+                <h2>Ferramentas Utilizadas</h2>
+                <p>Azure Databricks</p>
+                <p>Docker</p>
+                <p>Terraform</p>
+                <p>GenAI</p>
+            </section>
+
+            <!-- Objetivo do Projeto-->
+            <section>
+                <h2>Objetivo do Projeto</h2>
+                <p>Durante o Workshop foi apresentado um caso de uso real de engenharia de dados da empresa UberEats.</p>
+                <p>Para resolver o caso de uso, foi preciso utilizar os conhecimentos em modelagem de dados, criação de pipelines, processos de ELT, conceitos de streaming e batch, conhecimentos na plataforma Databricks, Infraestrutura como Código (IaC) e Cloud Computing (Microsoft Azure).</p>
+                <p>O objetivo é criar uma solução no Azure Databricks com arquitetura medalhão para processar dados.</p>
+            </section>
+
+            <!-- Databricks -->
+            <section>
+                <h2>Databricks</h2>
+                <p>A Plataforma Databricks é uma plataforma destinada para o gerenciamento de dados amplamente utilizada por engenheiros de dados.</p>
+                <p>Na Databricks é possível criar, implantar e gerenciar dados, criar soluções de IA, fazer análises complexas e disponibilizar bases de dados para as cientistas de dados, engenheiros de machine learning e analistas de dados.</p>
+            
+                <p>O projeto deste portfólio utiliza as ferramentas mais modernas oferecidas pela Databricks e foca em escalabilidade, governança e CI/CD.</p>
+                
+                <!-- Delta Live Tables -->
+                <ul>
+                    <li>
+                        <h3>Delta Live Tables (DLT)</h3>
+                        <p>É um framework declarativos no Databricks. Seu objetivo é simplicar a construção de pipelines.</p>
+                        <p>Ao invés criar e gerenciar tarefas de ETL manualmente, no DLT iremos construir o ETL utilizando Python/SQL e automatizar a orquestração de tarefas, gerenciamento de infraestrutura, monitoramento, qualidade e tratamento de erros.</p>
+                        <p>Para um entendimento mais completo, leia o <a href="https://www.databricks.com/discover/pages/getting-started-with-delta-live-tables">guia técnico</a> da Databricks.</p>
+                    </li>
+
+                    <li>
+                        <h3>Databricks Asset Bundles (DABs)</h3>
+                        <p>O DAB é uma ferramenta que facilita a utilização de boas práticas recomendadas para Engenharia de Software/Dados, como: controle de origem, revisão de código, testes e integração e entregas contínuas.</p>
+                        <p>Deve ser utilizado com </p>
+                    </li>
+                </ul>
+                
+            </section>
+        </main>
+
+    </body>
+</html>

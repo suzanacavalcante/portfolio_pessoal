@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <title>Projeto de Python</title>
+    
+</head>
+<body>
+    <header>
+        <h1>Projeto de Python</h1>
+        <p>Limpeza de Dados</p>
+        <span>Publicado em: [AJUSTAR A DATA]</span>
+    </header>
+    <main>
+        <!-- Título e Subtítulo -->
+        <section>
+            <h2>Limpeza de Dados</h2>
+            <p>Projeto desenvolvido em Python para realizar a limpeza e o pré-processamento de dados em um arquivo JSON, que contém informações sobre o churn de clientes de uma empresa de telecomunicações.</p>
+        </section>
+        <br>
+        <!-- O que é Churn -->
+        <section>
+            <h2>O que é Churn?</h2>
+            <p>Churn é um termo usado para descrever a taxa de cancelamento de clientes de um serviço ou empresa. Ele representa a quantidade de clientes que deixaram de usar um produto ou serviço dentro de um determinado período.</p>
+        </section>
+        <br>
+        <!-- Bibliotecas -->
+        <section>
+            <h2>Bibliotecas</h2>
+            <p>As bibliotecas python utilizadas neste projeto foram:</p>
+            <ul>
+                <li>Pandas: Manipulação e análise de dados em tabelas (DataFrames), facilitando leitura, filtragem, transformação e visualização de dados.</li>
+                <br>
+                <li>NumPy: Cálculos numéricos eficientes, oferecendo suporte para arrays multidimensionais e operações matemáticas otimizadas.</li>
+                <br>
+                <li>Json: Manipulação de arquivos JSON, permitindo leitura, escrita e conversão entre JSON e estruturas de dados Python (dicionários e listas)</li>
+                <br>
+                <li>Seaborn: Visualização de dados estatísticos, criando gráficos elegantes e informativos com base no Matplotlib.</li>
+            </ul>
+            <img src="img/projetos/churn/imagem-1-bibliotecas.png" alt="Bibliotecas Utilizadas">
+            <figcaption>Figura 1: Bibliotecas Utilizadas.</figcaption>
+        </section>
+        <br>
+        <section>
+            <h2>Etapas do Projetos</h2>
+            <ul>
+                <li>Análise de Dados Inicial
+                    <!-- Base de Dados -->
+                    <ul>
+                        <li>A base de dados foi disponibilizada em um arquivo .JSON.
+                            <br>
+                            <br>
+                            <p>Neste bloco de código utilizei a função <strong><code>pd.read_json()</code></strong> que é responsável por ler o arquivo .JSON onde a base de dados foi disponibilizada.</p>
+                            <p>Armazenei o arquivo .JSON dentro da variável <strong><code>dados_churn</code></strong> e em seguida utilizei a função <strong><code>head()</code></strong> para mostrar apenas as 5 primeiras linhas do DataFrame.</p>
+                            <img src="img/projetos/churn/imagem-2.png" alt="Base de Dados">
+                            <figcaption>Figura 2: Base de Dados.</figcaption>
+
+                            
+                        </li>
+                    </ul> 
+
+                    <br>
+                    <br>
+
+                    <!--Analisando o DataFrame -->
+                    <ul>
+                        <li>Analisando o DataFrame criado é possível observar que algumas colunas possuem dados aninhados.
+                            <br>
+                            <br>
+                            <p>O que são dados aninhados?</p>
+                            <p>São estruturas de dados que contêm outras estruturas dentro delas, formando uma hierarquia. Isso é comum em formatos como JSON, dicionários em Python e listas dentro de listas.</p>
+                            <p>Esse tipo de estrutura é muito usado em APIs, bancos de dados NoSQL e manipulação de informações em linguagens como Python.</p>
+
+                            <br>
+                            <p>Dado este contexto, é necessário normalizar os dados com o objetivo de deixar o DataFrame mais legível e, assim, falicitar a análise inicial e futuramente quando os dados forem utilizados em algum modelo de aprendizagem ou criar um dashboard.</p>
+
+                            <br>
+                            <p>O código <strong><code>dados_churn['conta'][0]</code></strong> está acessando o valor da coluna "conta" do DataFrame <strong><code>dados_churn</code></strong> na primeira linha (índice 0).</p>
+                            <img src="img/projetos/churn/imagem-3.png" alt="Coluna 'conta'">
+                            <figcaption>Figura 3: Coluna "conta".</figcaption>
+
+                            <br>
+                            <p>A função <strong><code>json_normalize()</code></strong> é responsável por transformar estruturas de dados complexas, como listas e dicionários dentro de outras listas e dicionários, em um formato tabular, onde cada chave do JSON se torna uma coluna do DataFrame. </p>
+                            <p>Ainda não estou armazenando os dados normalizados em uma variável específica. Minha intenção é apenas analisar qual é a estrutura por trás dos dados aninhados.</p>
+                            <img src="img/projetos/churn/imagem-4.png" alt="Normalizando a coluna 'conta'">
+                            <figcaption>Figura 4: Normalizando a coluna "conta".</figcaption>
+
+                            <img src="img/projetos/churn/imagem-5.png" alt="Normalizando a coluna 'telefone'">
+                            <figcaption>Figura 5: Normalizando a coluna "telefone".</figcaption>
+
+                            <br>
+                            <p>O código <strong><code>with open('/content/dataset-telecon.json') as f</code></strong> é responsável por: </p>
+                            <ul>
+                                <li>abrir o arquivo .JSON;</li>
+                                <li>garantir que o arquivo seja fechado corretamente após a leitura, evitando vazamento de recursos.</li>
+                            </ul>
+                            <br>
+                            <p>Breve explicação do código <strong><code>json_bruto = json.load(f)</code></strong>: </p>
+                            <ul>
+                                <li>o módulo <strong><code>json</code></strong> é utilizado para carregar o conteúdo do arquivo .JSON e convertê-lo em um objeto Python (geralmente um dicionário ou uma lista, dependendo da estrutura do JSON).</li>
+                                <li>a função <strong><code>load()</code></strong> lê o arquivo aberto <strong><code>(f)</code></strong> e transforma o .JSON em um objeto Python. </li>
+                            </ul>
+                            <br>
+                            <p>Qual é o resultado esperado?</p>
+                            <ul>
+                                <li>Se o JSON armazenado no arquivo for um dicionário, a variável <strong><code>json_bruto</code></strong> será um <strong><code>dict</code></strong></li>
+                                <li>Se o JSON armazenado for uma lista, a variável <strong><code>json_bruto</code></strong> será uma <strong><code>list</code></strong></li>
+                            </ul>
+                            <img src="img/projetos/churn/imagem-6.png" alt="Estrtura dos Dados Aninhados">
+                            <figcaption>Figura 6: Estrutura dos Dados Aninhados.</figcaption>
+                        </li>
+                    </ul>
+
+                    <br>
+                    <br>
+
+                    <!--Normalizando os Dados -->
+                    <ul>
+                        <li>
+                            Agora que possuo o arquivo .JSON convertido em um objeto Python é possível normalizar os dados aninhados facilmente de modo que as informações ainda respeitem a hierarquia inicial do arquivo bruto .JSON.
+                            <br>
+                            <br>
+                            <p>Armazenei o novo DataFrame, com os dados normalizados, na variável <strong><code>dados_normalizados</code></strong>.</p>
+                            <img src="img/projetos/churn/imagem-7.png" alt="Estrtura dos Dados Normalizados 1">
+                            <figcaption>Figura 7: Estrtura dos Dados Normalizados 1.</figcaption>
+                            <img src="img/projetos/churn/imagem-7.1.png" alt="Estrtura dos Dados Normalizados 2">
+                            <figcaption>Figura 8: Estrtura dos Dados Normalizados 2.</figcaption>
+                        </li>
+                    </ul>
+                    
+                </li>
+
+                <br>
+                <br>
+
+                <!--Limpeza e Padronização dos Dados -->
+                <li>Limpeza e Padronização dos Dados
+
+                    <!--Coluna conta.cobranca.Total -->
+                    <br>
+                    <br>
+                    <p>Com os dados normalizados finalmente é possível iniciar o processo de limpeza e padronização dos dados.</p>
+                    <p>A função <strong><code>info()</code></strong> é responsável por exibir informações resumidas sobre o DataFrame como:</p>
+                    <ul>
+                        <li>o número de linhas;</li>
+                        <li>o número de colunas;</li>
+                        <li>o tipo de dados de cada coluna (por exemplo: <strong><code>int64</code></strong>, <strong><code>float64</code></strong> e <strong><code>object</code></strong>);</li>
+                        <li>o número de valores não nulos em cada coluna;</li>
+                        <li>a quantidade de memória utilizada pelo DataFrame.</li>
+                    </ul>
+
+                    <img src="img/projetos/churn/imagem-8.png" alt="Função info">
+                    <figcaption>Figura 9: Função info.</figcaption>
+
+                    <br>
+                    <br>
+                    <p>Utilizei o código abaixo para converter os valores da coluna <strong><code>conta.cobranca.Total</code></strong> para o tipo <strong><code>float</code></strong>.</p>
+                    <ul>
+                        <p>Explicação deste bloco de código:</p>
+                        <li>dentro do DataFrame <strong><code>dados_normalizados</code></strong>, estou acessando a coluna <strong><code>conta.cobranca.Total</code></strong>.</li>
+                        <li>utilizo a função <strong><code>astype(float)</code></strong> para converter os valores da coluna para o tipo <strong><code>float</code></strong>, que são dados numéricos com ponto flutuante.</li>
+                        <li>os resultados serão substituídos no DataFrame <strong><code>dados_normalizados</code></strong> na coluna <strong><code>conta.cobranca.Total</code></strong>.</li>
+                    </ul>
+                    <img src="img/projetos/churn/imagem-9.png" alt="Primeira tentativa de padronização">
+                    <figcaption>Figura 10: Primeira tentativa de padronização.</figcaption>
+
+                    <br>
+                    <p>Obtive um erro como resultado, porém isso já era esperado.</p>
+
+                    <br>
+                    <p>O que aconteceu?</p>
+                    <p>Conforme validado na <strong><code>Figura 9: Função info</code></strong>, é possível observar que a coluna <strong><code>conta.cobranca.Total</code></strong> possui o <strong><code>Dtype</code></strong> (tipo de dado) definido como <strong><code>object</code></strong>.</p>
+                    <img src="img/projetos/churn/imagem-9.1.png" alt="Validando o Dtype">
+                    <figcaption>Figura 11: Validando o Dtype.</figcaption>
+
+                    <br>
+                    <p>O que significa o tipo de dado <strong><code>object</code></strong>?</p>
+                    <p>Quando o Python não consegue identificar o tipo de dado em uma coluna, o <strong><code>Dtype</code></strong> é definido como <strong><code>object</code></strong>.</p>
+                    <p>Sendo assim, a coluna pode conter dados numéricos (inteiros e flutuantes), texto, vazios e etc.</p>
+
+                    <br>
+                    <p>Logo, é necessário limpar e, posteriormente, padronizar os tipos de dados.</p>
+
+                    <br>
+                    <p>O erro apresentado na <strong><code>Figura 10: Primeira tentativa de padronização</code></strong> está informando:
+                    <br>
+                    <strong><code>ValueError: could not convert string to float: ' '</code></strong>,
+                    <br>
+                    ou seja, existe um ou mais valores em branco/vazios no DataFrame.</p>
+
+                    <br>
+
+                    <p>Porque não podem existir valores em branco no DataFrame?</p>
+                    <p>Se o objetivo do DataFrame é ser utilizado em um aprendizado de máquina, dados nulos podem causar erros nos algoritmos, distorcer padrões, reduzir a qualidade das previsões e prejudicar na tomada de decisão.
+                    <br>   
+                    Se o objetivo do DataFrame é ser utilizado na criação de Dashboards, dados nulos podem gerar gráficos incorretos, distorcer médias, causar erros em cálculos e visualizações e filtros e segmentações podem não funcionar corretamente.</p>
+                
+                    <br>
+                    <p>Com isso em mente, realizei uma busca por valores em branco na coluna <strong><code>conta.cobranca.Total</code></strong>.</p>
+                    <p>O comando <strong><code>head()</code></strong> está trazendo as 5 primeiras linhas que possuem os valores vazios nesta coluna.</p>
+                    <img src="img/projetos/churn/imagem-10.png" alt="Validando os valores em branco">
+                    <figcaption>Figura 11: Validando os valores em branco.</figcaption>
+                    
+                    <br>
+                    <p>Quero filtrar um pouco mais o DataFrame, buscando colunas que tenham relação com a coluna que estou tratando.</p>
+                    <p>Sendo assim, o código abaixo foi executado:</p>
+                    <img src="img/projetos/churn/imagem-11.png" alt="Filtrando tabelas que tem relação">
+                    <figcaption>Figura 13: Filtrando tabelas que tem relação.</figcaption>
+                    
+                    <br>
+                    <p>O que está acontecendo no código?</p>
+                    <ul>
+                        <li>no DataFrame <strong><code>dados_normalizados</code></strong>, estou filtrando a coluna <strong><code>conta.cobranca.Total</code></strong> e buscando por linhas que tenham conteúdo <strong><code>' '</code></strong>, ou seja, vazios.</li>
+                        <li>o código <strong><code>[['cliente.tempo_servico', 'conta.contrato', 'conta.cobranca.mensal', 'conta.cobranca.Total']]</code></strong> seleciona e exibe apenas estas colunas.</li>
+                    </ul>
+
+                    <br>
+                    <p>Qual relação elas possuem entre si?</p>
+                    <ul>
+                        <li>a coluna <strong><code>cliente.tempo_servico</code></strong> contém a informação de quanto tempo o cliente utiliza o serviço contratado.</li>
+                        <li>a coluna <strong><code>conta.contrato</conta></code></strong> contém a informação de duração do contrato assinado pelo cliente.</li>
+                        <li>a coluna <strong><code>conta.cobranca.mensal</code></strong> contém a informação do valor mensal do serviço contratado.</li>
+                    </ul>
+
+                    <br>
+                    <p>Com isso em mente, a coluna <strong><code>conta.cobranca.Total</code></strong> deverá conter os valores totais referentes ao contrato. Ou seja, se o contrato é de 2 anos, será necessário multiplicar o valor mensal por 24 meses.</p>
+                
+                    <br>
+                    <p>Para isso, é necessário que os valores sejam aplicados apenas nas linhas que não possuam esses valores.</p>
+                    <p>Então optei por executar o código presente na imagem abaixo: </p>
+                    <img src="img/projetos/churn/imagem-12.png" alt="Encontrando os índices">
+                    <figcaption>Figura 14: Encontrando os índices.</figcaption>
+
+                    <p>O que está ocorrendo no código?</p>
+                    <ul>
+                        <li>o código está identificando os índices das linhas no DataFrame <strong><code>dados_normalizados</code></strong> que contém o valor <strong><code>' '</code></strong> na coluna <strong><code>conta.cobranca.Total</code></strong>.</li>
+                        <li>após encontrar os indíces, estes são armazenados na variável <strong><code>idx</code></strong>.</li>
+                    </ul>
+
+                    <br>
+                    <p>Agora é possível realizar as devidas alterações corretamente.</p>
+
+                    <img src="img/projetos/churn/imagem-13.png" alt="Modificando a coluna 'conta.cobranca.Total' e 'cliente.tempo_servico'">
+                    <figcaption>Figura 15: Modificando a coluna 'conta.cobranca.Total' e 'cliente.tempo_servico'.</figcaption>
+
+                    <p>O que está ocorrendo no código?</p>
+                    <ul>
+                        <li>primeiro acessei a coluna <strong><code>conta.cobranca.Total</code></strong> apenas nas linhas indicadas pela variável <strong><code>idx</code></strong>.</li>
+                        <li>o código <strong><code>.loc[]</code></strong> é um <strong><code>acessador de rótulos</code> (label-based indexer)</strong> no Pandas. <br>
+                        Ele permite acessar, filtrar e modificar valores em um DataFrame usando rótulos de índices e nomes de colunas.</li>
+                        <li>o código preenche os valores vazios na coluna <strong><code>conta.cobranca.Total</code></strong> com um cálculo baseado na multiplicação entre a coluna <strong><code>conta.cobranca.mensal</code></strong> por 24, que é correspondente ao período do contrato.</li>
+                        <li>aproveitando o gancho, também segui alterando para 24 as linhas na coluna <strong><code>cliente.tempo_servico</code></strong>, pois estes índices tinham valores zerados nesta coluna.</li>
+                    </ul>
+
+                    <br>
+                    <p>Observando novamente o DataFrame filtrado, é possível validar que os valores foram alterados corretamente.</p>
+                    <img src="img/projetos/churn/imagem-14.png" alt="Validando as colunas 'conta.cobranca.Total' e 'cliente.tempo_servico'">
+                    <figcaption>Figura 16: Validando as colunas 'conta.cobranca.Total' e 'cliente.tempo_servico'.</figcaption>
+
+                    <br>
+                    <p>Agora já deve ser possível alterar o tipo de dado na coluna <strong><code>conta.cobranca.Total</code></strong>.</p>
+                    <img src="img/projetos/churn/imagem-15.png" alt="Validando o dtype da coluna 'conta.cobranca.Total'">
+                    <figcaption>Figura 17: Validando o dtype da coluna 'conta.cobranca.Total'.</figcaption>
+
+                    <img src="img/projetos/churn/imagem-15.1.png" alt="Validando a coluna 'conta.cobranca.Total'">
+                    <figcaption>Figura 18: Validando o dtype da coluna 'conta.cobranca.Total'.</figcaption>
+
+                    <!--Coluna Churn -->
+                    <br>
+                    <br>
+                    <p>Com o código abaixo, estou retornando os valores existentes em cada uma das colunas, com o objetivo de identificar qual a próxima coluna que deve ser analisada, limpa e padronizada.</p>
+
+                    <img src="img/projetos/churn/imagem-16.png" alt="Validando a coluna 'conta.cobranca.Total'">
+                    <figcaption>Figura 19: Validando o dtype da coluna 'conta.cobranca.Total'.</figcaption>
+
+                    <p>A coluna escolhida foi <strong><code>churn</code></strong>.</p>
+
+                    <p>Analisando os valores retornados para esta coluna, é possível identificar que existem dois valores <strong><code>sim</code></strong> e <strong><code>não</code></strong>, porém esta coluna também contém valores nulos.</p>
+
+                    <p>O objetivo deste DataFrame é ser utilizado por um aprendizado de máquina, para que este saiba identificar informações referentes ao <strong><code>churn</code></strong>, ou seja clientes que cancelaram seus serviços. <br>
+                    Neste caso, optei por não analisar profundamente se o cliente cancelou de fato ou não. Então segui apenas filtrando as linhas que de fato tem valor na coluna <strong><code>churn</code></strong>.</p>
+                
+                    <img src="img/projetos/churn/imagem-17.png" alt="Filtrando a coluna 'Churn' utilizando o método query">
+                    <figcaption>Figura 20: Filtrando a coluna 'Churn' utilizando o método query.</figcaption>
+
+                    <p>O que está ocorrendo no código acima?</p>
+                    <ul>
+                        <li>Utilizei o método <strong><code>query()</code></strong> que permite filtrar um DataFrame usando uma expressão em <strong><code>string</code></strong>, semelhante a uma cláusula <strong><code>WHERE</code></strong> em SQL.</li>
+                        <li>A expressão <strong><code>Churn == ""</code></strong> está filtrando apenas valores <strong><code>" "</code></strong>, vazios.</li>
+                    </ul>
+
+                    <br>
+                    <br>
+                    <img src="img/projetos/churn/imagem-17.1.png" alt="Filtrando a coluna 'Churn' buscando conteúdo">
+                    <figcaption>Figura 21: Filtrando a coluna 'Churn' buscando conteúdo.</figcaption>
+                    <p>O que está ocorrendo no código acima?</p>
+                    <ul>
+                        <li>O código está filtrando o DataFrame com o objetivo de retornar apenas linhas diferentes de <strong><code>" "</code></strong>, ou seja, que de fato tenham conteúdo.</li>
+                    </ul>
+
+                    <br>
+                    <br>
+                    <img src="img/projetos/churn/imagem-17.2.png" alt="Filtrando a coluna 'Churn' buscando conteúdo">
+                    <figcaption>Figura 22: Filtrando a coluna 'Churn' buscando conteúdo.</figcaption>
+                    <p>O que está ocorrendo no código acima?</p>
+                    <ul>
+                        <li>Como optei por descartar as linhas que possuem a coluna <strong><code>churn</code></strong> com valores nulos, estou armazenando o novo DataFrame em uma nova variável <strong><code>dados_sem_vazio</code></strong>.</li>
+                        <li>Verificando as novas informações é possível validar que a contagem de valores nulos caiu de 7344 para 7118.</li>
+                    </ul>
+
+                    <img src="img/projetos/churn/imagem-17.3.png" alt="Analisando a nova contagem de valores não nulos">
+                    <figcaption>Figura 23: Analisando a nova contagem de valores não nulos.</figcaption>
+
+                    <br>
+                    <br>
+                    <img src="img/projetos/churn/imagem-17.4.png" alt="Resetando os índices">
+                    <figcaption>Figura 24: Resetando os índices.</figcaption>
+                    <p>O que está ocorrendo no código acima?</p>
+                    <ul>
+                        <li>Como o objetivo desse DataFrame é ser utilizado em um aprendizado de máquina, é necessário que os índices estejam em sequência, pois mesmo não sendo utilizados diretamente, índices desalinhados ou desordenados podem causar problemas operacionais e de compatibilidade.</li>
+                    </ul>
+
+                    <br>
+                    <br>
+                    <!--Identificando Dados Duplicados e Nulos -->
+                    <p>Identificando Dados Duplicados e Nulos</p>
+
+                    <p>A função <strong><code>duplicated()</code></strong> do Pandas identifica valores duplicados em um dataframe ou series.</p>
+
+                    <img src="img/projetos/churn/imagem-18.png" alt="Identificando dados duplicados">
+                    <figcaption>Figura 25: Identificando dados duplicados.</figcaption>
+                    <p>Como funciona?</p>
+                    <ul>
+                        <li>a função retorna um array de valores, onde: 
+                            <ul>
+                                <li><strong><code>True</code></strong>: a linha é uma duplicata.</li>
+                                <li><strong><code>False</code></strong>: a linha é única ou é a primeira ocorrência.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <img src="img/projetos/churn/imagem-18.1.png" alt="Series de dados duplicados">
+                    <figcaption>Figura 26: Series de dados duplicados.</figcaption>
+
+                    <p>Utilizei a função <strong><code>sum()</code></strong> para somar a quantidade de valores <strong><code>True</code></strong>.</p>
+                    <img src="img/projetos/churn/imagem-18.2.png" alt="Quantidade de dados duplicados">
+                    <figcaption>Figura 27: Quantidade de dados duplicados.</figcaption>
+
+                    <p>Armazenei estes dados em uma nova variável <strong><code>filtro_duplicado</code></strong>.</p>
+
+                    <img src="img/projetos/churn/imagem-18.3.png" alt="Armazenando dados duplicados">
+                    <figcaption>Figura 28: Armazenando dados duplicados.</figcaption>
+
+                    <p>Utilizei o DataFrame <strong><code>dados_sem_vazio</code></strong> e apliquei um filtro para apresentar apenas as linhas duplicatas</p>
+                    
+                    <img src="img/projetos/churn/imagem-18.4.png" alt="Filtro com dados duplicados">
+                    <figcaption>Figura 29: Filtro com dados duplicados.</figcaption>
+
+                    <p>A função <strong><code>drop_duplicates()</code></strong> é responsável por excluir as linhas duplicatas</p>
+                    
+                    <p>Quando utilizei novamente as funções <strong><code>duplicated()</code></strong> e <strong><code>sum()</code></strong>, não foram retornados valores <strong><code>True</code></strong>.</p>
+                    <img src="img/projetos/churn/imagem-18.5.png" alt="Series atualizada de dados duplicados">
+                    <figcaption>Figura 30: Series atualizada de dados duplicados.</figcaption>
+
+                    <!--Identificando Dados NaN -->
+                    <p>A função <strong><code>isna()</code></strong> é responsável por retornar valores <strong><code>NaN</code></strong>.</p>
+
+                    <ul>
+                        <li>O que significa <strong><code>NaN</code></strong>?</li>
+                        <ul>
+                            <li>Significa <strong>Not a Number</strong> e representa valores ausentes ou indefinidos em um conjunto de dados.</li>
+                            <li>É um tipo de dado especial do NumPy e Pandas para indicar a ausência de um valor numérico.</li>
+                        </ul>
+                    </ul>
+                    <img src="img/projetos/churn/imagem-19.png" alt="Visualizando dados NaN">
+                    <figcaption>Figura 31: Visualizando dados NaN.</figcaption>
+
+                    <p>Utilizando a função <strong><code>sum()</code></strong> é retornado um DataFrame informando a quantidade de valores <strong><code>NaN</code></strong> em cada coluna</p>
+                    <img src="img/projetos/churn/imagem-19.1.png" alt="Quantidade de dados NaN">
+                    <figcaption>Figura 32: Quantidade de dados NaN.</figcaption>
+
+                    <p>Para que eu possa tratar os dados e padronizar o DataFrame corretamente, preciso identificar as linhas que possuem valores NaN em qualquer coluna e então poderei definir o tratamento específico para cada tipo de dado.</p>
+                    <img src="img/projetos/churn/imagem-19.2.png" alt="Dataframe com dados NaN">
+                    <figcaption>Figura 33: Dataframe com dados NaN.</figcaption>
+
+                    <ul>
+                        <li>O que está ocorrendo no código?</li>
+                        <ul>
+                            <li><strong><code>isna()</code></strong>: cria um DataFrame booleano, onde cada célula indica se o valor é NaN (<strong><code>True</code></strong>) ou não (<strong><code>False</code></strong>).</li>
+                            <li><strong><code>any(axis = 1)</code></strong>: verifica se pelo menos uma coluna da linha tem <strong><code>True</code></strong>. Retorna uma series booleana com <strong><code>True</code></strong> para linhas que possuem <strong><code>NaN</code></strong> e <strong><code>False</code></strong> para as que não possuem.</li>
+                            <li><strong><code>dados_sem_vazio[]</code></strong>: o filtro será aplicado para este DataFrame.</li>
+                        </ul>
+                    </ul>
+                    
+                    <br>
+                    <p>Analisando o DataFrame optei por tratar agora a coluna <strong><code>cliente.tempo_servico</code></strong>, criei um filtro para mostrar apenas os valores NaN presentes nesta coluna e armazenei em uma nova variável chamada <strong><code>filtro</code></strong>.</p>
+                    <img src="img/projetos/churn/imagem-19.3.png" alt="Dados NaN filtrados na coluna 'cliente.tempo_servico'">
+                    <figcaption>Figura 34: Dados NaN filtrados na coluna 'cliente.tempo_servico'.</figcaption>
+
+                    <p>Filtrei um pouco mais e analisei apenas colunas que possuem relação com a coluna <strong><code>cliente.tempo_servico</code></strong>.</p>
+                    <img src="img/projetos/churn/imagem-19.4.png" alt="Colunas com relação com 'cliente.tempo_servico''">
+                    <figcaption>Figura 35: Colunas com relação com 'cliente.tempo_servico'.</figcaption>
+
+                    <ul>
+                        <li>Qual é a relação entre estas colunas?</li>
+                        <ul>
+                            <li>Os valores faltantes são referentes ao tempo de duração do serviço.</li>
+                            <li>se dividir o valor total pelo mensal, o resultado será o tempo de atividade do serviço.</li>
+                        </ul>
+                    </ul>
+
+                    <img src="img/projetos/churn/imagem-19.5.png" alt="Colunas com relação com 'cliente.tempo_servico''">
+                    <figcaption>Figura 36: Colunas com relação com 'cliente.tempo_servico'.</figcaption>
+
+                    <ul>
+                        <li>O que está ocorrendo no código?</li>
+                        <ul>
+                            <li>A função <strong><code>fillna()</code></strong> substitui os valores ausentes da coluna <strong><code>cliente.tempo_servico</code></strong>.</li>
+                            <li>Utilizei um cálculo de divisão onde o resultado será a estimatiiva de quantos meses o serviço esteve ativo:
+                                <strong><code>dados_sem_vazio['conta.cobranca.Total'] / dados_sem_vazio['conta.cobranca.mensal']</code></strong>.
+                            </li>
+                            <li>A função <strong><code>ceil()</code></strong> aplica aplica arredondamento para cima nos valores resultantes da divisão, garantindo que o tempo de serviço seja sempre um número inteiro arredondado para o próximo valor maior.</li>
+                        </ul>
+                    </ul>
+
+                    <br>
+                    <p>Analisando novamente a quantidade de valores nulos por coluna, é possível visualizar que a coluna <strong><code>cliente.tempo_servico</code></strong> não possui valores nulos.</p>
+                    <img src="img/projetos/churn/imagem-19.6.png" alt="Analisando os valores aplicados à 'cliente.tempo_servico'">
+                    <figcaption>Figura 36: Analisando os valores aplicados à 'cliente.tempo_servico'.</figcaption>
+
+                    <img src="img/projetos/churn/imagem-19.7.png" alt="Quantidade de valores nulos na coluna 'cliente.tempo_servico'">
+                    <figcaption>Figura 36: Quantidade de valores nulos na coluna 'cliente.tempo_servico'.</figcaption>
+
+                    <ul>
+                        <li>Por que e como tratar valores NaN?</li>
+                        <ul>
+                            <li>Como expliquei anteriormente, valores NaN representam dados ausentes ou indefinidos e podem causar problemas em análises e modelos de aprendizado de máquina.</li>
+                            <li>A tomada de decisão para tratar os dados ausentes depende do método escolhido pelo responsável do projeto. Os dados nulos podem ser excluìdos ou substituídos.</li>
+                        </ul>
+                    </ul>
+
+                    <ul>
+                        <li>Como funciona a substituição dos dados NaN?</li>
+                        <ul>
+                            <li>Os dados podem ser substituídos após analisar a média ou a mediana, dessa forma, os dados serão substituídos por valores comuns presentes na coluna</li>
+                            <li>Os dados podem ser substituídos por outro tipo de cálculo, como por exemplo o que utilizei na <strong><code>Figura 36: Colunas com relação com 'cliente.tempo_servico'</code></strong></li>
+                            <li>A tomada de decisão deve ir de encontro com o objetivo do projeto.</li>
+                        </ul>
+                    </ul>
+
+                    <br>
+                    <p>Ainda existem colunas que possuem valores nulos.</p>
+
+                    <p>As colunas <strong><code>conta.contrato</code></strong>, <strong><code>conta.faturamento_eletronico</code></strong> e <strong><code>conta.metodo_pagamento</code></strong> poderiam ser tratadas com alguns dos métodos informados anteriormente, porém opter por remover os valores nulos.</p>
+
+                    <img src="img/projetos/churn/imagem-20.png" alt="Colunas com dados nulos">
+                    <figcaption>Figura 37: Colunas com dados nulos.</figcaption>
+
+                    <p>Armazenei estas colunas na variável <strong><code>colunas_dropar</code></strong>.</p>
+
+                    <ul>
+                        <li>Quantos dados serão excluídos?</li>
+                        <img src="img/projetos/churn/imagem-20.1.png" alt="Quantidade de dados nulos">
+                        <figcaption>Figura 38: Quantidade de dados nulos.</figcaption>
+
+                        <ul>
+                            <li>Primeiro aplicamos a variável <strong><code>colunas_dropar</code></strong> como filtro no DataFrame <strong><code>dados_sem_vazio</code></strong>.</li>
+                            
+                            <li>A função <strong><code>isna()</code></strong> cria uma series booleana, onde <strong><code>True</code></strong> indica valores <strong>NaN</strong> e <strong><code>False</code></strong> indica valores não nulos.</li>
+
+                            <li>A função <strong><code>any(axis = 1)</code></strong> soma os valores retornados como <strong><code>True</code></strong>.</li>
+                            
+                            <li>A função <strong><code>sum()</code></strong> soma os valores retornados como <strong><code>True</code></strong>.</li>
+                        </ul>
+
+                        <br>
+                        <p>Ao todo são 37 vaores nulos.</p>
+                    </ul>
+
+                    <img src="img/projetos/churn/imagem-20.3.png" alt="Dropando os dados nulos">
+                    <figcaption>Figura 39: Dropando os dados nulos.</figcaption>
+
+                    <ul>
+                        <li>O que está ocorrendo no código?</li>
+
+                        <ul>
+                            <li>A função <strong><code>dropna()</code></strong> remove todas as linhas que possuem <strong>NaN</strong> nas colunas armazenadas na variável <strong><code>colunas_dropar</code></strong>.</li>
+                            
+                            <li>A função <strong><code>copy()</code></strong> cria uma cópia independente do DataFrame resultante, evitando alterações no original <strong><code>dados_sem_vazio</code></strong>.</li>
+                        
+                            <li>Os valores retornados foram armazenados na variável <strong><code>df_sem_nulos</code></strong>, e não fazem mais parte do DataFrame <strong><code>dados_sem_vazio</code></strong>.</li>
+                        </ul>
+                    </ul>
+
+                    <img src="img/projetos/churn/imagem-20.4.png" alt="Dados nulos tratados">
+                    <figcaption>Figura 40: Dados nulos tratados.</figcaption>
+                </li>
+
+
+                <br>
+                <br>
+                <!--Outliers -->
+                <p>Antes de seguir é necessário conhecer alguns conceitos.</p>
+                <li>Analisando valores fora do contexto
+
+                    <br>
+                    <ul>    
+                        <br>
+                        <li>O que são Outliers?</li>
+                        <ul>
+                            <li>São valores extremos em um conjunto de dados que se desviam significativamente da maioria dos outros valores. Eles podem indicar erros ou variações naturais e podem impactar análises estatísticas e modelos de aprendizado de máquina.</li>
+                        </ul>
+                        
+                        <br>
+                        <li>O que é e como funciona um gráfico de Boxplot?</li>
+                        <ul>
+                            <li>É uma forma visual de representar a distribuição de um conjunto de dados, destacando mediana, quartis e possíveis outliers.</li>
+                            
+                            <br>
+                            <li>Ele é formado por cinco números principais chamados de <strong>Resumo de Cinco Números:</strong></li>                           
+                            <ul>
+                                <li><strong><code>Mínimo (sem outliers)</code></strong>:
+                                o menor valor dentro do limite aceitável.</li>
+
+                                <li><strong><code>1º Quartil (Q1 - 25%)</code></strong>:
+                                25% dos dados estão abaixo desse valor.</li>
+
+                                <li><strong><code>Mediana (Q2 - 50%)</code></strong>:
+                                o meio dos dados, onde metade dos valores estão abaixo e metade acima.</li>
+
+                                <li><strong><code>3º Quartil (Q3 - 75%)</code></strong>:
+                                75% dos dados estão abaixo desse valor.</li>
+
+                                <li><strong><code>Máximo (sem outliers)</code></strong>:
+                                o maior valor dentro do limite aceitável.</li>
+                            </ul>
+                            
+                            <br>
+                            <li>Fórmula do Intervalo Interquartil (IQR)</li>
+                            <ul>
+                                <li>O IQR (Interquartil Range) é a diferença entre  o 3º Quartil e o 1º Quartil:</li>
+                                <p><strong><code>IQR = Q3 − Q1</code></strong></p>
+                                <p>Esse intervalo ajuda a definir Outliers</p>
+                            </ul>
+
+                            <br>
+                            <li>Como Identificar Outliers no Boxplot?</li>
+                            <ul>
+                                <li>São considerados Outliers os valores que estiverem fora do intervalo esperado:</li>
+                                <p><strong><code>Limite Inferior = Q1 − 1.5 × IQR</code></strong></p>
+                                <p><strong><code>Limite Superior = Q3 + 1.5 × IQR</code></strong></p>
+
+                                <li>Valores abaixo do Limite Inferior ou acima do Limite Superior são Outliers e aparecem como pontos isolados no Boxplot.</li>
+                            </ul>
+
+                            <br>
+                            <li>Interpretação do Boxplot</li>
+                            <ul>
+                                <li><strong><code>A "caixa"</code></strong>: mostra onde está 50% dos dados (entre Q1 e Q3)</li>
+                                <li><strong><code>A linha no meio da caixa</code></strong>: representa a mediana (Q2, 50%)</li>
+                                <li><strong><code>Os "bigodes"</code></strong>: as linhas na esquerda e direita fora da caixa, vão do  menos ao maior valore dentro do intervalo permitido.</li>
+                                <li><strong><code>Os pontos fora</code></strong>: são Outliers.</li>
+                            </ul>
+                        </ul>
+
+                        <br>
+                        <p>Com isso em mente, agora posso dar continuidade no projeto para tratar valores Outliers.</p>
+                    </ul>
+
+                    <br>
+                    <img src="img/projetos/churn/imagem-21.png" alt="Função Describe">
+                    <figcaption>Figura 41: Função Describe.</figcaption>
+
+                    <p>A função <strong><code>describe()</code></strong> pertence à biblioteca Pandas e é usada para gerar estatíticas descritivas de um DataFrame ou Series.</p>
+                    
+                    <p>Ela fornece um resumo estatítico das colunas numéricas, incluindo:</p>
+
+                    <ul>
+                        <li><strong><code>count</code></strong>: número total de valores não nulos.</li>
+                        <li><strong><code>mean</code></strong>: média dos valores.</li>
+                        <li><strong><code>std</code></strong>: desvio padrão.</li>
+                        <li><strong><code>min</code></strong>: menor valor.</li>
+                        <li><strong><code>25% (Q1)</code></strong>: primeiro quartil.</li>
+                        <li><strong><code>50% (Q2, mediana)</code>: metade dos dados abaixo/acima do valor.</strong></li>
+                        <li><strong><code>75% (Q3)</code></strong>: terceiro quartil</li>
+                        <li><strong><code>max</code></strong>: maior valor.</li>
+                    </ul>
+
+                    <br>
+                    <img src="img/projetos/churn/imagem-21.1.png" alt="Gráfico Boxplot">
+                    <figcaption>Figura 42: Gráfico Boxplot.</figcaption>
+
+                    <ul>
+                        <li>O que está ocorrendo no código?</li>
+                        <ul>
+                            <li>O código está criando um gráfico e boxplot para visualizar a distribuição dos valores da coluna <strong><code>cliente.tempo_servico</code></strong> do DataFrame <strong><code>df_sem_nulos</code></strong> utilizando a biblioteca <strong><code>Seaborn</code></strong> (sns).</li>
+                            <li><strong><code>sns.boxplot()</code></strong>: função do Seaborn usada para criar o gráfico de Boxplot.</li>
+                            <li><strong><code>x = df_sem_nulos['cliente.tempo_servico']</code></strong>: define os valores no eixo X do gráfico. Como não há um eixo Y definido, o boxplot será exibido horizontalmente.</li>
+                        </ul>
+                    </ul>
+
+                    <br>
+                    <p>É possível identificar que existem 10 valores que estão distorcendo o gráfico. Estes valores são os candidatos a Outliers.</p>
+                
+                    <br>
+                    <p>Agora vou realizar os cálculos de limite para detectar os Outliers.</p>
+                
+                    <img src="img/projetos/churn/imagem-21.2.png" alt="Calculando limites">
+                    <figcaption>Figura 43: Calculando limites.</figcaption>
+
+                    <ul>
+                        <li>Primeiro Quartil (25%):
+                            <strong><code>Q1 = df_sem_nulos['cliente.tempo_servico'].quantile(.25)</code></strong>.
+                        </li>
+
+                        <li>Terceiro Quartil (75%):
+                            <strong><code>Q3 = df_sem_nulos['cliente.tempo_servico'].quantile(.75)</code></strong>.
+                        </li>
+
+                        <li>Intervalo Interquartil:
+                            <strong><code>IQR = Q3 - Q1</code></strong>.
+                        </li>
+
+                        <li>Limite Inferior:
+                            <strong><code>limite_inferior = Q1 - 1.5 * IQR</code></strong>.
+                        </li>
+
+                        <li>Limite Superior:
+                            <strong><code>limite_superior = Q1 + 1.5 * IQR</code></strong>.
+                        </li>
+                    </ul>
+
+                    <br>
+                    <img src="img/projetos/churn/imagem-21.3.png" alt="Calculando limites">
+                    <figcaption>Figura 44: Calculando limites.</figcaption>
+
+                    <ul>
+                        <li>O que está ocorrendo no código?</li>
+                        <ul>
+                            <li><strong><code>(df_sem_nulos['cliente.tempo_servico'] < limite_inferior)</code></strong>:</li>
+                            <p>Retorna <strong><code>True</code></strong> para valores menores que o limite inferior (outliers baixo).</p>
+                        
+                            <li><strong><code>(df_sem_nulos['cliente.tempo_servico'] > limite_superior)</code></strong>:</li>
+                            <p>Retorna <strong><code>True</code></strong> para valores maiores limite superior (outliers altos).</p>
+                            
+                            <li><strong><code> | </code></strong>:</li>
+                            <p>Operador lógico que combina as duas condições, retornando <strong><code>True</code></strong> sempre que um valor for um outlier alto ou baixo.</p>
+                        </ul>
+                    </ul>
+                </li>
+
+                <br>
+                
+
+                
+
+            </ul>
+        </section>
+
+    </main>
+</body>
+</html>

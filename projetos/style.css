@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2? family= Nunito:wght@200;300;400;600;700 & family= Poppins:wght@400;500;700 & display= trocar');
+
+:root {
+    --color-white: #fff;
+    --color-pink: #d12f7a;
+    --color-black: #000;
+    --color-blue: #8A2BE2;
+    --color-azul: #6495ED;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 10px;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center; /* Alinha horizontalmente */
+    align-items: center; /* Alinha verticalmente */
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--color-black); /* Usando o preto como fundo */
+    color: var(--color-white); /* Texto branco */
+}
+
+body h1 {
+    margin-top: 2rem;
+    font-size: 3rem; /* Tamanho grande para o título */
+    font-weight: 600; /* Peso da fonte para um toque mais elegante */
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.card {
+    width: 30rem; /* Largura dos cards */
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 10px; /* Bordas arredondadas */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra suave */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Animações suaves */
+}
+
+.card:hover {
+    transform: scale(1.05); /* Efeito de aumento no hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Aumenta a sombra no hover */
+}
+
+.card-body {
+    padding: 2rem;
+    text-align: center;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    color: var(--color-black);
+}
+
+.card-title {
+    font-size: 1.8rem;
+    color: var(--color-pink); /* Cor rosa para o título do card */
+    font-weight: 600;
+}
+
+.card-text {
+    font-size: 1rem;
+    color: var(--color-white); /* Cor branca para o texto */
+    margin-top: 1rem;
+}
+
+#cards {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* Faz com que os cards que não cabem na linha sejam movidos para a linha seguinte */
+    gap: 2rem; /* Espaçamento entre os cards */
+    padding: 2rem;
+}
+
+.card-body h2 {
+    color: var(--color-black);
+    font-size: 12px
+}
+
+.title h2{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+a{
+    color: inherit; /* Usa a cor do texto ao redor */
+    text-decoration: none; /* Remove o sublinhado */
+}
+
+section {
+    margin-bottom: 20px;
+}
+section h2 {
+    color: #8A2BE2;
+    margin-bottom: 10px;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2em;
+}
+main {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}

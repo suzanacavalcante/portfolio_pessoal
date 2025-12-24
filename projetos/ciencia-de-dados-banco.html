@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <title>Projeto de Ciência de Dados</title>
+    
+</head>
+<body>
+    <header>
+        <h1>Projeto de Ciência de Dados</h1>
+        <p>Análise Exploratória</p>
+        <span>Publicado em: 02/12/2024</span>
+    </header>
+    <main>
+        <section>
+            <h2>Análise exploratória de dados bancários</h2>
+            <p>Projeto de Ciência de Dados, desenvolvido em Python, com o objetivo de realizar o tratamento de dados para uma empresa do setor bancário.</p>
+        </section>
+        <section>
+            <h2>Bibliotecas</h2>
+            <p>As ferramentas empregadas no projeto foram:</p>
+            <ul>
+                <li>Pandas: Para manipulação e tratamento de dados;</li>
+                <li>Seaborn: Para a criação de gráficos e visualizações;</li>
+                <li>Statistic: Para cálculos estatísticos.</li>
+            </ul>
+        </section>
+        <section>
+            <h2>Etapas do Projeto</h2>
+            <h3>Exploração Inicial</h3>>
+            <p>Iniciei a análise importando as bibliotecas que serão utilizadas e, em seguida, com a visualização da estrutura da tabela de dados para identificar possíveis inconsistências e planejar as etapas seguintes do tratamento.</p>
+            <img src="img/projetos/banco/img1.JPG" alt="Visualização da Estrutura de Dados">
+            <figcaption>Figura 1: Visualização da Estrutura de Dados.</figcaption>
+
+            <h3>Análise Exploratória de Dados (EDA)</h3>
+            <h4>Coluna: Estados</h4>
+            <p>Identifiquei registros fora do domínio esperado: RP, SP e TD.</p>
+            <img src="img/projetos/banco/img2.JPG" alt="Visualização dos Dados da Coluna 'Genero'">
+            <figcaption>Figura 2: Visualização dos Dados da Coluna 'Estados'.</figcaption>
+
+            <h4>Coluna: Gênero</h4>
+            <p>Observei a atribuição inconsistente de valores para o mesmo gênero, como "F", "Fem" e "Feminino" para o gênero feminino.</p>
+            <img src="img/projetos/banco/img3.JPG" alt="Visualização dos Dados da Coluna 'Genero'">
+            <figcaption>Figura 3: Visualização dos Dados da Coluna 'Genero'.</figcaption>
+
+            <h4>Coluna: Score</h4>
+            <p>Explorei os valores dessa coluna e gerei gráficos para facilitar a interpretação.</p>
+            <p>O gráfico utilizado é o Boxplot é uma representação visual das principais estatísticas descritivas de um conjunto de dados. Ele exibe informações sobre a distribuição dos dados, incluindo a mediana, os quartis, a amplitude e a presença de valores atípicos.</p>
+            <img src="img/projetos/banco/img4-1.JPG" alt="Gráfico Boxplot da Coluna 'Score'">
+            <figcaption>Figura 4: Gráfico Boxplot da Coluna 'Score'.</figcaption>
+            
+            <p>O gráfico utilizado é o Histplot, ou Histograma, ele mostra a distribuição de frequência que permite analisar visualmente como uma amostra/população está distribuída. Ou seja, é uma representação gráfica da distribuição de um conjunto de dados. É uma estimativa da distribuição de probabilidade de uma variável contínua.</p>
+            <img src="img/projetos/banco/img4-2.JPG" alt="Gráfico Histplot da Coluna 'Score'">
+            <figcaption>Figura 5: Gráfico Histplot da Coluna 'Score'.</figcaption>
+
+            <h4>Coluna: Idade</h4>
+            <p>Explorei os valores dessa coluna para verificar a media de idades dos usuários cadastrados</p>
+            <img src="img/projetos/banco/img5-1.JPG" alt="Gráfico Boxplot da Coluna 'Idade'">
+            <figcaption>Figura 6: Gráfico Boxplot da Coluna 'Idade'.</figcaption>
+
+            <img src="img/projetos/banco/img5-2.JPG" alt="Visualização dos Dados da Coluna 'Idade'">
+            <figcaption>Figura 7: Gráfico Histplot da Coluna 'Idade'.</figcaption>
+
+            <h4>Coluna: Saldo</h4>
+            <p>Visualizei os valores dessa coluna para ter uma ideia do saldo em conta, dessa forma é possível ter uma ideia rasa de quantos cilentes estão ativos.</p>
+            <img src="img/projetos/banco/img6-1.JPG" alt="Gráfico Boxplot da Coluna 'Saldo'">
+            <figcaption>Figura 8: Gráfico Boxplot da Coluna 'Saldo'.</figcaption>
+
+            <img src="img/projetos/banco/img6-2.JPG" alt="Visualização dos Dados da Coluna 'Saldo'">
+            <figcaption>Figura 9: Gráfico Histplot da Coluna 'Saldo'.</figcaption>
+
+            <h4>Coluna: Salário</h4>
+            <p>Os valores dessa coluna devem ser analisados com cuidado, pois, nos passos à seguir, valores fora da curva podem se tornar um problema para alguns tipos de análise.</p>
+            <img src="img/projetos/banco/img7-1.JPG" alt="Gráfico Boxplot da Coluna 'Salário'">
+            <figcaption>Figura 10: Gráfico Boxplot da Coluna 'Salário'.</figcaption>
+
+            <img src="img/projetos/banco/img7-2.JPG" alt="Visualização dos Dados da Coluna 'Salário'">
+            <figcaption>Figura 11: Gráfico Histplot da Coluna 'Salário'.</figcaption>
+
+            <h3>Tratamento de Dados Nulos</h3>
+            <p>Valores nulos podem ser problemáticos porque afetam a qualidade e a integridade dos dados, levando a resultados inconsistentes ou imprecisos. Em análise de dados, eles podem distorcer médias, medianas e outras métricas. Na ciência de dados e aprendizado de máquina, algoritmos geralmente não lidam bem com valores ausentes, o que pode resultar em erros ou baixa performance do modelo.</p>
+            
+            <h4>Genero e Salario</h4>
+            <p>Primeiramente analisei os valores nulos presentes nas colunas referentes a Genero e Salario</p>
+            <img src="img/projetos/banco/img8-1.JPG" alt="Visualização De Dados Nulos: Genero e Salario">
+            <figcaption>Figura 12: Visualização De Dados Nulos: Genero e Salario.</figcaption>
+
+            <p>Dependendo do contexto, é comum tratar valores nulos, substituindo-os ou removendo-os. Para esse projeto optei por substituir os valores nulos pela média e mediana.</p>
+            <img src="img/projetos/banco/img8-2.JPG" alt="Substituindo Valroes Nulos: Genero e Salario">
+            <figcaption>Figura 13: Substituindo Valroes Nulos Pela Media e Mediana: Genero e Salario.</figcaption>
+
+            <p>Aproveitando o ajuste na Coluna 'Genero', segui com a padronização dos valores.</p>
+            <img src="img/projetos/banco/img8-3.JPG" alt="Padronização dos Valores na Coluna 'Genero'">
+            <figcaption>Figura 14: Padronização dos Valores na Coluna 'Genero'.</figcaption>
+
+            <h3>Tratamento de Inconsistencias</h3>
+            <h4>Idade</h4>
+            <p>Foram identificados valores negativos e exageradamente altos. Me baseando nos gráficos pude compreender a distribuição dos dados antes de definir uma regra de correção, baseada na mediana.</p>
+            <img src="img/projetos/banco/img9.JPG" alt="Ajustando Idades Fora da Curva">
+            <figcaption>Figura 15: Ajustando Idades Fora da Curva.</figcaption>
+
+            <h4>Valores Duplicados</h4>
+            <p>Ao identificar registros duplicados, optei por remover um deles para garantir a integridade da análise.</p>
+            <img src="img/projetos/banco/img10.JPG" alt="Dados Duplicados">
+            <figcaption>Figura 16: Visualização e Remoção de Dados Duplicados.</figcaption>
+
+            <h3>Padronização de Dados</h3>
+            <h4>Estados Fora do Domínio</h4>
+            <p>Quando analisei a tabela de Estados durante a etapa de análise exploratória, observei que existem cadastros com informações de dados onde o banco não possui agências, ou o estado foi adicionado de modo incorreto. Ainda utilizando a Media, dados incorretos foram substituídos.</p>
+            <img src="img/projetos/banco/img11.JPG" alt="Estados Fora do Domínio">
+            <figcaption>Figura 17: Estados Fora do Domínio.</figcaption>
+
+            <h4>Salários Fora da Curva</h4>
+            <p>Valores fora da curva (outliers) podem distorcer análises ao influenciar métricas como médias, variâncias e correlações, levando a interpretações erradas dos dados. Em aprendizado de máquina, eles podem causar overfitting, onde o modelo se ajusta excessivamente a dados atípicos, prejudicando a generalização. Me baseando nisso, segui utilizando a regra de padronizar os valores fora da curva, para valores com até dois desvio padrão. realizar a média e seguir com a substituição.</p>
+            <img src="img/projetos/banco/img12.JPG" alt="Ajustando Salários outliers">
+            <figcaption>Figura 18: Ajustando Salários outliers.</figcaption>
+
+            <p>O desvio padrão mede a dispersão dos dados em relação à média, indicando o quanto os valores variam. Um desvio padrão baixo significa que os dados estão próximos da média, enquanto um desvio alto indica maior variabilidade</p>
+        </section>
+        <section>
+            <h2>Finalização</h2>
+            <p>Após passar por todas as etapas de análise, consegui estabalecer um padrão para os dados coletados. Agora a tabela está organizada, com dados reais e ajustados.</p>
+            <img src="img/projetos/banco/img13.JPG" alt="Dados Finais">
+            <figcaption>Figura 18: Dados Finais.</figcaption>
+            <p>Seguindo adiante, será possível utilizar esses dados para realizar um projeto de Ciência de Dados mais avanaçado, criar um dashboard com PowerBI para apresentar os dados em uma reunião ou utilizar os dados para um projeto de Machine Learning.</p>
+        </section>
+    </main>
+</body>
+</html>

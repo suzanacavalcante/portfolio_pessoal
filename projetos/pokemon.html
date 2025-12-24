@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Projeto Batalha Pokémon</title>
+</head>
+    <body>
+        <header>
+            <h1>Projeto Batalha Pokémon</h1>
+            <p>Inteligência Artificial</p>
+            <span>Publicado em: 2307/2025</span>
+        </header>
+
+        <main>
+            <!-- Descrição do Projeto -->
+            <section>
+                <h2>Descrição do Projeto</h2>
+                <p>Projeto de Inteligência Artificial desenvolvido com Python, HTML, CSS e JavaScript, para prever o possível resultado de uma batalha entre Pokémons.</p>
+            </section>
+
+            <!-- Bibliotecas -->
+            <section>
+                <h2>Bibliotecas</h2>
+                <p>As ferramentas empregadas no projeto foram:</p>
+                <ul>
+                    <li>Pandas: Para manipulação e tratamento de dados;</li>
+                    <li>Scikit-learn (sklearn): Biblioteca utilizada para taredas de Aprendizado de Máquina (Machine Learning), incluindo Classificação, Regressão, Agrupamento e Redução de Dimensionalidade.</li>
+                    <li>Json: Biblioteca padrão para trabalhar com o formato de dados JSON.</li>
+                    <li>itertools: Coleção de funções que criam iteradores, que são objetos que permitem percorrer sequências de elementos.</li>
+                    <li>Árvores de Sintaxe Abstratas (ast): Permite que as aplicações Python trabalhem com as representações estruturais do código Python como árvores.</li>
+                    <li>Datetime: Módulo que fornece classes para trabalhar com datas e horas de forma eficiente.</li>
+                </ul>
+
+                <!-- Lousa de Código -->
+                <div class="code-container">
+                    <pre><code class="language-python">import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+import json
+import itertools
+import ast
+import datetime</code></pre>
+                </div>
+            </section>
+
+            <!-- Etapas do Projeto -->
+            <section>
+                <h2>Etapas do Projeto</h2>
+                <p>O projeto consiste em três etapas principais: criação da pokédex, treinamento do modelo e previsor de resutado da batalha.</p>
+
+                <!-- Destrinchando o conteúdo do Projeto -->
+                <ul>
+                    <!-- Pokédex -->
+                    <li>
+                        <h3>Pokédex</h3>
+                        <p>Dispositivo fictício do universo Pokémon, utilizado para catalogar e fornecer informações sobre as diferentes espécies de Pokémon.</p>
+                        
+                        <p>A página foi feita em Python e HTML.</p>
+
+                        <p>Para a criação da Pokédex utilizamos as seguintes bibliotecas</p>
+                        <div class="code-container">
+                            <pre><code class="language-python">import pandas as pd
+import datetime
+import json
+import ast</code></pre>
+                        </div>
+
+                        <p>O projeto começa com a criação de algumas variáveis para armazenar algumas informações:</p>
+                        <div class="code-container">
+                            <pre><code class="language-python">POKEMON_CSV_FILE = 'final_pokemon.csv'
+
+OUTPUT_HTML_FILE = 'index.html'
+
+NUM_POKEMON_TO_SHOW = 800</code></pre>
+                        </div>
+                        <p>O arquivo <strong><code>final_pokemon.csv</code></strong> possui informações sobre os pokémons como: nome, tipo, valores de HP,  ataque, defesa e etc.</p>
+                        <p>A variável <strong><code>OUTPUT_HTML_FILE</code></strong> será utilizada posteriormente para criar o conteúdo da página HTML da pokédex.</p>
+                        <p>A variável <strong><code>NUM_POKEMON_TO_SHOW</code></strong> será utilizada posteriormente para carregar a quantidade de pokémons na pokédex.</p>
+
+                        <p>Para a criação inicial da Pokédex, criei a função <strong><code>generate_pokemon_table_html</code></strong>.</p>
+                        <p>A função é responsável por criar a tabela onde os dados dos pokémons serão apresentados.</p>
+                        <div class="code-container">
+                            <pre><code class="language-python">def generate_pokemon_table_html(pokemon_data):</code></pre>
+                        </div>
+
+                        <div class="code-container">
+                            <pre><code class="language-python"> if pokemon_data.empty:
+        return "<<p>p>Nenhum Pokémon encontrado ou dados vazios.<</p>p>"</code></pre>
+                        </div>
+
+                        <p>Primeiramente, iniciei a função para validar se de fato a base de dados dos pokémons possui um conteúdo, se não possuir, não será possível dar continuidade no código, então será encerrado.</p>
+
+                        <p>A variável <strong><code>html_table</code></strong> irá armazenar o cabeçalho da tabela.</p>
+                        
+                        <img src="img/projetos/pokemon/tabela_html.jpg" alt="Cabeçalho da Tabela">
+                        <figcaption>Figura 1: Cabeçalho da Tabela.</figcaption>
+
+                        <p>O próximo passo é mostrar o conteúdo da pokédex.</p>
+                        <p>Para isso, utilizei um laço <strong><code>for</code></strong>. Basicamente, ele percorre a base de dados <strong><code>final_pokemon.csv</code></strong> e adiciona na tabela a quantidade informada na variável <strong><code>NUM_POKEMON_TO_SHOW</code></strong>.</p>
+                        <div class="code-container">
+                            <pre><code class="language-python">for index, row in pokemon_data.iterrows():</code></pre>
+                        </div>
+                        <p>O loop <strong><code>for index, row in</code></strong> é responsável por percorrer toda a base de dados.</p>
+                        <ul>
+                            <li>
+                                <strong><code>index</code></strong>
+                                <p>Recebe o índice da linha atual.</p>
+                            </li>
+                            <li>
+                                <strong><code>row</code></strong>
+                                <p>Recebe o conteúdo completo da linha atual como um objeto <strong><code>Series</code></strong> do Pandas.</p>
+                            </li>
+                            <li>
+                                <strong><code>pokemon_data</code></strong>
+                                <p>Variável responsável por adicionar o conteúdo dos pokémons em cada linha.</p>
+                            </li>
+                            <li>
+                                <strong><code>iterrows()</code></strong>
+                                <p>Método iterador da biblioteca Pandas. Um iterador é como um "guia" que sabe como percorrer os itens de uma coleção um por um, neste caso são as linhas da base de dados .CSV.</p>
+                            </li>
+                        </ul>
+
+                        <p>Ainda dentro do laço <strong><code>for</code></strong> a base de dados dos pokémons, possui uma coluna específica para a imagem do pokémon, onde contém um dicionário com dois conteúdos: uma imagem estática e um gif animado.</p>
+                        <p>Optei por utilizar o gif animado, porém caso apresente erro em algum link, adicionei um tratamento de erro, para utilizar a imagem estática e, se apresentar erro neste link também, uma imagem será apresentada com a mensagem "No img".</p>
+                        <p>Para validar o link que será utilizado, utilizei a função <strong><code>print()</code></strong> para apresentar o log no console e identificar facilmente onde ocorreu o erro.</p>
+                        <div class="code-container">
+                            <pre><code class="language-python">animated_sprite_url = ""
+        try:
+            sprites_dict = ast.literal_eval(row['sprites'])
+            animated_sprite_url = sprites_dict.get('animated', '')
+
+            if not animated_sprite_url:
+                animated_sprite_url = sprites_dict.get('normal', '')
+        except (ValueError, SyntaxError, AttributeError):
+            animated_sprite_url = ""
+
+        print(f"Pokémon: {row['Name']}, URL do Sprite: {animated_sprite_url}")
+
+        placeholder_image = "https://placehold.co/60x60/cccccc/000000?text=No+Img"</code></pre>
+                        </div>
+
+                        <p>O código utiliza uma estrutura de tratamento de exceções, que lida com erros que ocorrem durante a execução do código.</p>
+                        <p>O bloco <strong><code>try</code></strong> inicia a estrutura e retorna um determinado valor caso não apresente falha.</p>
+                        <p>Ainda dentro do início da estrutura, utilizei a estrutura condicional <strong><code>if</code></strong> para um retorno negativo, ou seja, caso não seja possível utilizar o link do gif animado, o link da imagem estática será utilizado.</p>
+                        <p>Para finalizar a estrutura de tratamento de exceções, o bloco <strong><code>except</code></strong> irá tratar o erro, caso não seja possível utilizar o gif animado e nem a imagem estática, adicionando uma imagem "No img".</p>
+                        <p>Para facilitar a busca pelo erro, adicionei o bloco de código <strong><code> print(f"Pokémon: {row['Name']}, URL do Sprite: {animated_sprite_url}")</code></strong>, pois ele ficará responsável por mostrar exatamente qual imagem obteve erro no link.</p>
+                        <p>Nesta etapa, configurei a variável <strong><code>placeholder_image</code></strong>, que recebe o link de uma imagem "No img".</p>
+                        <p>Para finalizar o laço <strong><code>for</code></strong>, concatenei a variável <strong><code>html_table</code></strong> junto ao bloco de código abaixo, para visualizar as informações e imagens dos pokémons.</p>
+                                            
+                        <img src="img/projetos/pokemon/tabela_html2.jpg" alt="Cabeçalho concatenado com o conteúdo da tabela">
+                        <figcaption>Figura 2: Cabeçalho concatenado com o conteúdo da tabelsó falta </figcaption>
+                        <p>Este código HTML é responsável por configurar a ordem dos dados dos pokémons nas linhas da tabela.</p>                      
+                        <p>No caso da imagem do pokémon, a variável responsável pelo link da imagem <strong><code>animated_sprite_url</code></strong> deve ter seu conteúdo analisado.</p>
+                        <p>Para analisar o conteúdo da variável, utilizei o comando abaixo:</p>
+                        <div class="code-container">
+                            <pre><code class="language-python">img src="{animated_sprite_url if animated_sprite_url else placeholder_image}"
+                         alt="{row['Name']} Sprite"
+                         class="pokemon-sprite"
+                         onerror="this.onerror=null;this.src='{placeholder_image}';"</code></pre>
+                        </div>
+                        <p>O código inicia com uma expressão python dentro de uma tag HTML utilizando f-strings. A expressão analisa se a variável <strong><code>animated_sprite_url</code></strong> possui algum conteúdo, se existir um conteúdo de fato nesta variável então a tag HTML "img src" irá utilizar este conteúdo. Porém, se a variável não tiver conteúdo, então o conteúdo dela será o conteúdo da variável <strong><code>placeholder_image</code></strong>, no caso o link da imagem "No img".</p>
+                        
+                        <p>Para finalizar a criação da pokédex, criei uma função <strong><code>main()</code></strong>.</p>
+                        <p>Essa função também utiliza a estrutura condicional de tratamento de exceções.</p>
+                        <div class="code-container">
+                            <pre><code class="language-python">def main():
+    try:
+        df_pokemon = pd.read_csv(POKEMON_CSV_FILE)
+
+        df_display = df_pokemon.head(NUM_POKEMON_TO_SHOW)[[
+            '#', 'Name', 'Type 1', 'Type 2', 'HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed', 'Generation', 'Legendary', 'height', 'weight', 'base_experience', 'sprites'
+        ]]
+
+        pokemon_table_html = generate_pokemon_table_html(df_display)
+
+        current_generation_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        full_html_content = f"""</code></pre>
+                        </div>
+                        <img src="img/projetos/pokemon/index_html.jpg" alt="Conteúdo HTML">
+                        <figcaption>Figura 3: Conteúdo HTML.</figcaption>
+
+                        <div class="code-container">
+                            <pre><code class="language-python"> with open(OUTPUT_HTML_FILE, 'w', encoding='utf-8') as f:
+            f.write(full_html_content)
+
+        print(f"Pokedex HTML '{OUTPUT_HTML_FILE}' gerada/atualizada com sucesso.")
+
+    except FileNotFoundError:
+        print(f"Erro: O arquivo '{POKEMON_CSV_FILE}' não foi encontrado. Certifique-se de que ele está na mesma pasta do script.")
+    except Exception as e:
+        print(f"Ocorreu um erro: {e}")</code></pre>
+                        </div>
+
+                        <p>Começando pelo bloco <strong><code>try</code></strong>:</p>
+                        <ul>
+                            <li>
+                                <strong><code>df_pokemon = pd.read_csv(POKEMON_CSV_FILE)</code></strong>
+                                <p>Novamente estou utilizando a base de dados armazenada na variável <strong><code>POKEMON_CSV_FILE</code></strong> e estou armazenando em um DataFrame <strong><code>df_pokemon</code></strong>.</p>
+                            </li>
+
+                            <li>
+                                <strong><code>df_display = df_pokemon.head(NUM_POKEMON_TO_SHOW)[[
+            '#', 'Name', 'Type 1', 'Type 2', 'HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed', 'Generation', 'Legendary', 'height', 'weight', 'base_experience', 'sprites'
+        ]]</code></strong>
+                                <p>Essa linha está realizando a seleção de colunas e a filtragem dos dados, ambos contidos no DataFrame.</p>
+                                <p>Conforme configurado no inicio, a filtragem e seleção serão realizadas para a quantidade de pokémons informados na variável <strong><code>NUM_POKEMON_TO_SHOW</code></strong>, no caso, 800.</p>
+                            </li>
+
+                            <li>
+                                <strong><code>pokemon_table_html = generate_pokemon_table_html(df_display)</code></strong>
+                                <p>A variável <strong><code>pokemon_table_html</code></strong> está armazenando o conteúdo da função que criei anteriormente: <strong><code>generate_pokemon_table_html</code></strong>. A função solicita um parâmetro, e este é a variável criada há pouco <strong><code>df_display</code></strong>, que contém os dados referentes aos pokémons.</p>
+                            </li>
+
+                            <li>
+                                <strong><code>current_generation_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")</code></strong>
+                                <p>A função <strong><code>datetime.datetime.now()</code></strong> é responsável por fornecer o objeto de data e hora atual.</p>
+                                <p>A função <strong><code>strftime("%Y-%m-%d %H:%M:%S")</code></strong> realiza a formatação do formato de hora, seguindo a orientação passada através dos parâmetros da função, no caso: Data -> Ano - Mês - Dia; Hora -> Horas - Minutos - Segundos.</p>
+                                <p>Todas as informações de data e hora, estão sendo armazenadas na variável <strong><code>current_generation_time</code></strong>.</p>
+                            </li>
+
+                            <li>
+                                <strong><code>full_html_content</code></strong>
+                                <p>Esta variável é responsável por armazenar o conteúdo estrutural da página HTML, por exemplo, arquivos de estilização, criação da div responsável por acomodar o conteúdo da pokédex e botão para atualização dos dados dos pokémons, caso exista no servidor alguma nova atualização.</p>
+                            </li>
+
+                            <li>
+                                <strong><code>with open(OUTPUT_HTML_FILE, 'w', encoding='utf-8') as f: f.write(full_html_content)</code></strong>
+                                <p>O comando <strong><code>with</code></strong> é utilizado em situações onde um recurso precisa ser configurado antes do uso e, em seguida, limpo após o uso. O exemplo mais comum é a leitura e escrita de arquivos, que, no caso, é o que está ocorrendo nesse bloco de código.</p>
+                                <p>O comando <strong><code>open</code></strong> abre o arquivo especificado no primeiro parâmetro, no caso <strong><code>OUTPUT_HTML_FILE</code></strong>.</p>
+                                <p>O segundo parâmetro: <strong><code>w</code></strong> significa "write" (escrita de arquivo). Este parâmetro funciona da seguinte maneira: se o arquivo já existir, ele será truncado (seu conteúdo será apagado) e um novo conteúdo será escrito. Se o arquivo não existir, ele será criado.</p>
+                                <p>O terceiro parâmetro: <strong><code>encoding='utf-8'</code></strong>, é referente a codificação do texto. A codificação <strong><code>utf-8</code></strong> é amplamente utilizada para textos na web.</p>
+                                <p>O comando <strong><code>as f:</code></strong> atribui um objeto de arquivo aberto e todo o conteúdo, dentro do bloco <strong><code>with open</code></strong>, será referenciado à este objeto.</p>
+                                <p>Dentro deste bloco de código, o comando <strong><code>f.write(full_html_content)</code></strong>, é responsável por escrever a string dentro do arquivo.</p>
+                            </li>
+
+                            <li>
+                                <strong><code>print(f"Pokedex HTML '{OUTPUT_HTML_FILE}' gerada/atualizada com sucesso.")</code></strong>
+                                <p>Este bloco de código é responsável por compartilhar via terminal/console que tudo ocorreu bem durante a criação do arquivo HTML da pokédex.</p>
+                            </li>
+                        </ul>
+
+                        <p>O bloco <strong><code>except</code>: </strong></p>
+                        <p>Este bloco é dividido em duas partes: erro personalizado e erro de sistema.</p>
+                        <ul>
+                            <li>
+                                <p>Erro Personalizado:</p>
+                                <div class="code-container">
+                                    <pre><code class="language-python">except FileNotFoundError:
+        print(f"Erro: O arquivo '{POKEMON_CSV_FILE}' não foi encontrado. Certifique-se de que ele está na mesma pasta do script.")</code></pre>
+                                </div>
+                                <p>Este erro é referente ao arquivo da base de dados dos pokémons.</p>
+                                <p>Ocorre quando o arquivo não é encontrado no caminho informado anteriormente. Dessa forma, o bloco <strong><code>try</code></strong> será interrompido e o <strong><code>except</code></strong> entrará em ação apresentando a mensagem de erro no terminal/console.</p>
+                            </li>
+                            <br>
+                            <li>
+                                <p>Erro de Sistema:</p>
+                                <div class="code-container">
+                                    <pre><code class="language-python">except Exception as e:
+        print(f"Ocorreu um erro: {e}")</code></pre>
+                                </div>
+                                <p>Este erro é referente ao sistema, e não apenas ao arquivo da base de dados. Isso significa que, qualquer erro ocorrido durante o bloco <strong><code>try</code></strong>, fará com que a execução do bloco seja interrompida e o <strong><code>except</code></strong> apresentará a mensagem no terminal/console.</p>
+                                <p>A mensagem trará o log exato do erro encontrado no código.</p>
+                            </li>
+                        </ul>
+
+                        <p>E por fim, realizei a construção fundamental para scripts Python.</p>
+                        <div class="code-container">
+                            <pre><code class="language-python">if __name__ == "__main__":
+    main()</code></pre>
+                        </div>
+                        <p>Este de código é utilizado para controlar qual bloco de código será executado como um módulo e não um script.</p>
+                        <p>Qual a diferença entre Módulo e Script?</p>
+                        <ul>
+                            <li>
+                                <p><strong>Módulo</strong>: É um arquivo Python (.py) que contém funções, classes e variáveis que podem ser utilizadas por outros arquivos Python (.py).</p>
+                                <p>Se for necessário utilizar o módulo em outro arquivo, a variável especial (neste caso: <strong><code>__name__</code></strong>) será utilizada dentro deste arquivo.</p>
+                                <p>Sua execução é <strong>importada</strong>, ou seja, utilizada por outro arquivo.</p>
+                            </li>
+
+                            <li>
+                                <p><strong>Script</strong>: É um arquivo Python (.py) que contém funções, classes, variáveis ou uma sequência de instruções que podem ser utilizados diretamente no servidor, de modo manual.</p>
+                                <p>Sua execução é <strong>direta</strong>, ou seja, utilizada diretamente no terminal do servidor.</p>
+                                <p>Caso o script seja tenha como objetivo executar uma sequência de instruções dentro de um servidor, é necessário torná-lo executável e adicionar uma linha de comando no início do arquivo.</p>
+                                <div class="code-container">
+                                    <pre><code class="language-bash">chmod +x nome_do_arquivo.py</code></pre>
+                                </div>
+                                <p>Este comando bash, torna o arquivo Python executável dentro do servidor.</p>
+                                
+                                <div class="code-container">
+                                    <pre><code class="language-python">#!/usr/bin/env python3</code></pre>
+                                </div>
+                                <p>Essa linha de comando, conhecida como "shebang" ou "hashbang", é utilizada para indicar ao Sistema Operacional qual interpretador Python usar para executar o script.</p>
+
+                            </li>
+                        </ul>
+
+                        <p>O código é iniciado utilizando uma estrutura condicional, onde:</p>
+                        <p><strong><code>__name__</code></strong>, é uma variável especial (atributo mágico ou interno).</p>
+                        <p>Se o arquivo é <strong>executado diretamente</strong>, por exemplo: <strong><code>python script.py</code></strong>, a variável especial é definida como a string <strong><code>"__main__"</code></strong>.</p>
+                        <p>Se o arquivo é <strong>importado</strong> por outro arquivo, por exemplo <strong><code>import script</code></strong>, então a variável <strong><code>"__name__"</code></strong> dentro do arquivo será definida como o nome do módulo.</p>
+                        <p>Então, se a condição for verdadeira, neste caso se o script estiver sendo <strong>executado diretamente</strong>, a função main() é chamada.</p>
+                        
+                        <br>
+                        <p>Com isso em mente, está explícito que realizei uma execução direta, veja abaixo: </p>
+                        <div class="code-container">
+                            <pre><code class="language-bash">PS C:\caminho\do\arquivo\diretório> python gerar_pokedex.py
+Pokémon: Bulbasaur, URL do Sprite: http://img.pokemondb.net/sprites/black-white/anim/normal/bulbasaur.gif
+Pokémon: Ivysaur, URL do Sprite: http://img.pokemondb.net/sprites/black-white/anim/normal/ivysaur.gif      
+Pokémon: Venusaur, URL do Sprite: http://img.pokemondb.net/sprites/black-white/anim/normal/venusaur.gif    
+Pokémon: Charmander, URL do Sprite: http://img.pokemondb.net/sprites/black-white/anim/normal/charmander.gif
+...
+Pokémon: Xerneas, URL do Sprite: http://img.pokemondb.net/sprites/x-y/normal/xerneas.png
+Pokémon: Yveltal, URL do Sprite: http://img.pokemondb.net/sprites/x-y/normal/yveltal.png
+Pokémon: Diancie, URL do Sprite: http://img.pokemondb.net/sprites/x-y/normal/diancie.png
+Pokémon: Volcanion, URL do Sprite: http://img.pokemondb.net/sprites/x-y/normal/volcanion.png
+Pokedex HTML 'index.html' gerada/atualizada com sucesso.</code></pre>
+                        </div>
+
+                        <p>Ao rodar este arquivo e a mensagem de retorno no log apresentar sucesso, os dados dos pokémons foram adicionados em nosso arquivo index.html</p>
+                        <p>Para confirmar, basta atualizar a página e ao descer o conteúdo é possível observar a seguinte informação: Dados gerados em: 2025-05-24 02:44:59</p>
+                        
+
+                        <img src="img/projetos/pokemon/pokedex1.jpg" alt="Início da página de Pokédex">
+                        <figcaption>Figura 4: Início da página de Pokédex.</figcaption>
+
+                        <img src="img/projetos/pokemon/pokedex2.jpg" alt="Página de Pokédex">
+                        <figcaption>Figura 5: Página de Pokédex.</figcaption>
+
+                        <img src="img/projetos/pokemon/pokedex3.jpg" alt="Informação de data e hora referente a última atulização dos dados">
+                        <figcaption>Figura 6: Informação de data e hora referente a última atualização dos dados.</figcaption>
+                    </li>
+
+                    <!-- Treinar o Modelo -->
+                    <li>
+                        <h3>Modelo de Machine Learning</h3>
+                        <h4>O que é Machine Learning?</h4>
+                        <p>Machine Learning (ML), ou aprendizado de máquina, é um campo da inteligência artificial (IA) que permite que sistemas de computador aprendam a partir de dados, sem serem explicitamente programados para cada tarefa específica. Em vez de escrever código passo a passo para resolver um problema, você fornece ao sistema uma grande quantidade de dados relevantes, e o algoritmo de ML aprende a identificar padrões, fazer previsões ou tomar decisões com base nesses dados.</p>
+
+                        <p>Nessa etapa as bibliotecas utilizadas foram:</p>
+                        <div class="code-container">
+                            <pre><code class="language-python">import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+import json</code></pre>
+                        </div>
+
+                        <!-- Passos do Treinamento -->
+                        <p>Iniciei o arquivo de treinamento de modelo informando três arquivos principais:</p>
+                        <div class="code-container">
+                            <pre><code class="language-python">POKEMON_CSV_FILE = 'final_pokemon.csv'
+COMBATS_CSV_FILE = 'final_combats.csv'
+MODEL_METADATA_JSON_FILE = 'model_metadata.json'</code></pre>
+                        </div>
+                        <p>Nesta etapa além de utilizar o arquivo com informações referentes aos pokémons, foi necessário utilizar o arquivo <strong><code>final_combats.csv</code></strong>. Este arquivo contém informações referentes a batalhas anteriores entres os pokémons.</p>
+                        <p>Basicamente, o modelo de ML irá utilizar este arquivo como base para entender como funcionam as lutas pokémons. Os dados e informações sobre os pokémons serão analisados e, assim, o modelo será capaz de prever um possível ganhar em uma batalha futura.</p>
+                        <p>A previsão é baseada no resultado de batalhas anteriores, um dos motivos para o modelo de ML não possui uma acurácia de 100%.</p>
+                        <p>Outros motivos:</p>
+                        <ul>
+                            <li>
+                                <strong>Dados Imperfeitos</strong>
+                                <p>Dados de treinamento podem ter ruídos, inconsistências ou não cobrir todas as situações possíveis.</p>
+                            </li>
+
+                            <li>
+                                <strong>Complexidade do Problema</strong>
+                                <p>Batalhas Pokémon envolvem muitos fatores (estatísticas, tipos, habilidades, itens, sorte) que um modelo simplificado pode não capturar totalmente.</p>
+                            </li>
+                            
+                            <li>
+                                <strong>Overfitting</strong>
+                                <p>O modelo pode ter aprendido demais os detalhes específicos dos dados de treino, perdendo a capacidade de generalizar para novos dados.</p>
+                            </li>
+
+                            <li>
+                                <strong>Limitações do Algoritmo</strong>
+                                <p>Cada algoritmo de ML tem suas próprias forças e fraquezas. A Regressão Logística, por exemplo, é linear e pode não modelar relações complexas não-lineares.</p>
+                            </li>
+
+                            <li>
+                                <strong>Imprevisibilidade Inerente</strong>
+                                <p>Alguns eventos podem ter um grau de aleatoriedade ou serem influenciados por fatores não presentes nos dados.</p>
+                            </li>
+                        </ul>
+                        <p>Apesar de não ser 100% preciso, um modelo com boa acurácia ainda é muito útil para fazer previsões e identificar tendências.</p>
+
+                        <ul>
+                            <!-- Análise e Manipulação dos Dados -->
+                            <li>
+                                <h5>Análise e Manipulação dos Dados</h5>
+                                <p>Se refere ao processo de examinar, limpar, transformar, organizar e manipular os dados brutos das bases de dados para que eles possam ser usados de forma eficaz para treinar o modelo de Machine Learning e gerar as informações necessárias para o projeto.</p>
+                                
+                                <p>Essa etapa e as próximas, fazem parte da função principal deste arquivo.</p>
+                                <div class="code-container">
+                                    <pre><code class="language-python">def main():</code></pre>
+                                </div>
+                                <p>Essa função tem como objetivo treinar um modelo de ML que irá prever resultados de batalhas pokémon e armazenar as informações de acurácia no arquivo <strong><code>model_metadata.json</code></strong></p>
+
+                                <p>A primeira parte da etapa da Análise e Manipulação dos Dados, consiste em trazer informações sobre os pokémons e batalhas, no terimanal/console.</p>
+                                <!-- 1. Carregar os dados dos Pokémon -->
+                                <!-- 2. Carregar os dados das batalhas (para treinar o modelo) -->
+                                <div class="code-container">
+                                    <pre><code class="language-python">df_pokemon = pd.read_csv(POKEMON_CSV_FILE)
+        print(f"Dados de Pokémon carregados de '{POKEMON_CSV_FILE}'.")
+        print("Primeiras 5 linhas do df_pokemon:")
+        print(df_pokemon.head())
+        print("\n" + "="*50 + "\n")
+    
+    df_combats = pd.read_csv(COMBATS_CSV_FILE)
+        print(f"Dados de batalhas carregados de '{COMBATS_CSV_FILE}'.")
+        print("Primeiras 5 linhas do df_combats:")
+        print(df_combats.head())
+        print("\n" + "="*50 + "\n")</code></pre>
+                                </div>
+                                <p>Primeiro guardei as informações dos pokémons em um DataFrame: <strong><code>df_pokemon</code></strong>; e as informações sobre as batalhas entre os pokémons no DataFrame: <strong><code>df_combats</code></strong>.</p>
+                                <p>No terminal/console serão apresentadas as seguintes informações:</p>
+                                <ul>
+                                    <li>
+                                        <p>De onde o modelo irá obter informações sobre os pokémons e as batalhas.</p>
+                                    </li>
+
+                                    <li>
+                                        <p>Quais são as informações das primeiras 5 linhas de cada base de dados.</p>
+                                    </li>
+
+                                    <li>
+                                        <p>Irá formatar o texto com um espaçamento utilizando o caractere "=", para não deixar as informações amontoadas, facilitando a compreensão.</p>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <!-- Preparar os dados para Merge -->
+                            <li>
+                                <h5>Merge e Treinamento do Modelo</h5>
+
+                                <!-- Merge -->
+                                <h5>O que é Merge?</h5>
+                                <p>Merge se refere a uma operação comum na manipulação de dados, especialmente quando se usa bibliotecas como o Pandas em Python. A operação de merge é usada para combinar informações de diferentes tabelas de dados, arquivos JSON, SQL e entre outros, com base em uma coluna ou conjunto de colunas relacionadas.</p>
+                                <p>Antes de iniciar operações de Merges entre os DataFrames, irei utilizar o código abaixo para preparar o DataFrame <strong><code>df_pokemon</code></strong>.</p>
+                                <div class="code-container">
+                                    <pre><code class="language-python">df_pokemon_renamed = df_pokemon.rename(columns={'#': 'id'}) if '#' in df_pokemon.columns else df_pokemon.copy()</code></pre>
+                                </div>
+                                <p>O códgo acima está funcionando da seguinte forma: </p>
+                                <ul>
+                                    <li>
+                                        <strong><code>'#' in df_pokemon.columns</code>:</strong>
+                                        <p><strong><code>df_pokemon.columns</code></strong> retorna uma lista com o nome do DataFrame: <strong><code>df_pokemon</code></strong>.</p>
+                                        <p><strong><code>'#' in df_pokemon.columns</code></strong> verifica se a string '#' está presente nessa lista de nomes de colunas.</p>
+                                    </li>
+
+                                    <li>
+                                        <strong><code>df_pokemon.rename(columns={'#': 'id'}) if '#' in df_pokemon.columns else df_pokemon.copy()</code></strong>                                        
+                                        <p>Apliquei uma estrutura condicional, onde:</p>
+                                        <p>Se a condição <strong><code>'#' in df_pokemon.columns</code></strong> for verdadeira:</p>
+                                        <ul>
+                                            <li>
+                                                <p><strong><code>df_pokemon.rename(columns={'#': 'id'})</code></strong> será executado</p>
+                                            </li>
+                                            <li>
+                                                <p>Significa que, se a coluna "#" existir, a função <strong><code>.rename()</code></strong> será responsável por renomear a coluna para "id".</p>
+                                            </li>
+                                        </ul>
+
+                                        <p>Se a condição <strong><code>'#' in df_pokemon.columns</code></strong> for falsa:</p>
+                                        <ul>
+                                            <li>
+                                                <p><strong><code>df_pokemon.copy()</code></strong> será executado.</p>
+                                            </li>
+                                            <li>
+                                                <p>Significa que a função <strong><code>.copy()</code></strong> será responsável por criar uma cópia do DataFrame incial para o novo DataFrame: <strong><code>df_pokemon_renamed</code></strong>. Isso é feito para garantir a integridade do DataFrame original.</p>
+                                            </li>
+                                        </ul>
+
+                                    </li>
+                                </ul>
+
+                                <br>
+                                <!-- Treinamento -->
+                                <h5>Como funcionará o Treinamento deste Modelo?</h5>
+                                <p>O treinamento do modelo envolve combinar dados, criar features relevantes, preparar esses dados numericamente, dividir para treino e teste, usar os dados de treino para ajustar os parâmetros de um modelo de Regressão Logística e, finalmente, avaliar o quão bem esse modelo aprendeu usando os dados de teste.</p>
+                                
+                                <!-- 4. Combinar os dados das batalhas com as características dos Pokémon para TREINAMENTO -->
+                                <div class="code-container">
+                                    <pre><code class="language-python">df_merged_train = pd.merge(df_combats, df_pokemon_renamed,
+                           left_on='First_pokemon', right_on='id',
+                           how='left', suffixes=('_combat', '_pokemon1'))
+                           df_merged_train = df_merged_train.drop(columns=['id'])
+                           df_merged_train.columns = [col.replace('_pokemon1', '_First_pokemon') for col in df_merged_train.columns]
+
+df_final_train = pd.merge(df_merged_train, df_pokemon_renamed,
+                          left_on='Second_pokemon', right_on='id',
+                          how='left', suffixes=('_First_pokemon', '_Second_pokemon'))
+
+df_final_train = df_final_train.drop(columns=['id'])
+
+print("DataFrame final combinado para TREINAMENTO (primeiras 5 linhas):")
+print(df_final_train.head())
+print("\n" + "="*50 + "\n")</code></pre>
+                                </div>
+                                
+                                <p>Vou destrinchar o bloco de código acima:</p>
+                                <ul>
+                                    <li>
+                                        <p>O primeiro merge irá combinar os dados das Batalhas com as características do primeiro Pokémon nas batalhas.</p>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">df_merged_train = pd.merge(df_combats, df_pokemon_renamed,
+                           left_on='First_pokemon', right_on='id',
+                           how='left', suffixes=('_combat', '_pokemon1'))</code></pre>
+                                        </div>
+                                        <p><strong><code>pd.merge()</code>:</strong> função da biblioteca Pandas responsável por realizar operações de Merge, ou seja, juntar dois DataFrame.</p>
+                                        <p><strong><code>df_combats</code>:</strong> primeiro DataFrame que será utilizado no Merge. Este DataFrame contém informações sobre as batalhas: <strong><code>First_pokemon</code></strong> e <strong><code>Second_pokemon</code></strong>, que contém os IDs dos pokémons que batalharam e a coluna <strong><code>Winner</code></strong>, que contém o ID do pokémon vencedor.</p>
+                                        <p><strong><code>df_pokemon_renamed</code>:</strong> segundo DataFrame que será utilizado no Merge.</p>
+                                        <p><strong><code>left_on='First_pokemon'</code>:</strong> especifica que a coluna do DataFrame à esquerda (df_combats) será utilizada como chave para a junção. Neste caso utilizei a coluna com os valores de ID do primeiro Pokémon da batalha.</p>
+                                        <p><strong><code>right_on='id'</code>:</strong> especifica que a coluna do DataFrame à direita (df_pokemon_renamed) será utilizada como chave para a junção. Neste caso utilizei a coluna de ID.</p>
+                                        <p><strong><code>how='left'</code>:</strong> define o tipo de merge que será utilizado. <strong><code>left</code></strong> significa que todas as linhas do DataFrame da esquerda (df_combats) serão mantidas. Se não houver uma correspondência na coluna da direita (<strong><code>id</code></strong> em df_pokemon_renamed) para um determinado <strong><code>First_pokemon</code></strong>  as colunas adicionadas do DataFrame da direita terão valores <strong>NaN</strong>.</p>
+                                        <p><strong><code>suffixes=('_combat', '_pokemon1')</code>:</strong> Se houver colunas com o mesmo nome em ambos os DataFrames (além das colunas de junção), o Pandas adicionará esses sufixos aos nomes das colunas para diferenciá-las. <strong><code>_combat</code></strong> será adicionado às colunas de <strong><code>df_combats</code></strong>, e <strong><code>_pokemon1</code></strong> será adicionado às colunas vindas de <strong><code>df_pokemon_renamed</code></strong>.</p>
+                                        <p><strong><code>df_merged_train</code>:</strong> será um novo DataFrame onde cada linha de combate de <strong><code>df_combats</code></strong> agora terá as informações completas do primeiro Pokémon que lutou nessa batalha, anexadas às colunas.</p>
+                                    </li>
+                                    
+                                    <li>
+                                        <p>O objetivo agora é remover uma informação redundante:</p>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">df_merged_train = df_merged_train.drop(columns=['id'])</code></pre>
+                                        </div>
+                                        <p>Após o merge <strong><code>right_on='id'</code></strong>, uma coluna de ID é adicionada à variável <strong><code>df_merged_train</code></strong>. Porém, a coluna <strong><code>First_pokemon</code></strong> também possui a informação de ID do Pokémon.</p>
+                                    </li>
+
+                                    <li>
+                                        <p>Para finalizar a primeira etapa do merge, é necessário renomear as colunas.</p>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">df_merged_train.columns = [col.replace('_pokemon1', '_First_pokemon') for col in df_merged_train.columns]</code></pre>
+                                        </div>
+                                        <p><strong><code>df_merged_train.columns</code>:</strong> esse comando acessa o atributo <strong><code>columns</code></strong> do DataFrame <strong><code>df_merged_train</code></strong>. Esse atributo é um objeto do tipo <strong><code>pandas.Index</code></strong> que contém os nomes de todas as colunas do DataFrame.
+                                        <br>E receberá o resultado da operação seguinte.</p>
+                                    
+                                        <p><strong><code>col.replace('_pokemon1', '_First_pokemon')</code>:</strong> para cada nome de coluna, o método de string <strong><code>.replace()</code></strong> é chamado.
+                                        <br><strong><code>'_pokemon1'</code></strong> é a substring que estou procurando dentro do nome da coluna.
+                                        <br><strong><code>'_First_pokemon'</code></strong> é a substring pela qual quero substituir <strong><code>'_pokemon1'</code></strong>
+                                        <br>Ou seja, se um nome de coluna contiver <strong><code>'_pokemon1'</code></strong>, essa parte do código criará um novo nome de coluna onde <strong><code>'_pokemon1'</code></strong> é substituído por <strong><code>'_First_pokemon'</code></strong>. Se não, o nome da coluna não será alterado.</p>
+                                        
+                                        <p><strong><code>for col in df_merged_train.columns</code>:</strong> este laço de repetição tem o objetivo de percorrer cada nome de coluna (<strong><code>col</code></strong>) presente em <strong><code>df_merged_train.columns</code></strong>.</p>
+                                    
+                                        <p><strong><code>[ ... ]</code>:</strong> os colchetes envolvem todo o processo de busca pelas colunas e a operação <strong><code>.replace()</code></strong> para renomear as colunas. Isso indicia que uma nova lista será criada contendo o nome de todas as colunas após a renomeação.</p>
+                                    
+                                        <p><strong>Por que foi necessário seguir com esse procedimento?</strong></p>
+                                        <p>Quando realizei o primeiro merge com o DataFrame <strong><code>df_pokemon_renamed</code></strong> utilizando <strong><code>left_on='First_pokemon'</code></strong>, as colunas que vieram do DataFrame <strong><code>df_pokemon_renamed</code></strong> receberam o sufixo <strong><code>'_pokemon1'</code></strong> por conta do parâmetro <strong><code>suffixes</code></strong>. Este bloco de código foi utilizado para tornar os suficos mais descritivos, para que fique mais claro a origem dos dados, que, neste caso, é do primeiro Pokémon na batalha.</p>
+                                    </li>
+
+                                    <li>
+                                        <p>O segundo merge irá combinar os dados do primeiro merge com as características do segundo Pokémoon nas batalhas.</p>
+                                        <div class="code-container">
+                                        <pre><code class="language-python">df_final_train = pd.merge(df_merged_train, df_pokemon_renamed,
+                          left_on='Second_pokemon', right_on='id',
+                          how='left', suffixes=('_First_pokemon', '_Second_pokemon'))
+df_final_train = df_final_train.drop(columns=['id'])</code></pre>
+                                        </div>
+
+                                        <p>Começando pela primeira parte do segundo merge:</p>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">df_final_train = pd.merge(df_merged_train, df_pokemon_renamed,
+                          left_on='Second_pokemon', right_on='id',
+                          how='left', suffixes=('_First_pokemon', '_Second_pokemon'))</code></pre>
+                                        </div>
+                                        <p><strong><code>pd.merge(...)</code>:</strong> Função de merge do Pandas para combinar dois DataFrames.</p>
+
+                                        <p><strong><code>df_merged_train</code>:</strong> DataFrame resultante do primeiro merge. Ele já contém as informações das batalhas (<strong><code>df_combats</code></strong>) e as características do primeiro Pokémon de cada batalha.</p>
+
+                                        <p><strong><code>df_pokemon_renamed</code>:</strong> segundo DataFrame que será utilizado no merge.</p>
+
+                                        <p><strong><code>left_on='Second_pokemon'</code>:</strong> especifica que a coluna <strong><code>'Second_pokemon'</code></strong> do DataFrame à esquerda (<strong><code>df_merged_train</code></strong>) será utilizada como a chave para a junção. Essa coluna contém os IDs dos segundos Pokémons em cada batalha.</p>
+
+                                        <p><strong><code>right_on='id'</code>:</strong> especifiica que a coluna do DataFrame à direita (<strong><code>df_pokemon_renamed</code></strong>) será utiliizada como chave para a junção. Também utilizei a coluna de ID.</p>
+                                        
+                                        <p><strong><code>how='left'</code>:</strong> o tipo de merge é o mesmo utilizado anteriormente, <strong><code>left</code></strong>. Significa que todas as liinhas do DataFrame à esquerda serão mantidas. Se não houver um Pokémon correspondente na coluna <strong><code>id</code></strong> de <strong><code>df_pokemon_renamed</code></strong> para um determinado <strong><code>Second_pokemon</code></strong> as colunas adicionadas do DataFrame à direita terão valores <strong>NaN</strong>.</p>
+
+                                        <p><strong><code>suffixes=('_First_pokemon', '_Second_pokemon')</code>:</strong> Se houver colunas com o mesmo nome em ambos os DataFrames (além das colunas de junção), o Pandas adicionará esses sufixos aos nomes das colunas para diferenciá-las. <strong><code>_First_pokemon</code></strong> será adicionado às colunas de <strong><code>df_merged_train</code></strong>, e <strong><code>_Second_pokemon</code></strong> será adicionado às colunas vindas de <strong><code>df_pokemon_renamed</code></strong></stronmg></p>
+                                        
+                                        <div class="code-container">
+                                            <pre><code class="language-python">df_final_train = df_final_train.drop(columns=['id'])</code></pre>
+                                        </div>
+                                        <p>Assim como no primeiro merge, o comando acima foi utilizado para remover uma informação redundante de ID.</p>
+                                    </li>
+
+                                    <li>
+                                        <p>Ao final do merge, no terminal/console, serão apresentadas as informações das 5 primeiras linhas referentes ao DataFrame <strong><code>df_final_train</code></strong></p>
+                                        <div class="code-container">
+                                        <pre><code class="language-bash"></code></pre>
+                                        </div>
+                                    </li>
+                                </ul>
+
+                                
+                                
+                                <br>
+                                <!-- Engenharia de Features -->
+                                <h5>O que é Engenharia de Features?</h5>
+                                <p>É o processo de usar o conhecimento do domínio dos dados para criar recursos (features) que ajudem os algoritmos de Machine Learning a aprenderem melhor. Em outras palavras, é a arte de transformar dados brutos em features que representem melhor o problema subjacente para os modelos preditivos.</p>
+                                <p>Primeiramente vou apresentar o código completo da Engenharia de Features.</p>
+                                <div class="code-container">
+                                    <pre><code class="language-python">numeric_stats = ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed']
+for stat in numeric_stats:
+    df_final_train[f'{stat}_Diff'] = df_final_train[f'{stat}_First_pokemon'] - df_final_train[f'{stat}_Second_pokemon']
+    epsilon = 1e-6
+    df_final_train[f'{stat}_Ratio'] = df_final_train[f'{stat}_First_pokemon'] / (df_final_train[f'{stat}_Second_pokemon'] + epsilon)
+df_final_train['Legendary_Diff'] = df_final_train['Legendary_First_pokemon'].astype(int) - df_final_train['Legendary_Second_pokemon'].astype(int)
+
+df_final_train['First_pokemon_Wins'] = (df_final_train['Winner'] == df_final_train['First_pokemon']).astype(int)
+features = [f'{stat}_Diff' for stat in numeric_stats] + \
+           [f'{stat}_Ratio' for stat in numeric_stats] + \
+           ['Legendary_Diff'] + \
+           ['Type 1_First_pokemon', 'Type 2_First_pokemon', 'Type 1_Second_pokemon', 'Type 2_Second_pokemon']
+X_raw = df_final_train[features]
+y = df_final_train['First_pokemon_Wins']
+X = pd.get_dummies(X_raw, columns=['Type 1_First_pokemon', 'Type 2_First_pokemon', 'Type 1_Second_pokemon', 'Type 2_Second_pokemon'], drop_first=True)
+        
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = LogisticRegression(max_iter=2000, random_state=42, solver='liblinear')
+model.fit(X_train, y_train)
+print("Modelo de Regressão Logística treinado com sucesso.")</code></pre>
+                                </div>
+                                <!-- Lista de Outras Linguagens para a Lousa: https://prismjs.com/ -->
+
+                                <p>Vou destrinchar o bloco de código acima:</p>
+                                <!-- Engenharia de Features para TREINAMENTO -->
+                                <ul>
+                                    <li>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">numeric_stats = ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed']</code></pre>
+                                        </div>
+
+                                        <p>Criei uma lista chamada <strong><code>numeric_stats</code></strong> que contém os nomes das colunas estatísticas numéricas dos Pokémons.</p>
+                                    </li>
+
+                                    <li>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">for stat in numeric_stats:</code></pre>
+                                        </div>
+
+                                        <p>Utilizei um loop <strong><code>for</code></strong> para iterar sobre cada estatística num[erica presente na lista <strong><code>numeric_stats</code></strong>.</p>
+                                        <p>Em cada iteração, a variável <strong><code>stat</code></strong> iirá assumir o valor de cada uma das estatísticas (HP, Attack, etc.)</p>
+                                    </li>
+
+                                    <li>
+                                        <p>Agora dentro do loop <strong><code>for</code></strong>:</p>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">df_final_train[f'{stat}_Diff'] = df_final_train[f'{stat}_First_pokemon'] - df_final_train[f'{stat}_Second_pokemon']</code></pre>
+                                        </div>
+                                        <p>Para cada estatística (<strong><code>stat</code></strong>), essa linha cria uma nova coluna no DataFrame.</p>
+                                        <p>O nome da nova coluna é formado usando uma f-string: <strong><code>f'{stat}_Diff'</code></strong>, por exemplo: HP_Diff; Attack_Diff.</p>
+                                        <p>O valor de cada célula na nova coluna é a diferença entre a <strong><code>stat</code></strong> do primeiro Pokémon da batalha e o valor da mesma <strong><code>stat</code></strong> do segundo Pokémon: 
+                                        <br><strong><code>df_final_train[f'{stat}_First_pokemon'] - df_final_train[f'{stat}_Second_pokemon']</code></strong></p>
+                                        <p>A ideia é que a diferença nas estatísticas entre os oponentes pode ser um fator importante para prever o vencedor.</p>
+                                    </li>
+
+                                    <li>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">epsilon = 1e-6</code></pre>
+                                        </div>
+                                        <p>Aqui, defini uma variável chamada <strong><code>epsilon</code></strong>, que irá possuir um valor muito pequeno. A variável será utilizada na próxima linha para evitar erros de divisão por zero.</p>
+
+                                        <p><strong>Por que "epsilon"?</strong></p>
+                                        <p>A escolha do nome não é uma regra obrigatória da linguagem Python. No entanto, o nome "epsilon" é uma convenção comum na matemática, na ciência da computação e no aprendizado de máquina para representar um valor muito pequeno, próximo de zero.</p>
+                                        <p>Na matemática, a letra grega ϵ (epsilon minúsculo) é frequentemente usada para denotar uma quantidade pequena e positiva. Por exemplo, em definições de limites no cálculo, muitas vezes vemos "para todo ϵ>0".</p>
+                                        <p>No código: <strong><code>epsilon = 1e-6</code></strong>, é definido um valor muito pequeno (1 × 10 −6 = 0.000001).</p>
+                                        <p>Se, ao realizar uma divisão, o modelo encontrar uma divisão por zero, a variável <strong><code>epsilon</code></strong> irá evita o erro de <strong><code>ZeroDivisionError</code></strong>.</p>
+                                    </li>
+
+                                    <li>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">df_final_train[f'{stat}_Ratio'] = df_final_train[f'{stat}_First_pokemon'] / (df_final_train[f'{stat}_Second_pokemon'] + epsilon)</code></pre>
+                                        </div>
+                                        <p>Essa linha também cria uma nova coluna para cada estatística numérica.</p>
+                                        <p>O nome da nova coluna é definido por <strong><code>f'{stat}_Ratio'</code></strong>, por exemplo: HP_Ratio, Attack_Ratio.</p>
+                                        <p>O valor de cada célula será definido pela razão entre a estatística do Primeiro Pokémon e a estatística do Segundo Pokémon. </p>
+                                        <p>Adicionar <strong><code>epsilon</code></strong> ao denominador (<strong><code>df_final_train[f'{stat}_Second_pokemon'] + epsilon</code></strong>), conforme explicado anteriormente, garante que não ocorra uma divisão por zero. A razão pode indicar a magnitude da vantagem de um Pokémon sobre o outro em uma dada estatística.</p>
+                                    </li>
+
+                                    <li>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">df_final_train['Legendary_Diff'] = df_final_train['Legendary_First_pokemon'].astype(int) - df_final_train['Legendary_Second_pokemon'].astype(int)</code></pre>
+                                        </div>
+                                        <p>Esse comando cria uma nova coluna chamada <strong><code>Legendary_Diff</code></strong>.</p>
+                                        <p>Essa feature busca compreender se a característica "Lendário" aplica alguma vantagem para o vencedor.</p>
+                                        <p>O comando calcula a diferença entre se o Primeiro Pokémon é lendário e se o Segundo Pokémon é lendário. (True: 1; False: 0)</p>
+                                    </li>
+                                </ul>
+                                <p>Com a sessão de Engenharia de Features criei as seguintes novas informações para cada batalha: </p>
+                                <ul>
+                                    <li>A diferença em cada uma das estatísticas numéricas entre os dois Pokémon.</li>
+                                    <li>A razão de cada uma das estatísticas numéricas entre os dois Pokémon.</li>
+                                    <li>A diferença na característica de serem lendários entre os dois Pokémon.</li>
+                                </ul>
+
+                                <br>
+                                <!-- 5. Preparação dos dados para o modelo -->
+                                <h5>Preparação dos dados para o modelo</h5>
+                                <p>Abaixo segue o código utilizado para a preparação do modelo:</p>
+                                <div class="code-container">
+                                    <pre><code class="language-python">df_final_train['First_pokemon_Wins'] = (df_final_train['Winner'] == df_final_train['First_pokemon']).astype(int)
+features = [f'{stat}_Diff' for stat in numeric_stats] + \
+           [f'{stat}_Ratio' for stat in numeric_stats] + \
+           ['Legendary_Diff'] + \
+           ['Type 1_First_pokemon', 'Type 2_First_pokemon', 'Type 1_Second_pokemon', 'Type 2_Second_pokemon']
+X_raw = df_final_train[features]
+y = df_final_train['First_pokemon_Wins']
+X = pd.get_dummies(X_raw, columns=['Type 1_First_pokemon', 'Type 2_First_pokemon', 'Type 1_Second_pokemon', 'Type 2_Second_pokemon'], drop_first=True)</code></pre>
+                                </div>
+                                
+                                <p>Vou destrinchar o códgo acima.</p>
+                                <ul>
+                                    <li>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">df_final_train['First_pokemon_Wins'] = (df_final_train['Winner'] == df_final_train['First_pokemon']).astype(int)</code></pre>
+                                        </div>
+                                        <p>O código cria uma nova coluna chamada <strong><code>'First_pokemon_Wins'</code></strong> no DataFrame <strong><code>df_final_train</code></strong>.</p>
+                                        <p><strong><code>df_final_train['Winner'] == df_final_train['First_pokemon']</code></strong>: compara se o valor da coluna <strong><code>Winner</code></strong> (o ID do Pokémon vencedor da batalha) é igual ao valor da coluna <strong><code>First_pokemon</code></strong> (o ID do primeiro Pokémon na batalha). 
+                                        <br>
+                                        O resultado é uma série de valores booleanos: <strong><code>True</code></strong> se o primeiro Pokémon venceu, <strong><code>False</code></strong> caso o contrário.</p>
+                                        <p><strong><code>.astype(int)</code></strong> converte os valores booleanos para inteiros. Dessa forma, <strong><code>True</code></strong> se torna <strong>1</strong> e <strong><code>False</code></strong> se torna <strong>0</strong>.</p>
+                                        <p>Essa coluna será a <strong>variável alvo (<code>y</code>)</strong>, o que o modelo tentará prever.</p>
+                                    </li>
+
+                                    <li>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">features = [f'{stat}_Diff' for stat in numeric_stats] + \ [f'{stat}_Ratio' for stat in numeric_stats] + \ ['Legendary_Diff'] + \ ['Type 1_First_pokemon', 'Type 2_First_pokemon', 'Type 1_Second_pokemon', 'Type 2_Second_pokemon']</code></pre>
+                                        </div>
+                                        <p>O código cria uma lista chamada <strong><code>features</code></strong>. A lista irá conter os nomes de todas as colunas que serão utilizadas como <strong>features</strong> para treinar o modelo.</p>
+                                        <p>As primeiras partes da lista foram criadas utilizadas <strong>list comprehensions:</strong></p>
+                                        <ul>
+                                            <li>
+                                                <p><strong><code>[f'{stat}_Diff' for stat in numeric_stats]</code></strong>: cria uma lista com os nomes das colunas de diferença das estatísticas numéricas.</p>
+                                            </li>
+
+                                            <li>
+                                                <p><strong><code>[f'{stat}_Ratio' for stat in numeric_stats]</code></strong>: cria uma lista com os nomes das colunas de razão das estatísticas numéricas.</p>
+                                            </li>
+                                        </ul>
+
+                                        <p>Em seguida, adicionei o nome da coluna da diferença de lendário: <strong><code>'Legendary_Diff'</code></strong>.</p>
+                                        <p>E, então, adicionei o nome das colunas dos tipos dos Pokémons: <strong><code>['Type 1_First_pokemon', 'Type 2_First_pokemon', 'Type 1_Second_pokemon', 'Type 2_Second_pokemon']</code></strong>.</p>
+                                    </li>
+
+                                    <li>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">X_raw = df_final_train[features]</code></pre>
+                                        </div>
+                                        <p>Nessa parte, criei um novo DataFrame chamado <strong><code>X_raw</code></strong> que irá conter apenas as coluna do <strong><code>df_final_train</code></strong> que também estão na lista <strong><code>features</code></strong>.
+                                        <br>
+                                        Este novo DataFrame, irá conter as <strong><code>features</code></strong> que serão utilizadas para treinar o modelo.
+                                        <br>
+                                        Utilizei o sufixo <strong>_raw</strong> para evidenciar que ainda será preciso processar as features. Este processo se chama <strong>one-hot encoding</strong>.</p>
+                                    </li>
+
+                                    <li>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">y = df_final_train['First_pokemon_Wins']</code></pre>
+                                        </div>
+                                        <p>Aqui estou criando uma series chamada <strong>y</strong> que contém a coluna <strong><code>First_pokemon_Wins</code></strong> do <strong><code>df_final_traixn</code></strong>.
+                                        <br>
+                                        A series <strong>y</strong> é a variável alvo, ela irá indicar se o primeiro Pokémon venceu cada batalha.</p>
+                                    </li>
+
+                                    <li>
+                                        <div class="code-container">
+                                            <pre><code class="language-python">X = pd.get_dummies(X_raw, columns=['Type 1_First_pokemon', 'Type 2_First_pokemon', 'Type 1_Second_pokemon', 'Type 2_Second_pokemon'], drop_first=True)</code></pre>
+                                        </div>
+                                        <p>Aqui estou realizando o one-hot encoding.</p>
+                                        
+                                        <h5>O que é One-Hot Encoding?</h5>
+                                        <p>É  uma técnica de pré-processamento de dados usada em Machine Learning para transformar variáveis categóricas (features) em um formato numérico que os algoritmos de Machine Learning podem entender e processar.</p>
+                                    
+                                        <p><strong><code>pd.get_dummies()</code></strong>: é uma função do Pandas que converte variáveis categóricas (features) em variáveis dummy/indicadoras binárias (0 ou 1).</p>
+                                        
+                                        <h5>O que é uma variável Dummy?</h5>
+                                        <p>É uma variável numérica que é usada para representar informações categóricas em um formato binário.</p>
+                                        
+                                        <p><strong><code>X_raw</code></strong>: é o DataFrame que contém as features.</p>
+                                        <p><strong><code>columns=['Type 1_First_pokemon', 'Type 2_First_pokemon', 'Type 1_Second_pokemon', 'Type 2_Second_pokemon']</code></strong>: especifica as colunas que devem ser codificadas.
+                                        <br>
+                                        Para cada tipo único em cada uma dessas colunas, uma nova coluna binária é criada.</p>
+                                        <p><strong><code>drop_first=True</code></strong>: remove a primeira categoria de cada grupo de tipos. Isso é feito para evitar multicolinearidade (uma situação onde as variáveis independentes em um modelo de regressão são altamente correlacionadas), pois se você tem n categorias, apenas n−1 colunas dummy são necessárias para representar toda a informação.</p>
+                                        <p>O resultado de <strong>X</strong>, é um novo DataFrame onde as colunas dos tipos foram substituídas por várias colunas binárias, representando a presença ou ausência de cada tipo para cada Pokémon na batalha.
+                                        <br>
+                                        Este novo DataFrame está pronto para ser usado para treinar o modelo de Machine Learning.</p>
+                                    </li>
+
+                                </ul>
+                                <br>
+                                <!-- Dividir os dados em conjuntos de treino e teste para calcular a acurácia -->
+                                <h5>Acurácia</h5>
+                                <p>O cálculo da acurácia do modelo é absolutamente crucial no processo de treinamento e avaliação de um modelo de Machine Learning. 
+                                <br>
+                                É a base para garantir que o modelo é confiável e não está apenas "decorando" os dados de treinamento.</p>
+                                <div class="code-container">
+                                    <pre><code class="language-python">X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)</code></pre>
+                                </div>
+                                <p>Vou destrinchar o código:</p>
+
+                                <ul>
+                                    <li>
+                                        <p><strong><code>train_test_split(...)</code></strong>:</p>
+                                        <p>Função da biblioteca <strong><code>sklearn.model_selection</code></strong> (scikit-learn), uma das bibliotecas mais populares para Machine Learning em Python.</p>
+                                        <p>O objetivo dela é dividir os dados em conjuntos separados: um para treinamento e outro para teste.</p>
+                                    </li>
+
+                                    <li>
+                                        <p><strong><code>X</code></strong>:</p>
+                                        <p>DataFrame de features.</p>
+                                        <p>Contém todas as colunas que o modelo irá utilizar para aprender e fazer previsões.</p>
+                                    </li>
+
+                                    <li>
+                                        <p><strong><code>y</code></strong>:</p>
+                                        <p>Series da variável alvo.</p>
+                                        <p>Contém a coluna <strong><code>First_pokemon_Wins</code></strong>, que é o que o modelo tentará prever.</p>
+                                    </li>
+
+                                    <li>
+                                        <p><strong><code>test_size=0.2</code></strong></p>
+                                        <p>Esse parâmetro define a proporção do conjunto de dados que será alocada para o conjunto de teste.</p>
+                                        <p><strong>0.2</strong> significa que 20% dos dados serão utilizados para testar o modelo, e o restante (80%) serão utilizados para treinar o modelo.</p>
+                                    </li>
+
+                                    <li>
+                                        <p><strong><code>random_state=42</code></strong></p>
+                                        <p>Parâmetro crucial para a reprodutibilidade.</p>
+                                        <p>A função <strong><code>train_test_split</code></strong> divide os dados aleatoriamente.</p>
+                                        <p>Se não for especificado, cada vez que o código rodar, os dados serão divididos de uma maneira diferente. Isso significa que a acurácia do modelo seria variável, o que iria dificultar a comparação de resultados e depuração.</p>
+                                        <p>Quando defini um <strong><code>random_state</code></strong> com um número inteiro fixo, garanti que a divisão dos dados será sempre a mesma em todas as execuções do código, assim tornando os resultados reprodutíveis.</p>
+                                    </li>
+
+                                    <li>
+                                        <p><strong><code>X_train, X_test, y_train, y_test</code></strong></p>
+                                        <p>A função <strong><code>train_test_split</code></strong> retorna quatro novos conjuntos de dados:</p>
+                                        <ul>
+                                            <li>
+                                                <p><strong><code>X_train</code></strong>:</p>
+                                                <p>As features (entradas) que serão usadas para treinar o modelo (80% dos dados).</p>
+                                            </li>
+                                            
+                                            <li>
+                                                <p><strong><code>X_test</code></strong>:</p>
+                                                <p>As features (entradas) que serão usadas para testar o modelo (os 20% restantes dos dados, não vistos durante o treinamento).</p>
+                                            </li>
+
+                                            <li>
+                                                <p><strong><code>y_train</code></strong>:</p>
+                                                <p>A variável alvo (saídas) correspondente a <strong><code>X_train</code></strong>, usada para treinar o modelo.</p>
+                                            </li>
+
+                                            <li>
+                                                <p><strong><code>y_test</code></strong>:</p>
+                                                <p>A variável alvo (saídas) correspondente a <strong><code>X_test</code></strong>, usada para testar o modelo e verificar se as previsões estão corretas.</p>
+                                            </li>
+                                        </ul>
+                                        
+                                        <br>
+                                        <h5>Por que essa divisão é tão importante?</h5>
+                                        <p>A principal razão é para evitar o <strong>Overfitting</strong>.</p>
+                                        <p><strong>Overfitting</strong> é um dos temas mais importantes de entender em Machine Learning.</p>
+                                        <p>Um modelo de ML sofre de Overfitting quando ele aprende os dados de treinamento tão bem que perde a capacidade de generalizar para dados novos e não vistos.
+                                        <br>
+                                        Semelhante aum aluno que memoriza a resposta das provas antigas, mas não compreende os conceitos para aplicar nas provas futuras.</p>
+                                        
+                                        <br>
+                                        <h5>Características</h5>
+                                        <ul>
+                                            <li>
+                                                <strong>Alto desempenho nos dados de treinamento</strong>
+                                                <p>O modelo tem uma acurácia muito alta nos dados que ele usou para aprender.</p>
+                                            </li>
+
+                                            <li>
+                                                <strong>Baixo desempenho nos dados de teste/novos dados:</strong>
+                                                <p>Quando o modelo é analisa dados que ele nunca viu antes o desempenho cai drasticamente.</p>
+                                            </li>
+                                        </ul>
+
+                                        <br>
+                                        <h5>Por que ocorre?</h5>
+                                        <ul>
+                                            <li>
+                                                <strong>Modelo muito complexo</strong>
+                                                <p>O modelo é complexo demais para a quantidade ou a natureza dos dados disponíveis. Ele tem "capacidade" demais para aprender detalhes desnecessários.</p>
+                                            </li>
+
+                                            <li>
+                                                <strong>Poucos dados de treinamento</strong>
+                                                <p>Não há dados suficientes para que o modelo aprenda os padrões gerais e robustos. Ele é forçado a encontrar padrões mesmo onde não existem.</p>
+                                            </li>
+
+                                            <li>
+                                                <strong>Ruído nos dados</strong>
+                                                <p>Os dados de treinamento podem conter erros, outliers ou informações irrelevantes (ruído). Um modelo overfitado pode aprender esse ruído como se fosse um padrão real.</p>
+                                            </li>
+                                        </ul>
+
+                                        <br>
+                                        <h5>Como identificar?</h5>
+                                        <p>É por isso que a divisão em conjuntos de treinamento e teste (<strong><code>train_test_split</code></strong>) é tão crucial.</p>
+                                        <ul>
+                                            <li>O modelo é treinado nos dados de treinamento.</li>
+                                            <li>Analise o modelo nos dados de teste.</li>
+                                            <li>Se a acurácia no treinamento for muito alta, mas a acurácia no teste for significativamente mais baixa, isso é um forte indício de overfitting.</li>
+                                        </ul>
+
+                                        <br>
+                                        <h5>Como combater?</h5>
+                                        <p>Existem várias técnicas para mitigar o overfitting:</p>
+                                        <ul>
+                                            <li>
+                                                <strong>Mais dados de treinamento</strong>
+                                                <p>Aumentar a quantidade de dados.</p>
+                                            </li>
+
+                                            <li>
+                                                <strong>Reduzir a complexidade do modelo</strong>
+                                                <p> Usar um modelo mais simples ou reduzir o número de features.</p>
+                                            </li>
+
+                                            <li>
+                                                <strong>Engenharia de Features</strong>
+                                                <p>Criar features mais informativas e menos ruidosas.</p>
+                                            </li>
+
+                                            <li>
+                                                <strong>Regularização</strong>
+                                                <p>Adicionar penalidades aos parâmetros do modelo durante o treinamento para desencorajar a complexidade excessiva.</p>
+                                                <p>Em meu código utilizei: <strong><code>max_iter</code></strong> e <strong><code>solver='liblinear'</code></strong>, no próximo tópico eles serão explicados.</p>
+                                            </li>
+
+                                            <li>
+                                                <strong>Validação Cruzada</strong>
+                                                <p>Usar técnicas de validação mais robustas para avaliar o modelo.</p>
+                                            </li>
+
+                                            <li>
+                                                <strong>Early Stopping</strong>
+                                                <p>Parar o treinamento antes que o modelo comece a overfitar.</p>
+                                            </li>
+
+                                            <li>
+                                                <strong>Técnicas de Ensemble</strong>
+                                                <p>Combinar vários modelos para reduzir a variância (como Random Forest ou Gradient Boosting).</p>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                                
+
+                                <br>
+                                <br>
+                                <!-- 6. Treinar o Modelo de Classificação -->
+                                <h5>Treinamento do Modelo de Classificação</h5>
+                                <p>Um Modelo de Classificação é um tipo de algoritmo que tem como objetivo principal prever a qual categoria uma determinada entrada pertence.</p>
+
+                                <br>
+                                <h4>Principais Características:</h4>
+                                <ul>
+                                    <li>
+                                        <p><strong>Variável Alvo Categórica:</strong></p>
+                                        <p>O que o modelo tenta prever é uma categoria, rótulo ou classe. Não é um número contínuo.</p>
+                                        <ul>
+                                            <p><strong>Exemplos de Saídas Categóricas:</strong></p>
+                                            <li>
+                                                <p>"Vencedor Pokémon 1" ou "Vencedor Pokémon 2" - Classificação Binária</p>
+                                            </li>
+                                            <li>
+                                                <p>"Cachorro", "Gato" ou "Pássaro" - Classificação Multiclasse</p>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <p><strong>Aprendizado com Dados Rotulados:</strong></p>
+                                        <p>O modelo é treinado com um conjunto de dados onde cada entrada já tem a sua categoria correta associada. Ele aprende os padrões que levam a cada categoria.</p>
+                                    </li>
+                                </ul>
+
+                                <br>
+                                <h4>Contraste com Modelos de Regressão</h4>
+                                <p>É importante diferenciá-los dos Modelos de Regressão, que preveem um valor contínuo.</p>
+                                <ul>
+                                    <li><strong>Regressão: </strong> Prever o preço de uma casa, a temperatura de amanhã, o tempo de viagem, etc.</li>
+                                    <li><strong>Classificação: </strong> Prever se uma casa vai vender (Sim/Não), se vai chover (Sim/Não), qual tipo de transporte usar (Carro/Ônibus/Trem), etc.</li>
+                                </ul>
+                                <br>
+
+                                <h4>Como um Modelo de Classificação Funciona?</h4>
+                                <p>De forma simplificada, durante o treinamento, o modelo analisa as features e as associa às suas respectivas categorias de saída.</p>
+                                <p>O modelo aprende a "desenhar" fronteiras ou limites nos dados que separam as diferentes classes.</p>
+                                <p>Então, quando recebe uma nova entrada, ele usa o que aprendeu para determinar em qual lado dessa fronteira a nova entrada se encaixa, e assim atribui a ela a categoria mais provável.</p>
+                                
+                                <br>
+
+                                <p>No contexto do projeto, o Modelo de Regressão Logística é um modelo de classificação. O modelo está prevendo se <strong><code>First_pokemon</code></strong> irá vencer (1) ou não (0). A classificação é do tipo "Binária".</p>
+                                <p>As <strong><code>features</code></strong> são as entradas e a previsão de <strong><code>First_pokemon_Wins</code></strong> é a saída categórica.</p>
+                                <br>
+                                <!-- Resultado -->
+                                <h5>Resultado do Modelo</h5>
+                                <p>Descrição</p>
+                                <div class="code-container">
+                                    <pre><code class="language-python">model = LogisticRegression(max_iter=2000, random_state=42, solver='liblinear')
+model.fit(X_train, y_train)
+print("Modelo de Regressão Logística treinado com sucesso.")</code></pre>
+                                </div>
+
+                                <p>Vou destrinchar o código:</p>
+                                
+                                <strong><code>model = LogisticRegression(max_iter=2000, random_state=42, solver='liblinear')</code></strong>
+                                <ul>
+                                    <li>
+                                        <p>LogisticRegression: 
+                                            <br>
+                                            Algoritmo escolhido para o Modelo de Classificação. Apesar de ter "Regressão" no nome, ele é amplamente usado para tarefas de classificação binária. Ele calcula a probabilidade de uma ocorrência, e então classifica com base em um limiar.
+                                        </p>
+                                    </li>
+                                    <li>
+                                        <p>Parâmetros: </p>
+                                        <ul>
+                                            <li><strong><code>max_iter=2000</code></strong>
+                                                <p>Este parâmetro define o número máximo de iterações que o algoritmo de otimização fará para encontrar os melhores pesos para o modelo.</p>
+                                            </li>
+
+                                            <li><strong><code>random_state=42</code></strong>
+                                                <p>Este parâmetro garante a reprodutibilidade. Definir um <strong><code>random_state</code></strong> com um número fixo garante que, ao rodar o código várias vezes com os mesmos dados e parâmetros o resultado do treinamento será sempre o mesmo. Isso é crucial para depuração e para comparar diferentes experimentos.</p>
+                                            </li>
+
+                                            <li><strong><code>solver='liblinear'</code></strong>
+                                                <p>Este parâmetro especifica o algoritmo matemático que <strong><code>LogisticRegression</code></strong> usará internamente para otimizar o modelo e encontrar os melhores coeficientes.</p>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+
+                                <strong><code>model.fit(X_train, y_train)</code></strong>
+                                <ul>
+                                    <li>
+                                        <strong><code>.fit()</code></strong>
+                                        <p>Este é o método padrão em quase todos os modelos do scikit-learn para treinar o modelo. É aqui que a "aprendizagem" realmente acontece.</p>
+                                    </li>
+
+                                    <li>
+                                        <strong><code>X_train</code></strong>
+                                        <p>Conjunto de dados de features de treinamento. O modelo vai analisar as relações entre essas features e a variável alvo.</p>
+                                    </li>
+
+                                    <li>
+                                        <strong><code>y_train</code></strong>
+                                        <p>Este é o conjunto de dados da variável alvo de treinamento. O modelo tentará aprender a prever esses valores com base nas features em <strong><code>X_train</code></strong></p>
+                                    </li>
+                                </ul>
+                                <p>Durante o <strong><code>fit()</code></strong> o algoritmo <strong><code>LogisticRegression</code></strong> itera sobre os dados de treinamento (<strong><code>X_train</code></strong>, <strong><code>y_train</code></strong>). Ele ajusta internamente seus parâmetros para minimizar o erro entre suas próprias previsões e os valores reais em <strong><code>y_train</code></strong>. É um processo iterativo de tentativa e erro, no qual o algoritmo se ajusta cada vez mais perto da melhor solução possível para prever o <strong><code>y_train</code></strong> com base no <strong><code>X_train</code></strong>.</p>
+
+                                <!-- Lista de Outras Linguagens para a Lousa: https://prismjs.com/ -->
+                                
+                                <br>
+                                <br>
+                                <!-- 7. Calcular e exibir a acurácia do modelo no terminal -->
+                                <h5>Acurácia do Modelo</h5>
+                                <p>Essa etapa irá definir se o modelo realmente está funcionando bem. Aqui irei avaliar o desempenho do modelo com dados ainda não analisados.</p>
+                                
+                                <div class="code-container">
+                                    <pre><code class="language-python">y_pred = model.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+print("\n" + "="*50 + "\n")
+print(f"Acurácia do Modelo no conjunto de teste: {accuracy:.4f}")
+print("\n" + "="*50 + "\n")</code></pre>
+                                </div>
+
+                                <p>Vou destrinchar o código:</p>
+
+                                <strong><code>y_pred = model.predict(X_test)</code></strong>
+                                <ul>
+                                    <li>
+                                        <strong><code>model.predict()</code></strong>
+                                        <p>Método utilizado para realizar previsões junto ao modelo treinado. Depois de aprender na etada de <strong><code>fit()</code></strong>, agora é possível solicitar predições com novos dados.</p>
+                                    </li>
+
+                                    <li>
+                                        <strong><code>X_test</code></strong>
+                                        <p>Conjunto de dados de fea de teste. São os 20% dos dados originais que o modelo nunca viu durante o treinamento.</p>
+                                    </li>
+
+                                    <li>
+                                        <strong><code>y_pred</code></strong>
+                                        <p>Variável que irá armazenar as previsões que o modelo realizou para cada entrada em <strong><code>X_test</code></strong>. Como o modelo é de classificação binária, logo <strong><code>y_pred</code></strong> será um array de 0s e 1s, representando as previsões do modelo.</p>
+                                    </li>
+                                </ul>
+
+                                <strong><code>accuracy = accuracy_score(y_test, y_pred)</code></strong>
+                                <ul>
+                                    <li>
+                                        <strong><code>accuracy_score()</code></strong>
+                                        <p>Função da biblioteca <strong>dcikit-learn</strong> e é usada para calcular a acurácia de um modelo.</p>
+                                    </li>
+
+                                    <li>
+                                        <strong><code>y_test</code></strong>
+                                        <p>Conjunto de dados da variável alvo real para o conjunto de teste. São os valores que o modelo já conhece.</p>
+                                    </li>
+
+                                    <li>
+                                        <strong><code>y_pred</code></strong>
+                                        <p>Previsões que o modelo acabou de realizar.</p>
+
+                                        <p><strong>Como funciona?</strong></p>
+                                        <p>A função <strong><code>accuracy_score</code></strong> compara cada previsão em <strong><code>y_pred</code></strong> com o valor real correspondente em <strong><code>y_test</code></strong>. Ela conta quantas previsões o modelo acertou e divide pelo número total de previsões. O resultado é um valor entre 0 e 1, onde 1 significa 100% de acurácia (todas as previsões corretas) e 0 significa 0% de acurácia (nenhuma previsão correta).</p>
+                                    </li>
+
+                                    <li>
+                                        <strong><code>print(f"Acurácia do Modelo no conjunto de teste: {accuracy:.4f}")</code></strong>
+                                        <p>Linha responsável por apresentar o valor da da acurácia. O resultado será formatado com 4 casas decimais.</p>
+                                    </li>
+                                </ul>
+                                
+                                <p>O bloco abaixo, está mostrando o resultado do modelo.</p>
+                                <div class="code-container">
+                                    <pre><code class="language-python">Desktop\projeto-pokemon> python analisar_batalhas.py  
+Dados de Pokémon carregados de 'final_pokemon.csv'.
+Primeiras 5 linhas do df_pokemon:
+   #        Name Type 1  Type 2  ...  height  weight  base_experience                                            sprites
+0  1   Bulbasaur  Grass  Poison  ...       7      69               64  {'normal': 'http://img.pokemondb.net/sprites/b...}
+1  2     Ivysaur  Grass  Poison  ...      10     130              142  {'normal': 'http://img.pokemondb.net/sprites/b...}
+2  3    Venusaur  Grass  Poison  ...      20    1000              236  {'normal': 'http://img.pokemondb.net/sprites/b...}
+3  5  Charmander   Fire  Normal  ...       6      85               62  {'normal': 'http://img.pokemondb.net/sprites/b...}
+4  6  Charmeleon   Fire  Normal  ...      11     190              142  {'normal': 'http://img.pokemondb.net/sprites/b...}
+
+[5 rows x 16 columns]
+
+==================================================
+
+Dados de batalhas carregados de 'final_combats.csv'.
+Primeiras 5 linhas do df_combats:
+   First_pokemon  Second_pokemon  Winner
+0            266             298     298
+1            702             701     701
+2            191             668     668
+3            237             683     683
+4            151             231     151
+
+==================================================
+
+DataFrame final combinado para TREINAMENTO (primeiras 5 linhas):
+   First_pokemon  Second_pokemon  ...  base_experience_Second_pokemon                             sprites_Second_pokemon
+0            266             298  ...                             119  {'normal': 'http://img.pokemondb.net/sprites/b...}
+1            702             701  ...                             261  {'normal': 'http://img.pokemondb.net/sprites/b...}
+2            191             668  ...                             170  {'normal': 'http://img.pokemondb.net/sprites/b...}
+3            237             683  ...                             170  {'normal': 'http://img.pokemondb.net/sprites/b...}
+4            151             231  ...                             177  {'normal': 'http://img.pokemondb.net/sprites/b...}
+
+[5 rows x 33 columns]
+
+==================================================
+
+Modelo de Regressão Logística treinado com sucesso.
+
+==================================================
+
+Acurácia do Modelo no conjunto de teste: 0.8928   
+
+==================================================
+
+Acurácia do modelo salva em 'model_metadata.json'.</code></pre>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <br>
+                        <!-- Arquivos JSON Gerados Apartir do Resultado do Modelo de ML -->
+                        <!-- Os arquivos são:
+                        model_metadata.json, pokemon_list.json, pokemon_sprites.json, predictions.json -->
+                        <h3>Arquivos JSON</h3>
+                        <h4>O que é JSON?</h4>
+                        <p>JSON (JavaScript Object Notation) é um formato leve para intercâmbio de dados. Ele é frequentemente usado para transmitir dados em aplicações web (por exemplo, enviar dados do servidor para o cliente, para que possam ser exibidos em uma página web). Ele é excelente para serializar e desserializar dados entre sistemas.</p>
+
+                        <h4>Os arquivos gerados correspondem a que?</h4>                        
+                        <ul>
+                            <!-- pokemon_list.json -->
+                            <li>
+                                <h5><strong><code>pokemon_list.json</code></strong></h5>
+                                <p>Este arquivo .json é responsável por armazenar duas informações sobre os pokémons: ID e Nome.</p>
+                                <p>O arquivo está estruturado da seguinte forma: </p>
+                                <div class="code-container">
+                                    <pre><code class="language-python">[
+{
+    "id": 1,
+    "Name": "Bulbasaur"
+},
+{
+    "id": 2,
+    "Name": "Ivysaur"
+},
+{
+    "id": 3,
+    "Name": "Venusaur"
+},
+{
+    "id": 5,
+    "Name": "Charmander"
+},
+{
+    ...
+}
+]</code></pre>
+                                </div>
+                            </li>
+                            <br>
+                            <!-- pokemon_sprites.json -->
+                            <li>
+                                <h5><strong><code>pokemon_sprites.json</code></strong></h5>
+                                <p>Este arquivo é responsável por atrelar o ID do pokémon ao link da sua imagem.</p>
+                                <p>O arquivo está estruturado da seguinte forma:</p>
+                                <div class="code-container">
+                                    <pre><code class="language-python">{
+    "1": "http://img.pokemondb.net/sprites/black-white/anim/normal/bulbasaur.gif",
+    "2": "http://img.pokemondb.net/sprites/black-white/anim/normal/ivysaur.gif",
+    "3": "http://img.pokemondb.net/sprites/black-white/anim/normal/venusaur.gif",
+...
+}</code></pre>
+                                </div>
+                            </li>
+                            <br>
+                            <!-- model_metadata.json -->
+                            <li>
+                                <h5><strong><code>model_metadata.json</code></strong></h5>
+                                <p>Após realizar o treinamento do modelo, o arquivo 'analisar.py', gera este arquivo .json. Ele é responsável apenas por armazenar o valor da acurácia do modelo.</p>
+                                <p>O arquivo está estruturado da seguinte forma: </p>
+                                <div class="code-container">
+                                    <pre><code class="language-python">{
+    "accuracy": 0.8927867560110366
+}</code></pre>
+                                </div>
+                            </li>
+                            <br>
+                            <!-- predictions.json -->
+                            <li>
+                                <h5><strong><code>predictions.json</code></strong></h5>
+                                <p>Este arquivo é utilizado para armazenar os resultados dos treinamentos obtidos pelo modelo de ML. Nele estão registradas todos os duelos e resultados das batalha de cada um dos pokémons.</p>
+                                <p>O arquivo está estruturado da seguinte forma:</p>
+                                <div class="code-container">
+                                    <pre><code class="language-python">{"1_2": 2, "1_3": 3, "1_5": 5, "1_6": 6, "1_7": 7, "1_10": 1, "1_11": 11, "1_12": 12, "1_14": 1, "1_15": 1, "1_16": 16, "1_17": 1, "1_18": 1, "1_19": 19, "1_21": 21, "1_22": 22, "1_23"
+    ...
+}</code></pre>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- Ao final dessa sessão rodar o arquivo generate_front.py e colocar os resultados do bash nos campos faltantes:
+                    - explicação do priimeiro merge
+                    - explicação do segundo merge
+                    - treinar o modelo de classificação
+                    - calcular e exibir a acurácia do modelo 
+                    - salvar a acurácia em um arquivo json
+                    - tratamento de exceção -->
+
+                    <!-- Previsor de Batalhas Pokémon -->
+                    <li>
+                        <h3>Previsor de Batalhas Pokémon</h3>
+                        <p>Esta é a etapa final do projeto. A página onde serão apresentados os resultados obtidos pelo modelo de ML treinado na etapa anterior.</p>
+                        <p>Basicamente, ao selecionar dois oponentes Pokémons, a página irá apresentar qual será o possível campeão, se baseando no modelo de ML que foi treinado utilizando diversos dados de batalhas anteriores.</p>
+                        <img src="img/projetos/pokemon/previsor1.jpg" alt="Visualização da Estrutura de Dados">
+                        <figcaption>Figura 1: Tela inicial do Previsor de Batalhas Pokémon.</figcaption>
+
+                        <img src="img/projetos/pokemon/previsor2.jpg" alt="Visualização da Estrutura de Dados">
+                        <figcaption>Figura 1.1: Testando o Previsor de Batalhas Pokémon.</figcaption>
+                    </li>
+
+                    <p>O objeito da apresentação do projeto, é focar nos arquivos Python e no Modelo de ML utilizado, por este motivo, não vou focar tanto na explicação dos códigos JavaScripts utilizados.  Sendo assim, vou apresentar apenas algumas partes importantes do arquivo 'predictions.html'. Lembrando que para verificar todos os códigos na íntegra, você pode dar uma olhada em meu GitHub.</p>
+                
+                    <p>A primeira função importante utilizada neste arquivo é uma função assíncrona responsável por carregar o conteúdo dos arquivos .json.
+                        <strong><code>async function loadData()</code></strong>
+                        <br>
+                        Basicamente, a função realiza uma busca assíncrona utilizando <strong><code>fetch()</code></strong> e <strong><code>await</code></strong> para buscar os arquivos.
+                        Durante o processamento, o conteúdo dos arquivos .json são convertidos em objetos JavaScript que a aplicação possa utilizar.
+                        O código armazena os dados em algumas variáveis globais: <strong>allPokemonData, precomputedPredictions, pokemonSprites, modelAccuracy</strong>.
+                    </p>
+
+                    <p>A segunda função mais importante é 
+                        <strong><code>function predictWinner()</code></strong> sua função é analisar o arquivo 
+                        <br>
+                        O código busca os IDs dos pokémons escolhidos para batalhar e verifica se os pokémons são diferentes entre si.
+                        <br>
+                        Para apresentar a previsão do possível vencedor da batalha, é criada uma chave padronizada para buscar o ID do pokémon vencedor na lista dos resultados obtidos pelo modelo de ML (predictions.json).
+                        <br>
+                        E, assim que o resultado é encontrado, apresenta o Pokémon vencedor.
+                    </p>
+
+                </ul>
+            </section>
+
+            <!-- Finalização -->
+            <section>
+                <p>Este projeto foi bastante desafiador que me proporcionou novos conhecimentos em Data Science e na utilização da biblioteca scikit-learn.
+                    <br>
+                    Caso queira dar uma olhada no projeto funcionando, pode entrar nas páginas abaixo: 
+                    <br>
+                    <strong><a href="https://suzanacavalcante.com.br/projeto-pokemon/">Pokédex</a></strong>
+                    <strong><a href="https://suzanacavalcante.com.br/projeto-pokemon/predictor.html">Previsor de Batalhas Pokémon</a></strong>
+                    <br>
+
+                    Caso queira dar uma olhada nos códigos na íntegra, basta acessar meu GitHub:
+                    <a href="https://github.com/suzanacavalcante">Perfil</a>.
+                    <a href="https://github.com/suzanacavalcante/pokemon-battle">Repositório</a>
+                </p>
+
+                <p>Muito obrigada por ter acompanhado até aqui!</p>
+                <p>Suzana Cavalcante.</p>
+            </section>
+
+        </main>
+
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    </body>
+</html>

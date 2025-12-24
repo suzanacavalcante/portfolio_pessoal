@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <title>Projeto de PowerBI - Dashboard Logistica</title>
+    
+</head>
+    <body>
+        <header>
+            <h1>Projeto em SQL</h1>
+            <p>Análise de Dados em SQL de Aluguel de Filmes</p>
+            <span>Publicado em: 22/12/2024</span>
+        </header>
+
+        <main>
+            <section>
+                <h2>Análise de Dados em SQL de Aluguel de Filmes</h2>
+                <p>Projeto de SQL, desenvolvido para analisar dados de uma empresa de aluguel de filmes</p>
+            </section>
+            <section>
+                <h2>Projeto</h2>
+                <p>Neste projeto, realizei uma análise detalhada de dados para uma empresa de aluguel de filmes utilizando SQL, com foco em otimização de consultas e interpretação de dados por meio de técnicas avançadas. As principais etapas incluem:</p>
+                <ul>
+                    <li>Agrupamentos: Utilizei a cláusula GROUP BY para calcular o preço médio de aluguel dos filmes, segmentando por diferentes categorias e permitindo uma visão precisa sobre o comportamento dos preços na plataforma de aluguel.</li>
+                    <li>Filtragem em Agrupamentos: Aprofundei a análise utilizando a cláusula HAVING para filtrar resultados agregados. Em uma análise adicional, refinei os dados filtrando apenas os filmes lançados no ano de 2011, o que permitiu um olhar mais focado sobre essa camada temporal específica.</li>
+                    <li>Subqueries: Desenvolvi subqueries para realizar análises mais complexas. Por exemplo, ao identificar os aluguéis com notas acima da média, utilizei a função de agregação AVG() para calcular a média das notas e, em seguida, apliquei uma subquery para filtrar os aluguéis com notas superiores a esse valor.</li>
+                    <li>Criação de Views: Para otimizar o acesso aos dados mais utilizados, criei views no banco de dados. Uma das views foi desenvolvida para armazenar e reutilizar resultados de consultas que agregam o preço médio de aluguel e a contagem de filmes por gênero, utilizando CREATE VIEW. Essa abordagem melhorou o desempenho e a escalabilidade da análise.</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Tecnologias Utilizadas:</h2>
+                <ul>
+                    <li>SQL (Structured Query Language)</li>
+                    <li>Funções de agregação: AVG(), COUNT(), ROUND()</li>
+                    <li>Agrupamentos e subqueries</li>
+                    <li>Criação de views com CREATE VIEW e DROP VIEW</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>Etapas do Projeto</h2>
+                <h3>Análise Inicial e Definição de Objetivos</h3>
+                <p>O projeto teve início com uma análise preliminar dos dados disponíveis nas tabelas do banco, como as informações sobre os filmes, aluguéis, atores, clientes e suas respectivas relações. O objetivo principal era identificar padrões de comportamento no preço de aluguel e nas avaliações dos filmes.</p>
+                <img src="img/projetos/sql/filmes/select-cod.png" alt="Visualização da Estrutura de Dados">
+                <figcaption>Figura 1: Comando SELECT para visualizar as tabelas e seus conteúdos</figcaption>
+
+                <img src="img/projetos/sql/filmes/select-resultado-aluguel.png" alt="Visualização da tabela Aluguel">
+                <figcaption>Figura 2: Comando SELECT para visualizar a tabela aluguel e seu conteúdo.</figcaption>
+
+                <img src="img/projetos/sql/filmes/select-resultado-atores.png" alt="Visualização da tabela Atores">
+                <figcaption>Figura 3: Comando SELECT para visualizar a tabela atores e seu conteúdo.</figcaption>
+
+                <img src="img/projetos/sql/filmes/select-resultado-atuacao.png" alt="Visualização da tabela Atuacao">
+                <figcaption>Figura 4: Comando SELECT para visualizar a tabela atuacao e seu conteúdo.</figcaption>
+
+                <img src="img/projetos/sql/filmes/select-resultado-clientes.png" alt="Visualização da tabela Clientes">
+                <figcaption>Figura 5: Comando SELECT para visualizar a tabela clientes e seu conteúdo.</figcaption>
+
+                <img src="img/projetos/sql/filmes/select-resultado-filmes.png" alt="Visualização da tabela Filmes">
+                <figcaption>Figura 6: Comando SELECT para visualizar a tabela filmes e seu conteúdo.</figcaption>
+
+                <h3>Agrupamentos e Cálculos de Médias</h3>
+                <p>A primeira etapa técnica consistiu em agrupar os dados e calcular métricas importantes, como o preço médio de aluguel dos filmes. Utilizando a cláusula GROUP BY, foi possível segmentar os filmes por gênero e calcular o preço médio de aluguel para cada categoria. Essa análise permitiu entender quais gêneros de filmes tendem a ter valores mais altos ou mais baixos em suas locações.</p>
+            
+                <img src="img/projetos/sql/filmes/select-cod-avg.png" alt="SELECT AVG para calcular média">
+                <figcaption>Figura 7: Comando SELECT AVG para visualizar o valor médio da coluna preco_aluguel</figcaption>
+
+                <img src="img/projetos/sql/filmes/subquerie-cod-preco-qtd.png" alt="Subquerie do SELECT AVG anterior">
+                <figcaption>Figura 8: Filtrando as colunas de preco_aluguel e contabilizando quantidade dos filmes por gênero.</figcaption>
+
+                <p>Após a análise inicial, a necessidade de uma análise mais específica surgiu. A segunda etapa envolveu a criação de filtros para segmentar os resultados. Através da cláusula HAVING, a análise foi refinada para considerar apenas os filmes lançados em 2011. Isso permitiu focar na performance de preços de aluguel de filmes em um ano específico e comparar essas informações com a média dos demais anos.</p>
+                
+                <img src="img/projetos/sql/filmes/subquerie-cod-preco-qtd-2011.png" alt="Subquerie do SELECT AVG anterior específico para o ano de 2011">
+                <figcaption>Figura 9: Filtrando as colunas de preco_aluguel, contabilizando quantidade dos filmes por gênero e por ano de lançamento.</figcaption>
+
+                <h3>Uso de Subqueries para Análises Mais Complexas</h3>
+                <p>Para aprofundar a análise, a terceira etapa envolveu o uso de subqueries. O objetivo foi identificar os aluguéis que receberam avaliações acima da média. Para isso, foi calculada a média das notas dos aluguéis utilizando a função AVG() e, em seguida, uma subquery foi usada para comparar as notas de cada aluguel com a média geral. Essa etapa permitiu identificar quais filmes estavam se destacando em termos de satisfação dos clientes.</p>
+            
+                <p>A etapa final consistiu na criação de views, que são consultas pré-definidas armazenadas no banco de dados. A view criada armazenou o resultado da consulta que calculava o preço médio de aluguel e a quantidade de filmes por gênero. A utilização de views não só melhorou o desempenho das consultas subsequentes, como também facilitou o acesso e análise dos dados de forma reutilizável.</p>
+
+                <img src="img/projetos/sql/filmes/view-resultado.png" alt="Criação de uma View, para guardar uma análise dentro do banco de dados">
+                <figcaption>Figura 9: Filtrando as colunas de preco_aluguel, contabilizando quantidade dos filmes por gênero e por ano de lançamento.</figcaption>
+
+                <p>Essas etapas ajudaram a transformar grandes volumes de dados em informações acionáveis, otimizando o processo de análise e oferecendo uma base sólida para decisões mais estratégicas na empresa de aluguel de filmes.</p>
+
+            </section>
+        </main>
+    </body>
+</html>

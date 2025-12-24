@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Projeto de Gestão Financeira</title>
+</head>
+    <body>
+        <header>
+            <h1>Projeto Gestão Financeira - End-to-End</h1>
+            <p>Gestão Financeira</p>
+            <span>Publicado em: EM DESENVOLVIMENTO</span>
+        </header>
+
+        <main>
+            <!-- Descrição do Projeto -->
+            <section>
+                <h2>Descrição do Desafio</h2>
+                <p>Projeto de Desenvolvimento End-to-End, ou seja, conta com um sistema de Gestão Financeira com Front-end e Back-end, arquitetura e gerenciamento de containers e observabilidade.</p>
+            </section>
+
+            <!-- Contexto do Servidor -->
+            <section>
+                <h2>Contexto do Servidor</h2>
+                <p>Antes de inciar este projeto, meu servidor VPS possuia apenas um sistema operacional Rocky Linux na versão 9.5.
+                <br>
+                Sendo assim foi necessário utilizar alguns comandos com o objetivo de instalar o Docker de maneira correta e segura.
+                </p>
+
+                <div class="code-container">
+                    <pre><code class="language-python">[root ~] sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo</code></pre>
+                </div>
+                
+                <p>Comando utilizado para apontar o servidor oficial e seguir com a adicição do repositório dentro da VPS.</p>
+
+                <br>
+
+                <div class="code-container">
+                    <pre><code class="language-python">[root ~] sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin</code></pre>
+                </div>
+
+                <p>Comando utilizado para instalar os pacotes necessários.</p>
+
+                <br>
+
+                <div class="code-container">
+                    <pre><code class="language-python">[root ~] sudo systemctl enable --now docker</code></pre>
+                </div>
+
+                <p>No Rocky Linux, é necessário habilitar um módulo para que o serviço inicie de modo automático sempre que o servidor ligar.</p>
+
+                <br>
+
+                <div class="code-container">
+                    <pre><code class="language-python">[root ~] sudo systemctl status docker</code></pre>
+                </div>
+
+                <p>Comando para validar o status do serviço.</p>
+
+                <br>
+
+                <p>O Rocky Linux vem com um Firewall, o <strong><code>firewalld</code></strong>, ativo por padrão. Então é preciso ter em mente que se o projeto for rodar na porta 8000, por exemplo, será preciso avisar o servidor.</p>
+                <p></p>
+                <div class="code-container">
+                    <pre><code class="language-python">[root ~] sudo firewall-cmd --state</code></pre>
+                </div>
+                <p>Comando utilizado para validar que o Firewall está ativo. Se o retorno for <strong><code>running</code></strong>, ele está ativo.</p>
+
+                <br>
+
+                <div class="code-container">
+                    <pre><code class="language-python">[root ~] sudo firewall-cmd --list-all</code></pre>
+                </div>
+                <p>Esse comando lista todas as regras atuais do servidor. Para validar as informações referentes as portas abertas, é só procurar pela linha <strong><code>ports:</code></strong> . Se ela estiver vazia, significa que apenas os serviços padrão como: SSH na porta 22, estão abertos.</p>
+
+                <br>
+
+                <p>Para este projeto vou utilizar a porta 8000 para evitar conflito com outros sites que já estão rodando.</p>
+
+                <div class="code-container">
+                    <pre><code class="language-python">[root ~] sudo firewall-cmd --permanent --add-port=8000/tcp</code></pre>
+                </div>
+                <p>Este é o comando para abrir a porta 8000. Após rodar o comando, deve retornar <strong><code>success</code></strong>.</p>
+
+                <div class="code-container">
+                    <pre><code class="language-python">[root ~] sudo firewall-cmd --reload</code></pre>
+                </div>
+                <p>Comando utilizado para aplicar um reload no Firewall e aplicar a nova mudança.</p>
+
+                <p>Nesse ponto aqui a estrutura inicial do Docker está configurada corretamente em minha VPS.</p>
+            </section>
+
+            <!-- Estrutura de Pasta -->
+            <section>
+                <h2>Estrutura de Pastas e Arquivos</h2>
+                <p>Comecei criando o diretório do projeto dentro do servidor: </p>
+                <div class="code-container">
+                    <pre><code class="language-python">[root ~] mkdir gestao_financeira</code></pre>
+                </div>
+
+                <p>Agora vou seguir para o VS Code para criar os arquivos iniciais.</p>
+
+                <h3>VS Code</h3>
+                <p>Para construir o ambiente dentro do Docker e manter o conrtole de versão de maneira segura e correta alguns arquivos padrão devem ser criados: </p>
+                <ul>
+                    <li>Dockerfile</li>
+                    <li>docker-compose.yml</li>
+                    <li>.gitignore</li>
+                    <li>.env</li>
+                    <li>requirements.txt</li>
+                </ul>
+
+                <p>Vou falar sobre cada um deles: </p>
+                <ul>
+                    <!-- Início Docker -->
+                    <li>
+                        <h5><strong>Dockerfile</strong></h5>
+                        <p>É como uma receita de bolo, contém todas as instruções passo a passo para o Docker construir a imagem do projeto.</p>
+                        <p>Começo definindo a imagem que será utilizada: </p>
+                        <div class="code-container">
+                            <pre><code class="language-dockerfile">FROM python:3.11-slim</code></pre>
+                        </div>
+
+                        <br>
+
+                        <p>Não permite que arquivo .pyc sejam criados e habilita logs em tempo real.</p>
+                        <div class="code-container">
+                            <pre><code class="language-dockerfile">ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONBUFFERED 1</code></pre>
+                        </div>
+
+                        <br>
+
+                        <p>Define a pasta onde o código vai morar dentro do container</p>
+                        <div class="code-container">
+                            <pre><code class="language-dockerfile">WORKDIR /app</code></pre>
+                        </div>
+
+                        <br>
+
+                        <p>Instala as dependências do sistema necessárias para o Banco de Dados PostgreSQL.</p>
+                        <p>O Rocky Linux é RHEL, mas dentro do container será utilizar o Debian (slim), pois é o padrão de mercado para imagens Python</p>
+                        <div class="code-container">
+                            <pre><code class="language-dockerfile">RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*</code></pre>
+                        </div>
+
+                        <br>
+
+                        <p>Copia o arquivo de requisitos primeiro para aproveitar o cache do Docker</p>
+                        <div class="code-container">
+                            <pre><code class="language-dockerfile">COPY requirements.txt .</code></pre>
+                        </div>
+
+                        <br>
+
+                        <p>Instala as bibliotecas do projeto </p>
+                        <div class="code-container">
+                            <pre><code class="language-dockerfile">RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt</code></pre>
+                        </div>
+
+                        <br>
+
+                        <p>Copia todo o conteúdo do projeto </p>
+                        <div class="code-container">
+                            <pre><code class="language-dockerfile">COPY . .</code></pre>
+                        </div>
+
+                        <br>
+
+                        <p>Porta onde o app vai rodar</p>
+                        <div class="code-container">
+                            <pre><code class="language-dockerfile">EXPOSE 8000</code></pre>
+                        </div>
+                    </li>
+                    <!-- Fim Docker -->
+
+                    <br>
+
+                    <!-- Início docker-compose.yml -->
+                    <li>
+                        <h5><strong>docker-compose.yml</strong></h5>
+                        <p>É o maestro da infraestrutura. Ele gerencia como vários serviços convivem.</p>
+
+                        <p>Dentro do docker-compose.yml os componentes são separados por seções: </p>
+
+                        <ul>
+                            <!-- Início Seção Banco de Dados -->
+                            <li>
+                                <strong>Seção do Banco de Dados</strong>
+                                <p>Inicia a lista de todos os containers que compõem a aplicação.</p>
+                                <div class="code-container">
+                                    <pre><code class="language-dockerfile">services: </code></pre>
+                                </div>
+
+                                <br>
+
+                                <p>É o nome interno do serviço. Outros containers usarão esse nome como se fosse um "endereço web" para falar com o banco.</p>
+                                <div class="code-container">
+                                    <pre><code class="language-dockerfile">db: </code></pre>
+                                </div>
+
+                                <br>
+
+                                <p>Dá um nome fixo ao container no sistema. Sem isso, o Docker gera nomes aleatórios.</p>
+                                <div class="code-container">
+                                    <pre><code class="language-dockerfile">container_name: finance_db</code></pre>
+                                </div>
+
+                                <br>
+
+                                <p>Se a VPS cair ou o processo do Banco de Dados travar, o Docker reinicia automaticamente.</p>
+                                <div class="code-container">
+                                    <pre><code class="language-dockerfile">restart: always</code></pre>
+                                </div>
+
+                                <br>
+
+                                <p>Diz ao Compose para ler o arquivo <strong><code>.env</code></strong>. Nele contém informações das variáveis de ambiente, como usuário e senha do Banco de Dados.</p>
+                                <div class="code-container">
+                                    <pre><code class="language-dockerfile">env_file: - .env</code></pre>
+                                </div>
+
+                                <br>
+
+                                <p>Aqui as variáveis de ambiente do arquivo <strong><code>.env</code></strong> são mapeadas para as variáveis que o Postgres entende. O símbolo <strong><code>${VAR}</code></strong> busca o valor dentro do arquivo <strong><code>.env</code></strong>.</p>
+                                <div class="code-container">
+                                    <pre><code class="language-dockerfile">environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}</code></pre>
+                                </div>
+
+                                <br>
+
+                                <p>Se o container for deletado, os dados continuam salvos no volume.</p>
+                                <p>O volume aponta para uma pasta gerenciada pelo Docker no disco da VPS.</p>
+                                <div class="code-container">
+                                    <pre><code class="language-dockerfile">volumes:
+      - postgres_data:/var/lib/postgresql/data</code></pre>
+                                </div>
+
+                            </li>
+                            <!-- Fim Seção Banco de Dados -->
+                        </ul>
+                        
+
+                        <br>
+                    </li>
+                    <!-- Fim Docker -->
+                </ul>
+            </section>
+
+
+        </main>
+
+
+
+
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    </body>
+</html>

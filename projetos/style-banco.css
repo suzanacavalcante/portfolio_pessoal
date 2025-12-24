@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2? family= Nunito:wght@200;300;400;600;700 & family= Poppins:wght@400;500;700 & display= trocar');
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+:root {
+    --color-white: #fff;
+    --color-pink: #d12f7a;
+    --color-black: #000;
+    --color-blue: #8A2BE2;
+    --color-azul: #6495ED;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-black);
+    color: #333;
+    line-height: 1.6;
+}
+header {
+    background-color: var(--color-black);
+    color: #fff;
+    padding: 1.5em 0;
+    text-align: center;
+}
+header h1 {
+    margin: 0;
+    font-size: 2em;
+}
+main {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.container {
+    display: flex;
+}
+
+section {
+    margin-bottom: 20px;
+}
+section h2 {
+    color: #8A2BE2;
+    margin-bottom: 10px;
+}
+
+section h3 {
+    color: var(--color-white);
+    margin-bottom: 10px;
+}
+
+section h4{
+    color: var(--color-white);
+    margin-bottom: 10px;
+}
+
+section p{
+    color: var(--color-white);
+}
+
+section ul li{
+    color: var(--color-white);
+}
+
+section figcaption{
+    color: var(--color-white);
+    margin-bottom: 20px;
+    font-size: 10px;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    border: 2px solid #d12f7a;
+    border-radius: 5px;
+    margin: 10px 0;
+}
+a {
+    color: #6495ED;
+    text-decoration: none;
+}
+
+.code-title {
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+pre{
+    background-color: #f5f5f5;
+    padding: 12px;
+    border-radius: 6px;
+    font-family: Consolas, monospace;
+    font-size: 14px;
+    overflow-x: auto;
+    border: 1px solid #ddd;
+}
+
+.code-container {
+    margin: 20px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 14px;
+}
+
+.language-python::before {
+    display: block;
+    background: #2d2d2d;
+    color: #fff;
+    padding: 6px 12px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+}
