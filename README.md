@@ -26,7 +26,7 @@ Este é o meu portfólio pessoal, um espaço onde reúno meus principais projeto
 </div>
 
 <div align="center">
-  <img src="/img/sobre-mim" width="700px" alt="Screenshot do Portfólio">
+  <img src="/img/sobre-mim.jpg" width="700px" alt="Screenshot do Portfólio">
   <p><em>Seção Sobre Mim</em></p>
 </div>
 
