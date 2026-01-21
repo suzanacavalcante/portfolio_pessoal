@@ -226,7 +226,7 @@ ENV PYTHONBUFFERED 1</code></pre>
 
                                 <p>Diz ao Compose para ler o arquivo <strong><code>.env</code></strong>. Nele contém informações das variáveis de ambiente, como usuário e senha do Banco de Dados.</p>
                                 <div class="code-container">
-                                    <pre><code class="language-dockerfile">env_file: - .env</code></pre>
+                                    <pre><code class="language-dockerfile">env_file: - ./dotenv_files/.env</code></pre>
                                 </div>
 
                                 <br>
@@ -255,8 +255,43 @@ ENV PYTHONBUFFERED 1</code></pre>
 
                         <br>
                     </li>
-                    <!-- Fim Docker -->
+                    <!-- Fim docker-compose.yml-->
+
+                    <!-- Início .gitignore -->
+                    <li>
+                        <h5><strong>.gitignore</strong></h5>
+                        <p>Se trata de um arquivo que fica na raiz do projeto e tem e funciona como um filtro pra o Git. Neste arquivo contém uma lista de arquivos ou diretórios que devem ser ignorados pelo Git e dessa forma, não são enviados para o repositório.</p>
+
+                        <p>Em uma aplicação que possui variáveis de ambiente, geralmente elas são condensadas em um único arquivo que normalmente é chamado de <strong><code>.env</code></strong>.</p>
+                        <p>É uma boa prática adicionar este arquivo <strong><code>.env</code></strong> ao <strong><code>.gitignore</code></strong>, pois dessa forma o arquivo <strong><code>.env</code></strong> é ignorado e não é adiconado ao seu repositório do GitHub.</p>
+                        <p>Sem o <strong><code>.gitignore</code></strong> o arquivo com todas as variáveis de ambiente estaria disponibilizado publicamente.</p>
+
+                        <p>Um outro objetivo para o <strong><code>.gitignore</code></strong> é limpar o repositório. Por exemplo, na linguagem Python, é comum a existência de arquivos temporarios, como a pasta __pycache__, que não servem para a funcionalidade do código. Ao adicionar este diretório no <strong><code>.gitignore</code></strong> evita que este diretório ocupe espaço e polua o histórico.</p>
+                    </li>
+                    <!-- Fim .gitignore -->
+
+                    <!-- Início .env -->
+                    <li>
+                        <h5><strong>.env</strong></h5>
+                        <p>Env significa environment (meio ambiente), é o arquivo no qual é comum guardarmos todas as variáveis de ambiente utilizadas em uma aplicação, o que é uma boa prática na questão de segurança e configuração de aplicações modernas.</p>
+                        <p>Ele impede que as senhas de conexão com o banco de dados, API Keys e etc fiquem expostas no código-fonte ou no GitHub.</p>
+                        <p>Permite a mudança de configurações de maneira mais facilitada, visto que a chave de conexão fica concentrada em uma variável específica.</p>
+                    </li>
+                    <!-- Fim .env -->
+
+                    <!-- Início requirements.txt -->
+                    <li>
+                        <h5><strong>requirements.txt</strong></h5>
+                        <p>Este arquivo garante que o ambiente de Desenvolvimento seja idêntico em todos os lugares que passar.</p>
+                        <p>Ao ser utilizado em conjunto com o comando pip, permite que todos as bibliotecas e ferramentas utilizadas na aplicação seja instaladas e configuradas na versão em que a aplicação foi desenvolvida.</p>
+                    </li>
+                    <!-- Fim requirements.txt -->
                 </ul>
+            </section>
+
+            <!-- Djando Framework -->
+            <section>
+                <h2>Django Framework</h2>
             </section>
 
 
