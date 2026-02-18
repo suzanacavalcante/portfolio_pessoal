@@ -144,7 +144,7 @@ ENV PYTHONBUFFERED 1</code></pre>
                         <br>
 
                         <p>Instala as dependências do sistema necessárias para o Banco de Dados PostgreSQL.</p>
-                        <p>O Rocky Linux é RHEL, mas dentro do container será utilizar o Debian (slim), pois é o padrão de mercado para imagens Python</p>
+                        <p>O Rocky Linux é RHEL, mas dentro do container será utilizado o Debian (slim), pois é o padrão de mercado para imagens Python</p>
                         <div class="code-container">
                             <pre><code class="language-dockerfile">RUN apt-get update && apt-get install -y \
     libpq-dev \
@@ -260,7 +260,7 @@ ENV PYTHONBUFFERED 1</code></pre>
                     <!-- Início .gitignore -->
                     <li>
                         <h5><strong>.gitignore</strong></h5>
-                        <p>Se trata de um arquivo que fica na raiz do projeto e tem e funciona como um filtro pra o Git. Neste arquivo contém uma lista de arquivos ou diretórios que devem ser ignorados pelo Git e dessa forma, não são enviados para o repositório.</p>
+                        <p>Se trata de um arquivo que fica na raiz do projeto e funciona como um filtro pra o Git. Neste arquivo contém uma lista de arquivos ou diretórios que devem ser ignorados pelo Git e dessa forma, não são enviados para o repositório.</p>
 
                         <p>Em uma aplicação que possui variáveis de ambiente, geralmente elas são condensadas em um único arquivo que normalmente é chamado de <strong><code>.env</code></strong>.</p>
                         <p>É uma boa prática adicionar este arquivo <strong><code>.env</code></strong> ao <strong><code>.gitignore</code></strong>, pois dessa forma o arquivo <strong><code>.env</code></strong> é ignorado e não é adiconado ao seu repositório do GitHub.</p>
@@ -283,18 +283,288 @@ ENV PYTHONBUFFERED 1</code></pre>
                     <li>
                         <h5><strong>requirements.txt</strong></h5>
                         <p>Este arquivo garante que o ambiente de Desenvolvimento seja idêntico em todos os lugares que passar.</p>
-                        <p>Ao ser utilizado em conjunto com o comando pip, permite que todos as bibliotecas e ferramentas utilizadas na aplicação seja instaladas e configuradas na versão em que a aplicação foi desenvolvida.</p>
+                        <p>Ao ser utilizado em conjunto com o comando pip, permite que todos as bibliotecas e ferramentas utilizadas na aplicação sejam instaladas e configuradas na versão em que a aplicação foi desenvolvida.</p>
                     </li>
                     <!-- Fim requirements.txt -->
                 </ul>
+
+                <p>Seguindo agora, vou falar um pouco sobre o Framework utilizado no Projeto.</p>
+                <h3>Django Framework</h3>
+                <p>Mas antes de seguirmos: </p>
+                <h4>O que é um Framework?</h4>
+                <p>Um Framework é um conjunto de ferramentas e bibliotecas e padrões predefinidos que funcionam como base para o desenvolvimento de um software, o que facilita a criação de aplicações de maneira mais rápida, eficiente e padronizada. O Framework elimina a necessidade de reescrever códigos comuns.</p>
+
+                <h4>O que é Django?</h4>
+                <p>É um Framework Python que peermite criar aplicações web de forma rápida e eficiente, cuidando de tarefas comuns como autenticação~, segurança e interação com banco de dados. Dessa forma, o desenvolvedor pode focar na lógica do projeto.</p>
+                <p>Ele segue o padrão <strong><code>MVT (Model-View-Template)</code></strong> e oferece ferramentas como <strong><code>ORM (Object-Relational-Mapper)</code></strong> para facilitar o trabalho com banco de dados e um painel administrativo.</p>
+                
+                <p>Para desenvolver um Projeto utilizando o Framework Django, é necessário entrar que os Frameworks possuem uma estrutura que deve ser respeitada para que a aplicação funcione corretamente. Sendo assim, vou explicar um pouco sobre a estrutura do Django e alguns conceitos básicos que serão pontuados na etapa de Desenvolvimento. </p>
+
+                <h4>Arquitetura MVT (Model-View-Template)</h4>
+                <ul>
+                    <!-- Início - MODEL-->
+                    <li>
+                        Model (Base de Dados):
+                        <p>Camada onde é definido a estrutura dos dados usando classes Python. O Django utiliza um ORM, o que significa que não é necessário escrever SQL manualmente.</p>
+                        <p>No contexto do projeto são as classes <code>Lancamento</code>, <code>Categoria</code> e <code>Meta</code>.</p>
+                    </li>
+                    <!-- Fim - MODEL-->
+
+                    <!-- Início - TEMPLATE-->
+                    <li>
+                        Template (Camada de Apresentação):
+                        <p>É o que o usuário vê. São arquivos HTML que utilizam <strong><code>DLT (Django Template Language)</code></strong> para exibir dados dinâmicos dentro do HTML estático.</p>
+                    </li>
+                    <!-- Fim - TEMPLATE-->
+
+                    <!-- Início - VIEW-->
+                    <li>
+                        View (Lógica de Negócio):
+                        <p>O cérebro do framework. Ele recebe uma requisição HTTP, busca os dados na Model, aplica a lógica necessária e entrega o resultado para a Template.</p>
+                    </li>
+                    <!-- Fim - VIEW-->
+                </ul>
+
+                <h4>Conceitos</h4>
+                <p>Alguns conceitos básicos e importantes que devemos conhecer para entender melhor o Desenvolvimento do sistema.</p>
+                <ul>
+                    <!--Início - APP -->
+                    <li>
+                        App
+                        <p>No Django, um projeto é composto por várias Apps.</p>
+                        <p>Cada App deve ser responsável por uma funcionalidade específica.</p>
+                    </li>
+                    <!--Fim - APP -->
+
+                    <!--Início - ORM -->
+                    <li>
+                        ORM
+                        <p>Permite que o desenvolvedor interaja com o banco de dados usando apenas Python.</p>
+                        <p>Exemplo: Ao invés de usar a <strong><code>SELECT * FROM lancamentos</code></strong>, utilizei <strong><code>Lancamento.objects.all()</code></strong>. Isso garante que, se um dia o banco de dados passar por alterações, o código continuará funcionando.</p>
+                    </li>
+                    <!--Fim - ORM -->
+
+                    <!--Início - SISTEMA DE AUTENTICAÇÃO -->
+                    <li>
+                        Sistema de autenticação
+                        <p>O Django já vem com um sistema de login, logout, permissões e criptografia de senhas pronto para uso. No <code>PoupAí</code>, é utilizado para garantir que apenas os usuários logados vejam seus próprios dados.</p>
+                    </li>
+                    <!--Fim - SISTEMA DE AUTENTICAÇÃO -->
+
+                    <!--Início - PAINEL ADMINISTRATIVO -->
+                    <li>
+                        Painel administrativo
+                        <p>Com poucas linhas de código, o Django gera uma interface administrativa completa para que um admin possa gerenciar o banco de dados.</p>
+                    </li>
+                    <!--Fim - PAINEL ADMINISTRATIVO -->
+                </ul>
+
+                <h4>Estrutura de Arquivos Django</h4>
+                <p>No Django a estrutura é organizada em <code>projetos</code> e <code>aplicativos</code> baseada no padrão MVT.</p>
+                <ul>
+                    <!-- Arquivos de Configuração -->
+                    <li>
+                        Arquivos de Configuração
+                        <p>São os arquivos que comandam o projeto como um todo.</p>
+                        <p>Ao criar um projeto com <code>django-admin startproject nome_do_projeto</code>, a seguinte estrutura é criada.</p>
+                        <ul>
+                            <li>
+                                <code>settins.py</code>
+                                <p>O coração do projeto. É onde configuramos o banco de dados, definimos onde estão os arquivos estáticos, ativamos o WhiteNoise e gerenciamos a segurança.</p>
+                            </li>
+
+                            <li>
+                                <code>wsgi.py/asgi.py</code>
+                                <p>São as portas de serviço que o NIGINX e o Gunicorn usam para fazer o site rodar no servidor.</p>
+                            </li>
+
+                            <li>
+                                <code>manage.py</code>
+                                <p>É o utilitário de linha de comando. Não editamos este arquivo, mas usamos para tudo: rodar o servidor, fazer migrações e criar usuários.</p>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Arquivos do APP -->
+                    <li>
+                        Arquivos do App
+                        <p>Os arquivos são gerados com <code>python manage.py startapp nome_do_app</code> criando a seguinte estrutura:</p>
+                        <ul>
+                            <li>
+                                <code>urls.py</code>
+                                <p>Local centralizado onde as rotas (URLs) são configuradas e mapeadas. É essencial para o funcionamento das URLs do site.</p>
+                            </li>
+
+                            <li>
+                                <code>views.py</code>
+                                <p>É onde fica a lógica do Backend da aplicação, conecta a <code>Model</code> ao <code>Template</code>. Define o que acontece quando uma URL específica é acessada, processando os dados antes de exibir.</p>
+                            </li>
+
+                            <li>
+                                <code>models.py</code>
+                                <p>Este arquivo define a estrutura do banco de dados usando classes Python para representar tabelas. Utiliza ORM para mapear objetos diretamente para o banco de dados, permitindo criar, manipular e consultar dados sem escrever SQL, além de gerenciar relacionamentos entre entidades.</p>
+                            </li>
+
+                            <li>
+                                <code>admin.py</code>
+                                <p>Este arquivo serve para registrar seus modelos no painel administrativo nativo do Django.</p>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Outros Diretórios -->
+                    <li>
+                        Outros diretórios importantes:
+                        <ul>
+                            <li>
+                                <code>templates/</code>
+                                <p>Onde ficam os arquivos HTML. No Django, é utilizado a DLT, que permite usar a lógica dentro do HTML.</p>
+                            </li>
+                            
+                            <li>
+                                <code>static/</code>
+                                <p>Guarda arquivos CSS, JS e de imagens. No <code>PoupAí</code>, o NIGNX e o WhiteNoise trabalham juntos para entregar esses arquivos rapidamente.</p>
+                            </li>
+
+                            <li>
+                                <code>migrations/</code>
+                                <p>O histórico de alterações do seu banco de dados. Diz ao banco de dados como ele deve se comportar.</p>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p>E por fim, vamos falar sobre o Banco de Dados escolhido.</p>
+                <h3>PostgreSQL</h3>
+                <p>O PostgreSQL é um SGBD (Sistema de Gerenciamento de Banco de Dados) Relacional de código aberto. Ele não apenas armazena informações; ele garante que as relações entre elas sejam sólidas e confiáveis.</p>
+                <p>No <code>PoupAí</code>, o Postgres atua como o repositório seguro para cada transação, meta e categoria criada pelos usuários.</p>
+
+                <p>Porque optei por utilizar o Postgres e não o SQLite que é padrão do Django?</p>
+                <p>Durante o desenvolvimento local, o Django costuma usar o SQLite. Porém, a minha ideia desde o começo era seguir com um deploy para o meu servidor VPS, então escolhi o Postgres pelos seguintes motivos: </p>
+                <ul>
+                    <li>
+                        Concorrência:
+                        <p>O Postgres lida com múltiplos usuários acessando e gravando dados ao mesmo tempo sem gravar.</p>
+                    </li>
+
+                    <li>
+                        Robustez:
+                        <p>Ele é feito para rodar 24/7 em servidores Linux sem corromper dados.</p>
+                    </li>
+
+                    <li>
+                        Tipagem Forte:
+                        <p>Ele garante que uma data seja uma data e um valor financeira seja um número decimal exato.</p>
+                    </li>
+                </ul>
+
+                <p>O Postgres é "Relacional" porque organiza os dados em tabelas que se conectam através de <code>Chaves</code>. No <code>PoupAí</code>, temos três conceitos fundamentais:</p>
+                <ul>
+                    <li>
+                        Tabelas:
+                        <p>Padrão de qualquer banco de dados relacional. O <code>PoupAí</code> contém as tabelas <code>Users</code>, <code>Categorias</code>, <code>Lancamentos</code>.</p>
+                    </li>
+
+                    <li>
+                        Foreign Keys (Chaves Estrangeiras):
+                        <p>É o vínculo entre as tabelas</p>
+                        <p>Exemplo: Cada <code>Lancamento</code> possui uma "Chave Estrangeira" que aponta para uma <code>Categoria</code>. Isso garante que o usuário não possa ter um gasto sem uma categoria válida.</p>
+                    </li>
+
+                    <li>
+                        Integridade Referencial:
+                        <p>Se o usuário tentar excluir uma categoria que possui gastos vinculados, o Postgres (seguido pelo Django) impede a ação para evitar dados órfãos.</p>
+                    </li>
+                </ul>
+                <p>O Postgre segue o princípio <strong>ACID</strong>, que é vital para sistemas de gestão financeira: </p>
+                <ul>
+                    <li>
+                        Atomicidade:
+                        <p>Ou a transação financeira acontece inteira, ou não acontece nada. Se a luz cair no meio de um salvamento, o banco não registra "metade" do dado.</p>
+                    </li>
+                    <li>
+                        Consistência:
+                        <p>O banco garante que os dados sigam todas as regras.</p>
+                    </li>
+                    <li>
+                        Isolamento:
+                        <p>Uma transação não interfere em outra acontecendo ao mesmo tempo.</p>
+                    </li>
+                    <li>
+                        Durabilidade:
+                        <p>Uma vez que o Postgres diz "salvo", o dado está gravado no disco rígido de forma permanente.</p>
+                    </li>
+                </ul>
             </section>
 
-            <!-- Djando Framework -->
+            <!-- ARQUITETURA DO SISTEMA -->
             <section>
-                <h2>Django Framework</h2>
+                <p>Agora que você entendeu alguns conceitos básicos e as ferramentas utilizadas, posso seguir para uma parte um pouco mais complexa.</p>
+                <h2>Arquitetura</h2>
+                <p>[ADICIONAR IMAGEM]</p>
+                <p>A imagem acima mostra a arquitetura que criei para este projeto. Vou explicar em partes: </p>
+                <!-- Explicação da Arquitetra-->
+                <ul>
+                    <!-- Inicio - CLIENT -->
+                    <li>
+                        Client (Usuário)
+                        <p>À esquerda temos o Browser/Usuário. É o primeiro contato do cliente com o projeto. 
+                        <br>Quando o cliente busca por <code>poupai.suzanacavalcante.com.br</code>, uma requisição é enviada para o meu servidor.
+                        </p>
+                    </li>
+                    <!-- Fim - CLIENT -->
+
+                    <!-- Inicio - VPS -->
+                    <li>
+                        VPS
+                        <p>Primeiramente, o que é uma VPS?</p>
+                        <p>[IMAGEM VPS]</p>
+                        <p>VPS significa Virtual Private Server, e basicamente é a virtualização de um servidor físico.
+                        <br>A virtualização divide logicamente o servidor em  servidores menores e virtuais.
+                        Um servidor físico pode ter vários servidor virtualizados. 
+                        Os servidores virtualizados utilizam os mesmos recursos já que fazem parte do mesmo servidor físico, porém cada VPS opera com um servidor dedicado e cada uma possui o seu próprio sistema operacional, recursos e é possível personalizar a configuração.
+                        </p>
+
+                        <p>O meu servidor VPS possui uma estrutura própria e roda outros sites.</p>
+                        <p>O sistema operacional é um Rocky Linux.</p>
+                        <p>Utilizo o aaPanel para gerenciar algumas coisas utilizando uma interface gráfica. Uma das coisas que gerencio por ele é o NGINX.</p>
+                        <p>Como segurança de entrada utilizo o NGINX Proxy Reverso. Ele recebe o tráfego nas portas 80/443 e redireciona para o local correto, seja um diretório, um arquivo ou um Container Docker.</p>
+                    </li>
+                    <!-- Fim - VPS -->
+
+                    <!-- Inicio - CONTAINERS -->
+                    <li>
+                        Docker
+                        <p>O Docker é um orquestrador de Containers.
+                        <br> Um container é um ambiente virtualizado e isolado dentro do seu próprio servidor. 
+                        Neste ambiente isolado, tudo referente ao projeto é instalado dentro do container e isso, por sua vez, não reflete na estrutura principal da VPS.
+                        </p>
+
+                        <p>Quais ferramentas instalamos inicialmente no Container?</p>
+                        <p><strong>Python/Django</strong>: A aplicação está aqui dentro, toda a lógica, processamento de URLs, Views e etc...</p>
+                        <p><strong>PostgreSQL DB</strong>: O Banco de Dados isolado, garantindo que as informações financeiras estejam salvas e seguras.</p>
+                        <p><strong>WhiteNoise</strong>: A engrenagem que mostra como o Django serve o CSS e as imagens do site.</p>
+                    </li>
+                    <!-- Fim - CONTAINERS -->
+
+                    <!-- Início - DATA E REGISTRY -->
+                    <li>
+                        Data & Registry
+                        <p>À direita, a imagem mostra de onde vêm as "peças".</p>
+                        <p><strong>Image Registry</strong>: Representa o local de onde peguei a imagem pronta do Python e Postgres para montar o ambiente dentro do Docker.</p>
+                    </li>
+                    <!-- Fim - DATA E REGISTRY-->
+                </ul>
+
+                <p>Nesse ponto aqui, você já deve ter entendido o que é o Django e seus conceitos principais, o motivo de eu ter escolhido utilizar o PostgreSQL e a Arquitetura da aplicação.</p>
+
+                <p>Agora podemos seguir para o desenvolvimento do ambiente e da aplicação</p>
             </section>
 
+            <!-- DESENVOLVIMENTO DA APLICAÇÃO -->
+            <section>
 
+            </section>
         </main>
 
 
