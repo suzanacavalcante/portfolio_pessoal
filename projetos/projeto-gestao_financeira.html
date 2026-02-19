@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style-banco.css">
     <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <link href="https:///prismjs@v1.x/themes/prism.css" rel="stylesheet" />
     <title>Projeto de Gestão Financeira</title>
 </head>
     <body>
@@ -557,13 +558,187 @@ ENV PYTHONBUFFERED 1</code></pre>
                 </ul>
 
                 <p>Nesse ponto aqui, você já deve ter entendido o que é o Django e seus conceitos principais, o motivo de eu ter escolhido utilizar o PostgreSQL e a Arquitetura da aplicação.</p>
-
-                <p>Agora podemos seguir para o desenvolvimento do ambiente e da aplicação</p>
             </section>
 
             <!-- DESENVOLVIMENTO DA APLICAÇÃO -->
             <section>
+                <p>Agora podemos seguir para o desenvolvimento do ambiente e da aplicação</p>
+                <h2>Desenvolvimento</h2>
+                <p>Vou dividir esse tópico em duas partes e vou dividir essas partes em subtópicos explicando os passos:</p>
+                <ul>
+                    <li>Desenvolvimento do Ambiente</li>
+                    <ul>
+                        <li>.gitignore</li>
+                        <li>Dockerfile</li>
+                        <li>docker-compose.yml</li>
+                        <li>.env</li>
+                        <li>.dockerignore</li>
+                        <li>scripts</li>
+                    </ul>
+                    <li>Desenvolvimento da Aplicação</li>
+                    <ul>
+                        <li>Django</li>
+                        <ul>
+                            <li>project</li>
+                            <ul>
+                                <li>asgi.py</li>
+                                <li>settings.py</li>
+                                <li>urls.py</li>
+                                <li>wsgi.py</li>
+                            </ul>
+                            <li>accounts</li>
+                            <ul>
+                                <li>migrations</li>
+                                <li>templates</li>
+                                <li>admin.py</li>
+                                <li>apps.py</li>
+                                <li>forms.py</li>
+                                <li>models.py</li>
+                                <li>urls.py</li>
+                                <li>views.py</li>
+                            </ul>
+                            <li>manage.py</li>
+                            <li>requirements.txt</li>
+                        </ul>
+                    </ul>
+                </ul>
 
+                <p>Agora posso iniciar a explicação.</p>
+
+                <h3>Desenvolvimento do Ambiente</h3>
+                <p>O desenvolvimento do ambiente envolve toda a parte da criação e configuração do container. Esse passo antecede o desenevolvimento do sistema.</p>
+
+                <h4>.gitignore</h4>
+                <p>Como foi explicado anteriormente, o arquivo .gitignore fica na raiz do projeto e funciona como um filtro para o Git, ou seja, tudo o que for declarado nesse arquivo será ignorado pelo Git e não será enviado para o repositório.</p>
+                <p>Existem algumas coisas que são comumente usadas em muitos projetos, então é sim possível buscar algum template de .gitignore e você apenas adiciona o que é específico do seu projeto.</p>
+                <p>Vou explicar aqui apenas o que é específico para o projeto: </p>
+                <ul>
+                    <li>
+                        <code>/djangoapp/static</code>
+                        <p>No ambiente de produção, é gerado uma cópia dos arquivos CSS e JS pelo próprio Django. Como eles são gerados a partir do código fonte, não é necessário enviar para o repositório.</p>
+                    </li>
+                    <li>
+                        <code>/djangoapp/media</code>
+                        <p>Aqui ficam fotos que o usuário pode fazer upload. Esses arquivos pertencem ao usuário. Se subir essa pasta para o repositório, qualquer pessoa que baixar o repositório localmente terá acesso às imagens.</p>
+                    </li>
+                    <li>
+                        <code>/djangoapp/project/local_settings.py</code>
+                        <p>Contém informações que só serão utilizadas pelo servidor específico onde a aplicação irá rodar.</p>
+                        <p>Se este arquivo subir para o repositório ele pode sobrescrever as configurações de outros desenvolvedores do projeto.</p>
+                    </li>
+                    <li>
+                        <code>/data/</code>
+                        <p>Geralmente é utilizado por bancos de dados. São dados brutos e pesados que devem ficar guardados no servidor e não devem ser enviados para o repositório.</p>
+                    </li>
+                    <li>
+                        <code>*.log</code>, <code>*.pot</code>, <code>*.pyc</code>, <code>__pycache__</code>, <code>db.sqlite3</code>, <code>gunicorn-error-log</code>
+                        <br>
+                        <code>*.log</code> e <code>gunicorn-error-log</code>
+                        <p>São registros de erros. Eles mudam o tempo todo e só fazem sentido dentro do servidor onde o erro ocorreu. Não há motivos para armazenar esses arquivos no repositório do projeto.</p>
+
+                        <code>__pycache__</code> e <code>*.pyc</code>
+                        <p>São arquivos Python criados para armazenar cache e acelerar a leitura do código. Esses arquivos são gerados automaticamente pelo Python, então enviar para o repositório só o deixaria mais pesado e sujo.</p>
+                        
+                        <code>db.sqlite3</code>
+                        <p>É o banco de dados local utilizado pelo Django. Porém este não é o banco de dados utilizado na aplicação, então não faz sentido enviar para o repositório algo que não é utilizado.</p>
+                    </li>
+                    <li>
+                        <code>.env</code>
+                        <p>Este é um arquivo que contém o conteúdo das variáveis de ambiente, ou seja, as senhas do banco de dados, a chave secreta do Django e outras senhas utilizadas pela VPS ou pela aplicação.</p>
+                        <p>São informações sensíveis que, se forem disponibilizadas em um repositório, vai facilitar o trabalho de uma pessoa mal intencionada.</p>
+                    </li>
+                </ul>
+                <p>Os demais arquivos que o .gitignore está ignorando podem ser vistos no repositório do projeto no GitHub.</p>
+
+                <h4>Dockerfile</h4>
+                <p>É como uma receita de bolo para criar uma Imagem Docker. Ele contém um conjunto de instruções em sequência que o Docker lê para montar um ambiente isolado, o que garante que o projeto rode exatamente da mesma forma tanto localmente quanto em meu Servidor VPS.</p>
+                <p>Vou explicar o código detalhadamente: </p>
+                <div class="code-container">
+                    <pre><code class="language-python">FROM python:3.11.3-alpine3.18
+LABEL mantainer="https://suzanacavalcante.com.br"</code></pre>
+                </div>
+                <p><code>FROM</code>: Define a imagem pai. Aqui estou utilizando a versão Alpine, que é uma versão Linux muito leve e tem foco em segurança, o que é perfeito para a produção.</p>
+                <p><code>LABEL</code>: Apenas um metadado informando quem é o mantenedor do projeto.</p>
+
+                <br>
+
+                <div class="code-container">
+                    <pre><code class="language-python">ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1</code></pre>
+                </div>
+                <p><code>PYTHONDONTWRITEBYTECODE</code>: Impede que o Python gere arquivos <code>.pyc</code> dentro do container.</p>
+                <p><code>PYTHONUNBUFFERED</code>: Garante que os logs do Python apareçam em tempo real no terminal do Docker.</p>
+
+                <br>
+
+                <div class="code-container">
+                    <pre><code class="language-python">COPY ./djangoapp /djangoapp
+COPY ./scripts /scripts
+WORKDIR /djangoapp
+EXPOSE 8000</code></pre>
+                </div>
+                <p><code>COPY</code>: Copia os arquivos informados do local de desenvolvimento para dentro do container.</p>
+                <p><code>WORKDIR</code>: Define que, a partir de agora, qualquer comando será executado dentro da pasta <code>/djangoapp</code>.</p>
+                <p><code>EXPOSE</code>: Informa que o Container terá a porta 8000.</p>
+
+                <br>
+
+                <div class="code-container">
+                    <pre><code class="language-python">RUN python -m venv /venv && \
+/venv/bin/pip install --upgrade pip && \
+/venv/bin/pip install -r /djangoapp/requirements.txt && \
+adduser --disabled-password --no-create-home duser && \ 
+mkdir -p /data/web/static && \ 
+mkdir -p /data/web/media && \ 
+chown -R duser:duser /data/web/static && \
+chmod -R 755 /data/web/static && \ 
+chmod -R +x /scripts 
+                    </code></pre>
+                </div>
+                <p><code>RUN python -m venv /venv && \</code>: Cria o ambiente virtual</p>
+                <p><code>/venv/bin/pip install --upgrade pip && \</code>: Atualiza o gerenciador de pacotes</p>
+                <p><code>/venv/bin/pip install -r /djangoapp/requirements.txt && \</code>: Instala as bibliotecas do PoupAí</p>
+                <p><code>adduser --disabled-password --no-create-home duser && \</code>: Cria um usuário do sistema</p>
+                <p><code>mkdir -p /data/web/static && \</code>: Cria pastas para CSS/JS</p>
+                <p><code>mkdir -p /data/web/media && \</code>: Cria pastas para uploads</p>
+                <p><code>chown -R duser:duser /data/web/static && \</code>: Dá permissão para o usuário duser</p>
+                <p><code>chmod -R 755 /data/web/static && \</code>: Define permissões de leitura/escrita</p>
+                <p><code>chmod -R +x /scripts</code>: Torna seus scripts de inicialização executáveis</p>
+
+                <br>
+
+                <div class="code-container">
+                    <pre><code class="language-python">ENV PATH="/scripts:/venv/bin:$PATH"
+USER duser
+CMD ["commands.sh"]</code></pre>
+                </div>
+                <p><code>ENV PATH</code>: Informa ao Linux do Container onde buscar quando um comando for iniciado.</p>
+                <p><code> USER duser</code>: Essencial para a segurança do Container. Por padrão, o Docker roda como root, então, ao mudar para <code>duser</code>, é garantido que, se alguèm invadir a aplicação, não terá controle total sobre o servidor.</p>
+                <p><code>CMD</code>: É o comando final e só roda quando o container está ativo. Aqui estou chamando o script que inicia o servidor Django.</p>
+                
+                <br>
+                <h4>docker-compose.yml</h4>
+                <p>É uma ferramenta de orquestração que permite definir e rodar aplicações de múltiplos containers. No caso do <code>PoupAí</code>, existem dois containers principais: o servidor web (Django) e o banco de dados (PostgreSQL). Este arquivo especifica como eles devem se conectar, quais portas utilizar e etc...</p>
+                <div class="code-container">
+                    <pre><code class="language-python">version: '3.9'
+services:
+                    </code></pre>
+                </div>
+                <p><code>version</code>: Define a versão da sintaxe do Docker Compose que será utilizada.</p>
+                <p><code>services</code>: Inicia a lista de todos os containers que farão parte da aplicação.</p>
+
+                <div class="code-container">
+                    <pre><code class="language-python"> djangoapp:
+  restart: always
+  container_name: djangoapp
+  build:
+    context: .
+  ports:
+    - 8000:8000</code></pre>
+                </div>
+                <p><code>restart: always</code>: Se o container cair, o Docker tentará ligá-lo automaticamente.</p>
+                <p><code>build: context: .</code>: Diz ao Docker para procurar o Dockerfile na pasta atual para construir a imagem deste serviço.</p>
+                <p><code>ports: - 8000: 8000</code>: Faz a ponte entre a requisição de acesso à aplicação e o container.</p>
             </section>
         </main>
 
