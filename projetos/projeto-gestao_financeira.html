@@ -721,11 +721,12 @@ CMD ["commands.sh"]</code></pre>
                 <p>É uma ferramenta de orquestração que permite definir e rodar aplicações de múltiplos containers. No caso do <code>PoupAí</code>, existem dois containers principais: o servidor web (Django) e o banco de dados (PostgreSQL). Este arquivo especifica como eles devem se conectar, quais portas utilizar e etc...</p>
                 <div class="code-container">
                     <pre><code class="language-python">version: '3.9'
-services:
-                    </code></pre>
+services:</code></pre>
                 </div>
                 <p><code>version</code>: Define a versão da sintaxe do Docker Compose que será utilizada.</p>
                 <p><code>services</code>: Inicia a lista de todos os containers que farão parte da aplicação.</p>
+
+                <br>
 
                 <div class="code-container">
                     <pre><code class="language-python"> djangoapp:
@@ -739,6 +740,146 @@ services:
                 <p><code>restart: always</code>: Se o container cair, o Docker tentará ligá-lo automaticamente.</p>
                 <p><code>build: context: .</code>: Diz ao Docker para procurar o Dockerfile na pasta atual para construir a imagem deste serviço.</p>
                 <p><code>ports: - 8000: 8000</code>: Faz a ponte entre a requisição de acesso à aplicação e o container.</p>
+
+                <br>
+
+                <div class="code-container">
+                    <pre><code class="language-python">volumes:
+    - ./djangoapp:/djangoapp
+    - ./data/web/static:/data/web/static
+    - ./data/web/media:/data/web/media</code></pre>
+                </div>
+
+                <p><code>volumes</code>: É um espelhamento de diretórios. O que é armazenado dentro do diretório <code>./djangoapp</code> do Container refle instantaneamente na VPS. É fundamental para que os arquivos estáticos não sumam quando o container for reiniciado, desligado ou excluído.</p>
+
+                <br>
+
+                <div class="code-container">
+                    <pre><code class="language-python">env_file:
+    - .env
+  command: python manage.py runserver 0.0.0.0:8000
+  depends_on:
+    - db</code></pre>
+                </div>
+
+                <p><code>env_file</code>: Carrega as variáveis de ambiente do arquivo <code>.env</code>.</p>
+                <p><code>command</code>: Sobrescreve o comando final do Dockerfile. Aqui, o comando <code>python manage.py runserver 0.0.0.0:8000</code>, reinicia o servidor de desenvolvimento do Django.</p>
+                <p><code>depends_on</code>: Informa ao Docker que o Django só deve ser iniciado após a criação do banco de dados.</p>
+
+                <br>
+
+                <div class="code-container">
+                    <pre><code class="language-python">db:
+  image: postgres:16-alpine
+  container_name: finance_db
+  restart: always</code></pre>
+                </div>
+
+                <p><code>image</code>: Para criar o serviço <code>db</code> em um Container optei por utilizar uma imagem oficial e pronta do PostgreSQL 16 na versão Alpine que é mais leve.</p>
+                <p><code>restart</code>: Informa ao Docker que sempre que houver alguma mudança nesse serviço o mesmo deve ser reiniciado.</p>
+
+                <br>
+
+                <div class="code-container">
+                    <pre><code class="language-python">environment:
+    - POSTGRES_DB=${POSTGRES_DB}
+    - POSTGRES_USER=${POSTGRES_USER}
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}</code></pre>
+                </div>
+
+                <p><code>environment</code>: Define as configurações obrigatórias do Banco de Dados. O símbolo <code>${}</code> indica que o Compose está buscando o conteúdo dentro do arquivo <code>.env</code>.</p>
+
+                <br>
+
+                <h3>.env</h3>
+                <p>Conforme expliquei algumas vezes anteiormente, o arquivo <code>.env</code> armazena as variáveis de ambiente que, basicamente, são variáveis que armazenam senhas importantes como senhas de banco de dados, senhas secretas para conectar com o Framework, senhas de conexão com APIs externas e etc, ou seja, são informações secretas que não devem ser compartilhadas com qualquer pessoa.</p>
+                <p>Por esse motivo, não vou mostrar o código exato deste arquivo. Mas, vou compartilhar o arquivo <code>.env-example</code> que é um arquivo exemplo que contém um Template do que o seu arquivo <code>.env</code> deve conter para você conseguir rodar o código localmente.</p>
+
+                <div class="code-container">
+                    <pre><code class="language-python">SECRET_KEY="CHANGE-ME"
+
+# 0 False, 1 True
+DEBUG="1"
+
+# Comma Separated values
+ALLOWED_HOSTS="127.0.0.1, localhost"
+
+DB_ENGINE="django.db.backends.postgresql"
+POSTGRES_DB="CHANGE-ME"
+POSTGRES_USER="CHANGE-ME"
+POSTGRES_PASSWORD="CHANGE-ME"
+POSTGRES_HOST="localhost"
+POSTGRES_PORT="5432"</code></pre>
+                </div>
+
+                <p><code>SECRET_KEY</code>: Entre aspas você deve colocar o código secreto de conexão com o Django. Esse código deve ser gerado especificamente para o projeto de atuação. O comando é <code>python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'</code>.</p>
+                <p><code>DEBUG</code>: O debug é muito utilizado pelos desenvolvedores quando uma aplicação está em construção ou manutenção pois logs de erro são apresentados na tela. O número 1 indica que o modo Debug está ativo e 0 indica que está desativado.</p>
+                <p><code>ALLOWED_HOSTS</code>: Informa ao Docker quais clients podem acessar o Container e consequentemente ter acesso à aplicação.</p>
+                <p><code>DB_ENGINE</code>: Informa ao Docker qual engine será responsável por conectar a aplicação ao banco de dados.</p>
+                <p><code>POSTGRES</code></p>
+                <ul>
+                    <li>
+                        <p><code>DB</code>: Informa o nome do banco de dados dentro do serviço.</p>
+                    </li>
+                    <li>
+                        <p><code>USER</code>: Informa o nome do administrador do banco de dados.</p>
+                    </li>
+                    <li>
+                        <p><code>PASSWORD</code>: Informa a senha de acesso do administrador do banco de dados.</p>
+                    </li>
+                    <li>
+                        <p><code>HOST</code>: Informa o nome do serviço do banco de dados dentro Container.</p>
+                    </li>
+                    <li>
+                        <p><code>PORT</code>: Informa a porta de conexão que será utilizada para conectar o container da aplicação ao container do banco de dados.</p>
+                    </li>
+                </ul>
+
+                <br>
+
+                <h4>.dockerignore</h4>
+                <p>Assim como o <code>.gitignore</code> este arquivo ignora outros arquivos, porém ao invés de não enviar para o repositório, o <code>.dockerignore</code> não envia os arquivos declados para o Container. Isso é uma boa prática no cenário de DevOps, pois ao ignorar os arquivos declarados, o Container fica mais leve.</p>
+                <p>E também é possível utilizar um template e adicionar coisas específicas do seu projeto. Dê uma olhada no arquivo <code>.dockerignore</code> no repositório do projeto no GitHub.</p>
+                
+                <br>
+
+                <h4>Scripts</h4>
+                <p>Fiz esse diretório especificamente para armazenar scripts bash dentro do Container.</p>
+                <p>Atualmente existe apenas um arquivo de script neste diretório e vou explicar abaixo o código.</p>
+
+                <strong><code>comands.sh</code></strong>
+
+                <div class="code-container">
+                    <pre><code class="language-python">
+
+# Encerra a execução do arquivo quando algum comando falhar
+set -e
+
+while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
+    echo "🟡 Aguardando a Inicialização do Banco de Dados Postgres ($POSTGRES_HOST $POSTGRES_PORT)..."
+    sleep 0.1
+done
+
+echo "✅ O Banco de Dados Postgres foi Inicializado com Sucesso ($POSTGRES_HOST $POSTGRES_PORT)"
+
+python manage.py collectstatic
+python manage.py migrate
+python manage.py runserver</code></pre>
+                </div>
+
+                <p><code>#!/bin/sh</code>: Este comando semelhante a um comentário indica ao sistema operacional que o conteúdo deste arquivo é um script automatizado.</p>
+                <p><code>set -e</code>: Um comando simples que, ao encontrar algum erro durante a execução de qualquer comando, encerra a execução do script.</p>
+                <p>O laço de repetição <code>while</code> é responsável por informar ao usuário se o Banco de Dados está inicializando ou se já foi inicializado.</p>
+                <p><code>python manage.py collectstatic</code>: Reúne todos os arquivos estáticos de todos os apps do Django e centraliza em um único diretório (que é especificado no arquivo <code>settings.py</code>).
+                <br> Mas porque isso?  Durante o desenvolvimento da aplicação, o Django serve os arquivos de cada app de maneira individual, porém é uma boa prática fazer com que o servidor web acesse todos os arquivos estáticos em apenas um lugar, pois, dessa forma, o acesso fica mais rápido.<p>
+                <p><code>python manage.py migrate</code>: Este comando aplica as alterações de estruttura do banco de dados. Ele lê os arquivos na pasta <code>migrations/</code> e cria ou altera as tabelas no PostgreSQL.</p>
+                <p><code>python manage.py runserver</code>: Inicia o servidor de desenvolvimento do Django.</p>
+
+                <br>
+
+                
+
+
             </section>
         </main>
 
