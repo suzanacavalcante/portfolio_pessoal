@@ -503,14 +503,15 @@ ENV PYTHONBUFFERED 1</code></pre>
                 <p>Agora que você entendeu alguns conceitos básicos e as ferramentas utilizadas, posso seguir para uma parte um pouco mais complexa.</p>
                 <h2>Arquitetura</h2>
                 <p>[ADICIONAR IMAGEM]</p>
-                <p>A imagem acima mostra a arquitetura que criei para este projeto. Vou explicar em partes: </p>
+                <p>A imagem acima mostra a arquitetura que criei para este projeto.</p>
+                <p>O PoupAí possui uma robustez que não se limita apenas ao código, mas na forma como os componentes se comunicam de maneira segura e eficente dentro da infraestrutura. O diamagra da arquitetura detalha 5 (cinco) camadas principais.</p>
                 <!-- Explicação da Arquitetra-->
                 <ul>
                     <!-- Inicio - CLIENT -->
                     <li>
-                        Client (Usuário)
-                        <p>À esquerda temos o Browser/Usuário. É o primeiro contato do cliente com o projeto. 
-                        <br>Quando o cliente busca por <code>poupai.suzanacavalcante.com.br</code>, uma requisição é enviada para o meu servidor.
+                        Camada de Acesso Externo - Conexão HTTP/HTTPS
+                        <p>À esquerda temos o Browser/Usuário. É o primeiro contato do cliente com a aplicação.
+                        <br>Quando o cliente busca por <code>poupai.suzanacavalcante.com.br</code>, uma requisição via protocolo HTTP/HTTPS (portas 80/443) é enviada para o Servidor VPS e chega ao ponto de entrada da aplicação que, neste caso, é o NGINX que possui um Proxy Reverso configurado e atua como uma camada de segurança e eficiência que isola o servidor de aplicação (Django) do acesso direto à internet.
                         </p>
                     </li>
                     <!-- Fim - CLIENT -->
@@ -535,26 +536,54 @@ ENV PYTHONBUFFERED 1</code></pre>
 
                     <!-- Inicio - CONTAINERS -->
                     <li>
-                        Docker
+                        Orquestração e Rede Internet (Docker Network)
                         <p>O Docker é um orquestrador de Containers.
                         <br> Um container é um ambiente virtualizado e isolado dentro do seu próprio servidor. 
                         Neste ambiente isolado, tudo referente ao projeto é instalado dentro do container e isso, por sua vez, não reflete na estrutura principal da VPS.
                         </p>
 
+                        <p>Utilizei o Docker com a intenção de criar uma rede virtual privada para guardar os containers. A comunicação entre o NGINX e o container do Django ocorre internamente através dessa rede.
+                        <br>
+                        O tráfego é encvaminhado para o servidor de aplicação Gunicorn, que interpreta o código Python e processa a lógica de negócio de forma isolada.
+                        </p>
+
                         <p>Quais ferramentas instalamos inicialmente no Container?</p>
                         <p><strong>Python/Django</strong>: A aplicação está aqui dentro, toda a lógica, processamento de URLs, Views e etc...</p>
                         <p><strong>PostgreSQL DB</strong>: O Banco de Dados isolado, garantindo que as informações financeiras estejam salvas e seguras.</p>
-                        <p><strong>WhiteNoise</strong>: A engrenagem que mostra como o Django serve o CSS e as imagens do site.</p>
+                        <p><strong>WhiteNoise</strong>: A engrenagem que mostra como o Django serve o CSS e as imagens do site (arquivos estáticos).</p>
                     </li>
                     <!-- Fim - CONTAINERS -->
 
-                    <!-- Início - DATA E REGISTRY -->
+                    <!-- Inicio - DADOS -->
                     <li>
-                        Data & Registry
-                        <p>À direita, a imagem mostra de onde vêm as "peças".</p>
-                        <p><strong>Image Registry</strong>: Representa o local de onde peguei a imagem pronta do Python e Postgres para montar o ambiente dentro do Docker.</p>
+                        Comunicação com a Camada de Dados (SQL/ORM)
+                        <p>A interação entre a aplicação e o banco de dados PostgreSQL é feita via Django ORM.</p>
+
+                        <ul>
+                            <li>
+                                Protocolo: A conexão utiliza o protocolo nativo do PostgreSQL na porta interna 5432.
+                            </li>
+                            <li>
+                                Fluxo: As requisições de salvar ou consultar transações financeiras são traduzidas do Python para consultas SQL, garantindo integridade referencial e o cumprimento das propriedades ACID.
+                            </li>
+                        </ul>
                     </li>
-                    <!-- Fim - DATA E REGISTRY-->
+                    <!-- Fim - DADOS-->
+
+                    <!-- Início - VOLUMES -->
+                    <li>
+                        Persistência e Entrega de Estáticos (Volumes & WhiteNoise)
+                        <p>Diferente dos processos voláteis, a persistência de arquivos é garantida por Docker Volumes:</p>
+                        <ul>
+                            <li>
+                                Arquivos Estáticos e Mídia: O WhiteNoise gerencia a entrega de arquivos CSS e JS diretamente do container Django, assim otimizando cache.
+                            </li>
+                            <li>
+                                Mapeamento de Disco: Todos os dados do banco e uploads de usuários são mapeados do container para o disco da VPS, pois isso assegura que, mesmo em casos de reinicialização dos containers, nenhuma informação será perdida.
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- Fim - VOLUMES -->
                 </ul>
 
                 <p>Nesse ponto aqui, você já deve ter entendido o que é o Django e seus conceitos principais, o motivo de eu ter escolhido utilizar o PostgreSQL e a Arquitetura da aplicação.</p>
