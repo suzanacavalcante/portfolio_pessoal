@@ -917,7 +917,7 @@ python manage.py runserver</code></pre>
                 <p>Este App possui o arquivo <code>settings.py</code> e funciona como o um maestro.</p>
                 <p>O objetivo principal aqui é gerenciar as configurações globais e a integração de todas as outras partes do sistema.</p>
                 <ul>
-                        
+                    <!-- Inicio - SETTINGS.PY -->  
                     <li>
                         <code>settings.py</code>
                         <p>Este arquivo é como se fosse o sistema nervoso do projeto. É aqui que o Django decide como se conectar ao banco de dados, onde salvar informações e como garantir a segurança.</p>
@@ -1022,21 +1022,97 @@ LOGOUT_REDIRECT_URL = '/login'</code></pre>
                     </li>
                     <!-- Fim - SETTINGS.PY -->
 
+                    <!-- Inicio - ASGI.PY -->
                     <li>
                         <code>asgi.py</code>
-
+                        <p>O que é ASGI?</p>
+                        <p>ASGI significa Asynchronous Server Gateway Interface (Interface de Gatway de Servidor Assíncrono). Ele é o sucessor do WSGI e foi criado para permitir que o Django lide não apenas com requisições HTTP comuns, mas também com múltiplas requisições simultâneas e conexões modernas e persistentes como WebSockets e HTTP/2.</p>
                         
+                        <div class="code-container">
+                        <pre><code class="language-python">os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')</code></pre>
+                        </div>
+
+                        <p>Indica onde está o arquivo <code>settings.py</code>.</p>
+                        <p>Ao iniciar o servidor de aplicação, o processo precisa saber onde estão os módulos, apps, bancos de dados e etc.</p>
+                        <p><code>os.environ</code> garante que o Django saiba que este arquivo de configurações está em <code>project.settings</code>.</p>
+
+                        <br>
+
+                        <div class="code-container">
+                        <pre><code class="language-python">application = get_asgi_application()</code></pre>
+                        </div>
+
+                        <p>Chama uma função interna do Django que prepara toda a estrutura para receber requisições assíncronas.</p>
+                        <p>A variável <code>application</code> é o que o servidor de produção (no Docker) vai buscar. Essa variável é o ponto de entrada único.</p>
+
+                        <br>
+
+                        <p>Comentei há pouco que o ASGI é um sucessor do WSGI, mas qual a diferença entre os dois?</p>
+
+                        <p>WSGI significa Web Server Gateway Interface (Interface de Gateway de Servidor Web) é uma especificação do Python que define como um servidor web se comunica com frameworks de aplicação (como Django ou Flask). 
+                        <br>
+                        Diferente do ASGI, o WSGI é síncrono, ou seja, processa uma requisição por vez e bloqueia a conexão até que o resultado da requisição retorne para o usuário e, por essa limitação, pode resultar em dificuldades na escalabilidade e incapacidade de conexão com requisições WebSockets e de longa duração.
+                        </p>
+
+                        <p>O ASGI, conforme expliquei há pouco, é assíncrono, ou seja, permite que o desenvolvedor crie aplicações web que lidem com múltiplas requisições simultâneas, sem sobrecarregar a thread principal.</p>
                     </li>
+                    <!-- Fim - ASGI.PY -->
+
+                    <!-- Inicio - URLS.PY -->
                     <li>
                         <code>urls.py</code>
 
-                        
-                    </li>
-                    <li>
-                        <code>wsgi.py</code>
+                        <p>Este arquivo armazena as rotas da aplicação, mas, afinal, o que são rotas?</p>
+                        <p>No contexto web, as rotas definem os caminhos URL que direcionam as requisições HTTP para as funções específicas usando um framework web.</p>
 
-                        
+                        <div class="code-container">
+                        <pre><code class="language-python">path('admin/', admin.site.urls),</code></pre>
+                        </div>
+
+                        <p>Permite o acesso ao Painel Administrativo do Django.</p>
+
+                        <br>
+
+                        <div class="code-container">
+                        <pre><code class="language-python">path('accounts/', include('accounts.urls')),</code></pre>
+                        </div>
+
+                        <p>Aqui entra o conceito de Apps do Django. Neste bloco de código, basicamente, estou dizendo que toda URL que começar com <code>accounts/</code> deve ser entre para o arquivo <code>urls.py</code> que está dentro do app <code>accounts</code>.</p>
+
+                        <br>
+
+                        <div class="code-container">
+                        <pre><code class="language-python">path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
+path('logout/', auth_views.LogoutView.as_view(), name='logout'),</code></pre>
+                        </div>
+
+                        <ul>
+                            <li>
+                                <strong>Login Customizado</strong>
+                                <p>Aqui utilizo a classe <code>LoginView</code> que é nativa do Django, porém estou especificando que vou utilizar meu próprio template HTML, no caso <code>accounts/login.html</code>.</p>
+                            </li>
+
+                            <li>
+                                <strong>Names</strong>
+                                <p>O argumento <code>name</code> permite que, o HTML, eu utilize apenas <code>{% url 'login' %}</code>. Se amanhã eu decidir mudar a URL de <code>/login/</code> para <code>/entrar/</code> não vou precisar mudar em nenhum outro ponto da aplicação.</p>
+                            </li>
+                        </ul>
+
+                        <br>
+
+                        <div class="code-container">
+                        <pre><code class="language-python">if settings.DEBUG:
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root = settings.MEDIA_ROOT
+    )</code></pre>
+                        </div>
+
+                        <p>Durante o desenvolvimento, o próprio Django se encarrega de entregar as informações que os usuários enviaram.</p>
+
+                        <p>Com a aplicação em produção, o Django não deve servir arquivos estáticos/mídia, pois, por questões de segurança, essa é uma tarefa do Nginx/WhiteNoise. O <code>if</code> garante que essa configuração só funciona na máquina do desenvolvedor.</p>
                     </li>
+                    <!-- Inicio - URLS.PY -->
                 </ul>
 
                 <br>
