@@ -939,7 +939,7 @@ ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', '').split(',') if
                         </div>
 
                         <p><code>SECRET_KEY</code>: É a assinatura criptográfica do projeto, a chave secreta de conexão entre a aplicação e o Django. E como vimos anteriormente, o conteúdo dessa variável está armazenado na variável <code>SECRET_KEY</code> no arquivo <code>.env</code>.</p>
-                        <p><code>DEBUG</code>: Aqui estou desativando as páginas web de mostrarem detalhadamente erros internos, pois, quando o código for para produção, isso expõe o código para hackers.</p>
+                        <p><code>DEBUG</code>: Aqui estou desativando as páginas web de mostrarem detalhadamente erros internos, pois, quando o código for para produção, isso evita que o código fique exposto para hackers.</p>
                         <p><code>ALLOWED_HOSTS</code>: Define quais domínios ou endereços IP tem permissão para acessar a aplicação. Neste caso o código está informando que acessos permitidos estão armazenados no arquivo <code>.env</code> na variável <code>ALLOWED_HOSTS</code>.</p>
 
                         <br>
@@ -1117,7 +1117,6 @@ path('logout/', auth_views.LogoutView.as_view(), name='logout'),</code></pre>
 
                 <br>
 
-
                 <h4>accounts</h4>
                 <p>Este App é funcional. O objetivo dele é isolar tudo o que diz respeito ao Usuário, cuidar do ciclo de vida da conta do usuário e segurança de acesso.</p>
                 <p>Aqui temos: </p>
@@ -1127,6 +1126,40 @@ path('logout/', auth_views.LogoutView.as_view(), name='logout'),</code></pre>
                     <li>Segurança: Gerenciamento de permissões, senhas criptografadas e isolamento de informações.</li>
                 </ul>
                 <ul>
+                    <li>
+                        <code>models.py</code>
+                        <p>Este arquivo define como o banco de dados será estruturado e como os dados financeiros se relacionam com os usuários.</p>
+
+                        <code>class Categoria</code>
+                        <p>Essa classe tem o objetivo de organizar as finanças do usuário.</p>
+
+                        <div class="code-container">
+                        <pre><code class="language-python">class Categoria(models.Model):
+    TIPO_CHOICES = [
+        ('receita', 'Receita (Entrada)'),
+        ('despesa', 'Despesa (Saída)'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    nome = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=10, choices=TIPO_CHOICES, default='despesa')
+
+    def __str__(self):
+        return f"{self.nome} ({self.tipo})"</code></pre>
+                        </div>
+
+                        <p>Essa é uma relação <strong>um-para-muitos</strong>. Um usuário pode ter várias categorias, mas uma categoria pertence a apenas um usuário.</p>
+                        <p><code>on_delete=models.CASCADE</code>: Se o usuário deletar a conta, o Django automaticamente limpa o banco de dados e deleta todas as categorias dele evitando dados órfãos.</p>
+                        <p><code>TIPO_CHOICES</code>: Aqui defini um "Enum" manual para que, no banco de dados, fique salvo apenas "receita" ou "despesa" com o objetivo de economizar espaço, mas no painel do usuário aparece o texto mais bonito e estruturado.</p>
+                        <p>A função <code>__str__</code>: Este método do Python define como o objeto aparece quando listado. Ou seja, em vez de aparecer <code><"Categoria: object"><"/Categoria:"></code>, aparecerá <code>Alimentação (despesa)</code>.</p>
+
+                        <br>
+
+                        <div class="code-container">
+                        <pre><code class="language-python">user = models.ForeignKey(User, on_delete=models.CASCADE)</code></pre>
+                        </div>
+                    </li>
+
                     <li>
                         <code>migrations</code>
 
@@ -1152,11 +1185,7 @@ path('logout/', auth_views.LogoutView.as_view(), name='logout'),</code></pre>
 
                         
                     </li>
-                    <li>
-                        <code>models.py</code>
-
-                        
-                    </li>
+                    
                     <li>
                         <code>urls.py</code>
 
