@@ -1151,19 +1151,133 @@ path('logout/', auth_views.LogoutView.as_view(), name='logout'),</code></pre>
                         <p>Essa é uma relação <strong>um-para-muitos</strong>. Um usuário pode ter várias categorias, mas uma categoria pertence a apenas um usuário.</p>
                         <p><code>on_delete=models.CASCADE</code>: Se o usuário deletar a conta, o Django automaticamente limpa o banco de dados e deleta todas as categorias dele evitando dados órfãos.</p>
                         <p><code>TIPO_CHOICES</code>: Aqui defini um "Enum" manual para que, no banco de dados, fique salvo apenas "receita" ou "despesa" com o objetivo de economizar espaço, mas no painel do usuário aparece o texto mais bonito e estruturado.</p>
-                        <p>A função <code>__str__</code>: Este método do Python define como o objeto aparece quando listado. Ou seja, em vez de aparecer <code><"Categoria: object"><"/Categoria:"></code>, aparecerá <code>Alimentação (despesa)</code>.</p>
+                        <p>A função <code>__str__</code>: Este método do Python define como o objeto aparece quando listado. Ou seja, em vez de aparecer <code>Categoria: object</code>, aparecerá <code>Alimentação (despesa)</code>.</p>
 
                         <br>
 
+                        <code>class Lancamento</code>
+
                         <div class="code-container">
-                        <pre><code class="language-python">user = models.ForeignKey(User, on_delete=models.CASCADE)</code></pre>
+                        <pre><code class="language-python">class Lancamento(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT
+    valor = models.DecimalField(max_digits=10, decimal_places=2)
+    data = models.DateField()
+    descricao = models.CharField(max_length=200)
+
+    FORMA_PAGAMENTO_CHOICES = [
+        ('debito', 'Débito'),
+        ('credito', 'Crédito'),
+        ('pix', 'Pix'),
+        ('dinheiro', 'Dinheiro'),
+        ('outros', 'Outros'),
+    ]
+
+    forma_pagamento = models.CharField(
+        max_length=10,
+        choices=FORMA_PAGAMENTO_CHOICES,
+        blank=True,
+        null=True
+    )
+
+    def __str__(self):
+        return f"{self.descricao} - R$ {self.valor}"</code></pre>
                         </div>
+
+                        <p>Nesta classe é onde os gastos e ganhos serão registrados.</p>
+                        <p><code>categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT)</code>: A estratégia aqui é diferente. Se o usuário tentar deletar uma categoria, mas já houver lançamentos registrados nela, o Django <strong>impedirá a exclusão</strong>. Dessa forma, os dados informados anteriormente não serão corrompidos.</p>
+                        <p><code>DecimalField</code>: Para dinheiro, não deve ser utilizado <code>FloatField</code>, pois ele gera erros de arredondamento. O <code>DecimalField</code> garante a precisão necessária para contabilidade.</p>
+                        <p><code>blank=True, null=True</code>: Torna o campo opcional. Se o usuário não informar o método de pagamento, o sistema aceita o registro normalmente.</p>
+
+                        <br>
+
+                        <code>class MetaFinanceira</code>
+                        
+                        <div class="code-container">
+                        <pre><code class="language-python">class MetaFinanceira(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    nome = models.CharField(max_length=100)
+    valor_alvo = models.DecimalField(max_digits=10, decimal_places=2)
+    valor_poupado = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    data_limite = models.DateField(null=True, blank=True)
+
+    # Função para calcular a porcentagem da barra de progresso
+    def porcentagem(self):
+        if self.valor_alvo > 0:
+            # Garante que não  ultrapasse 100%
+            p = int((self.valor_poupado / self.valor_alvo) * 100)
+            return min(p, 100)
+        return 0
+    
+    def __str__(self):
+        return f"{self.nome} - {self.user.username}"</code></pre>
+                        </div>
+                        
+                        <p>Essa classe permite ao usuário planejar as metas do usuário.</p>
+                        <p>A função <code>porcentagem(self)</code> é a lógica do negócio. 
+                        <br>Ao invés de calcular o progresso da meta no próprio HTML, o progresso é calculado no objeto.</p>
+                        <p><code>min(p, 100)</code> Garante que se o valor guardado for maior do que a meta estabelecida, a barra de progresso irá travar em 100% e não permite que a barra de progresso quebre o layout.</p>
                     </li>
 
                     <li>
                         <code>migrations</code>
+                        <p>Funciona como um versionamento, as migrations registram as mudanças na estrutura das tabelas.</p>
 
+                        <p>As migratrions são criadas a partir do arquivo models.py de cada App.</p>
 
+                        <p>O fluxo é o seguinte:</p>
+                        <ul>
+                            <li>
+                                <strong>Criação/Mudança</strong>
+                                <p>Classes são criadas ou alteradas no arquivo <code>models.py</code></p>
+                            </li>
+                            <li>
+                                <strong>Comando <code>makemigrations</code></strong>
+                                <p>Ao rodar o comando no terminal, o Django verifica o <code>models.py</code>, (se for uma alteração, ele compara com o que já existia anteriormente) e gera um arquivo no diretório <code>migrations/</code>, exemplo <code>0001_initial.py</code>.</p>
+                            </li>
+                            <li>
+                                <strong>migrate</strong>
+                                <p>Esse é o comando que de fato executa o SQL correspondente dentro do Container do PostgreSQL.</p>
+                            </li>
+                        </ul>
+
+                        <div class="code-container">
+                        <pre><code class="language-python">python manage.py makemigrations</code></pre>
+                        </div>
+
+                        <p>Esse comando realiza os seguintes passos:</p>
+                        <ul>
+                            <li>
+                                <strong>Varredura</strong>
+                                <p>Percorre todos os apps listados no <code>INSTALLED_APPS</code>, neste caso é o app accounts.</p>
+                            </li>
+                            <li>
+                                <strong>Comparação</strong>
+                                <p>Ele olha para o estado atual do arquivo <code>models.py</code> e compara com o último arquivo de migration gerado no diretório <code>migrations/</code>.</p>
+                            </li>
+                            <li>
+                                <strong>Detecção de Mudanças</strong>
+                                <p>Se a classe <code>MetaFinanceira</code> foi adicionada o Django percebe que essa tabela não existe no histórico.</p>
+                            </li>
+                            <li>
+                                <strong>Geração do Plano</strong>
+                                <p>Escrevbe um novo arquivo Python, por exemplo <code>0001_initial.py</code>, que contém instruções estruturadas como <code>migrations.CreateModel(...)</code>.</p>
+                            </li>
+                        </ul>
+
+                        <p>O arquivo gerado não é SQL, é Python e isso permite que o sistema seeja agnótico ao banco de dados. Por exemplo: </p>
+                        <p>Se estiver usando o SQLite em sua máquina e PostgreSQL no Docker, o Django irá ler o mesmo arquivo de migration e irá passar para o banco de dados correspondente.</p>
+
+                        <br>
+
+                        <div class="code-container">
+                        <pre><code class="language-python">python manage.py migrate</code></pre>
+                        </div>
+
+                        <p>Criar a migration é como escrever uma receita; o comando <code>migrate</code> é o ato de cozinhar.</p>
+                        <p>O Django olha para uma tabela especial no banco de dados chamada <code>django_migrations</code>.</p>
+                        <p>Ele verifica quais arquivos do diretório <code>migrations/</code> ainda não foram aplicados.</p>
+                        <p>Ele executa as instruções, criando as tabelas de <code>Categoria, Lancamento e MetaFinanceira</code> no container Postgres.</p>
                     </li>
                     <li>
                         <code>templates</code>
