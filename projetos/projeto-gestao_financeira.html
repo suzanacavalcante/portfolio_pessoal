@@ -1281,8 +1281,109 @@ path('logout/', auth_views.LogoutView.as_view(), name='logout'),</code></pre>
                     </li>
                     <li>
                         <code>templates</code>
-
+                        <p>Este é um diretório onde o Django encontra o HTML, CSS e JS, o visual da aplicação.</p>
+                        <p>No Django, existe uma convenção de organização que segui: <code>accounts/templates/accounts/</code>. Essa repetição é chamada de namespacing e evita que o Django se confunda caso exista arquivos HTML com o mesmo nome, mas que pertençam a apps diferentes.</p>
                         
+                        <br>
+
+                        <!-- Inicio - BASE.HTML -->
+                        <strong>Estrutura de Herança</strong>
+                        <br>
+                        <code>base.html</code>
+                        <p>Em projetos organizados, é comum existir um arquivo base para evitar repetição de código, se trata do princípio DRY (Don't Repeat Yourself).</p>
+                        <p>Este arquivo HTML contém o cabeçaho, o rodapé e importações de CSS.</p>
+                        <p>Para utilizar nas páginas é preciso definir blocos de código: </p>
+
+                        <div class="code-container">
+                        <pre><code class="language-python">{% block content %}</code></pre>
+                        </div>
+
+                        <p>Os demais templates vão preencher o resto do espaço, assim mantendo o visual do site padronizado.</p>
+
+                        <!-- Fim - BASE.HTML -->
+
+                        <br>
+
+                        <!-- Inicio - LOGIN.HTML -->
+                        <strong>Template de Login</strong>
+
+                        <br>
+
+                        <code>login.html</code>
+
+                        <br>
+                        
+                        <p>No arquivo <code>urls.py</code> apontei o <code>LoginView</code> para <code>accounts/login.html</code>.</p>
+
+                        <p>Dentro do <code>login.html</code> utilizei <code>{{ form.as_p }}, dessa forma o Django gera os campos de usuário e senha automaticamente com base em um sistema de autenticação nativo.</code></p>
+
+                        <p>Uma parte muito importante aqui é a tag <code>{% csrf_token %}</code> dentro do formulário (CSRF - Cross-Site Request Forgery). Sem ela, o Django bloqueia o login por segurança, impedindo ataques de falsificação de requisição.</p>
+
+                        <!-- Fim - LOGIN.HTML -->
+                         
+                        <br>
+
+                        <!-- Inicio - DTL -->
+                        <strong>Dinamismo com Django Template Language (DTL)</strong>
+
+                        <br>
+
+                        <p>Os templates não são apenas HTMLs estáticos. Utilizie DTL para tomada de decisões: </p>
+                        <ul>
+                            <li>
+                                <strong>Condicionais</strong>
+                                <p><code>{% if user.is_authenticated %}</code> - permite mostrar o menu de "Sair" apenas para quem está logado.</p>
+                            </li>
+                            <li>
+                                <strong>Loops</strong>
+                                <p>No caso das finanças, utilizei <code>{% for lancamento in lancamentos %}</code> para desenhar as linhas da tabela de gastos.</p>
+                            </li>
+                            <li>
+                                <strong>Filtros</strong>
+                                <p>No modelo de metas, utilizei filtros para formatação de moeda.</p>
+                            </li>
+                        </ul>
+
+                        <p>Lembrando que mais a frente vou passar pelos principais códigos das telas.</p>
+
+                        <!-- Fim - LDTL -->
+
+                        <br>
+
+                        <strong>Integração com Static Files</strong>
+                        
+                        <br>
+
+                        <p>É nos templates que o WhiteNoise começa a trabalhar.</p>
+
+                        <div class="code-container">
+                        <pre><code class="language-python">{% load static %}
+link rel="stylesheet" href="{% static 'css/style.css' %}"</code></pre>
+                        </div>
+
+                        <p>A tag <code>{ % static% }</code> traduz o caminho do arquivo para a URL final que o navegador irá buscar, garantindo que o CSS apareça corretamente mesmo depois do deploy no Docker.</p>
+
+                        <br>
+
+                        <p>Vou passar pelos principais códigos dos arquivos de template.</p>
+
+                        <br>
+
+                        <!-- Inicio - FORMULARIO DE CATEGORIA -->
+                        <strong>Formulário de Categoria</strong>
+                        <br>
+                        <p>Essa é a tela onde o usuário cria e edita as categorias de lançamento.</p>
+
+                        <p>Aqui reutilizei o template de varáveis de contexto: <code>{{ titulo }}</code>.</p>
+                        <p>A view envia o texto "Nova Categoria" ou "Editar Categoria" e o template se adapta.</p>
+                        <p>O objetivo aqui é economizar código e facilitar a manutenção.</p>
+                        <p>Também utilizei a renderização granular de erros: <code>form.nome.errors</code>.
+                        <br>
+                        Em vez utilizar apenas o <code>{{ form.as_p }}</code>, os campos são acessados um por um: <code>{{ form.nome }}</code>, <br><code>{{ form.tipo }}</code>.
+                        <br>
+                        Isso permite um controle total sobre o layout.
+                        </p>
+                        <!-- Fim - FORMULARIO DE CATEGORIA -->
                     </li>
                     <li>
                         <code>admin.py</code>
