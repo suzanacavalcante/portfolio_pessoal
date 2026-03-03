@@ -1384,6 +1384,128 @@ link rel="stylesheet" href="{% static 'css/style.css' %}"</code></pre>
                         Isso permite um controle total sobre o layout.
                         </p>
                         <!-- Fim - FORMULARIO DE CATEGORIA -->
+                        
+                        <br>
+
+                        <!-- Inicio - FORMULARIO DE LANÇAMENTO -->
+                        <strong>Formulário de Lançamento</strong>
+                        <br>
+                        <p>Este formulário é um pouco mais complexo quando comparado ao de Formulário de Categorias, pois aqui estou introduzindo iteratividade dinâmica no lado do cliente.</p>
+                        <p>Este arquivo de template é um exemplo de como o Django integra o HTML, DTL, JavaScript e CSS em uma única unidade funcional.</p>
+
+                        <br>
+
+                        <h5>O Ciclo de Vida do Formulário</h5>
+                        <ul>
+                            <li>
+                                <strong>Token de Segurança</strong>
+                                <div class="code-container">
+                                    <pre><code class="language-python">{% csrf_token %}</code></pre>
+                                </div>
+
+                                <p>Ao renderizar essa tag, o Django salva a operação com um valor alfanumérico aleatório e então compara o token enviado pelo formulário com o token de sessão salvo pelo usuário no servidor. Se os token não coincidirem, a requisição é rejeitada, assim evitando que scripts externos enviem informações falsas para o banco de dados.</p>
+                            </li>
+
+                            <li>
+                                <strong>Injeção de Widgets</strong>
+                                <p>Utilizo variáveis como <code>{{ form.descricao }}</code>.
+                                <br>
+                                Com isso, o Django consulta o arquivo <code>forms.py</code> e gera o HTML correspondente.
+                                </p>
+                            </li>
+                        </ul>
+                        
+                        <h5>A Lógica Reativa</h5>
+                        <p>Esta é a parte mais dinâmica do código.</p>
+                        <ul>
+                            <li>
+                                <strong>Gatilho</strong>
+                                <p>O navegador espera o HTML ser carregado antes de rodar o script, evitando erros como "elemento não encontrado".</p>
+                            </li>
+
+                            <li>
+                                <strong>Mapeamento</strong>
+                                <p>O script localiza o <code>select</code> de categorias e <code>div</code> do pagamento através de seletores DOM, como <code>querySelector</code> e <code>getElementById</code>.</p>
+                            </li>
+
+                            <li>
+                                <strong>Função <code>verificarPagamento</code></strong>
+                                <p>Essa função checa <code>categoriaSelect.value</code>. No Django, se o usuário não selecionou nada, o valor é uma string vazia que é avaliada como False.</p>
+                            </li>
+
+                            <li>
+                                <strong>Evento <code>change</code></strong>
+                                <p>Adiciona um listener e toda a vez que o usuário troca a categoria, a função roda novamente, escondendo ou mostrando o campo em tempo real.</p>
+                                <p>Se houver um ID de categoria, ela altera o CSS do container para <code>display: block</code>, o que deixa o cotainer invisível.</p>
+                            </li>
+
+                            <li>
+                                <strong>Execução imediata</strong>
+                                <p>A chamada final <code>verificarPagamento();</code> é essencial para telas de edição. Se um gasto passar por uma edição, a categoria já virá preenchida do banco.</p>
+                            </li>
+                        </ul>
+
+                        <h5>Arquitetura Visual</h5>
+                        <ul>
+                            <li>
+                                <strong>Grid Responsivo</strong>
+                                <p>A classe <code>row</code> com <code>.col-md-6</code> cria um comportamento condicional: </p>
+                                <ul>
+                                    <li>
+                                        Desktop:
+                                        <p>O espaço é dividido em 12 colunas.</p>
+                                        <p><code>col-md-6</code> ocupa metade colocando o valor e data lado a lado.</p>
+                                    </li>
+
+                                    <li>
+                                        Mobile:
+                                        <p>como o breakpoint é <code>md</code> (medium), em telas pequenas o Bootstrap força cada coluna a ocupar 100% de largura, empilhando os campos verticalmente./p>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <strong>Estilização de Widgets com Django</strong>
+                                <p>O bloco <code>style</code> contém uma técnica de <strong>overriding</strong>: </p>
+                                <ul>
+                                    <li>
+                                        O Django costuma renderizar inputs com classes padrão do navegador.
+                                    </li>
+                                    <li>
+                                        O uso do <code>!important</code> garante que o tema Dark seja absoluto e ignore outros estilos que o navegador tentar aplicar.
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                <strong>Resumo do Fluxo de Dados</strong>
+                                <ul>
+                                    <li>
+                                        Entrada
+                                        <p>O usuário preenche os dados</p>
+                                    </li>
+                                    <li>
+                                        Envio
+                                        <p>O usuário clica em "Salvar". O formulário agrupa os dados e o <code>CSRF Token</code>.</p>
+                                    </li>
+                                    <li>
+                                        Processamento
+                                        <p>Os dados são enviados via <code>POST</code> para a View do Django.</p>
+                                    </li>
+                                    <li>
+                                        Validação
+                                        <p>A View valida se o valor é positivo, se a data é válida e se a categoria pertence ao usuário correto.</p>
+                                    </li>
+                                    <li>
+                                        Persistência
+                                        <p></p>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <p></p>
+                        <!-- Fim - FORMULARIO DE LANÇAMENTO -->
                     </li>
                     <li>
                         <code>admin.py</code>
