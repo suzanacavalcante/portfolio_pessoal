@@ -1414,6 +1414,8 @@ link rel="stylesheet" href="{% static 'css/style.css' %}"</code></pre>
                                 </p>
                             </li>
                         </ul>
+
+                        <br>
                         
                         <h5>A Lógica Reativa</h5>
                         <p>Esta é a parte mais dinâmica do código.</p>
@@ -1444,6 +1446,8 @@ link rel="stylesheet" href="{% static 'css/style.css' %}"</code></pre>
                                 <p>A chamada final <code>verificarPagamento();</code> é essencial para telas de edição. Se um gasto passar por uma edição, a categoria já virá preenchida do banco.</p>
                             </li>
                         </ul>
+
+                        <br>
 
                         <h5>Arquitetura Visual</h5>
                         <ul>
@@ -1498,14 +1502,120 @@ link rel="stylesheet" href="{% static 'css/style.css' %}"</code></pre>
                                     </li>
                                     <li>
                                         Persistência
-                                        <p></p>
+                                        <p>Se tudo estiver correto, o Django salva no PostgreSQL e redireciona o usuário.</p>
                                     </li>
                                 </ul>
                             </li>
                         </ul>
-
-                        <p></p>
                         <!-- Fim - FORMULARIO DE LANÇAMENTO -->
+
+                        <br>
+
+                        <!-- Inicio - FORMULARIO DE METAS -->
+                        <strong>Formulário de Metas</strong>
+                        <br>
+                        <p>A princípio, o formulário de metas pode parecer mais simples que o de lançamentos, porém ele lida com conceitos de UX e integridade de dados.</p>
+
+                        <h5>Manipulação de Valores Monetários</h5>
+                        <p>Os campos <code>valor_alvo</code> e <code>valor_poupado</code> são os mais críticos tecnicamente.</p>
+                        <ul>
+                            <li>
+                                <strong>Backend</strong>
+                                <p>No arquivo <code>models.py</code> defini estes campos como <code>DecimalField</code>.</p>
+                            </li>
+                            <li>
+                                <strong>Frontend</strong>
+                                <p>Quando o Django renderiza <code>{{ form.valor_alvo }}</code>, ele gera um <code>input type="number" step="0.01"</code>. O atributo <code>step="0.01"</code> é o que permite que o navegador aceite centavos garantindo que o usuário possa digitar sem erros de validação do lado do cliente.</p>
+                            </li>
+                        </ul>
+
+                        <br>
+
+                        <h5>O Desafio da Data Limite</h5>
+                        <p>O campo <code>{{ form.data_limite }}</code> lida com o formato de tempo.</p>
+                        <ul>
+                            <li>
+                                <strong>Funcionamento</strong>
+                                <p>Para o tipo de formulário que foi utilizado no PoupAí, o Django renderiza um calendário nativo do navegador (<code>type="date"</code>).</p>
+                            </li>
+                            <li>
+                                <strong>Interação com o Banco de Dados</strong>
+                                <p>Ao salvar, o Django converte a string da data para um objeto do tipo <code>datetime.date</code> do Python, validando se é uma data real antes de enviar ao PostgreSQL.</p>
+                            </li>
+                        </ul>
+
+                        <br>
+
+                        <h5>Fluxo de Dados</h5>
+                        <p><strong>POST</strong>: Ao salvar, os dados são enviado através do método POST.</p>
+                        <p><strong>Vinculação de Usuário</strong>: Na View, associei este formulário ao usuário logado (<code>request.user</code>). Dessa forma, não é possível criar metas para outro usuário.</p>
+                        <p><strong>Cálculo Automático</strong>: Uma vez salvo, a função <code>porcentagem()</code> no arquivo <code>models.py</code> já consegue ler o <code>valor_poupado</code> e <code>valor_alvo</code> para atualizar as barras de progresso no Dashboard automaticamente.</p>
+                        <!-- Fim - FORMULARIO DE METAS -->
+
+                        <br>
+
+                        <!-- Inicio - CATEGORIAS.HTML -->
+                        <strong>Categorias</strong>
+
+                        <br>
+
+                        <p>A pagina de categorias é uma página híbrida. Diferente das páginas de formulário, a página de categoria combina o CRUD em uma única tela, ou seja, o usuário visualiza a lista e pode criar uma nova categoria ao mesmo tempo.</p>
+                        
+                        <h5>Arquitetura de Tela Dupla</h5>
+                        <p>Aqui utilizei o sistema de grid do Bootstrap (<code>col-md-4</code> e <code>col-md-8</code>).</p>
+                        <ul>
+                            <li>
+                                <strong>Lado Esquerdo - 4 colunas</strong>
+                                <p>Formulário rápido de criação</p>
+                            </li>
+                            <li>
+                                <strong>Lado Direito - 8 colunas</strong>
+                                <p>Tabela de visualização</p>
+                            </li>
+                        </ul>
+                        <p>O objetivo aqui é reduzir a quantidade de ações do usuário para completar uma tarefa.</p>
+
+                        <br>
+
+                        <h5>Tipo de Categoria</h5>
+                        <p>No código utilizo <code>{{ cat.get_tipo_display }}</code>.</p>
+                        <ul>
+                            <li>
+                                <strong>O que é?</strong>
+                                <p>No arquivo <code>models.py</code> defini <code>choices</code> no campo tipo com as opções: receita e despesa.</p>
+                            </li>
+                            <li>
+                                <strong>Funcionamento</strong>
+                                <p>Se eu optasse por utilizar <code>{{ cat.tipo }}</code>, o Django iria exibir o valor do banco de dados, como <strong>receita</strong> por exemplo. Ao adicionar o sufixo <code>_display</code>, o Django busca o rótulo que foi definido pelo usuário.</p>
+                            </li>
+                        </ul>
+
+                        <br>
+
+                        <h5>Lógica Condicional de Badges - Feedback Visual</h5>
+                        <div class="code-container">
+                            <pre><code class="language-python">span class="badge {% if cat.tipo == 'receita' %}bg-success{% else %}bg-danger{% endif %}"</code></pre>
+                        </div>
+                        <p>No código acima estou utilizando lógica de programação dentro de um arquivo HTML.</p>
+                        <p>Aqui o Django avalia o tipo da categoria em tempo real. Se for uma entrada, aplica a classe <code>bg-success</code> (verde); se for saída <code>bg-danger</code> (vermelho). Isso permite que o usuário bata o olho e entenda a categoria sem precisar ler.</p>
+                        
+                        <br>
+
+                        <h5>Bloco Empty</h5>
+                        <div class="code-container">
+                            <pre><code class="language-python">{% empty %}</code></pre>
+                        </div>
+                        <p>O loop <code>{% for cat in categorias %}</code> tenta percorrer a lista. Se a lista estiver vazia, em vez a tabela ficar branca ou quebrada, o Django executa automaticamente o código acima, assim exibindo a mensagem "Nenhuma categoria cadastrada ainda". </p>
+
+                        <br>
+
+                        <h5>URs Dinâmicas com Parâmetros</h5>
+                        <div class="code-container">
+                            <pre><code class="language-python">{% url 'editar_categoria' cat.pk %}</code></pre>
+                        </div>
+                        <p>O Django não gera apenas o link, ele injeta a <strong>Primary Key (ID)</strong> de cada categoria na URL.</p>
+                        <p>Ao clicar no ícone de lápis de qualquer categoria, o Django gera <code>/categorias/editar/{ID}</code>. Isso permite que a View saiba exatamente qual objeto do banco de dados deve ser carregado para a edição.</p>
+                        <!-- Fim - CATEGORIAS.HTML -->
                     </li>
                     <li>
                         <code>admin.py</code>
