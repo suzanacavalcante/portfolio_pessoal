@@ -1731,21 +1731,134 @@ link rel="stylesheet" href="{% static 'css/style.css' %}"</code></pre>
 
                         <p>A seção de templates chegou ao fim. Obviamente não apresentei o código HTML inteiro pois quis me extender muito, mas você pode ler o código na íntegra acessando o repositório do projeto no GitHub.</p>
                     </li>
-                    <li>
-                        <code>admin.py</code>
 
-                        
-                    </li>
+                    <br>
+
                     <li>
                         <code>apps.py</code>
-
+                        <br>
+                        <p>Este arquivo é informa ao Django quais Apps fazem parte do projeto.</p>
+                        <p>Aqui centralizo a configuração de metadados do módulo de contas, garantindo escalabilidade a longo prazo, preparando a arquitetura para suportar grandes volumes de registros financeiros sem gargalos de indexação.</p>
+                        <br>
                         
+                        <div class="code-container">
+                            <pre><code class="language-python">class AccountsConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'accounts'</code></pre>
+                        </div>
+
+                        <h5>Classe de Configuração - AppConfig</h5>
+                        <p>Quando adicionei o app "accounts" na lista em <code>INSTALLED_APPS</code> no arquivo <code>settings.py</code>, o Django procura por este arquivo para entender como rodar este apps</p>
+                        <ul>
+                            <li>
+                                <code>default_auto_field</code>
+                                <p>Define o tipo de dado que será usado para as Primary Keys (ID) das tabelas de forma automática.</p>
+                                <ul>
+                                    <li>
+                                        <code>BigAutoField</code>
+                                        <p>Indica ao Django que ele deve utilizar inteiros de 64 bits. Isso é importante para a escalabilidade. Com ele, o banco de dados pode ter até $9,223,372,036,854,775,807$ registros por tabela, garantindo que os IDs "nunca" esgotem.</p>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <code>name = 'accounts'</code>
+                                <p>Define o caminho completo do Python para o app. É o identificador único que o Django deverá utilizar para vincular modelos, templates e tags ao app correto.</p>
+                            </li>
+                        </ul>                        
                     </li>
+
+                    <br>
+
                     <li>
                         <code>forms.py</code>
+                        <p>No Django, o <code>ModelForma</code> é uma ferramenta muito poderosa, pois ela faz a ponte automática entre o banco de dados e o HTML.</p>
+                        <p>O destaque aqui está na customização do método <code>__init__</code>, onde ocorre uma filtragem dinâmica de QuerySets garantindo o isolamento de dados entre usuários.</p>
 
-                        
+                        <div class="code-container">
+                            <pre><code class="language-python">from django import forms
+from .models import Categoria, Lancamento
+from .models import MetaFinanceira
+
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ['nome', 'tipo']
+
+class LancamentoForm(forms.ModelForm):
+    class Meta:
+        model = Lancamento
+        fields = ['descricao', 'valor', 'data', 'categoria', 'forma_pagamento']
+        widgets = {
+            'data': forms.DateInput(attrs={'type': 'date'}),
+            'valor': forms.NumberInput(attrs={'class': 'form-control bg-dark text-white border-secondary', 'step': '0.01'}),
+            'descricao': forms.TextInput(attrs={'class': 'form-control bg-dark text-white border-secondary', 'placeholder': 'Ex: Supermercado'}),
+            'categoria': forms.Select(attrs={'class': 'form-select bg-dark text-white border-secondary'}),
+            'forma_pagamento': forms.Select(attrs={'class': 'form-select bg-dark text-white border-secondary'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None) 
+        super(LancamentoForm, self).__init__(*args, **kwargs)
+        
+        if user:
+            self.fields['categoria'].queryset = Categoria.objects.filter(user=user)
+        
+        self.fields['forma_pagamento'].label = "Forma de Pagemento (Apenas para Despesas)"
+
+class MetaForm(forms.ModelForm):
+    class Meta:
+        model = MetaFinanceira
+        fields = ['nome', 'valor_alvo', 'valor_poupado', 'data_limite']
+        widgets = {
+            'data_limite': forms.DateInput(attrs={'type': 'date'})
+        }</code></pre>
+                        </div>
+
+                        <h5>Uso de Widgets e Atributos HTML</h5>
+                        <p>No <code>LancamentoForm</code> e no <code>MetaForm</code>, faço com que o Django não decida sozinho como renderizar os campos. Para isso, é utilizado o dicionário <code>widgets</code>.</p>
+                        <ul>
+                            <li>
+                                <code>'type': 'date'</code>
+                                <p>Ao definir um campo <code>data</code> e <code>data_limite</code>, o código forma o navegador a abrir o calendário nativo. Isso evita que o usuário digite datas em formatos incorretos.</p>
+                            </li>
+                            <li>
+                                <code>'step': '0.01'</code>
+                                <p>Permite que o campo numérico aceite casas decimais. Sem isso, o navegador poderia travar o campo apenas para números inteiros.</p>
+                            </li>
+                        </ul>
+
+                        <br>
+
+                        <h5>Injeção de Classes CSS do Lado do Servidor</h5>
+                        <code>attrs={'class': 'form-control bg-dark text-white border-secondary'}</code>
+                        <p>Em vez de caçar cada input no HTML para estilizar, optei por injetar as classes do Bootstrap diretamente no Python. Então quando o Django renderizar <code>{{ form.descricao }}</code>, o HTML  já nasce com o design correto para o Dark Mode da interface.</p>
+
+                        <br>
+
+                        <h5>Filtro Dinâmico de Segurança</h5>
+                        <p>Parte mais complexa e importante deste arquivo.</p>
+                        <div class="code-container">
+                            <pre><code class="language-python">def __init__(self, *args, **kwargs):
+    user = kwargs.pop('user', None) 
+    super(LancamentoForm, self).__init__(*args, **kwargs)
+    if user:
+        self.fields['categoria'].queryset = Categoria.objects.filter(user=user)</code></pre>
+                        </div>
+
+                        <ul>
+                            <li>
+                                Sem este bloco de código, quando o usuário fosse realizar o lançamento de um gasto, ele veria no campo "Categoria" todas as categorias de todos os usuários cadastrados no PoupAí.
+                            </li>
+                            <li>
+                                O código sobrescreve o método de inicialização do formulário para capturar o usuário logado: <code>kwargs.pop('user')</code>.
+                            </li>
+                            <li>
+                                O <code>queryset</code> do campo categoria é filtrado em tempo real. O usuário só vê as categorias que ele mesmo criou.
+                            </li>
+                        </ul>
                     </li>
+
+                    <br>
                     
                     <li>
                         <code>urls.py</code>
