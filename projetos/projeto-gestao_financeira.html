@@ -1616,6 +1616,120 @@ link rel="stylesheet" href="{% static 'css/style.css' %}"</code></pre>
                         <p>O Django não gera apenas o link, ele injeta a <strong>Primary Key (ID)</strong> de cada categoria na URL.</p>
                         <p>Ao clicar no ícone de lápis de qualquer categoria, o Django gera <code>/categorias/editar/{ID}</code>. Isso permite que a View saiba exatamente qual objeto do banco de dados deve ser carregado para a edição.</p>
                         <!-- Fim - CATEGORIAS.HTML -->
+
+                        <br>
+
+                        <!-- Inicio - LANCAMENTOS.HTML -->
+                        <strong>Lançamentos</strong>
+
+                        <br>
+
+                        <p>Basicamente é a central de operações principal do usuário. Assim como na tela de Categorias, mantive o padrão de CRUD em página única, porém essa tela exigiu um pouco mais de complexidade, isso porque aqui o sistema lida com relacionamentos entre tabelas e formatação de dados.</p>
+
+                        <h5>Formatação de Dados - Django Template Filter</h5>
+                        <div class="code-container">
+                            <pre><code class="language-python">{{ lanc.data|date:"d/m/Y" }}</code></pre>
+                        </div>
+                        <p>Observe o uso do pipe "|".</p>
+                        <ul>
+                            <li>
+                                O banco de dados entrega a data no formato <code>YYYY-MM-DD</code>
+                            </li>
+                            <li>
+                                O filtro <code>date</code> do Django formata esse dado diretamente no HTML para o padrão brasileiro.
+                            </li>
+                        </ul>
+
+                        <br>
+
+                        <h5>Dados Relacionais - Deep Traversal</h5>
+                        <div class="code-container">
+                            <pre><code class="language-python">td class="{% if lanc.categoria.tipo == 'receita' %}text-success{% else %}text-danger{% endif %}"</code></pre>
+                        </div>
+                        <p>Aqui podemos ver o ORM do Django refletindo no Template: </p>
+                        <ul>
+                            <li>
+                                O objeto <code>lanc</code> não tem o campo <code>tipo</code> de forma direta, porém através da chave estrangeira, o código encontra a tabela <code>categoria</code> e descobre se este reistro se trata de uma entrada ou saída.
+                            </li>
+                            <li>
+                                Assim como na tela de Categoria, aqui também ocorre o feedback visual através das cores verde e vermelho.
+                            </li>
+                        </ul>
+
+                        <br>
+
+                        <h5>Símbolos Dinâmicos</h5>
+                        <div class="code-container">
+                            <pre><code class="language-python">{% if lanc.categoria.tipo == 'receita' %}+{% else %}-{% endif %} R$ {{ lanc.valor }}</code></pre>
+                        </div>
+                        <p>Além do feedback visual através da cor, o código injeta matematicamente o símbolo de positivo ou negativo. Isso previne erros de interpretação já que um gasto aparece claramente com o símbolo de negativo.</p>
+
+                        <br>
+
+                        <h5>namespacing de Chaves Estrangeiras no Badge</h5>
+                        <div class="code-container">
+                            <pre><code class="language-python">span class="badge bg-secondary">{{ lanc.categoria.nome }}</code></pre>
+                        </div>
+                        <p>Aqui estou renderizando o nome da categoria associada. No arquivo <code>models.py</code>, defini que cada lançamento obrigatoriamente precisa de uma categoria. Dessa forma, o Django garante que, ao lista os lançamentos, o nome da categoria correspondente seja buscado via <code>JOIN</code> no SQL.</p>
+                        <!-- Fim - LANCAMENTOS.HTML -->
+
+                        <!-- Inicio - METAS.HTML -->
+                        <strong>Metas</strong>
+
+                        <br>
+
+                        <p>Este arquivo é um Dashboad Reativo. O código não apenas lista os dados em uma simples tabela, mas utiliza elementos visuais, como Progress Bars e Cards, com o objetivo de entrar um feedback psicológico positivo ao usuário sobre o progresso de suas economias.</p>
+
+                        <h5>Métodos do Model</h5>
+                        <div class="code-container">
+                            <pre><code class="language-python">{{ meta.porcentagem }}</code></pre>
+                        </div>
+                        <p>O código acima é utilizado em três lugares diferentes: no texto do badge, na largura da barra de progresso e no atributo de acessibilidade.</p>
+                        <ul>
+                            <li>
+                                O template não fica responsável por realizar cálculos matemáticos. Essa responsabilidade fica na função <code>porcentagem()</code> presente no arquivo <code>models.py</code>. Isso garante que a lógica de travar a barra de progresso em 100% ou dividir por zero seja tratada diretamente com o Python e o HTML fique responsável apenas por apresentar o resultado final.
+                            </li>
+                        </ul>
+
+                        <br>
+
+                        <h5>Barras de Progresso Dinâmicas</h5>
+                        <div class="code-container">
+                            <pre><code class="language-python">div class="progress-bar" style="width: {{ meta.porcentagem }}%; ..."</code></pre>
+                        </div>
+                        <p>Aqui estou injetando uma variável do Django diretamente em uma propriedade CSS. Conforme o usuário poupa mais dinheiro, o Django renderiza um número maior e a barra cresce visualmente preenchendo a barra de progresso.</p>
+
+                        <br>
+
+                        <h5>Cars Responsivos e Grid Interno</h5>
+                        <p>Nas telas anteriores utilizei tabelas, porém, aqui, optei por utilizar um sistema de Cards: </p>
+                        <ul>
+                            <li>
+                                <code>col-md-6 mb-3</code>
+                                <p>Em telas maiores, as metas aparecem em duas colunas. Em telas menores, as metas ocupam a largura total.</p>
+                            </li>
+                            <li>
+                                As metas são objetivos individuais com várias informações. O card isola essas informações, facilitando a leitura.
+                            </li>
+                        </ul>
+
+                        <br>
+
+                        <h5>Lógica de Exibição de Prazo</h5>
+                        <div class="code-container">
+                            <pre><code class="language-python">{% if meta.data_limite %}
+    Prazo: {{ meta.data_limite|date:"d/m/Y" }}
+{% endif %}</code></pre>
+                        </div>
+                        <ul>
+                            <li>
+                                O usuário pode optar por não preencher o campo <code>data_limite</code>, por esse motivo utilizei uma condicional. Se o usuário não definir uma data para a meta, o ícone de calendário e o texto "Prazo" simplesmente não aparecem. Isso evita que o card exiba um espaço vazio ou a palavra "None".
+                            </li>
+                        </ul>
+                        <!-- Fim METAS.HTML -->
+                        <br>
+
+                        <p>A seção de templates chegou ao fim. Obviamente não apresentei o código HTML inteiro pois quis me extender muito, mas você pode ler o código na íntegra acessando o repositório do projeto no GitHub.</p>
                     </li>
                     <li>
                         <code>admin.py</code>
