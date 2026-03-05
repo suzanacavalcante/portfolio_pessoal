@@ -1859,17 +1859,111 @@ class MetaForm(forms.ModelForm):
                     </li>
 
                     <br>
+
+                    <li>
+                        <code>views.py</code>
+                        <p>Este arquivo é muito extenso e, por esse motivo, ele não estará completo aqui. Mas você pode dar uma olhada na íntegra acessando o repositório do projeto.</p>
+                        <p>É neste arquivo onde a lófica de negócio reside.</p>
+                        <p>Aqui desenvolvi uma camada e visualização de dados compleza utilizando a API de agregação do Django e funções de banco de dados (Database Functions) como <code>TruncMonth</code> e <code>ExtractDay</code>. A lógica do Dashboard é dinâmica , alternando entre granulosidade diária e mensal, grantindo performance ao processar somatórios diretamente no nível do banco de dados e assegurando o isolamento total de dados entre usuários (Milti-tenancy).</p>
+                        
+                        <h5>Inteligência de Sinal Financeiro</h5>
+                        <p>A View toma decisões automáticas sobre o sinal do dinheiro.</p>
+                        <div class="code-container">
+                            <pre><code class="language-python">valor_abs = abs(form.cleaned_data.get('valor'))
+if categoria_obj.tipo == 'despesa':
+    lancamento.valor = -valor_abs
+else:
+    lancamento.valor = valor_abs
+    lancamento.forma_pagamento = None</code></pre>
+                        </div>
+
+                        <ul>
+                            <li>
+                                Aqui utilizo <code>abs()</code> para garantir que o número seja positivo e então, baseado no tipo da categoria, o código força o sinal de negativo.
+                            </li>
+                            <li>
+                                Se for uma receita, o código anula <code>forma_pagamento</code>. Isso evita inconsistências no banc de dados.
+                            </li>
+                        </ul>
+
+                        <br>
+
+                        <h5>Agregações e Filtros</h5>
+                        <p>A função <code>dashboard</code> é a mais densa do projeto. Aqui utilizo o <strong>Django Aggregation API</strong> que é mais eficiente do que somar valores usando um loop Python.</p>
+                        <ul>
+                            <li>
+                                <strong>Agregações</strong>
+                                <div class="code-container">
+                                    <pre><code class="language-python">entradas_valor = lancamentos_mes.filter(categoria__tipo='receita').aggregate(Sum('valor'))['valor__sum'] or 0</code></pre>
+                                </div>
+                                <p>Esse bloco de código executa o comando <code>SUM</code> diretamente no SQL do banco de dados.</p>
+                            </li>
+                            <li>
+                                O uso de <code>or 0</code> é essencial para evitar erros de <code>NoneType</code> quando o usuário ainda não cadastrou nenhum lançamento.
+                            </li>
+                        </ul>
+
+                        <br>
+
+                        <h5>Lógica Multivisão</h5>
+                        <p>Aqui criei um sistema que decide o que exibir no gráfico baseado na URL <code>request.GET.get('mes')</code>:</p>
+                        <ul>
+                            <li>
+                                <strong>Visão Mensal (Dia a Dia)</strong>
+                                <p>Utilizei <code>calendar.monthrange</code> para saber quantos dias o mês tem e <code>ExtractDay</code> para agrupar os gastos.</p>
+                            </li>
+                            <li>
+                                <strong>Visão Anual</strong>
+                                <p>UUtilizo <code>TruncMonth</code> para agrupar tudo por mês.</p>
+                            </li>
+                            <li>
+                                <strong>Dicionários de Mapeamento</strong>
+                                <div class="code-container">
+                                    <pre><code class="language-python">mapa_e = {d['dia']: float(d['total_e'] or 0) for d in dados_dias}</code></pre>
+                                </div>
+                                <p>Aqui utilizo <strong>Dict Comprehension</strong> para transformar o resultado do banco em um mapa rápido para preencher os dias que não tiveram lançamentos com o valor 0, evitandoque o gráficode linhas quebre.</p>
+                            </li>
+                        </ul>
+
+                        <br>
+
+                        <h5>Segurança</h5>
+                        <p>Em todas as funções de edição e exclusão utilizei: </p>
+                        <div class="code-container">
+                            <pre><code class="language-python">categoria = get_object_or_404(Categoria, pk=pk, user=request.user)</code></pre>
+                        </div>
+
+                        <ul>
+                            <li>
+                                Se o código tivesse apenas <code>pk=pk</code>, um usuário mal-intencionado poderia mudar o ID da UR para <code>editar/{ID}</code> e tentar editar a categoria de outro usuário.
+                            </li>
+                            <li>
+                                Ao incluir <code>user=request.user</code> no filtro, o Django garante que, se a categoria não pertencer ao usuário logado, ele receberá um erro 404.
+                            </li>
+                        </ul>
+
+                        <br>
+
+                        <h5>Gráfico de Donut - Formas de Pagamento</h5>
+                        <div class="code-container">
+                            <pre><code class="language-python">dados_pagamento = lancamentos_mes.filter(...).values('forma_pagamento').annotate(total=Sum('valor'))</code></pre>
+                        </div>
+                        <p>Aqui disfarcei o uso de um <code>GROUP BY</code>. O Django agrupa todas as despesas por "Cartão", "Dinheiro", etc., e soma os totais. Isso gera dados corretos para alimentar um gráfico no frontend.</p>
+
+                    </li>
+
+                    <li>
+                        <code>dashboard.html</code>
+                    </li>
+
+                    <br>
                     
                     <li>
                         <code>urls.py</code>
 
                         
                     </li>
-                    <li>
-                        <code>views.py</code>
-
-                        
-                    </li>
+                    
                 </ul>
 
                 <h4>manage.py</h4>
