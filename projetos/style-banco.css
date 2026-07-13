@@ -1,122 +1,333 @@
-@import url('https://fonts.googleapis.com/css2? family= Nunito:wght@200;300;400;600;700 & family= Poppins:wght@400;500;700 & display= trocar');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --color-white: #f5f5f7;
+    --color-white-dim: #b6b6c3;
+    --color-pink: #e0388f;
+    --color-black: #050507;
+    --color-blue: #8A2BE2;
+    --color-blue-light: #a768f0;
+    --color-azul: #6495ED;
+
+    --surface: #141420;
+    --surface-2: #1b1b29;
+    --border-soft: rgba(255, 255, 255, 0.08);
+    --gradient-brand: linear-gradient(135deg, var(--color-blue), var(--color-pink));
+
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --shadow-soft: 0 15px 40px -20px rgba(0, 0, 0, .7);
+    --ease: cubic-bezier(.4, 0, .2, 1);
+}
 
 * {
-    margin: 0px;
-    padding: 0px;
     box-sizing: border-box;
 }
 
-:root {
-    --color-white: #fff;
-    --color-pink: #d12f7a;
-    --color-black: #000;
-    --color-blue: #8A2BE2;
-    --color-azul: #6495ED;
+html {
+    scroll-behavior: smooth;
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
     background-color: var(--color-black);
-    color: #333;
-    line-height: 1.6;
+    color: var(--color-white-dim);
+    line-height: 1.7;
 }
+
+a {
+    color: var(--color-blue-light);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .25s var(--ease), color .25s var(--ease);
+}
+
+a:hover {
+    color: var(--color-pink);
+    border-color: currentColor;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    margin: 3.2rem auto 0;
+    max-width: 90rem;
+    width: 100%;
+    padding: 0 2rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--color-white-dim);
+    border: none;
+}
+
+.back-link:hover {
+    color: var(--color-white);
+}
+
 header {
-    background-color: var(--color-black);
-    color: #fff;
-    padding: 1.5em 0;
+    background: radial-gradient(ellipse at top, rgba(138, 43, 226, .18), transparent 60%);
+    color: var(--color-white);
+    padding: 2.4rem 2rem 4rem;
     text-align: center;
 }
+
 header h1 {
-    margin: 0;
-    font-size: 2em;
+    margin: 0 auto 1rem;
+    max-width: 80rem;
+    font-size: clamp(2.4rem, 4vw, 3.6rem);
+    font-weight: 700;
+    letter-spacing: -.02rem;
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
+
+header p {
+    font-size: 1.6rem;
+    color: var(--color-white-dim);
+    margin-bottom: 1.2rem;
+}
+
+header span {
+    display: inline-block;
+    padding: .5rem 1.4rem;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    font-size: 1.2rem;
+    color: var(--color-white-dim);
+}
+
 main {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 20px;
-    border-radius: 8px;
+    max-width: 90rem;
+    margin: 0 auto;
+    padding: 1rem 2rem 6rem;
 }
 
 .container {
-    display: flex;
+    max-width: 90rem;
+    margin: 2rem auto;
 }
 
 section {
-    margin-bottom: 20px;
+    margin-bottom: 3.2rem;
 }
+
 section h2 {
-    color: #8A2BE2;
-    margin-bottom: 10px;
+    color: var(--color-white);
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 1.6rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-soft);
+    position: relative;
+}
+
+section h2::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 6rem;
+    height: 2px;
+    background: var(--gradient-brand);
 }
 
 section h3 {
-    color: var(--color-white);
-    margin-bottom: 10px;
+    color: var(--color-blue-light);
+    font-size: 1.7rem;
+    font-weight: 600;
+    margin: 2rem 0 1rem;
 }
 
-section h4{
+section h4 {
     color: var(--color-white);
-    margin-bottom: 10px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 1.6rem 0 .8rem;
 }
 
-section p{
-    color: var(--color-white);
+section h5 {
+    color: var(--color-pink);
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin: 1.6rem 0 .8rem;
 }
 
-section ul li{
-    color: var(--color-white);
+section p {
+    color: var(--color-white-dim);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
 }
 
-section figcaption{
-    color: var(--color-white);
-    margin-bottom: 20px;
-    font-size: 10px;
+section ul,
+section ol {
+    color: var(--color-white-dim);
+    font-size: 1.5rem;
+    padding-left: 2.2rem;
+    margin-bottom: 1.2rem;
+}
+
+section li {
+    margin-bottom: .6rem;
+}
+
+section li::marker {
+    color: var(--color-pink);
+}
+
+section figcaption {
+    color: var(--color-white-dim);
+    text-align: center;
+    font-size: 1.3rem;
+    font-style: italic;
+    margin: 1rem 0 2.4rem;
+}
+
+/* inline code (not inside a code-container) */
+p code,
+li code,
+h3 code,
+h4 code {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    color: var(--color-pink);
+    padding: .2rem .6rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Consolas', 'Menlo', monospace;
+    font-size: .92em;
 }
 
 img {
     max-width: 100%;
     height: auto;
-    border: 2px solid #d12f7a;
-    border-radius: 5px;
-    margin: 10px 0;
-}
-a {
-    color: #6495ED;
-    text-decoration: none;
-}
-
-.code-title {
-    font-family: Arial, sans-serif;
-    font-size: 16px;
-    margin-bottom: 8px;
-    font-weight: bold;
+    display: block;
+    margin: 2rem auto 0;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-soft);
+    transition: transform .35s var(--ease);
 }
 
-pre{
-    background-color: #f5f5f5;
-    padding: 12px;
-    border-radius: 6px;
-    font-family: Consolas, monospace;
-    font-size: 14px;
-    overflow-x: auto;
-    border: 1px solid #ddd;
+figure {
+    margin: 0 0 2rem;
 }
+
+figure:hover img {
+    transform: scale(1.015);
+}
+
+/* ==========================================================================
+   Code blocks (Prism handles token colors where loaded)
+   ========================================================================== */
 
 .code-container {
-    margin: 20px 0;
-    border-radius: 8px;
+    position: relative;
+    margin: 2rem 0;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-soft);
     overflow: hidden;
-    font-size: 14px;
+    box-shadow: var(--shadow-soft);
+    background: #1d1d2b;
 }
 
-.language-python::before {
+.code-container:has(code[class*="language-"])::before {
+    content: "code";
     display: block;
-    background: #2d2d2d;
-    color: #fff;
-    padding: 6px 12px;
-    font-family: Arial, sans-serif;
-    font-size: 13px;
-    font-weight: bold;
+    padding: .8rem 1.6rem;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: .05rem;
+    text-transform: uppercase;
+    color: var(--color-white-dim);
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.code-container:has(code.language-python)::before {
+    content: "python";
+}
+
+.code-container:has(code.language-bash)::before {
+    content: "bash";
+}
+
+.code-container:has(code.language-javascript)::before {
+    content: "javascript";
+}
+
+.code-container:has(code.language-sql)::before {
+    content: "sql";
+}
+
+.code-container:has(code.language-dockerfile)::before {
+    content: "dockerfile";
+}
+
+.code-container:has(code.language-log)::before {
+    content: "log";
+}
+
+.code-container pre {
+    margin: 0;
+    padding: 1.6rem 2rem;
+    overflow-x: auto;
+    font-size: 1.35rem;
+    line-height: 1.6;
+    background: transparent;
+}
+
+.code-container pre[class*="language-"] {
+    background: transparent;
+    border-radius: 0;
+    text-shadow: none;
+}
+
+/* fallback styling when Prism isn't loaded on the page */
+.code-container pre code {
+    font-family: 'Consolas', 'Menlo', monospace;
+    color: #e8e8f0;
+}
+
+/* ==========================================================================
+   Embedded reports (Power BI / iframes)
+   ========================================================================== */
+
+.container iframe {
+    display: block;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1980 / 500;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-soft);
+}
+
+@media screen and (max-width: 768px) {
+    header {
+        padding: 2rem 1.6rem 3.2rem;
+    }
+
+    main {
+        padding: 1rem 1.6rem 4rem;
+    }
+
+    section h2 {
+        font-size: 1.8rem;
+    }
+
+    section p,
+    section ul,
+    section ol {
+        font-size: 1.4rem;
+    }
+
+    .container iframe {
+        aspect-ratio: 4 / 3;
+    }
 }

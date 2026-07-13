@@ -15,14 +15,17 @@
             <h1>Suzana Cavalcante</h1>
         </a>
 
-        <nav class="navbar">
-            
+        <nav class="navbar" id="navbar">
+
             <ul>
-                <li> 
+                <li>
                     <a href="#">Início</a>
                 </li>
                 <li>
                     <a href="#experiencia">Experiência</a>
+                </li>
+                <li>
+                    <a href="#education">Education</a>
                 </li>
                 <li>
                     <a href="#skills">Skills</a>
@@ -35,122 +38,204 @@
                 </li>
             </ul>
         </nav>
+
+        <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
     </section>
 
     <section id="person">
-        <div  class="person-content">
-            <div class="person-name">
-                <h1>Olá,<span></span> </h1>
-                <h1>Meu nome é <span></span></h1>
-                <h1>Suzana Cavalcante <span></span></h1>
-            </div>
+        <div class="hero-rule">
+            <span>SUZANA CAVALCANTE</span>
+            <!--
+            <span class="hero-status"><span class="status-dot"></span> Disponível para novas oportunidades</span>
+            -->
+            <span>DATA ENGINEER</span>
+        </div>
 
-            <div class="stacks-content">
-                <h3>Techs: </h3>
-                <div class="stacks">
-                    <ul>
-                        <li>
-                            <div data="HTML">
-                                <img src="./svg/html.svg" alt="html-icon">
-                            </div>
-                        </li>
-                    </ul>
-                    <ul>
-                        <li>
-                            <div data="CSS">
-                                <img src="./svg/css.svg" alt="css-icon">
-                            </div>
-                        </li>
-                    </ul>
-                    <ul>
-                        <li>
-                            <div data="JAVASCRIPT">
-                                <img src="./svg/js.svg" alt="js-icon">
-                            </div>
-                        </li>
-                    </ul>
-                    <ul>
-                        <li>
-                            <div data="PYTHON">
-                                <img src="./svg/python.svg" alt="node-icon">
-                            </div>
-                        </li>
-                    </ul>
-                    <ul>
-                        <li>
-                            <div data="EXCEL">
-                                <img src="./svg/excel.svg" alt="react-icon">
-                            </div>
-                        </li>
-                    </ul>
-                    <ul>
-                        <li>
-                            <div data="POWER BI">
-                                <img src="./svg/power-bi.svg" alt="react-icon">
-                            </div>
-                        </li>
-                    </ul>
+        <div class="hero-statement-row">
+            <h1 class="hero-statement">
+                Dados <span class="hero-outline">brutos</span>.<br>
+                Decisões <span class="hero-gradient">claras</span>.
+            </h1>
+
+            <div class="hero-badges">
+                <div class="hero-badge-item">
+                    <img src="./svg/azure-fundamentals.png" alt="Certificação Microsoft Azure Fundamentals (AZ-900)">
+                </div>
+                <div class="hero-badge-item">
+                    <img src="./svg/azure-data-fundamentals.png" alt="Certificação Microsoft Azure Data Fundamentals (DP-900)">
+                </div>
+                <div class="hero-badge-item">
+                    <img src="./svg/azure-ia-fundamentals.png" alt="Certificação Microsoft Azure AI Fundamentals (AI-900)">
+                </div>
+                <div class="hero-badge-item">
+                    <img src="./svg/databrick-fundamentals.png" alt="Certificação Databricks Fundamentals">
                 </div>
             </div>
+        </div>
 
-            <div class="container-button">
+        <div class="hero-foot">
+            <a href="#aboutme" class="hero-who">
+                <img src="./img/perfil.jpeg" alt="Foto de Suzana Cavalcante" class="hero-avatar">
+                <span class="hero-who-text">
+                    <strong>Suzana Cavalcante</strong>
+                    Data Engineer I — Bradesco
+                </span>
+            </a>
+
+            <div class="hero-links">
+                <a href="https://github.com/suzanacavalcante" target="_blank" rel="noopener" aria-label="GitHub">
+                    <img src="./svg/logo-github.svg" alt="">
+                </a>
+                <a href="https://www.instagram.com/prod.susu/" target="_blank" rel="noopener" aria-label="Instagram">
+                    <img src="./svg/logo-insta.svg" alt="">
+                </a>
+                <a href="https://www.linkedin.com/in/suzana-cavalcante-3b2335185/" target="_blank" rel="noopener" aria-label="LinkedIn">
+                    <img src="./svg/logo-linkedin.svg" alt="">
+                </a>
+            </div>
+
+            <div class="hero-cta-row">
                 <div class="button-borders">
-                    <a href="#experiencia">
+                    <a href="projeto.html">
                         <button class="primary-button">
-                            Experiência
+                            Ver Projetos
                         </button>
                     </a>
                 </div>
-            </div>
-
-        </div>
-
-        <div class="person-background">
-            <div class="wrapper-profile-photo">
-                <img src="./img/perfil.jpeg" alt="" class="profile-photo">
-            </div>
-            <div class="links">
-                <a href="https://github.com/suzanacavalcante">
-                    <img src="./svg/logo-github.svg" alt="icon-github">
+                <a href="./svg/Curriculo.pdf" class="secondary-button" download>
+                    Currículo
                 </a>
-                <a href="https://www.instagram.com/prod.susu/">
-                    <img src="./svg/logo-insta.svg" alt="icon-insta">
-                </a>
-                <a href="https://www.linkedin.com/in/suzana-cavalcante-3b2335185/">
-                    <img src="./svg/logo-linkedin.svg" alt="icon-linkedin">
+                <a href="#contato" class="secondary-button">
+                    Contato
                 </a>
             </div>
         </div>
-        
+    </section>
+
+    <section id="stats" data-aos="fade-up">
+        <div class="section-rule">
+            <span>EM NÚMEROS</span>
+        </div>
+        <div class="stats-row">
+            <div class="stat-item">
+                <span class="stat-num">4+</span>
+                <span class="stat-label">Certificações</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-num">11</span>
+                <span class="stat-label">Projetos publicados</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-num">3+</span>
+                <span class="stat-label">Anos em Dados</span>
+            </div>
+        </div>
     </section>
 
     <section id="aboutme" data-aos="fade-up">
-        <div class="title">
-            <h1>SOBRE MIM</h1>
+        <div class="section-rule">
+            <span>SOBRE MIM</span>
         </div>
 
-        <h2>Suzana Cristina Almeida Cavalcante</h2>
-        <h3>Engenheiro de Dados Jr.</h3>
-        <br>
+        <div class="about-grid">
+            <div class="about-side">
+                <h2>Data Engineer I</h2>
+                <p class="about-role">Bradesco — Gestão de Dados</p>
+                <div class="featured-tags">
+                    <span>AI-900</span>
+                    <span>DP-900</span>
+                    <span>AZ-900</span>
+                    <span>Databricks Fundamentals</span>
+                    <span>cPanel CPP</span>
+                </div>
+            </div>
 
-        <div class="texto">
-            <p>Graduanda em Engenharia de Software, 24 anos.
-                
-            <br>
+            <div class="about-text">
+                <p>Sou Engenheira de Dados no Banco Bradesco, com sólida base em Engenharia de Software e foco no desenvolvimento de soluções escaláveis para o ecossistema de dados. Minha trajetória é marcada pela transição estratégica do desenvolvimento mobile para a engenharia de dados, onde utilizo automação para transformar processos complexos em fluxos eficientes.</p>
 
-                Estagiei no Banco Bradesco por 8 meses e graças a minha experiência prévia em desenvolvimento mobile, conhecimento técnico em linguagens de programação, bancos de dados, soluções em nuvem e data storytelling, meu estágio foi marcado pelo desenvolvimento de automações.<br>
-                
-                Atualmente faço parte do time de Engenharia de Dados do Banco Bradesco como Engenheira de Dados Jr. Minhas tarefas principais envolvem o Desenvolvimento de Software e Automações voltados para gestão de dados.
-                
-                <br>Possuo amplo conhecimento em servidores Linux e Windows, ferramentas de monitoramento como Zabbix e Grafana, SQL, Python, gerenciamento de containers (Docker/Kubernetes) e ETL/ELT.<br>
-                
-                Sou Certificada pela Microsoft nas certificações AI-900, DP-900 e AZ-900 e pelo cPanel em CPP T299 (2023/2024/2025), estou em constante evolução, atualmente buscando as certificações AWS Cloud Pratictioner e Databricks Certified Data Engineer Associate, enquanto aprofundo meus conhecimentos em Arquitetura de Dados e Databricks.<br>
-                
-                Sou apaixonada por tecnologia e resolução de problemas, sou motivada pelo desafio de aprimorar sistemas e processos por meio da automação, desenvolvimento de software, análise de dados e soluções inovadoras.
-            </p>
+                <p>Principais Impactos e Atuação:</p>
+
+                <p>- Automação de Dados: Desenvolvimento de pipelines que resultaram em ganhos expressivos de performance (até 97%) em análises internas.
+                    <br>
+                    - Ecossistema de Dados: Experiência com arquiteturas de ETL/ELT, modelagem de dados e integração de ferramentas como Databricks, SQL e Python.
+                    <br>
+                    - Infraestrutura e Cloud: Domínio em ambientes Linux/Windows, gerenciamento de containers (Docker/Kubernetes) e monitoramento (Zabbix/Grafana).
+                </p>
+
+                <p>Stack Tecnológica:</p>
+
+                <p>- Linguagens/Frameworks: Python, SQL, Spark, Airflow, DBT.
+                    <br> 
+                    - Cloud & Big Data: Microsoft Azure, Azure Databricks, Hadoop, Apache Kafka, Docker.
+                    <br>
+                    - Visualização & Ferramentas: Power BI e SAS.
+                </p>
+
+                <p>Certificações Atuais:</p>
+
+                <p>- Microsoft: AZ-900, DP-900 e AI-900.
+                    <br>
+                    - Databricks: Fundamentals
+                    <br>
+                    - cPanel: CPP T299.
+                </p>
+
+                <p>Em evolução: Atualmente focada na certificação Databricks Certified Data Engineer Associate.</p>
+
+                <p>Sou apaixonada por tecnologia e resolução de problemas, motivada pelo desafio de aprimorar sistemas e processos por meio da automação, desenvolvimento de software, análise de dados e soluções inovadoras.</p>
+            </div>
         </div>
     </section>
-    
+
+    <section id="projetos-destaque" data-aos="fade-up">
+        <div class="title">
+            <h1>PROJETOS EM DESTAQUE</h1>
+        </div>
+
+        <div class="featured-grid">
+            <div class="featured-card">
+                <div class="featured-icon">P</div>
+                <span class="featured-badge in-progress">Em desenvolvimento</span>
+                <h3>PoupAí</h3>
+                <p>Sistema de Gestão Financeira End-to-End: front-end e back-end em Django, containers com Docker, PostgreSQL e observabilidade.</p>
+                <div class="featured-tags">
+                    <span>Python</span>
+                    <span>Django</span>
+                    <span>Docker</span>
+                    <span>PostgreSQL</span>
+                </div>
+                <a href="projetos/projeto-gestao_financeira.html" class="featured-link">Ver case completo &rarr;</a>
+            </div>
+
+            <div class="featured-card">
+                <div class="featured-icon">A</div>
+                <span class="featured-badge soon">Em breve</span>
+                <h3>AssisteAí</h3>
+                <p>Próximo projeto End-to-End: uma plataforma para organizar e recomendar filmes e séries, com arquitetura própria de dados.</p>
+                <div class="featured-tags">
+                    <span>Java</span>
+                    <span>PostgreSQL</span>
+                    <span>Neo4j</span>
+                    <span>Docker</span>
+                </div>
+                <span class="featured-link disabled">Em construção</span>
+            </div>
+        </div>
+
+        <div class="container-button">
+            <div class="button-borders">
+                <a href="projeto.html">
+                    <button class="primary-button">
+                        Ver todos os projetos
+                    </button>
+                </a>
+            </div>
+        </div>
+    </section>
 
     <section id="experiencia" data-aos="fade-up">
         <div class="title">
@@ -161,7 +246,7 @@
                 <div class="icon">
                     <img src="img/icons8-celular-50.png" alt="#">
                 </div>
-                <h2>Desenvolvedora Jr.</h2>
+                <h2>Mobile Developer Intern</h2>
                 <h3>Aztlan Technology</h3>
                 <br>
                 <h4>Junho/2019 - Agosto/2019</h4>
@@ -172,461 +257,799 @@
                 <div class="icon">
                     <img src="img/icons8-telefone-50.png" alt="#">
                 </div>
-                <h2>ServiceDesk</h2>
-                <h3>Sonda IT</h3>
+                <h2>Service Desk</h2>
+                <h3>SONDA IT</h3>
                 <br>
                 <h4>Outubro/2020 - Fevereiro/2022</h4>
                 <br>
-                <span>Atendimento especial a uma carteira de clientes revendedores de produtos Natura.</span>
+                <span>Responsável por fornecer suporte técnico de Nível 1/2 através de canais de comunicação (telefone e chat), garantindo a resolução eficiente de problemas críticos.</span>
+                <br>
+                <span>Principais Entregas</span>
+                <span>Resolução de Problemas: Solução de incidentes e requisições relacionadas à infraestrutura de informática e acessos a servidores internos da empresa.</span>
             </section>
             <section class="card analysis">
                 <div class="icon">
                     <img src="img/icon-locaweb.png" alt="#">
                 </div>
-                <h2>Analista de Dados Jr.</h2>
+                <h2>Data Analyst Jr.</h2>
                 <h3>Locaweb - LWSA</h3>
                 <br>
                 <h4>Fevereiro/2023 - Maio/2025</h4>
                 <br>
-                <span>Analista de Dados JR para a equipe do Suporte.
-                    <br>
-                    <br>
-                    Analise de KPIs e Churn.
-                    <br>
-                    <br>
-                    Ferramentas: Power BI, PostgreSQL, Excel, Python.
-                </span>
+                <span>Analista de Dados Júnior focado em fornecer suporte analítico e insights acionáveis para as equipes operacionais do Grupo LWSA. Minhas atividades são centradas na saúde do cliente e na performance do serviço.</span>
+                <br>
+                <span>Principais Atividades</span>
+                <span>• Condução da análise e monitoramento de KPIs.</span>
+                <br>
+                <span>• Análise detalhada do Churn.</span>
+                <br>
+                <span>• Colaboração ativa e assistência em projetos de infraestrutura e modelagem de dados, trabalhando em conjunto com o Engenheiro de Dados.</span>
             </section>
             <section class="card analysis">
                 <div class="icon">
                     <img src="img/icon-bradesco.png" alt="#">
                 </div>
-                <h2>Engenheiro de Dados Jr.</h2>
+                <h2>Data Engineer I</h2>
                 <h3>Bradesco</h3>
                 <br>
                 <h4>Junho/2025 - Atual</h4>
                 <br>
-                <span>Desenvolvimento de Software para a Gestão de Dados destinado aos analistas financeiros do departamento de Contabilidade do Banco.
+                <span>Atuação no Departamento de Contadoria Geral, focada na modernização e governança do ecossistema de dados financeiros.</span>
                 <br>
+                <span>Principais Atividades</span>
+                <span>• Desenvolvimento de Pipelines: Construção de fluxos de ETL escaláveis utilizando Python e Databricks.</span>
                 <br>
-                Ferramentas: Python, Java, SQL, PowerBI, Excel, SAS e Databricks.
-                </span>
+                <span>• Arquitetura de Soluções: Implementação de rotinas em Java, SQL, sempre pensando em escalabilidade e manutenibilidade.</span>
+                <br>
+                <span>• Business Intelligence: Modelagem de dados para visualização avançada em Power BI e Dashboards Web.</span>
             </section>
         </main>
     </section>
 
     <!-- TIMELINE -->
     <section id="timelines" data-aos="fade-up">
-        <div class="title">
-            <h1>LINHA DO TEMPO</h1>
+        <div class="section-rule">
+            <span>LINHA DO TEMPO</span>
+            <span>2015 — 2026</span>
         </div>
-        <div class="timeline-wrapper">
-            <ul class="timelines">
-                <li data-date="2015">
-                    <span class="title">Web Designer</span>
-                    <div class="data">
-                        <h3>Web Designer</h3>
-                        <small>Quality, 2015</small>
-                        <p>Curso de Web Designer para criação de sites, edição de imagem e vídeo, fornecido através de uma parceria entre a instituição Quality e o Governo.
-                            <br>
-                            Tecnologias:
-                            <br>
-                            - HTML,
-                            <br>
-                            - CSS,
-                            <br>
-                            - JavaScript,
-                            <br>
-                            - Adobe Photoshop,
-                            <br>
-                            - Adobe After Effect.
-                        </p>
-                    </div>
-                </li>
 
-                <li data-date="2016">
-                    <span class="title">Pacote Office</span>
-                    <div class="data">
-                        <h3>Pacote Office</h3>
-                        <small>Megabyte, 2016</small>
-                        <p>Curso completo sobre Pacote Office da Microsoft, fornecido através de uma parceria entre a instituição Megabyte e o Governo.</p>
+        <ol class="tl tl-collapsed" id="tlTimeline">
+            <li class="tl-item">
+                <div class="tl-date">2015</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Web Designer</strong>
+                            <span class="tl-org">Quality</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Curso de Web Designer para criação de sites, edição de imagem e vídeo, fornecido através de uma parceria entre a instituição Quality e o Governo.</p>
+                            <div class="featured-tags">
+                                <span>HTML</span>
+                                <span>CSS</span>
+                                <span>JavaScript</span>
+                                <span>Adobe Photoshop</span>
+                                <span>Adobe After Effects</span>
+                            </div>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="2017">
-                    <span class="title">1º ano - Ensino Médio</span>
-                    <div class="data">
-                        <h3>Ensino Médio integrado ao Ensino Técnico</h3>
-                        <small>Colégio Seta</small>
-                        <p>1º ano do Ensino Médio integrado ao Ensino Técnico
-                            <br>
-                            Tecnologias:
-                            <br>
-                            - HTML,
-                            <br>
-                            - CSS,
-                            <br>
-                            - JavaScript,
-                            <br>
-                            - Lógica de Programação
-                            <br>
-                            - Modelagem de Dados,
-                            <br>
-                            - Banco de Dados
-                        </p>
+            <li class="tl-item">
+                <div class="tl-date">2016</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Pacote Office</strong>
+                            <span class="tl-org">Megabyte</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Curso completo sobre Pacote Office da Microsoft, fornecido através de uma parceria entre a instituição Megabyte e o Governo.</p>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="2018">
-                    <span class="title">2º ano - Ensino Médio</span>
-                    <div class="data">
-                        <h3>Ensino Médio integrado ao Ensino Técnico</h3>
-                        <small>Colégio Seta</small>
-                        <p>2º ano do Ensino Médio integrado ao Ensino Técnico
-                            <br>
-                            Tecnologias:
-                            <br>
-                            - C#,
-                            <br>
-                            - SQL
-                            <br>
-                            - Diagramas Estruturais
-                            <br>
-                            - Diagramas Comportamentais
-                        </p>
+            <li class="tl-item">
+                <div class="tl-date">2017</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>1º ano — Ensino Médio Técnico</strong>
+                            <span class="tl-org">Colégio Seta</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>1º ano do Ensino Médio integrado ao Ensino Técnico.</p>
+                            <div class="featured-tags">
+                                <span>HTML</span>
+                                <span>CSS</span>
+                                <span>JavaScript</span>
+                                <span>Lógica de Programação</span>
+                                <span>Modelagem de Dados</span>
+                                <span>Banco de Dados</span>
+                            </div>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="Jun/2019">
-                    <span class="title">Desenvolvedora Mobile</span>
-                    <div class="data">
-                        <h3>Desenvolvedora Mobile, Estágio</h3>
-                        <small>Aztlan Technology</small>
-                        <h4>Ínicio do contrato de estágio de férias</h4>
-                        <p>Desenvolvedora Mobile através da IDE Android Studio para a criação de aplicações IoT utilizando o protocolo MQTT.</p>
+            <li class="tl-item">
+                <div class="tl-date">2018</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>2º ano — Ensino Médio Técnico</strong>
+                            <span class="tl-org">Colégio Seta</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>2º ano do Ensino Médio integrado ao Ensino Técnico.</p>
+                            <div class="featured-tags">
+                                <span>C#</span>
+                                <span>SQL</span>
+                                <span>Diagramas Estruturais</span>
+                                <span>Diagramas Comportamentais</span>
+                            </div>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="Ago/2019">
-                    <span class="title">Desenvolvedora Mobile</span>
-                    <div class="data">
-                        <h3>Desenvolvedora Mobile, Estágio</h3>
-                        <small>Aztlan Technology</small>
-                        <h4>Fim do contrato de estágio de férias</h4>
-                        <p>Desenvolvedora Mobile através da IDE Android Studio para a criação de aplicações IoT utilizando o protocolo MQTT.</p>
+            <li class="tl-item">
+                <div class="tl-date">Jun/2019</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Desenvolvedora Mobile, Estágio</strong>
+                            <span class="tl-org">Aztlan Technology</span>
+                            <span class="tl-flag">Início do estágio de férias</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Desenvolvedora Mobile através da IDE Android Studio para a criação de aplicações IoT utilizando o protocolo MQTT.</p>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="2019">
-                    <span class="title">3º ano - Ensino Médio</span>
-                    <div class="data">
-                        <h3>Ensino Médio integrado ao Ensino Técnico</h3>
-                        <small>Colégio Seta</small>
-                        <p>3º ano do Ensino Médio integrado ao Ensino Técnico
-                            <br>
-                            Tecnologias:
-                            <br>
-                            - Java
-                            <br>
-                            - SQL
-                            <br>
-                            <br>
-                            Trabalho de Conclusão de Curso:
-                            Software destinado à caixas de supermercados. Feito com as tecnologias Java, SQL, RaspberryPi e API desenvolvida pelo Correios para a busca de endereços.
-                        </p>
+            <li class="tl-item">
+                <div class="tl-date">Ago/2019</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Desenvolvedora Mobile, Estágio</strong>
+                            <span class="tl-org">Aztlan Technology</span>
+                            <span class="tl-flag">Fim do estágio de férias</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Desenvolvedora Mobile através da IDE Android Studio para a criação de aplicações IoT utilizando o protocolo MQTT.</p>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="Out/2020">
-                    <span class="title">Customer Success Specialist</span>
-                    <div class="data">
-                        <h3>Customer Success Specialist</h3>
-                        <small>SONDA IT</small>
-                        <h4>Ínicio do Contrato</h4>
-                        <p>Atendimento especial a uma carteira de clientes revendedores de produtos Natura.</p>
+            <li class="tl-item">
+                <div class="tl-date">2019</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>3º ano — Ensino Médio Técnico</strong>
+                            <span class="tl-org">Colégio Seta</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>3º ano do Ensino Médio integrado ao Ensino Técnico.</p>
+                            <p><strong>Trabalho de Conclusão de Curso:</strong> software destinado a caixas de supermercados, feito com Java, SQL, Raspberry Pi e a API dos Correios para busca de endereços.</p>
+                            <div class="featured-tags">
+                                <span>Java</span>
+                                <span>SQL</span>
+                                <span>Raspberry Pi</span>
+                            </div>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="Fev/2022">
-                    <span class="title">Customer Success Specialist</span>
-                    <div class="data">
-                        <h3>Customer Success Specialist</h3>
-                        <small>SONDA IT</small>
-                        <h4>Fim do Contrato</h4>
-                        <p>Atendimento especial a uma carteira de clientes revendedores de produtos Natura.</p>
+            <li class="tl-item">
+                <div class="tl-date">Out/2020</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Customer Success Specialist</strong>
+                            <span class="tl-org">SONDA IT</span>
+                            <span class="tl-flag">Início do contrato</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Atendimento especial a uma carteira de clientes revendedores de produtos Natura.</p>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="Jan/2023">
-                    <span class="title">Formação - Engenharia de Software</span>
-                    <div class="data">
-                        <h3>Formação - Engenharia de Software</h3>
-                        <small>Faculdade Anhanguera</small>
-                        <h4>Em andamento</h4>
-                        <p>Graduação em Engenharia de Software pela Faculdade Anhanguera.
-                            <br>
-                            <br>
-                            Formatura prevista para Junho de 2026.
-                        </p>
+            <li class="tl-item">
+                <div class="tl-date">Fev/2022</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Customer Success Specialist</strong>
+                            <span class="tl-org">SONDA IT</span>
+                            <span class="tl-flag">Fim do contrato</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Atendimento especial a uma carteira de clientes revendedores de produtos Natura.</p>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="Fev/2023">
-                    <span class="title">Analista de Suporte N1</span>
-                    <div class="data">
-                        <h3>Analista de Suporte N1</h3>
-                        <small>Locaweb - LWSA</small>
-                        <h4>Ínicio do Contrato</h4>
-                        <p>Analista de Suporte Técnico para os serviços de Hospedagem e E-mail da Empresa Locaweb. 
-                        <br>
-                        Ferramentas:
-                        <br>
-                        - Servidores Windows,
-                        <br>
-                        - Servidores Linux,
-                        <br>
-                        Certificado SSL
-                        </p>
+            <li class="tl-item">
+                <div class="tl-date">Jan/2023</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Formação — Engenharia de Software</strong>
+                            <span class="tl-org">Faculdade Anhanguera</span>
+                            <span class="tl-flag">Em andamento</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Graduação em Engenharia de Software pela Faculdade Anhanguera. Formatura prevista para junho de 2026.</p>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="02/09/2023">
-                    <span class="title">Microsoft AI-900</span>
-                    <div class="data">
-                        <h3>Certificação Microsoft AI-900</h3>
-                        <small>Microsoft Certified: Azure AI Fundamentals</small>
-                        <p>Certificação Microsoft adquirida com sucesso através da empresa certificadora Certiport. 
-                        <br>
-                        <br>Certiport ID: 90088427
-                        <br>Exam ID: 2681498</p>
+            <li class="tl-item">
+                <div class="tl-date">Fev/2023</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Analista de Suporte N1</strong>
+                            <span class="tl-org">Locaweb - LWSA</span>
+                            <span class="tl-flag">Início do contrato</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Analista de Suporte Técnico para os serviços de Hospedagem e E-mail da empresa Locaweb.</p>
+                            <div class="featured-tags">
+                                <span>Servidores Windows</span>
+                                <span>Servidores Linux</span>
+                                <span>Certificado SSL</span>
+                            </div>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="Set/2023">
-                    <span class="title">Analista de Suporte N2</span>
-                    <div class="data">
-                        <h3>Analista de Suporte N2 - Madrugada</h3>
-                        <small>Locaweb - LWSA</small>
-                        <h4>Promoção</h4>
-                        <p>Analista de Suporte de TI para os serviços de Hospedagem Compartilhada, E-mails, Hospedagem Dedicada, Servidores Virtualizados Linux/Windows, Servidores Físicos (iLO/IDRAC), Produtos SaaS, Revenda cPanel e Plesk.</p>
+            <li class="tl-item">
+                <div class="tl-date">02/09/2023</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Certificação Microsoft AI-900</strong>
+                            <span class="tl-org">Microsoft Certified: Azure AI Fundamentals</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Certificação Microsoft adquirida com sucesso através da empresa certificadora Certiport.</p>
+                            <div class="tl-meta">
+                                <span>Certiport ID: <code>90088427</code></span>
+                                <span>Exam ID: <code>2681498</code></span>
+                            </div>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="Mai/2024">
-                    <span class="title">Atendimento Especial ao Parceiro</span>
-                    <div class="data">
-                        <h3>Atendimento Especial ao Parceiro</h3>
-                        <small>Locaweb LWSA</small>
-                        <h4>Promoção</h4>
-                        <p>Analista de Suporte N2 responsável pelo atendimento de clientes VIPs e Parceiros que possuem serviços de Hospedagem, E-mails, Cloud, Servidores Dedicados (iLO/IDRAC), Produtos SaaS e Revendas Plesk/cPanel na empresa Locaweb.</p>
+            <li class="tl-item">
+                <div class="tl-date">Set/2023</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Analista de Suporte N2 — Madrugada</strong>
+                            <span class="tl-org">Locaweb - LWSA</span>
+                            <span class="tl-flag">Promoção</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Analista de Suporte de TI para os serviços de Hospedagem Compartilhada, E-mails, Hospedagem Dedicada, Servidores Virtualizados Linux/Windows, Servidores Físicos (iLO/IDRAC), Produtos SaaS, Revenda cPanel e Plesk.</p>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="Fev/2025">
-                    <span class="title">Formação - Engenharia de Dados - Alura</span>
-                    <div class="data">
-                        <h3>Formação em Engenharia de Dados</h3>
-                        <small>Alura</small>
-                        <p>Curso extracurricular para formação em engenharia de dados fornecido pela empresa Alura.</p>
+            <li class="tl-item">
+                <div class="tl-date">Mai/2024</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Atendimento Especial ao Parceiro</strong>
+                            <span class="tl-org">Locaweb - LWSA</span>
+                            <span class="tl-flag">Promoção</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Analista de Suporte N2 responsável pelo atendimento de clientes VIPs e parceiros com serviços de Hospedagem, E-mails, Cloud, Servidores Dedicados (iLO/IDRAC), Produtos SaaS e Revendas Plesk/cPanel.</p>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="Mai/2025">
-                    <span class="title">Analista de Dados JR</span>
-                    <div class="data">
-                        <h3>Analista de Dados JR</h3>
-                        <small>Locaweb - LWSA</small>
-                        <h4>Promoção</h4>
-                        <p>Analista de Dados JR para a equipe do Suporte. 
-                            <br>
-                            <br>
-                            Análise de KPIs e Churn.
-                            <br>
-                            <br>
-                            Ferramentas:
-                            <br>
-                            Power BI,
-                            <br>
-                            PostgreSQL,
-                            <br>
-                            Excel,
-                            <br>
-                            Python
-                        </p>
+            <li class="tl-item">
+                <div class="tl-date">Fev/2025</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Formação em Engenharia de Dados</strong>
+                            <span class="tl-org">Alura</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Curso extracurricular de formação em Engenharia de Dados.</p>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="08/05/2024">
-                    <span class="title">Analista de Dados JR</span>
-                    <div class="data">
-                        <h3>Atendimento Especial ao Parceiro</h3>
-                        <small>Locaweb LWSA</small>
-                        <h4>Fim do contrato</h4>
+            <li class="tl-item">
+                <div class="tl-date">Mai/2025</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Data Analyst Jr.</strong>
+                            <span class="tl-org">Locaweb - LWSA</span>
+                            <span class="tl-flag">Promoção</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Analista de Dados JR para a equipe de Suporte, com foco em análise de KPIs e Churn.</p>
+                            <div class="featured-tags">
+                                <span>Power BI</span>
+                                <span>PostgreSQL</span>
+                                <span>Excel</span>
+                                <span>Python</span>
+                            </div>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="03/06/2025">
-                    <span class="title">Analista de Dados e Automação Python</span>
-                    <div class="data">
-                        <h3>Analista de Dados e Automação Python, Estágio</h3>
-                        <small>BRADESCO</small>
-                        <h4>Ínicio do Contrato de Estágio</h4>
-                        <p>Analista de Dados e Automação Python para o departamento de Contadoria Geral do Banco Bradesco.
-                            <br>
-                            <br>
-                            Ferramentas: Power BI, SQL, Databricks, SAS, Excel, Python.
-                        </p>
+            <li class="tl-item">
+                <div class="tl-date">08/05/2024</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Data Analyst Jr.</strong>
+                            <span class="tl-org">Locaweb - LWSA</span>
+                            <span class="tl-flag">Fim do contrato</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Encerramento do contrato com a Locaweb.</p>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="07/11/2025">
-                    <span class="title">Certificação Microsoft DP-900</span>
-                    <div class="data">
-                        <h3>Certificação Microsoft DP-900</h3>
-                        <small>Microsoft Certified: Azure Data Fundamentals</small>
-                        <p>Certficação Microsoft adquirida com sucesso através da empresa certificadora Person Vue.
-                            <br>
-                            <br>
-                            ID da Credencial: D0E83C9CC33A7483
-                            <br>
-                            Exam ID: 5CEDA2-5FE9VD
-                        </p>
+            <li class="tl-item">
+                <div class="tl-date">03/06/2025</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Data Engineer Intern</strong>
+                            <span class="tl-org">Bradesco</span>
+                            <span class="tl-flag">Estágio</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Estágio em Data Engineering no departamento de Contadoria Geral do Banco Bradesco.</p>
+                            <div class="featured-tags">
+                                <span>Power BI</span>
+                                <span>SQL</span>
+                                <span>Databricks</span>
+                                <span>SAS</span>
+                                <span>Excel</span>
+                                <span>Python</span>
+                            </div>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="05/12/2025">
-                    <span class="title">Certificação Microsoft AZ-900</span>
-                    <div class="data">
-                        <h3>Certificação Microsoft AZ-900</h3>
-                        <small>Microsoft Certified: Azure Fundamentals</small>
-                        <p>Certficação Microsoft adquirida com sucesso através da empresa certificadora Person Vue.
-                            <br>
-                            <br>
-                            ID da Credencial: 5969A558525379A4
-                            <br>
-                            Exam ID: 17Z546-628394
-                        </p>
+            <li class="tl-item">
+                <div class="tl-date">07/11/2025</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Certificação Microsoft DP-900</strong>
+                            <span class="tl-org">Microsoft Certified: Azure Data Fundamentals</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Certificação Microsoft adquirida com sucesso através da empresa certificadora Pearson VUE.</p>
+                            <div class="tl-meta">
+                                <span>ID da credencial: <code>D0E83C9CC33A7483</code></span>
+                                <span>Exam ID: <code>5CEDA2-5FE9VD</code></span>
+                            </div>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-                <li data-date="09/03/2026">
-                    <span class="title">Engenheiro de Dados Jr.</span>
-                    <div class="data">
-                        <h3>Engenheiro de Dados Jr.</h3>
-                        <small>BRADESCO</small>
-                        <h4>Efetivação</h4>
-                        <p>Desenvolvimento de Software para a Gestão de Dados destinado aos analistas financeiros do departamento de Contabilidade do Banco.
-                            <br>
-                            <br>
-                            Ferramentas: Python, Java, SQL, PowerBI, Excel, SAS e Databricks.
-                            <br>
-                        </p>
+            <li class="tl-item">
+                <div class="tl-date">05/12/2025</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="false">
+                        <span class="tl-heading">
+                            <strong>Certificação Microsoft AZ-900</strong>
+                            <span class="tl-org">Microsoft Certified: Azure Fundamentals</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Certificação Microsoft adquirida com sucesso através da empresa certificadora Pearson VUE.</p>
+                            <div class="tl-meta">
+                                <span>ID da credencial: <code>5969A558525379A4</code></span>
+                                <span>Exam ID: <code>17Z546-628394</code></span>
+                            </div>
+                        </div>
                     </div>
-                </li>
+                </div>
+            </li>
 
-        </ul>
-    </div>
+            <li class="tl-item is-open">
+                <div class="tl-date">09/03/2026</div>
+                <div class="tl-rail"><span class="tl-dot"></span></div>
+                <div class="tl-content">
+                    <button class="tl-toggle" aria-expanded="true">
+                        <span class="tl-heading">
+                            <strong>Data Engineer I</strong>
+                            <span class="tl-org">Bradesco</span>
+                            <span class="tl-flag">Efetivação</span>
+                        </span>
+                        <span class="tl-chevron"></span>
+                    </button>
+                    <div class="tl-body">
+                        <div class="tl-body-inner">
+                            <p>Desenvolvimento de software para a gestão de dados destinado aos analistas financeiros do departamento de Contabilidade do Banco.</p>
+                            <div class="featured-tags">
+                                <span>Python</span>
+                                <span>Java</span>
+                                <span>SQL</span>
+                                <span>Power BI</span>
+                                <span>Excel</span>
+                                <span>SAS</span>
+                                <span>Databricks</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ol>
+
+        <button class="tl-history-toggle" id="tlHistoryToggle" aria-expanded="false" aria-controls="tlTimeline">
+            <span class="tl-history-label">Saiba mais sobre minha trajetória</span>
+            <span class="tl-history-chevron"></span>
+        </button>
     </section>
 
     <script>
-        const timeline_wrapper = document.querySelector('.timeline-wrapper'),
-        timelines = document.querySelectorAll('.timelines li .data');
+        (() => {
+            const list = document.getElementById('tlTimeline');
+            const toggle = document.getElementById('tlHistoryToggle');
+            const label = toggle.querySelector('.tl-history-label');
 
+            toggle.addEventListener('click', () => {
+                const isOpen = list.classList.toggle('tl-collapsed') === false;
+                toggle.classList.toggle('is-open', isOpen);
+                toggle.setAttribute('aria-expanded', isOpen);
+                label.textContent = isOpen ? 'Ver menos' : 'Saiba mais sobre minha trajetória';
+            });
+        })();
+    </script>
 
-        for(const time of timelines) {
-            time.onclick = ()=> time.classList.toggle('show');
-        }
+    <!-- EDUCAÇÃO -->
+    <section id="education" data-aos="fade-up">
+        <div class="section-rule">
+            <span>EDUCATION</span>
+            <span>2023 — 2027</span>
+        </div>
 
-        timeline_wrapper.addEventListener('mousemove', (event)=>{
-            const timeline = document.querySelector('.timelines');
-            let scroll_width = event.pageX / timeline_wrapper.clientWidth * (timeline_wrapper.clientWidth - timeline.clientWidth);
+        <div class="transcript-wrap">
+            <table class="transcript">
+                <thead>
+                    <tr>
+                        <th>Período</th>
+                        <th>Programa</th>
+                        <th>Tópicos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="transcript-row" tabindex="0" role="button" aria-haspopup="dialog"
+                        data-title="Software Architecture"
+                        data-org="FIAP"
+                        data-type="Pós-graduação Lato Sensu"
+                        data-period="2026–2027"
+                        data-desc="Pós-graduação com foco em criar projetos complexos de software com as melhores técnicas e arquiteturas de desenvolvimento, aplicar qualidade e segurança avançadas, desenvolver com containers e Kubernetes usando arquiteturas como SAGA Patterns, trabalhar com bancos de dados Neo4j e Cassandra, e desenvolver aplicações serverless. Com conclusão prevista para Junho de 2027."
+                        data-tags="Kubernetes, SAGA Patterns, Neo4j, Cassandra, Serverless, Microsserviços">
+                        <td class="period">2026–2027</td>
+                        <td class="program"><strong>Software Architecture</strong>FIAP · Pós-graduação</td>
+                        <td class="topics">Kubernetes, SAGA Patterns, Neo4j, Cassandra, Serverless</td>
+                    </tr>
+                    <tr class="transcript-row" tabindex="0" role="button" aria-haspopup="dialog"
+                        data-title="Data Engineer & IA"
+                        data-org="Universidade Anhanguera São Paulo"
+                        data-type="Pós-graduação Lato Sensu"
+                        data-period="2026–2027"
+                        data-desc="Pós-graduação com foco em Engenharia de Dados e Inteligência Artificial, Cloud Computing, Governança de Dados, Processamento de Linguagem Natural, Large Language Models, Docker/Kubernetes. Com conclusão prevista para Março de 2027."
+                        data-tags="Databricks, Git & GitHub, Microsoft Azure, Google GCP, AWS, LLM, Machine Learning, Python">
+                        <td class="period">2026–2027</td>
+                        <td class="program"><strong>Data Engineer & IA</strong>Univ. Anhanguera SP · Pós-graduação</td>
+                        <td class="topics">Databricks, Git & GitHub, Microsoft Azure, Google GCP, AWS, LLM, Machine Learning, Python</td>
+                    </tr>
+                    <tr class="transcript-row" tabindex="0" role="button" aria-haspopup="dialog"
+                        data-title="Cybersecurity"
+                        data-org="Universidade Anhanguera São Paulo"
+                        data-type="Pós-graduação Lato Sensu"
+                        data-period="2026–2027"
+                        data-desc="Pós-graduação com foco em sistemas e segurança, validação de software e testes de segurança, segurança em redes de computadores, segurança em cloud computing, cibercrimes e responsabilidade penal e civil, segurança e auditoria em banco de dados, função de criptografia hash, criptografia hash e hacking, e compliance digital. Com formatura prevista para Março de 2027."
+                        data-tags="Segurança em Redes, Segurança em Cloud, Criptografia, Compliance Digital, Auditoria em Banco de Dados">
+                        <td class="period">2026–2027</td>
+                        <td class="program"><strong>Cybersecurity</strong>Univ. Anhanguera SP · Pós-graduação</td>
+                        <td class="topics">Redes, Cloud, Criptografia, Compliance Digital</td>
+                    </tr>
+                    <tr class="transcript-row" tabindex="0" role="button" aria-haspopup="dialog"
+                        data-title="Engenharia de Software"
+                        data-org="Universidade Anhanguera"
+                        data-type="Graduação"
+                        data-period="2023–2026"
+                        data-desc="Graduação em Engenharia de Software, com foco em desenvolvimento de aplicações, algoritmos, banco de dados e arquitetura de sistemas. Graduação concluída!"
+                        data-tags="">
+                        <td class="period">2023–2026</td>
+                        <td class="program"><strong>Software Engineering</strong>Universidade Anhanguera · Graduação</td>
+                        <td class="topics">Concluído</td>
+                    </tr>
+                    <tr class="transcript-row" tabindex="0" role="button" aria-haspopup="dialog"
+                        data-title="Análise e Desenvolvimento de Sistemas"
+                        data-org="Colégio Seta"
+                        data-type="Curso Técnico"
+                        data-period="2017–2019"
+                        data-desc="Curso técnico em análise e desenvolvimento de sistemas. Curso técnico concluído!"
+                        data-tags="Java, C#, SQL">
+                        <td class="period">2017–2019</td>
+                        <td class="program"><strong>Análise e Desenvolvimento de Sistemas</strong>Colégio Seta · Curso Técnico</td>
+                        <td class="topics">Concluído</td>
+                    </tr>
+                    <tr class="transcript-row" tabindex="0" role="button" aria-haspopup="dialog"
+                        data-title="Cursos Livres"
+                        data-org="Alura"
+                        data-type=""
+                        data-period="2025"
+                        data-desc="Formações extracurriculares na plataforma Alura."
+                        data-tags="Engenharia de Dados, Python para Data Science">
+                        <td class="period">2025</td>
+                        <td class="program"><strong>Cursos Livres</strong>Alura</td>
+                        <td class="topics">Formação em Engenharia de Dados</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 
+    <div class="edu-modal-overlay" id="eduModalOverlay">
+        <div class="edu-modal" role="dialog" aria-modal="true" aria-labelledby="eduModalTitle">
+            <button class="edu-modal-close" id="eduModalClose" aria-label="Fechar">&times;</button>
+            <span class="edu-modal-period" id="eduModalPeriod"></span>
+            <h3 id="eduModalTitle"></h3>
+            <span class="edu-modal-org" id="eduModalOrg"></span>
+            <p id="eduModalDesc"></p>
+            <div class="featured-tags" id="eduModalTags"></div>
+        </div>
+    </div>
 
-            timeline.style.left = scroll_width.toFixed(1) + 'px';
-        })
+    <script>
+        (() => {
+            const rows = document.querySelectorAll('.transcript-row');
+            const overlay = document.getElementById('eduModalOverlay');
+            const closeBtn = document.getElementById('eduModalClose');
+            const elTitle = document.getElementById('eduModalTitle');
+            const elOrg = document.getElementById('eduModalOrg');
+            const elPeriod = document.getElementById('eduModalPeriod');
+            const elDesc = document.getElementById('eduModalDesc');
+            const elTags = document.getElementById('eduModalTags');
+
+            function openModal(row) {
+                elTitle.textContent = row.dataset.title;
+                elOrg.textContent = row.dataset.type ? `${row.dataset.org} · ${row.dataset.type}` : row.dataset.org;
+                elPeriod.textContent = row.dataset.period;
+                elDesc.textContent = row.dataset.desc;
+
+                const tags = row.dataset.tags ? row.dataset.tags.split(',').map((t) => t.trim()).filter(Boolean) : [];
+                elTags.innerHTML = '';
+                tags.forEach((tag) => {
+                    const span = document.createElement('span');
+                    span.textContent = tag;
+                    elTags.appendChild(span);
+                });
+                elTags.style.display = tags.length ? 'flex' : 'none';
+
+                overlay.classList.add('is-open');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                overlay.classList.remove('is-open');
+                document.body.style.overflow = '';
+            }
+
+            rows.forEach((row) => {
+                row.addEventListener('click', () => openModal(row));
+                row.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openModal(row);
+                    }
+                });
+            });
+
+            closeBtn.addEventListener('click', closeModal);
+            overlay.addEventListener('click', (event) => {
+                if (event.target === overlay) closeModal();
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && overlay.classList.contains('is-open')) closeModal();
+            });
+        })();
+    </script>
+
+    <script>
+        document.querySelectorAll('.tl-toggle').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const item = btn.closest('.tl-item');
+                const isOpen = item.classList.toggle('is-open');
+                btn.setAttribute('aria-expanded', isOpen);
+            });
+        });
     </script>
     <!-- FIM DA TIMELINE -->
 
-    <section id="skills"  data-aos="fade-up">
-        <div class="title">
-            <h1>SKILLS</h1>
-        </div>        
-        <div class="timeline" data-os="fade-up">
-            <div class="background-experience">
-                <div class="container left-container">
-                    <img src="img/globe-solid.png">
-                    <div class="text-box">
-                        <h2>Web Designer</h2>
-                        <small>HTML, CSS, JavaScript, Photoshop, CorelDraw</small>
-                        <p>Edição de Imagens e Criação de Layouts Para Web.</p>
-                        <span class="left-container-arrow"></span>
-                    </div>
-                </div>
+    <section id="skills" data-aos="fade-up">
+        <div class="section-rule">
+            <span>SKILLS</span>
+            <span>4 ÁREAS</span>
+        </div>
 
-                <div class="container right-container">
-                    <img src="img/windows.png">
-                    <div class="text-box">
-                        <h2>Front End</h2>
-                        <small>HTML, CSS, Javascript</small>
-                        <p>Linguagem de Programação para desenvolvimento front-end.</p>
-                        <span class="right-container-arrow"></span>
-                    </div>
+        <div class="skills-groups featured-grid">
+            <div class="skills-card">
+                <span class="skills-dot"></span>
+                <h3>Engenharia <span class="hero-gradient">de Dados</span></h3>
+                <span class="skills-count">14 ferramentas</span>
+                <p>Pipelines, automações e modelagem de dados para gestão financeira e contábil.</p>
+                <div class="featured-tags">
+                    <span>Python</span>
+                    <span>SQL</span>
+                    <span>PySpark</span>
+                    <span>Databricks</span>
+                    <span>Apache Airflow</span>
+                    <span>Apache Kafka</span>
+                    <span>ETL/ELT</span>
+                    <span>Power BI</span>
+                    <span>Excel</span>
+                    <span>SAS</span>
+                    <span>MySQL</span>
+                    <span>MongoDB</span>
+                    <span>Oracle</span>
+                    <span>PostgreSQL</span>
                 </div>
+            </div>
 
-                <div class="container left-container">
-                    <img src="img/comment-regular.png">
-                    <div class="text-box">
-                        <h2>Engenharia de Dados</h2>
-                        <small>Python, PySpark, SQL, Databricks, Kubernetes, Docker, Databricks, Cloud Computing, Kafka, Airflow.</small>
-                        <p>Engenheira de Dados em formação.</p>
-                        <span class="left-container-arrow"></span>
-                    </div>
+            <div class="skills-card">
+                <span class="skills-dot"></span>
+                <h3>Engenharia <span class="hero-gradient">de Software</span></h3>
+                <span class="skills-count">3 ferramentas</span>
+                <p>Linguagens e boas práticas para desenvolvimento de aplicações e automações.</p>
+                <div class="featured-tags">
+                    <span>Java</span>
+                    <span>C#</span>
+                    <span>Python</span>
                 </div>
+            </div>
 
-                <div class="container right-container">
-                    <img src="img/book-solid.png">
-                    <div class="text-box">
-                        <h2>Banco de Dados</h2>
-                        <small>MySQL, MongoDB, Oracle Database, PostgreeSQL</small>
-                        <p>Modelagem de Dados, criação e gerenciamento de Banco de Dados.</p>
-                        <span class="right-container-arrow"></span>
-                    </div>
+            <div class="skills-card">
+                <span class="skills-dot"></span>
+                <h3><span class="hero-gradient">Cloud</span></h3>
+                <span class="skills-count">5 ferramentas</span>
+                <p>Certificações e ferramentas para arquitetura e processamento de dados na nuvem.</p>
+                <div class="featured-tags">
+                    <span>Microsoft Azure</span>
+                    <span>AWS</span>
+                    <span>Databricks</span>
+                    <span>Docker</span>
+                    <span>Kubernetes</span>
                 </div>
+            </div>
 
-                <div class="container left-container">
-                    <img src="img/computer-solid.png">
-                    <div class="text-box">
-                        <h2>Certificações</h2>
-                        <small>Nuvem, Análise e Engenharia de Dados, Banco de Dados, Servidores</small>
-                        <a href="https://www.credly.com/badges/22bbcae7-72e4-4ae9-8c9e-f797045ece1d/public_url"><p>📜 Microsoft Azure AI Fundamentals - AI-900</p></a>
-                        <br>
-                        <a href="https://learn.microsoft.com/api/credentials/share/pt-br/SUZANACRISTINAALMEIDACAVALCANTE-1527/5969A558525379A4?sharingId=D801919729D56295"><p>📜 Microsoft Azure Fundamentals - AZ-900</p></a>
-                        <br>
-                        <a href="https://learn.microsoft.com/api/credentials/share/pt-br/SUZANACRISTINAALMEIDACAVALCANTE-1527/D0E83C9CC33A7483?sharingId=D801919729D56295"><p>📜 Microsoft Azure Data Fundamentals - DP-900</p></a>
-                        <br>
-                        <a href="https://cursos.alura.com.br/user/cavalcante-fgc/degree-data-science-python-550937/certificate"><p>📜 Formação Python para Data Science</p></a>
-                        <br>
-                        <p>Python - Apache Airflow *Em Andamento*</p>
-                        <br>
-                        <p>Python - Data Lake *Em Andamento*</p>
-                        <br>
-                        <p>Python - Databricks *Em Andamento*</p>
-                        <br>
-                        <p>Python - Apache Spark *Em Andamento*</p>
-                        <br>
-                        <p>Mensageria - Apache Kafka *Em Andamento*</p>
-                        <br>
-                        <p>Docker *Em Andamento*</p>
-                        <br>
-                        <p>Kubernetes *Em Andamento*</p>
-                        <br>
-                        <p>Power BI *Em Andamento*</p>
-                        <span class="left-container-arrow"></span>
-                    </div>
+            <div class="skills-card">
+                <span class="skills-dot"></span>
+                <h3>Infra &amp; <span class="hero-gradient">Monitoramento</span></h3>
+                <span class="skills-count">6 ferramentas</span>
+                <p>Administração de servidores e observabilidade de sistemas em produção.</p>
+                <div class="featured-tags">
+                    <span>Linux</span>
+                    <span>Windows Server</span>
+                    <span>Zabbix</span>
+                    <span>Grafana</span>
+                    <span>cPanel</span>
+                    <span>Plesk</span>
                 </div>
             </div>
         </div>
-
     </section>
 
     
