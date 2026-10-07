@@ -1,0 +1,2821 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Era da IA: Você sabe como funciona? — Suzana Cavalcante</title>
+</head>
+<body>
+
+    <div class="deck is-bare" id="deck">
+        <div class="stage" id="stage">
+
+            <div class="deck-progress" aria-hidden="true">
+                <span id="deckProgressBar"></span>
+            </div>
+
+            <!-- ==========================================================
+                 CAPA
+                 ========================================================== -->
+            <section class="slide slide-cover is-active" data-bare aria-label="Capa">
+                <canvas class="neural-bg" aria-hidden="true"></canvas>
+
+                <div class="hero-rule" data-anim>
+                    <span>SUZANA CAVALCANTE</span>
+                    <span>PALESTRA · FATEC</span>
+                    <span>DATA ENGINEER</span>
+                </div>
+
+                <h1 class="hero-statement" data-anim>
+                    Era da <span class="hero-gradient">IA</span>:<br>
+                    Você sabe como<br>
+                    <span class="hero-outline">funciona</span>?
+                </h1>
+
+                <div class="hero-foot" data-anim>
+                    <div class="hero-who">
+                        <img src="./img/perfil.jpeg" alt="Foto de Suzana Cavalcante" class="hero-avatar">
+                        <span class="hero-who-text">
+                            <strong>Suzana Cavalcante</strong>
+                            Data Engineer I — Bradesco
+                        </span>
+                    </div>
+
+                    <span class="hero-site">suzanacavalcante.com.br</span>
+
+                    <div class="hero-cta-row">
+                        <span class="key-hint"><kbd>←</kbd><kbd>→</kbd> navegar</span>
+                        <div class="button-borders">
+                            <button class="primary-button" data-action="next">
+                                Começar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 SLIDE 1 — COMO APRENDEMOS (modelo Cards + revelação)
+                 Abre só com a pergunta. Cada → revela um card; no
+                 primeiro, a pergunta sobe e o subtítulo aparece.
+                 ========================================================== -->
+            <section class="slide slide-question" aria-label="Como aprendemos">
+                <div class="section-rule" data-anim>
+                    <span>01 — COMO APRENDEMOS</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body question-body">
+                    <div class="title question-title" data-anim>
+                        <h2>Você já ensinou algo para uma <span class="hero-gradient">criança</span>?</h2>
+                    </div>
+
+                    <div class="question-reveal">
+                        <div class="question-reveal-inner">
+                            <p class="question-sub">Existem três maneiras básicas de ensinar:</p>
+
+                            <div class="featured-grid">
+                                <article class="featured-card fragment">
+                                    <div class="featured-icon">1</div>
+                                    <h3>Erro</h3>
+                                    <p>Aprende sozinha, sentindo a consequência do que fez.</p>
+                                    <div class="card-example">
+                                        <span class="highlight-label">Exemplo</span>
+                                        <p>Tropeça, cai… e da próxima vez olha por onde anda.</p>
+                                    </div>
+                                </article>
+
+                                <article class="featured-card fragment">
+                                    <div class="featured-icon">2</div>
+                                    <h3>Correção</h3>
+                                    <p>Alguém mostra o que está errado e explica o certo.</p>
+                                    <div class="card-example">
+                                        <span class="highlight-label">Exemplo</span>
+                                        <p>“O céu é azul porque reflete o mar.” Você explica o que de fato acontece, de um jeito lúdico.</p>
+                                    </div>
+                                </article>
+
+                                <article class="featured-card fragment">
+                                    <div class="featured-icon">3</div>
+                                    <h3>Compreensão <span class="h3-alt">/ Assimilação</span></h3>
+                                    <p>Usa o que já sabe para entender algo totalmente novo.</p>
+                                    <div class="card-example">
+                                        <span class="highlight-label">Exemplo</span>
+                                        <p>Você apresenta uma zebra e ela conclui: “É um cavalo listrado!”</p>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 IMPACTO — o tema da palestra
+                 Só a frase: sem linha de seção e sem rodapé (data-bare).
+                 Fundo: a mesma rede neural da capa, emoldurando o texto.
+                 ========================================================== -->
+            <section class="slide slide-impact" data-bare aria-label="Tema da palestra">
+                <canvas class="neural-bg" aria-hidden="true"></canvas>
+
+                <h2 class="impact-statement">
+                    <span data-anim>Inteligências <span class="hero-outline">Artificiais</span></span>
+                    <span data-anim>aprendem do <span class="hero-gradient">mesmo jeito</span>.</span>
+                </h2>
+            </section>
+
+            <!-- ==========================================================
+                 SOBRE MIM
+                 ========================================================== -->
+            <section class="slide slide-about" aria-label="Sobre mim">
+                <div class="section-rule" data-anim>
+                    <span>SOBRE MIM</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body about-grid">
+                    <div class="about-photo" data-anim>
+                        <img src="./img/perfil.jpeg" alt="Foto de Suzana Cavalcante">
+                    </div>
+
+                    <div class="about-main">
+                        <span class="kicker" data-anim>Quem sou eu</span>
+                        <h2 class="slide-title" data-anim>Suzana <span class="hero-gradient">Cavalcante</span></h2>
+                        <p class="lead" data-anim>Transformo dados brutos em decisões claras.</p>
+
+                        <dl class="about-facts">
+                            <div class="about-fact" data-anim>
+                                <dt>Formação</dt>
+                                <dd>
+                                    <span class="fact-item"><strong>Engenharia de Software</strong> Universidade Anhanguera</span>
+                                </dd>
+                            </div>
+                            <div class="about-fact" data-anim>
+                                <dt>Pós-graduação <span class="status-badge">Em andamento</span></dt>
+                                <dd>
+                                    <span class="fact-item"><strong>Data Engineer &amp; IA</strong> Univ. Anhanguera SP</span>
+                                    <span class="fact-item"><strong>Software Architecture</strong> FIAP</span>
+                                    <span class="fact-item"><strong>Cybersecurity</strong> Univ. Anhanguera SP</span>
+                                </dd>
+                            </div>
+                            <div class="about-fact" data-anim>
+                                <dt>Cargo atual</dt>
+                                <dd>
+                                    <span class="fact-item"><strong>Data Engineer I</strong> Bradesco</span>
+                                </dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 CONTATO — redes sociais + QR code
+                 QR code: salve a imagem como img/qrcode.png e ela aparece
+                 sozinha no quadro (enquanto não existir, fica o aviso).
+                 ========================================================== -->
+            <section class="slide slide-social" aria-label="Contato">
+                <div class="section-rule" data-anim>
+                    <span>CONTATO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body social-grid">
+                    <div class="social-main">
+                        <span class="kicker" data-anim>Redes sociais</span>
+                        <h2 class="slide-title" data-anim>Vamos nos <span class="hero-gradient">conectar</span>?</h2>
+
+                        <ul class="social-list">
+                            <li data-anim>
+                                <a class="social-item" href="https://www.linkedin.com/in/suzanacavalcante" target="_blank" rel="noopener">
+                                    <span class="social-icon">
+                                        <svg class="is-fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.94 5a2 2 0 1 1-4-.002 2 2 0 0 1 4 .002zM7 8.48H3V21h4V8.48zm6.32 0H9.34V21h3.94v-6.57c0-3.66 4.77-4 4.77 0V21H22v-7.93c0-6.17-7.06-5.94-8.72-2.91l.04-1.68z"/></svg>
+                                    </span>
+                                    <span class="social-text">
+                                        <span class="social-label">LinkedIn</span>
+                                        <strong>linkedin.com/in/suzanacavalcante</strong>
+                                    </span>
+                                </a>
+                            </li>
+                            <li data-anim>
+                                <a class="social-item" href="https://github.com/suzanacavalcante" target="_blank" rel="noopener">
+                                    <span class="social-icon">
+                                        <svg class="is-fill" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+                                    </span>
+                                    <span class="social-text">
+                                        <span class="social-label">GitHub</span>
+                                        <strong>github.com/suzanacavalcante</strong>
+                                    </span>
+                                </a>
+                            </li>
+                            <li data-anim>
+                                <a class="social-item" href="https://www.instagram.com/prod.susu/" target="_blank" rel="noopener">
+                                    <span class="social-icon">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/></svg>
+                                    </span>
+                                    <span class="social-text">
+                                        <span class="social-label">Instagram</span>
+                                        <strong>@prod.susu</strong>
+                                    </span>
+                                </a>
+                            </li>
+                            <li data-anim>
+                                <a class="social-item" href="mailto:contato@suzanacavalcante.com.br">
+                                    <span class="social-icon">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+                                    </span>
+                                    <span class="social-text">
+                                        <span class="social-label">E-mail</span>
+                                        <strong>contato@suzanacavalcante.com.br</strong>
+                                    </span>
+                                </a>
+                            </li>
+                            <li data-anim>
+                                <a class="social-item" href="https://suzanacavalcante.com.br/" target="_blank" rel="noopener">
+                                    <span class="social-icon">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+                                    </span>
+                                    <span class="social-text">
+                                        <span class="social-label">Portfólio</span>
+                                        <strong>suzanacavalcante.com.br</strong>
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <aside class="qr-card" data-anim>
+                        <div class="qr-frame">
+                            <img class="qr-img" src="./img/qrcode.JPG" alt="QR code para as redes sociais de Suzana Cavalcante" onerror="this.remove()">
+                            <div class="qr-placeholder">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 20.5h1M20.5 14h.5"/></svg>
+                                <span>Seu QR code aqui</span>
+                                <code>img/qrcode.png</code>
+                            </div>
+                        </div>
+                        <span class="highlight-label">Aponte a câmera</span>
+                    </aside>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — A IA NASCEU EM 2022? (régua do tempo)
+                 Abre só com 2022. O → "rebobina" a régua até 1943 e troca
+                 o título. A posição de cada marco sai do data-year; para
+                 marcar outro ano, copie um .ruler-mark e troque o ano.
+                 ========================================================== -->
+            <section class="slide slide-history" aria-label="A IA nasceu em 2022?">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body">
+                    <span class="kicker" data-anim>Um pouco de história</span>
+
+                    <div class="swap-titles" data-anim>
+                        <h2 class="slide-title swap-before">Muita gente acha que a IA nasceu em <span class="hero-gradient">2022</span>.</h2>
+                        <h2 class="slide-title swap-after">Mas a história começou há mais de <span class="hero-gradient">80 anos</span>.</h2>
+                    </div>
+
+                    <div class="ruler-wrap" data-anim>
+                        <div class="time-ruler fragment" data-from="1940" data-to="2030" data-ticks="10">
+                            <div class="ruler-span" data-year="1943" data-year-end="2022"></div>
+
+                            <div class="ruler-mark align-start" data-year="1943">
+                                <span class="ruler-year">1943</span>
+                                <span class="ruler-text">Primeiro neurônio artificial</span>
+                            </div>
+
+                            <div class="ruler-mark is-now" data-year="2022">
+                                <span class="ruler-year">2022</span>
+                                <span class="ruler-text">ChatGPT</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — O QUE É UMA REDE NEURAL (modelo Conceito + diagrama)
+                 Cada → revela uma camada na lista e acende a mesma camada
+                 no diagrama; na última, o sinal "flui" pela rede.
+                 O diagrama é gerado pelo JS: data-layers="3,4,4,2" é a
+                 quantidade de neurônios em cada camada.
+                 ========================================================== -->
+            <section class="slide slide-neural" aria-label="O que é uma rede neural">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body neural-grid">
+                    <div class="neural-main">
+                        <span class="kicker" data-anim>Onde tudo começou</span>
+                        <h2 class="slide-title" data-anim>O que é uma <span class="hero-gradient">rede neural</span>?</h2>
+                        <p class="lead" data-anim>Um modelo matemático inspirado no cérebro: neurônios artificiais conectados em camadas, que aprendem ajustando a força de cada conexão.</p>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">1</span>
+                                <div>
+                                    <strong>Entrada</strong>
+                                    <p>Recebe os dados: números, pixels de uma imagem, palavras.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">2</span>
+                                <div>
+                                    <strong>Camadas ocultas</strong>
+                                    <p>Cada neurônio combina o que recebe, dá um peso a cada informação e passa adiante.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">3</span>
+                                <div>
+                                    <strong>Saída</strong>
+                                    <p>Entrega a resposta: uma previsão, uma classificação, a próxima palavra.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="nn-card" data-anim>
+                        <svg class="nn-diagram" data-layers="3,4,4,2" role="img" aria-label="Diagrama de uma rede neural: camada de entrada, duas camadas ocultas e camada de saída"></svg>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — A MÁQUINA DE McCULLOCH-PITTS (quem foram + analogia)
+                 Abre com o neurônio real (pulsos elétricos em loop).
+                 O → transforma o desenho no neurônio artificial: cada
+                 parte ocupa o lugar da parte biológica equivalente.
+                 Caminhos com data-pulse ganham um pulso animado (JS).
+                 ========================================================== -->
+            <section class="slide slide-mcp" aria-label="A máquina de McCulloch-Pitts">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body mcp-grid">
+                    <div class="mcp-main">
+                        <span class="kicker" data-anim>1943 · O primeiro neurônio artificial</span>
+                        <h2 class="slide-title" data-anim>A máquina de <span class="hero-gradient">McCulloch-Pitts</span></h2>
+
+                        <div class="people">
+                            <article class="person" data-anim>
+                                <span class="person-avatar">WM</span>
+                                <div>
+                                    <strong>Warren McCulloch</strong>
+                                    <span class="person-role">Neurocientista e psiquiatra · 1898–1969</span>
+                                    <p>Estudava como o cérebro produz o pensamento.</p>
+                                </div>
+                            </article>
+                            <article class="person" data-anim>
+                                <span class="person-avatar">WP</span>
+                                <div>
+                                    <strong>Walter Pitts</strong>
+                                    <span class="person-role">Lógico e matemático · 1923–1969</span>
+                                    <p>Autodidata, tinha só 20 anos quando os dois publicaram o artigo.</p>
+                                </div>
+                            </article>
+                        </div>
+
+                        <p class="paper" data-anim>
+                            <span class="highlight-label">O artigo de 1943</span>
+                            “A Logical Calculus of the Ideas Immanent in Nervous Activity”
+                        </p>
+                    </div>
+
+                    <div class="mcp-card" data-anim>
+                        <div class="mcp-tabs" aria-hidden="true">
+                            <span class="mcp-tab is-bio">Neurônio real</span>
+                            <span class="mcp-tab is-art fragment">Neurônio artificial</span>
+                        </div>
+
+                        <svg class="mcp-svg" viewBox="0 0 800 460" role="img" aria-label="Um neurônio real (dendritos, corpo celular e axônio) e o neurônio artificial equivalente (entradas, soma e saída)">
+                            <defs>
+                                <radialGradient id="mcpSoma" cx="40%" cy="35%" r="70%">
+                                    <stop offset="0" stop-color="#a768f0"/>
+                                    <stop offset="1" stop-color="#4a1590"/>
+                                </radialGradient>
+                                <linearGradient id="mcpGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="800" y2="0">
+                                    <stop offset="0" stop-color="#8A2BE2"/>
+                                    <stop offset="1" stop-color="#e0388f"/>
+                                </linearGradient>
+                            </defs>
+
+                            <!-- NEURÔNIO REAL -->
+                            <g class="mcp-bio">
+                                <!-- dendritos (da ponta até o corpo), axônio e terminais -->
+                                <path data-pulse="in" d="M 70 96 C 130 100, 200 140, 262 184" pathLength="100"/>
+                                <path data-pulse="in" d="M 110 44 C 130 70, 150 100, 165 125" pathLength="100"/>
+                                <path data-pulse="in" d="M 60 210 C 130 206, 200 210, 254 210" pathLength="100"/>
+                                <path data-pulse="in" d="M 96 150 C 116 170, 136 194, 153 208" pathLength="100"/>
+                                <path data-pulse="in" d="M 70 324 C 130 320, 200 280, 262 236" pathLength="100"/>
+                                <path data-pulse="in" d="M 110 376 C 130 350, 150 320, 165 295" pathLength="100"/>
+                                <path data-pulse="out" d="M 346 210 L 650 210" pathLength="100"/>
+                                <path data-pulse="end" d="M 650 210 C 670 205, 690 186, 710 170" pathLength="100"/>
+                                <path data-pulse="end" d="M 650 210 L 722 210" pathLength="100"/>
+                                <path data-pulse="end" d="M 650 210 C 670 215, 690 234, 710 250" pathLength="100"/>
+
+                                <g class="bio-myelin">
+                                    <rect x="378" y="199" width="48" height="22" rx="11"/>
+                                    <rect x="446" y="199" width="48" height="22" rx="11"/>
+                                    <rect x="514" y="199" width="48" height="22" rx="11"/>
+                                    <rect x="582" y="199" width="48" height="22" rx="11"/>
+                                </g>
+                                <g class="bio-boutons">
+                                    <circle cx="713" cy="167" r="9"/>
+                                    <circle cx="727" cy="210" r="9"/>
+                                    <circle cx="713" cy="253" r="9"/>
+                                </g>
+                                <circle class="bio-soma" cx="300" cy="210" r="50"/>
+                                <circle class="bio-nucleus" cx="294" cy="204" r="16"/>
+                                <circle class="soma-flash" cx="300" cy="210" r="50"/>
+
+                                <text class="mcp-label" x="130" y="412">DENDRITOS</text>
+                                <text class="mcp-sub" x="130" y="436">recebem os sinais</text>
+                                <text class="mcp-label" x="300" y="412">CORPO CELULAR</text>
+                                <text class="mcp-sub" x="300" y="436">soma os sinais</text>
+                                <text class="mcp-label" x="520" y="412">AXÔNIO</text>
+                                <text class="mcp-sub" x="520" y="436">leva o disparo adiante</text>
+                            </g>
+
+                            <!-- NEURÔNIO ARTIFICIAL (mesmas posições) -->
+                            <g class="mcp-art">
+                                <path class="art-wire" data-pulse="in" d="M 90 106 L 255 188" pathLength="100"/>
+                                <path class="art-wire" data-pulse="in" d="M 82 210 L 250 210" pathLength="100"/>
+                                <path class="art-wire" data-pulse="in" d="M 90 314 L 255 232" pathLength="100"/>
+                                <path class="art-wire" data-pulse="out" d="M 350 210 L 672 210" pathLength="100"/>
+
+                                <circle class="art-node" cx="70" cy="96" r="22"/>
+                                <circle class="art-node" cx="60" cy="210" r="22"/>
+                                <circle class="art-node" cx="70" cy="324" r="22"/>
+                                <text class="art-node-text" x="70" y="96">x<tspan class="art-sub" dy="5">1</tspan></text>
+                                <text class="art-node-text" x="60" y="210">x<tspan class="art-sub" dy="5">2</tspan></text>
+                                <text class="art-node-text" x="70" y="324">x<tspan class="art-sub" dy="5">3</tspan></text>
+
+                                <circle class="art-soma" cx="300" cy="210" r="50"/>
+                                <circle class="soma-flash" cx="300" cy="210" r="50"/>
+                                <text class="art-soma-text" x="300" y="210">Σ</text>
+
+                                <circle class="art-out" cx="700" cy="210" r="28"/>
+                                <text class="art-out-text is-zero" x="700" y="210">0</text>
+                                <text class="art-out-text is-one" x="700" y="210">1</text>
+
+                                <text class="mcp-label" x="130" y="412">ENTRADAS</text>
+                                <text class="mcp-sub" x="130" y="436">sinais de 0 ou 1</text>
+                                <text class="mcp-label" x="300" y="412">SOMA + LIMIAR</text>
+                                <text class="mcp-sub" x="300" y="436">decide se dispara</text>
+                                <text class="mcp-label" x="520" y="412">SAÍDA</text>
+                                <text class="mcp-sub" x="520" y="436">1 = dispara · 0 = não</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — DISPARAR OU NÃO DISPARAR? (neurônio MCP interativo)
+                 Cada → acende um conceito e monta um cenário no neurônio:
+                   1 excitatório · 2 limiar · 3 inibitório · 4 ativação binária
+                 data-presets: entradas x1x2x3 de cada etapa (0 a 4).
+                 data-threshold: o limiar θ.
+                 Durante a apresentação, clique nas entradas para ligar/desligar.
+                 ========================================================== -->
+            <section class="slide slide-mp" aria-label="Disparar ou não disparar?">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body mp-grid">
+                    <div class="mp-main">
+                        <span class="kicker" data-anim>Como o neurônio decidia</span>
+                        <h2 class="slide-title" data-anim>Disparar ou <span class="hero-gradient">não disparar</span>?</h2>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">1</span>
+                                <div>
+                                    <strong>Sinais excitatórios</strong>
+                                    <p>Estimulam o neurônio: cada sinal ativo soma +1.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">2</span>
+                                <div>
+                                    <strong>Limiar de disparo (threshold)</strong>
+                                    <p>O mínimo para disparar: se a soma chega ao limiar θ, ele dispara.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">3</span>
+                                <div>
+                                    <strong>Sinais inibitórios</strong>
+                                    <p>Funcionam como veto: um único sinal ativo impede o disparo.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">4</span>
+                                <div>
+                                    <strong>Ativação binária</strong>
+                                    <p>Tudo ou nada: a saída é 0 ou 1, como um interruptor liga/desliga.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="mp-card" data-anim>
+                        <div class="mp-stage" data-threshold="2" data-presets="000,100,110,111,110">
+                            <svg class="mp-svg" viewBox="0 0 860 400" aria-label="Neurônio de McCulloch-Pitts interativo">
+                                <defs>
+                                    <linearGradient id="mpGrad" gradientUnits="userSpaceOnUse" x1="330" y1="0" x2="860" y2="0">
+                                        <stop offset="0" stop-color="#8A2BE2"/>
+                                        <stop offset="1" stop-color="#e0388f"/>
+                                    </linearGradient>
+                                    <radialGradient id="mpHalo">
+                                        <stop offset="0" stop-color="#ffd98a" stop-opacity=".6"/>
+                                        <stop offset=".45" stop-color="#e0388f" stop-opacity=".22"/>
+                                        <stop offset="1" stop-color="#8A2BE2" stop-opacity="0"/>
+                                    </radialGradient>
+                                </defs>
+
+                                <!-- fios: entradas → corpo do neurônio (data-tip = onde surge o "+1"/"veto!") -->
+                                <g class="mp-wire is-exc" data-tip="318,138">
+                                    <path class="mp-wire-line" data-pulse="stream" d="M 104 80 C 220 80, 290 130, 362 168" pathLength="100"/>
+                                    <circle class="mp-wire-end" cx="362" cy="168" r="6"/>
+                                </g>
+                                <g class="mp-wire is-exc" data-tip="300,182">
+                                    <path class="mp-wire-line" data-pulse="stream" d="M 104 200 L 352 200" pathLength="100"/>
+                                    <circle class="mp-wire-end" cx="352" cy="200" r="6"/>
+                                </g>
+                                <g class="mp-wire is-inh" data-tip="306,282">
+                                    <path class="mp-wire-line" data-pulse="stream" d="M 104 320 C 220 320, 290 270, 355 235" pathLength="100"/>
+                                    <line class="mp-wire-bar" x1="348" y1="223" x2="362" y2="247"/>
+                                </g>
+
+                                <!-- entradas (clicáveis) -->
+                                <g class="mp-input is-exc" data-kind="exc" data-name="x1" role="button" tabindex="0" aria-label="Entrada x1, excitatória: ligar ou desligar">
+                                    <text class="mp-kind" x="70" y="34">EXCITATÓRIO</text>
+                                    <circle class="mp-chip" cx="70" cy="80" r="32"/>
+                                    <text class="mp-value" x="70" y="80">0</text>
+                                    <circle class="mp-badge" cx="96" cy="54" r="11"/>
+                                    <text class="mp-badge-text" x="96" y="54">+</text>
+                                    <text class="mp-name" x="20" y="80">x<tspan class="mp-sub" dy="5">1</tspan></text>
+                                </g>
+                                <g class="mp-input is-exc" data-kind="exc" data-name="x2" role="button" tabindex="0" aria-label="Entrada x2, excitatória: ligar ou desligar">
+                                    <text class="mp-kind" x="70" y="154">EXCITATÓRIO</text>
+                                    <circle class="mp-chip" cx="70" cy="200" r="32"/>
+                                    <text class="mp-value" x="70" y="200">0</text>
+                                    <circle class="mp-badge" cx="96" cy="174" r="11"/>
+                                    <text class="mp-badge-text" x="96" y="174">+</text>
+                                    <text class="mp-name" x="20" y="200">x<tspan class="mp-sub" dy="5">2</tspan></text>
+                                </g>
+                                <g class="mp-input is-inh" data-kind="inh" data-name="x3" role="button" tabindex="0" aria-label="Entrada x3, inibitória: ligar ou desligar">
+                                    <text class="mp-kind" x="70" y="274">INIBITÓRIO</text>
+                                    <circle class="mp-chip" cx="70" cy="320" r="32"/>
+                                    <text class="mp-value" x="70" y="320">0</text>
+                                    <circle class="mp-badge" cx="96" cy="294" r="11"/>
+                                    <text class="mp-badge-text" x="96" y="294">−</text>
+                                    <text class="mp-name" x="20" y="320">x<tspan class="mp-sub" dy="5">3</tspan></text>
+                                </g>
+
+                                <!-- limiar: o anel "carrega" até θ -->
+                                <g class="mp-ring">
+                                    <circle class="mp-ring-track" cx="430" cy="200" r="88"/>
+                                    <circle class="mp-ring-fill" cx="430" cy="200" r="88" pathLength="100" transform="rotate(-90 430 200)"/>
+                                </g>
+                                <g class="mp-threshold">
+                                    <line x1="430" y1="102" x2="430" y2="122"/>
+                                    <text x="430" y="90">limiar θ = 2</text>
+                                </g>
+
+                                <!-- corpo do neurônio -->
+                                <circle class="mp-burst" cx="430" cy="200" r="72"/>
+                                <g class="mp-soma">
+                                    <circle class="mp-soma-body" cx="430" cy="200" r="72"/>
+                                    <text class="mp-sigma" x="430" y="168">Σ</text>
+                                    <text class="mp-sum" x="430" y="212">0</text>
+                                    <g class="mp-veto">
+                                        <circle cx="430" cy="200" r="52"/>
+                                        <line x1="393" y1="237" x2="467" y2="163"/>
+                                    </g>
+                                </g>
+
+                                <!-- saída: lâmpada + interruptor -->
+                                <g class="mp-output">
+                                    <path class="mp-out-line" data-pulse="stream" d="M 520 200 L 724 200" pathLength="100"/>
+                                </g>
+                                <g class="mp-bulb">
+                                    <circle class="mp-halo" cx="750" cy="172" r="84"/>
+                                    <g class="mp-rays">
+                                        <line x1="700" y1="170" x2="686" y2="170"/>
+                                        <line x1="706.7" y1="145" x2="694.6" y2="138"/>
+                                        <line x1="725" y1="126.7" x2="718" y2="114.6"/>
+                                        <line x1="750" y1="120" x2="750" y2="106"/>
+                                        <line x1="775" y1="126.7" x2="782" y2="114.6"/>
+                                        <line x1="793.3" y1="145" x2="805.4" y2="138"/>
+                                        <line x1="800" y1="170" x2="814" y2="170"/>
+                                    </g>
+                                    <path class="mp-glass" d="M 734 204.5 A 38 38 0 1 1 766 204.5 L 762 222 L 738 222 Z"/>
+                                    <path class="mp-filament" d="M 742 220 L 742 198 L 746 190 L 750 198 L 754 190 L 758 198 L 758 220"/>
+                                    <rect class="mp-base" x="737" y="226" width="26" height="7" rx="3"/>
+                                    <rect class="mp-base" x="739" y="236" width="22" height="7" rx="3"/>
+                                </g>
+                                <g class="mp-switch">
+                                    <text class="mp-switch-label is-off" x="702" y="313">0</text>
+                                    <rect class="mp-switch-track" x="715" y="296" width="70" height="34" rx="17"/>
+                                    <circle class="mp-switch-knob" cx="732" cy="313" r="12"/>
+                                    <text class="mp-switch-label is-on" x="798" y="313">1</text>
+                                    <text class="mp-caption" x="750" y="364">SAÍDA</text>
+                                </g>
+                            </svg>
+
+                            <div class="mp-panel">
+                                <div>
+                                    <p class="mp-readout" aria-live="polite"></p>
+                                    <p class="mp-hint">Clique nas entradas para testar</p>
+                                </div>
+
+                                <!-- função de ativação binária (degrau) -->
+                                <svg class="mp-chart" viewBox="0 0 280 130" aria-hidden="true">
+                                    <defs>
+                                        <linearGradient id="mpChartGrad" gradientUnits="userSpaceOnUse" x1="30" y1="0" x2="250" y2="0">
+                                            <stop offset="0" stop-color="#8A2BE2"/>
+                                            <stop offset="1" stop-color="#e0388f"/>
+                                        </linearGradient>
+                                    </defs>
+                                    <text class="mp-chart-label" x="36" y="10">saída</text>
+                                    <line class="mp-axis" x1="30" y1="104" x2="262" y2="104"/>
+                                    <line class="mp-axis" x1="30" y1="104" x2="30" y2="18"/>
+                                    <text class="mp-tick is-y" x="22" y="100">0</text>
+                                    <text class="mp-tick is-y" x="22" y="30">1</text>
+                                    <line class="mp-theta-line" x1="162" y1="104" x2="162" y2="18"/>
+                                    <text class="mp-chart-label mp-theta-label" x="162" y="6" text-anchor="middle">θ</text>
+                                    <text class="mp-tick" x="30" y="120">0</text>
+                                    <text class="mp-tick" x="96" y="120">1</text>
+                                    <text class="mp-tick" x="162" y="120">2</text>
+                                    <text class="mp-tick" x="228" y="120">3</text>
+                                    <text class="mp-chart-label" x="272" y="96">Σ</text>
+                                    <path class="mp-step" d="M 30 100 H 162 V 30 H 250" pathLength="100"/>
+                                    <circle class="mp-dot" r="7"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — ISSO JÁ ERA UMA REDE NEURAL? (debate)
+                 Cada → revela um argumento; o bloco dele cai na balança
+                 (SIM à esquerda, NÃO à direita) e ela pende para o lado.
+                 No 3º argumento o "caderno dos cientistas" é escrito à mão;
+                 no 4º, aparece o recálculo; no 5º, o veredito.
+                 ========================================================== -->
+            <section class="slide slide-debate" aria-label="Isso já era uma rede neural?">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body debate-grid">
+                    <div class="debate-main">
+                        <span class="kicker" data-anim>A grande discussão</span>
+                        <h2 class="slide-title" data-anim>Isso já era uma <span class="hero-gradient">rede neural</span>?</h2>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="debate-tag is-yes">SIM</span>
+                                <div>
+                                    <strong>Imitava um neurônio de verdade</strong>
+                                    <p>Entradas, soma, limiar e saída, como no cérebro.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="debate-tag is-yes">SIM</span>
+                                <div>
+                                    <strong>Já fazia lógica</strong>
+                                    <p>Ligados em rede, calculavam funções como E, OU e NÃO.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="debate-tag is-no">NÃO</span>
+                                <div>
+                                    <strong>O limiar era definido à mão</strong>
+                                    <p>Os cientistas calculavam no papel até chegar a um consenso.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="debate-tag is-no">NÃO</span>
+                                <div>
+                                    <strong>Não aprendia sozinha</strong>
+                                    <p>A cada problema novo, alguém tinha que recalcular tudo.</p>
+                                </div>
+                            </li>
+                        </ol>
+
+                        <div class="debate-verdict fragment">
+                            <span class="highlight-label">Veredito</span>
+                            <p>Um neurônio artificial, sim. Uma rede que <span class="hero-gradient">aprende</span>, ainda não.</p>
+                        </div>
+                    </div>
+
+                    <div class="debate-card" data-anim>
+                        <!-- balança: o ângulo vem de --tilt (definido por etapa no CSS) -->
+                        <svg class="debate-scale" viewBox="0 0 900 330" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="dbGrad" gradientUnits="userSpaceOnUse" x1="160" y1="0" x2="740" y2="0">
+                                    <stop offset="0" stop-color="#8A2BE2"/>
+                                    <stop offset="1" stop-color="#e0388f"/>
+                                </linearGradient>
+                            </defs>
+
+                            <path class="scale-base" d="M 386 300 L 514 300 L 494 278 L 406 278 Z"/>
+                            <rect class="scale-post" x="444" y="96" width="12" height="184" rx="4"/>
+
+                            <!-- o travessão gira; os pratos giram ao contrário para continuarem retos -->
+                            <g class="scale-beam">
+                                <rect class="scale-bar" x="160" y="84" width="580" height="12" rx="6"/>
+
+                                <g class="scale-pan is-yes">
+                                    <line x1="170" y1="90" x2="100" y2="200"/>
+                                    <line x1="170" y1="90" x2="240" y2="200"/>
+                                    <g class="scale-block b-yes-1">
+                                        <rect x="114" y="166" width="112" height="32" rx="6"/>
+                                        <text x="170" y="182">estrutura</text>
+                                    </g>
+                                    <g class="scale-block b-yes-2">
+                                        <rect x="114" y="132" width="112" height="32" rx="6"/>
+                                        <text x="170" y="148">lógica</text>
+                                    </g>
+                                    <path class="scale-bowl" d="M 90 200 L 250 200 Q 246 230 212 232 L 128 232 Q 94 230 90 200 Z"/>
+                                    <text class="scale-label" x="170" y="262">SIM</text>
+                                </g>
+
+                                <g class="scale-pan is-no">
+                                    <line x1="730" y1="90" x2="660" y2="200"/>
+                                    <line x1="730" y1="90" x2="800" y2="200"/>
+                                    <g class="scale-block b-no-1">
+                                        <rect x="670" y="160" width="120" height="38" rx="6"/>
+                                        <text x="730" y="179">θ à mão</text>
+                                    </g>
+                                    <g class="scale-block b-no-2">
+                                        <rect x="670" y="120" width="120" height="38" rx="6"/>
+                                        <text x="730" y="139">não aprende</text>
+                                    </g>
+                                    <path class="scale-bowl" d="M 650 200 L 810 200 Q 806 230 772 232 L 688 232 Q 654 230 650 200 Z"/>
+                                    <text class="scale-label" x="730" y="262">NÃO</text>
+                                </g>
+
+                                <circle class="scale-hook" cx="170" cy="90" r="6"/>
+                                <circle class="scale-hook" cx="730" cy="90" r="6"/>
+                            </g>
+
+                            <circle class="scale-pivot" cx="450" cy="90" r="20"/>
+                            <text class="scale-pivot-text is-question" x="450" y="90">?</text>
+                            <text class="scale-pivot-text is-answer" x="450" y="90">!</text>
+                        </svg>
+
+                        <!-- caderno: as linhas são "escritas" a partir do 3º argumento -->
+                        <div class="notebook">
+                            <span class="highlight-label">Caderno dos cientistas</span>
+                            <ol class="nb-lines">
+                                <li class="nb-line">Objetivo: disparar só com x<sub>1</sub> <b>E</b> x<sub>2</sub></li>
+                                <li class="nb-line"><i class="nb-theta">θ</i> = 1 → dispara com um sinal só <span class="nb-bad">✗</span></li>
+                                <li class="nb-line"><i class="nb-theta">θ</i> = 3 → nunca dispara <span class="nb-bad">✗</span></li>
+                                <li class="nb-line"><i class="nb-theta">θ</i> = 2 → funciona! <span class="nb-good">✓</span></li>
+                                <li class="nb-line is-later">Problema novo (OU)? Recalcular tudo… <i class="nb-theta">θ</i> = 1</li>
+                            </ol>
+                            <span class="nb-stamp">Definido à mão</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — O PERCEPTRON (1958): quem criou e o que mudou
+                 Cada → revela uma linha da comparação com McCulloch-Pitts.
+                 A "retina" (20×20) é gerada pelo JS e fica lendo cartões
+                 com a marca à esquerda ou à direita, em loop.
+                 ========================================================== -->
+            <section class="slide slide-perceptron" aria-label="O Perceptron">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body pc-grid">
+                    <div class="pc-main">
+                        <span class="kicker" data-anim>1958 · O neurônio que aprende</span>
+                        <h2 class="slide-title" data-anim>O <span class="hero-gradient">Perceptron</span></h2>
+
+                        <article class="person" data-anim>
+                            <span class="person-avatar">FR</span>
+                            <div>
+                                <strong>Frank Rosenblatt</strong>
+                                <span class="person-role">Psicólogo · 1928–1971</span>
+                                <p>Criou o Perceptron no Laboratório Aeronáutico de Cornell, nos EUA.</p>
+                            </div>
+                        </article>
+
+                        <div class="compare" data-anim>
+                            <div class="compare-head">
+                                <span>O que mudou</span>
+                                <span>McCulloch-Pitts</span>
+                                <span>Perceptron</span>
+                            </div>
+                            <div class="compare-row fragment">
+                                <span class="compare-label">Entradas</span>
+                                <span class="compare-old">todas valem igual</span>
+                                <span class="compare-new">cada uma tem um peso</span>
+                            </div>
+                            <div class="compare-row fragment">
+                                <span class="compare-label">Ajuste</span>
+                                <span class="compare-old">limiar calculado à mão</span>
+                                <span class="compare-new">pesos ajustados com exemplos</span>
+                            </div>
+                            <div class="compare-row fragment">
+                                <span class="compare-label">Aprende?</span>
+                                <span class="compare-old">não</span>
+                                <span class="compare-new">sim!</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pc-card" data-anim>
+                        <div class="retina-wrap">
+                            <div>
+                                <span class="highlight-label">“Retina” de 400 fotocélulas</span>
+                                <div class="retina" aria-hidden="true"></div>
+                            </div>
+                            <svg class="retina-link" viewBox="0 0 120 40" aria-hidden="true">
+                                <path data-pulse="stream" d="M 0 20 L 120 20" pathLength="100"/>
+                            </svg>
+                            <div class="retina-out">
+                                <span class="highlight-label">Classificador binário</span>
+                                <div class="lamp is-left"><span class="lamp-dot"></span>← Esquerda</div>
+                                <div class="lamp is-right"><span class="lamp-dot"></span>Direita →</div>
+                                <p class="retina-note">A resposta é sempre uma entre duas.</p>
+                            </div>
+                        </div>
+
+                        <p class="retina-caption">A máquina Mark I Perceptron enxergava por uma “retina” de 20 × 20 fotocélulas. Já em 1958, numa demonstração para a Marinha dos EUA, o perceptron aprendeu a dizer se a marca de um cartão estava à esquerda ou à direita.</p>
+
+                        <blockquote class="nyt">
+                            <span class="highlight-label">The New York Times, 1958</span>
+                            “O embrião de um computador que vai andar, falar, ver, escrever, se reproduzir e ter consciência da própria existência.”
+                        </blockquote>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — ESTRUTURA BÁSICA DO PERCEPTRON (interativo)
+                 Cada → acende uma parte: 1 entradas · 2 pesos ·
+                 3 soma ponderada · 4 função degrau (Heaviside).
+                 data-weights: os pesos w1,w2,w3 · data-presets: x1x2x3
+                 de cada etapa. Clique nas entradas para ligar/desligar.
+                 ========================================================== -->
+            <section class="slide slide-structure" aria-label="Estrutura do Perceptron">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body pcs-grid">
+                    <div class="pcs-main">
+                        <span class="kicker" data-anim>1 · Estrutura básica</span>
+                        <h2 class="slide-title" data-anim>Cada entrada tem um <span class="hero-gradient">peso</span></h2>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">x</span>
+                                <div>
+                                    <strong>Entradas (x)</strong>
+                                    <p>Os dados que chegam, como os pixels de uma imagem: 0 ou 1.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">w</span>
+                                <div>
+                                    <strong>Pesos (w)</strong>
+                                    <p>A importância de cada entrada: positivo puxa para o 1, negativo para o 0.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">Σ</span>
+                                <div>
+                                    <strong>Soma ponderada</strong>
+                                    <p>Cada entrada vezes o seu peso, e tudo somado.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">H</span>
+                                <div>
+                                    <strong>Função degrau (Heaviside)</strong>
+                                    <p>Se a soma passar de 0, a saída é 1; senão, é 0.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="pcs-card" data-anim>
+                        <div class="pcs-stage" data-weights="0.6,-0.4,0.3" data-presets="000,101,101,101,101">
+                            <svg class="pcs-svg" viewBox="0 0 860 400" aria-label="Perceptron: entradas, pesos, soma ponderada, função degrau e saída">
+                                <!-- fios (a espessura e a cor mostram o peso) -->
+                                <g class="pcs-wire">
+                                    <path class="pcs-wire-line" data-pulse="stream" d="M 100 80 C 220 80, 300 140, 374 170" pathLength="100"/>
+                                </g>
+                                <g class="pcs-wire">
+                                    <path class="pcs-wire-line" data-pulse="stream" d="M 100 200 L 368 200" pathLength="100"/>
+                                </g>
+                                <g class="pcs-wire">
+                                    <path class="pcs-wire-line" data-pulse="stream" d="M 100 320 C 220 320, 300 260, 374 230" pathLength="100"/>
+                                </g>
+
+                                <!-- rótulos dos pesos (o valor vem de data-weights) -->
+                                <g class="pcs-weight" transform="translate(254 114)">
+                                    <rect x="-66" y="-19" width="132" height="38" rx="19"/>
+                                    <text>w<tspan class="pcs-sub" dy="5">1</tspan><tspan class="pcs-wval" dy="-5"></tspan></text>
+                                </g>
+                                <g class="pcs-weight" transform="translate(234 200)">
+                                    <rect x="-66" y="-19" width="132" height="38" rx="19"/>
+                                    <text>w<tspan class="pcs-sub" dy="5">2</tspan><tspan class="pcs-wval" dy="-5"></tspan></text>
+                                </g>
+                                <g class="pcs-weight" transform="translate(254 286)">
+                                    <rect x="-66" y="-19" width="132" height="38" rx="19"/>
+                                    <text>w<tspan class="pcs-sub" dy="5">3</tspan><tspan class="pcs-wval" dy="-5"></tspan></text>
+                                </g>
+
+                                <!-- entradas (clicáveis) -->
+                                <g class="pcs-input" role="button" tabindex="0" aria-label="Entrada x1: ligar ou desligar">
+                                    <circle class="pcs-chip" cx="70" cy="80" r="30"/>
+                                    <text class="pcs-value" x="70" y="80">0</text>
+                                    <text class="pcs-name" x="20" y="80">x<tspan class="pcs-sub" dy="5">1</tspan></text>
+                                </g>
+                                <g class="pcs-input" role="button" tabindex="0" aria-label="Entrada x2: ligar ou desligar">
+                                    <circle class="pcs-chip" cx="70" cy="200" r="30"/>
+                                    <text class="pcs-value" x="70" y="200">0</text>
+                                    <text class="pcs-name" x="20" y="200">x<tspan class="pcs-sub" dy="5">2</tspan></text>
+                                </g>
+                                <g class="pcs-input" role="button" tabindex="0" aria-label="Entrada x3: ligar ou desligar">
+                                    <circle class="pcs-chip" cx="70" cy="320" r="30"/>
+                                    <text class="pcs-value" x="70" y="320">0</text>
+                                    <text class="pcs-name" x="20" y="320">x<tspan class="pcs-sub" dy="5">3</tspan></text>
+                                </g>
+
+                                <!-- soma ponderada -->
+                                <circle class="pcs-sum-body" cx="430" cy="200" r="62"/>
+                                <text class="pcs-sigma" x="430" y="168">Σ</text>
+                                <text class="pcs-sum" x="430" y="212">?</text>
+                                <text class="pcs-caption" x="430" y="292">SOMA PONDERADA</text>
+
+                                <!-- função degrau (Heaviside) -->
+                                <path class="pcs-link" data-pulse="stream" d="M 494 200 L 556 200" pathLength="100"/>
+                                <g class="pcs-step">
+                                    <text class="pcs-caption" x="625" y="122">DEGRAU</text>
+                                    <rect class="pcs-step-box" x="560" y="140" width="130" height="120" rx="14"/>
+                                    <line class="pcs-step-axis" x1="572" y1="236" x2="680" y2="236"/>
+                                    <line class="pcs-step-zero" x1="625" y1="150" x2="625" y2="246"/>
+                                    <path class="pcs-step-line" d="M 574 232 H 625 V 164 H 678"/>
+                                    <circle class="pcs-step-dot" r="6"/>
+                                </g>
+
+                                <!-- saída -->
+                                <path class="pcs-link pcs-link-out" data-pulse="stream" d="M 694 200 L 748 200" pathLength="100"/>
+                                <circle class="pcs-out-body" cx="790" cy="200" r="40"/>
+                                <text class="pcs-out" x="790" y="200">?</text>
+                                <text class="pcs-caption" x="790" y="266">SAÍDA</text>
+                            </svg>
+
+                            <div class="pcs-panel">
+                                <p class="pcs-readout" aria-live="polite"></p>
+                                <p class="mp-hint">Clique nas entradas para testar</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — COMO O PERCEPTRON APRENDIA (simulação de verdade)
+                 1 apresentação · 2 previsão · 3 correção · 4 treino sozinho.
+                 Os cartões, os pesos iniciais e a regra de ajuste estão no
+                 JS (setupLearning); a sequência é sempre a mesma.
+                 ========================================================== -->
+            <section class="slide slide-learn" aria-label="Como o Perceptron aprendia">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body learn-grid">
+                    <div class="learn-main">
+                        <span class="kicker" data-anim>2 · Mecanismo de aprendizado</span>
+                        <h2 class="slide-title" data-anim>Aprender com <span class="hero-gradient">correção</span></h2>
+                        <p class="learn-callback" data-anim>Lembra da criança? É a maneira nº 2.</p>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">1</span>
+                                <div>
+                                    <strong>Apresentação</strong>
+                                    <p>O operador mostra uma imagem: um cartão com uma marca.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">2</span>
+                                <div>
+                                    <strong>Previsão</strong>
+                                    <p>O perceptron calcula a soma e responde: esquerda ou direita.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">3</span>
+                                <div>
+                                    <strong>Correção</strong>
+                                    <p>Se errou, o operador aplica a regra de ajuste e os pesos mudam.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">4</span>
+                                <div>
+                                    <strong>Repetição</strong>
+                                    <p>Depois de muitos exemplos, ele passa a acertar sozinho.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="learn-card" data-anim>
+                        <div class="learn-stage">
+                            <div class="learn-row">
+                                <div class="learn-col">
+                                    <span class="highlight-label">Cartão</span>
+                                    <div class="learn-slot"><div class="punch-card"></div></div>
+                                </div>
+                                <span class="learn-arrow" aria-hidden="true">→</span>
+                                <div class="learn-col">
+                                    <span class="highlight-label">Pesos</span>
+                                    <div class="weight-grid"></div>
+                                    <span class="learn-legend"><i class="is-neg"></i>esquerda <i class="is-pos"></i>direita</span>
+                                </div>
+                                <span class="learn-arrow" aria-hidden="true">→</span>
+                                <div class="learn-col">
+                                    <span class="highlight-label">Resposta</span>
+                                    <div class="learn-answer">
+                                        <span class="learn-sum">Σ = ?</span>
+                                        <strong class="learn-guess">—</strong>
+                                        <span class="learn-verdict"></span>
+                                    </div>
+                                    <span class="learn-truth">Gabarito: —</span>
+                                </div>
+                            </div>
+
+                            <p class="learn-status" aria-live="polite"></p>
+                            <p class="learn-formula">Regra de ajuste: peso novo = peso + erro × entrada</p>
+
+                            <div class="learn-history">
+                                <span class="highlight-label">Histórico</span>
+                                <div class="learn-dots"></div>
+                                <span class="learn-badge">Aprendeu!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — A LIMITAÇÃO: SEPARAÇÃO LINEAR (E × XOR)
+                 1 uma reta separa o E · 2 no XOR a reta procura e sempre
+                 erra · 3 duas retas resolveriam (= mais de uma camada).
+                 ========================================================== -->
+            <section class="slide slide-limit" aria-label="A limitação do Perceptron">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body limit-grid">
+                    <div class="limit-main">
+                        <span class="kicker" data-anim>A limitação</span>
+                        <h2 class="slide-title" data-anim>Só sabia traçar <span class="hero-gradient">uma reta</span></h2>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">1</span>
+                                <div>
+                                    <strong>Linearmente separável</strong>
+                                    <p>Se uma reta divide as classes, como no E (AND), ele aprende.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">2</span>
+                                <div>
+                                    <strong>O problema do XOR</strong>
+                                    <p>No “OU exclusivo”, nenhuma reta separa os pontos: sempre sobra um erro.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">3</span>
+                                <div>
+                                    <strong>Uma camada só</strong>
+                                    <p>Com uma única camada de neurônios, a fronteira é sempre uma reta. O XOR precisaria de duas.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="limit-card" data-anim>
+                        <div class="limit-stage">
+                            <svg class="limit-svg" viewBox="0 0 520 420" aria-label="Quatro pontos e a reta de decisão do perceptron">
+                                <defs>
+                                    <clipPath id="limitClip">
+                                        <rect x="90" y="40" width="340" height="340" rx="12"/>
+                                    </clipPath>
+                                </defs>
+                                <rect class="limit-frame" x="90" y="40" width="340" height="340" rx="12"/>
+
+                                <g clip-path="url(#limitClip)">
+                                    <rect class="band" x="-500" y="-84.85" width="1000" height="169.7" transform="translate(260 210) rotate(45)"/>
+                                    <!-- reta de decisão: lado rosa = responde 1, lado azul = responde 0 -->
+                                    <g class="sep">
+                                        <rect class="sep-pos" x="-800" y="0" width="1600" height="800"/>
+                                        <rect class="sep-neg" x="-800" y="-800" width="1600" height="800"/>
+                                        <line class="sep-line" x1="-800" y1="0" x2="800" y2="0"/>
+                                    </g>
+                                    <line class="band-line" x1="-83" y1="-13" x2="483" y2="553"/>
+                                    <line class="band-line" x1="37" y1="-133" x2="603" y2="433"/>
+                                    <text class="band-label" x="260" y="210" transform="rotate(45 260 210)">duas retas</text>
+                                </g>
+
+                                <text class="limit-tick" x="140" y="400">0</text>
+                                <text class="limit-tick" x="380" y="400">1</text>
+                                <text class="limit-tick" x="70" y="330">0</text>
+                                <text class="limit-tick" x="70" y="90">1</text>
+                                <text class="limit-axis" x="460" y="380">x<tspan class="limit-sub" dy="5">1</tspan></text>
+                                <text class="limit-axis" x="90" y="18">x<tspan class="limit-sub" dy="5">2</tspan></text>
+
+                                <g class="pt" data-x="140" data-y="330" data-and="0" data-xor="0">
+                                    <circle class="pt-ring" cx="140" cy="330" r="32"/>
+                                    <circle class="pt-dot" cx="140" cy="330" r="22"/>
+                                    <text class="pt-and" x="140" y="330">0</text>
+                                    <text class="pt-xor" x="140" y="330">0</text>
+                                </g>
+                                <g class="pt" data-x="380" data-y="330" data-and="0" data-xor="1">
+                                    <circle class="pt-ring" cx="380" cy="330" r="32"/>
+                                    <circle class="pt-dot" cx="380" cy="330" r="22"/>
+                                    <text class="pt-and" x="380" y="330">0</text>
+                                    <text class="pt-xor" x="380" y="330">1</text>
+                                </g>
+                                <g class="pt" data-x="140" data-y="90" data-and="0" data-xor="1">
+                                    <circle class="pt-ring" cx="140" cy="90" r="32"/>
+                                    <circle class="pt-dot" cx="140" cy="90" r="22"/>
+                                    <text class="pt-and" x="140" y="90">0</text>
+                                    <text class="pt-xor" x="140" y="90">1</text>
+                                </g>
+                                <g class="pt" data-x="380" data-y="90" data-and="1" data-xor="0">
+                                    <circle class="pt-ring" cx="380" cy="90" r="32"/>
+                                    <circle class="pt-dot" cx="380" cy="90" r="22"/>
+                                    <text class="pt-and" x="380" y="90">1</text>
+                                    <text class="pt-xor" x="380" y="90">0</text>
+                                </g>
+                            </svg>
+
+                            <div class="limit-side">
+                                <span class="highlight-label">Função</span>
+                                <strong class="limit-fn"><span class="t-and">E (AND)</span><span class="t-xor">OU exclusivo (XOR)</span></strong>
+                                <table class="truth">
+                                    <thead>
+                                        <tr><th>x<sub>1</sub></th><th>x<sub>2</sub></th><th>saída</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>0</td><td>0</td><td><span class="t-and is-0">0</span><span class="t-xor is-0">0</span></td></tr>
+                                        <tr><td>0</td><td>1</td><td><span class="t-and is-0">0</span><span class="t-xor is-1">1</span></td></tr>
+                                        <tr><td>1</td><td>0</td><td><span class="t-and is-0">0</span><span class="t-xor is-1">1</span></td></tr>
+                                        <tr><td>1</td><td>1</td><td><span class="t-and is-1">1</span><span class="t-xor is-0">0</span></td></tr>
+                                    </tbody>
+                                </table>
+                                <p class="limit-status" aria-live="polite"></p>
+                                <span class="limit-stamp">Impossível com 1 reta!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 IMPACTO — O PRIMEIRO INVERNO DA IA
+                 Sem rodapé (data-bare). Rede neural congelada em azul
+                 (data-palette="ice", data-still) + neve gerada pelo JS.
+                 ========================================================== -->
+            <section class="slide slide-impact slide-winter" data-bare aria-label="O primeiro inverno da IA">
+                <canvas class="neural-bg" data-palette="ice" data-still aria-hidden="true"></canvas>
+                <div class="snow" aria-hidden="true"></div>
+
+                <div class="winter-text">
+                    <span class="kicker" data-anim>Anos 1970</span>
+                    <h2 class="impact-statement">
+                        <span data-anim>Começa o primeiro</span>
+                        <span data-anim><span class="ice-gradient">inverno</span> da IA.</span>
+                    </h2>
+                    <p class="winter-sub" data-anim>Em 1969, o livro “Perceptrons”, de Marvin Minsky e Seymour Papert, mostrou os limites de uma camada só. O dinheiro para pesquisar redes neurais congelou por mais de uma década.</p>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — PERCEPTRON MULTICAMADAS (MLP) resolvendo o XOR
+                 1 entrada · 2 oculta (cada neurônio = uma reta) ·
+                 3 saída (combina as retas → XOR resolvido) ·
+                 4 sigmóide no lugar do degrau (valores contínuos).
+                 Pesos e conta no JS (setupMLP); as 4 combinações se
+                 repetem em ciclo a partir da etapa 1.
+                 ========================================================== -->
+            <section class="slide slide-mlp" aria-label="Perceptron multicamadas">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body mlp-grid">
+                    <div class="mlp-main">
+                        <span class="kicker" data-anim>1986 · Perceptron multicamadas (MLP)</span>
+                        <h2 class="slide-title" data-anim>Redes com <span class="hero-gradient">camadas</span></h2>
+
+                        <article class="mlp-authors" data-anim>
+                            <div class="mlp-avatars" aria-hidden="true">
+                                <span class="person-avatar">DR</span>
+                                <span class="person-avatar">GH</span>
+                                <span class="person-avatar">RW</span>
+                            </div>
+                            <div>
+                                <strong>Rumelhart, Hinton e Williams</strong>
+                                <p>Resolve problemas não linearmente separáveis, como o XOR.</p>
+                            </div>
+                        </article>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-group">1 · Estrutura de camadas ocultas</li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">E</span>
+                                <div>
+                                    <strong>Camada de entrada <em>(Input Layer)</em></strong>
+                                    <p>Recebe os dados e repassa. Não calcula nada.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">O</span>
+                                <div>
+                                    <strong>Camada oculta <em>(Hidden Layer)</em></strong>
+                                    <p>Cada neurônio traça a sua própria reta.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">S</span>
+                                <div>
+                                    <strong>Camada de saída <em>(Output Layer)</em></strong>
+                                    <p>Combina as retas e dá a resposta final.</p>
+                                </div>
+                            </li>
+                            <li class="layer-group">2 · Função de ativação</li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">σ</span>
+                                <div>
+                                    <strong>Função sigmóide</strong>
+                                    <p>Substitui o degrau (Heaviside) por uma curva suave.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="mlp-card" data-anim>
+                        <div class="mlp-stage">
+                            <svg class="mlp-svg" viewBox="0 0 900 420" aria-label="Rede com camada de entrada, camada oculta e saída resolvendo o XOR">
+                                <text class="mlp-caption mlp-col-in" x="70" y="24">ENTRADA</text>
+                                <text class="mlp-caption mlp-col-hid" x="270" y="24">OCULTA</text>
+                                <text class="mlp-caption mlp-col-out" x="450" y="24">SAÍDA</text>
+
+                                <!-- fios entrada → oculta (verde = peso positivo, vermelho = negativo) -->
+                                <g class="mlp-wire mlp-wire-in is-pos" data-from="0"><path class="mlp-wire-line" data-pulse="stream" d="M 100 130 C 180 130, 190 110, 230 110" pathLength="100"/></g>
+                                <g class="mlp-wire mlp-wire-in is-pos" data-from="1"><path class="mlp-wire-line" data-pulse="stream" d="M 100 290 C 180 290, 190 110, 230 110" pathLength="100"/></g>
+                                <g class="mlp-wire mlp-wire-in is-neg" data-from="0"><path class="mlp-wire-line" data-pulse="stream" d="M 100 130 C 180 130, 190 310, 230 310" pathLength="100"/></g>
+                                <g class="mlp-wire mlp-wire-in is-neg" data-from="1"><path class="mlp-wire-line" data-pulse="stream" d="M 100 290 C 180 290, 190 310, 230 310" pathLength="100"/></g>
+                                <!-- fios oculta → saída -->
+                                <g class="mlp-wire mlp-wire-out is-pos" data-from="0"><path class="mlp-wire-line" data-pulse="stream" d="M 310 110 C 370 110, 380 210, 410 210" pathLength="100"/></g>
+                                <g class="mlp-wire mlp-wire-out is-pos" data-from="1"><path class="mlp-wire-line" data-pulse="stream" d="M 310 310 C 370 310, 380 210, 410 210" pathLength="100"/></g>
+
+                                <!-- entradas -->
+                                <g class="mlp-node mlp-in">
+                                    <circle class="mlp-body" cx="70" cy="130" r="30"/>
+                                    <text class="mlp-val" x="70" y="130">?</text>
+                                    <text class="mlp-name" x="22" y="130">x<tspan class="mlp-sub" dy="5">1</tspan></text>
+                                </g>
+                                <g class="mlp-node mlp-in">
+                                    <circle class="mlp-body" cx="70" cy="290" r="30"/>
+                                    <text class="mlp-val" x="70" y="290">?</text>
+                                    <text class="mlp-name" x="22" y="290">x<tspan class="mlp-sub" dy="5">2</tspan></text>
+                                </g>
+
+                                <!-- neurônios ocultos e de saída: valor + mini gráfico da ativação (degrau → sigmóide) -->
+                                <g class="mlp-node mlp-hid" transform="translate(270 110)">
+                                    <circle class="mlp-body" r="40"/>
+                                    <text class="mlp-val" y="-8">?</text>
+                                    <path class="mlp-act mlp-act-step" d="M -12 22 H 0 V 10 H 12"/>
+                                    <path class="mlp-act mlp-act-sig" d="M -12 22 C -2 22, 2 10, 12 10"/>
+                                    <text class="mlp-name" x="52" y="-38">h<tspan class="mlp-sub" dy="5">1</tspan></text>
+                                </g>
+                                <g class="mlp-node mlp-hid" transform="translate(270 310)">
+                                    <circle class="mlp-body" r="40"/>
+                                    <text class="mlp-val" y="-8">?</text>
+                                    <path class="mlp-act mlp-act-step" d="M -12 22 H 0 V 10 H 12"/>
+                                    <path class="mlp-act mlp-act-sig" d="M -12 22 C -2 22, 2 10, 12 10"/>
+                                    <text class="mlp-name" x="52" y="38">h<tspan class="mlp-sub" dy="5">2</tspan></text>
+                                </g>
+                                <g class="mlp-node mlp-out" transform="translate(450 210)">
+                                    <circle class="mlp-body" r="40"/>
+                                    <text class="mlp-val" y="-8">?</text>
+                                    <path class="mlp-act mlp-act-step" d="M -12 22 H 0 V 10 H 12"/>
+                                    <path class="mlp-act mlp-act-sig" d="M -12 22 C -2 22, 2 10, 12 10"/>
+                                    <text class="mlp-name" y="62">y</text>
+                                </g>
+
+                                <!-- VISTA 1: o plano do XOR (etapas 0–3) -->
+                                <g class="mlp-view mlp-plane">
+                                    <defs>
+                                        <clipPath id="mlpClip">
+                                            <rect x="540" y="40" width="320" height="320" rx="12"/>
+                                        </clipPath>
+                                    </defs>
+                                    <rect class="limit-frame" x="540" y="40" width="320" height="320" rx="12"/>
+                                    <g clip-path="url(#mlpClip)">
+                                        <polygon class="mlp-band" points="920,530 370,-20 370,-240 1140,530"/>
+                                        <line class="mlp-line" x1="920" y1="530" x2="370" y2="-20" pathLength="100"/>
+                                        <line class="mlp-line" x1="1140" y1="530" x2="370" y2="-240" pathLength="100"/>
+                                    </g>
+                                    <g class="mlp-line-tag" transform="translate(616 236)"><rect x="-22" y="-15" width="44" height="30" rx="15"/><text>h<tspan class="mlp-sub" dy="4">1</tspan></text></g>
+                                    <g class="mlp-line-tag" transform="translate(784 164)"><rect x="-22" y="-15" width="44" height="30" rx="15"/><text>h<tspan class="mlp-sub" dy="4">2</tspan></text></g>
+
+                                    <g class="mlp-pt" data-xor="0"><circle class="mlp-pt-ring" cx="590" cy="310" r="31"/><circle class="mlp-pt-dot" cx="590" cy="310" r="21"/><text x="590" y="310">0</text></g>
+                                    <g class="mlp-pt" data-xor="1"><circle class="mlp-pt-ring" cx="590" cy="90" r="31"/><circle class="mlp-pt-dot" cx="590" cy="90" r="21"/><text x="590" y="90">1</text></g>
+                                    <g class="mlp-pt" data-xor="1"><circle class="mlp-pt-ring" cx="810" cy="310" r="31"/><circle class="mlp-pt-dot" cx="810" cy="310" r="21"/><text x="810" y="310">1</text></g>
+                                    <g class="mlp-pt" data-xor="0"><circle class="mlp-pt-ring" cx="810" cy="90" r="31"/><circle class="mlp-pt-dot" cx="810" cy="90" r="21"/><text x="810" y="90">0</text></g>
+
+                                    <text class="mlp-tick" x="590" y="378">0</text>
+                                    <text class="mlp-tick" x="810" y="378">1</text>
+                                    <text class="mlp-tick" x="526" y="310">0</text>
+                                    <text class="mlp-tick" x="526" y="90">1</text>
+                                    <text class="mlp-caption" x="700" y="406">O PROBLEMA DO XOR</text>
+                                </g>
+
+                                <!-- VISTA 2: a função de ativação (etapa 4) -->
+                                <g class="mlp-view mlp-chart">
+                                    <rect class="limit-frame" x="540" y="40" width="320" height="320" rx="12"/>
+                                    <line class="pcs-step-axis" x1="562" y1="334" x2="848" y2="334"/>
+                                    <line class="pcs-step-axis" x1="705" y1="328" x2="705" y2="340"/>
+                                    <path class="mlp-chart-step" d="M 570 320 H 705 V 90 H 840"/>
+                                    <path class="mlp-chart-sig" pathLength="100"/>
+                                    <circle class="mlp-chart-dot" r="8"/>
+                                    <text class="mlp-tick" x="552" y="90">1</text>
+                                    <text class="mlp-tick" x="552" y="320">0</text>
+                                    <text class="mlp-tick" x="705" y="352">0</text>
+                                    <g class="mlp-legend">
+                                        <line class="mlp-chart-step" x1="562" y1="62" x2="586" y2="62"/>
+                                        <text x="594" y="62">degrau</text>
+                                        <line class="mlp-legend-sig" x1="686" y1="62" x2="710" y2="62"/>
+                                        <text x="718" y="62">sigmóide</text>
+                                    </g>
+                                    <text class="mlp-caption" x="700" y="406">FUNÇÃO DE ATIVAÇÃO</text>
+                                </g>
+                            </svg>
+
+                            <div class="mlp-panel">
+                                <p class="mlp-readout" aria-live="polite"></p>
+                                <p class="mlp-note"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — BACKPROPAGATION (conta de verdade, 1 exemplo)
+                 1 forward pass (ida) · 2 backward pass (volta: culpa de
+                 cada peso + ajuste) · 3 onde começou + treino em rodadas.
+                 Pesos iniciais, exemplo e taxa de aprendizado no JS
+                 (setupBackprop); o resultado é sempre o mesmo.
+                 ========================================================== -->
+            <section class="slide slide-bp" aria-label="Backpropagation">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body bp-grid">
+                    <div class="bp-main">
+                        <span class="kicker" data-anim>Como a rede aprende</span>
+                        <h2 class="slide-title" data-anim><span class="hero-gradient">Backpropagation</span></h2>
+
+                        <div class="bp-what" data-anim>
+                            <span class="highlight-label">O que é?</span>
+                            <p>A <b>retropropagação do erro</b>: a rede compara a resposta com o gabarito e manda o erro de volta, camada por camada, para ajustar cada peso.</p>
+                        </div>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">→</span>
+                                <div>
+                                    <strong>Forward pass <em>(ida)</em></strong>
+                                    <p>Os dados vão da entrada até a saída e a rede dá um palpite.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">←</span>
+                                <div>
+                                    <strong>Backward pass <em>(volta)</em></strong>
+                                    <p>O erro volta da saída até a entrada: cada peso recebe a sua parte da culpa e é ajustado.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">✉</span>
+                                <div>
+                                    <strong>Onde começou a ser usado</strong>
+                                    <ul class="bp-timeline">
+                                        <li><b>1974</b>Paul Werbos descreve a ideia na sua tese, em Harvard.</li>
+                                        <li><b>1986</b>Rumelhart, Hinton e Williams tornam o método famoso.</li>
+                                        <li class="is-key"><b>1989</b>Bell Labs: lê CEPs escritos à mão nas cartas dos Correios dos EUA.</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="bp-card" data-anim>
+                        <div class="bp-stage">
+                            <div class="bp-row">
+                                <svg class="bp-svg" viewBox="0 0 560 400" aria-label="Rede neural: o erro da saída volta pelos fios e ajusta cada peso">
+                                    <text class="mlp-caption" x="70" y="24">ENTRADA</text>
+                                    <text class="mlp-caption" x="290" y="24">OCULTA</text>
+                                    <text class="mlp-caption" x="500" y="24">SAÍDA</text>
+
+                                    <!-- fios (data-w = qual peso; a espessura na volta = a culpa) -->
+                                    <g class="bp-wire" data-w="0"><path class="bp-wire-line" data-pulse="stream" d="M 100 120 L 250 120" pathLength="100"/></g>
+                                    <g class="bp-wire" data-w="1"><path class="bp-wire-line" data-pulse="stream" d="M 100 300 L 250 120" pathLength="100"/></g>
+                                    <g class="bp-wire" data-w="2"><path class="bp-wire-line" data-pulse="stream" d="M 100 120 L 250 300" pathLength="100"/></g>
+                                    <g class="bp-wire" data-w="3"><path class="bp-wire-line" data-pulse="stream" d="M 100 300 L 250 300" pathLength="100"/></g>
+                                    <g class="bp-wire" data-w="4"><path class="bp-wire-line" data-pulse="stream" d="M 330 120 L 460 210" pathLength="100"/></g>
+                                    <g class="bp-wire" data-w="5"><path class="bp-wire-line" data-pulse="stream" d="M 330 300 L 460 210" pathLength="100"/></g>
+
+                                    <!-- pesos -->
+                                    <g class="bp-pill" transform="translate(186 120)"><g class="bp-pill-in"><rect x="-32" y="-14" width="64" height="28" rx="14"/><text></text></g></g>
+                                    <g class="bp-pill" transform="translate(186 196)"><g class="bp-pill-in"><rect x="-32" y="-14" width="64" height="28" rx="14"/><text></text></g></g>
+                                    <g class="bp-pill" transform="translate(186 224)"><g class="bp-pill-in"><rect x="-32" y="-14" width="64" height="28" rx="14"/><text></text></g></g>
+                                    <g class="bp-pill" transform="translate(186 300)"><g class="bp-pill-in"><rect x="-32" y="-14" width="64" height="28" rx="14"/><text></text></g></g>
+                                    <g class="bp-pill" transform="translate(395 165)"><g class="bp-pill-in"><rect x="-32" y="-14" width="64" height="28" rx="14"/><text></text></g></g>
+                                    <g class="bp-pill" transform="translate(395 255)"><g class="bp-pill-in"><rect x="-32" y="-14" width="64" height="28" rx="14"/><text></text></g></g>
+
+                                    <!-- neurônios -->
+                                    <g class="bp-node bp-in" transform="translate(70 120)"><circle class="bp-body" r="30"/><text class="bp-val">?</text><text class="mlp-name" x="-48">x<tspan class="mlp-sub" dy="5">1</tspan></text></g>
+                                    <g class="bp-node bp-in" transform="translate(70 300)"><circle class="bp-body" r="30"/><text class="bp-val">?</text><text class="mlp-name" x="-48">x<tspan class="mlp-sub" dy="5">2</tspan></text></g>
+                                    <g class="bp-node bp-hid" transform="translate(290 120)"><circle class="bp-body" r="40"/><text class="bp-val">?</text><text class="mlp-name" x="50" y="-38">h<tspan class="mlp-sub" dy="5">1</tspan></text></g>
+                                    <g class="bp-node bp-hid" transform="translate(290 300)"><circle class="bp-body" r="40"/><text class="bp-val">?</text><text class="mlp-name" x="50" y="38">h<tspan class="mlp-sub" dy="5">2</tspan></text></g>
+                                    <g class="bp-node bp-out" transform="translate(500 210)"><circle class="bp-body" r="40"/><text class="bp-val">?</text><text class="mlp-name" y="62">y</text></g>
+
+                                    <text class="bp-dir bp-dir-fwd" x="290" y="388">IDA →</text>
+                                    <text class="bp-dir bp-dir-back" x="290" y="388">← VOLTA DO ERRO</text>
+                                </svg>
+
+                                <div class="bp-side">
+                                    <div class="bp-box">
+                                        <span class="highlight-label">Esperado</span>
+                                        <strong class="bp-target">1</strong>
+                                    </div>
+                                    <div class="bp-box bp-error-box">
+                                        <span class="highlight-label">Erro</span>
+                                        <strong class="bp-error">?</strong>
+                                        <div class="bp-bar"><i></i></div>
+                                    </div>
+                                    <div class="bp-box bp-hist">
+                                        <span class="highlight-label">Erro por rodada</span>
+                                        <svg class="bp-spark" viewBox="0 0 240 80" preserveAspectRatio="none" aria-hidden="true">
+                                            <line class="bp-spark-base" x1="0" y1="78" x2="240" y2="78"/>
+                                            <path class="bp-spark-line"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mlp-panel">
+                                <p class="mlp-readout" aria-live="polite"></p>
+                                <p class="mlp-note"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — O SEGUNDO INVERNO DA IA (por quê?)
+                 1 hardware: a CPU faz poucas contas por vez e a GPU ainda
+                 não era usada · 2 dados: as fontes ainda não existiam e o
+                 maior conjunto da época era minúsculo.
+                 O ritmo da CPU e a contagem dos dados estão no JS
+                 (setupWinter2). Neve leve gerada pelo JS (.snow).
+                 ========================================================== -->
+            <section class="slide slide-w2" aria-label="O segundo inverno da IA">
+                <div class="snow" aria-hidden="true"></div>
+
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body w2-grid">
+                    <div class="w2-main">
+                        <span class="kicker" data-anim>Fim dos anos 1980 · anos 1990</span>
+                        <h2 class="slide-title" data-anim>O segundo <span class="ice-gradient">inverno</span></h2>
+                        <p class="w2-lead" data-anim>As redes já sabiam aprender. Faltava <b>força para calcular</b> e <b>exemplos para aprender</b>.</p>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">1</span>
+                                <div>
+                                    <strong>Limitação de hardware</strong>
+                                    <p>Os computadores processavam tudo só no processador (CPU). As GPUs ainda não eram usadas para isso.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">2</span>
+                                <div>
+                                    <strong>Falta de dados</strong>
+                                    <p>Ainda não havia redes sociais, dados públicos, textos digitalizados nem bancos de imagens.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="w2-card" data-anim>
+                        <div class="w2-stage">
+                            <!-- 1 · HARDWARE -->
+                            <div class="w2-panel w2-hw">
+                                <span class="highlight-label">1 · Hardware</span>
+                                <div class="w2-hw-row">
+                                    <div class="w2-chip w2-cpu">
+                                        <div class="w2-cores w2-cpu-cores"><i></i><i></i><i></i><i></i></div>
+                                        <strong>CPU</strong>
+                                        <span>4 contas por vez</span>
+                                    </div>
+
+                                    <div class="w2-work">
+                                        <span class="w2-work-label">Treinando a rede</span>
+                                        <div class="w2-queue"></div>
+                                        <div class="w2-progress"><i></i></div>
+                                        <p class="w2-count"><b>0</b> de 1.000.000 contas · <span class="w2-pct">0%</span></p>
+                                    </div>
+
+                                    <div class="w2-chip w2-gpu">
+                                        <div class="w2-cores w2-gpu-cores"></div>
+                                        <strong>GPU</strong>
+                                        <span>só para jogos e gráficos</span>
+                                        <em class="w2-lock">Ainda não usada<br>para IA</em>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2 · DADOS -->
+                            <div class="w2-panel w2-data">
+                                <span class="highlight-label">2 · Dados</span>
+                                <div class="w2-data-row">
+                                    <div>
+                                    <span class="w2-sources-cap">Ainda não existiam</span>
+                                    <ul class="w2-sources">
+                                        <li>
+                                            <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="12" cy="11" r="4.5"/><path d="M4 26c0-5 3.6-8 8-8s8 3 8 8"/><circle cx="23" cy="12" r="3.5"/><path d="M21 18.6c4 .2 7 2.8 7 7.4"/></svg>
+                                            <strong>Redes sociais</strong>
+                                            <span class="w2-year">Facebook · 2004</span>
+                                        </li>
+                                        <li>
+                                            <svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="8" rx="10" ry="3.5"/><path d="M6 8v16c0 2 4.5 3.5 10 3.5s10-1.5 10-3.5V8"/><path d="M6 16c0 2 4.5 3.5 10 3.5s10-1.5 10-3.5"/></svg>
+                                            <strong>Dados públicos</strong>
+                                            <span class="w2-year">Wikipédia · 2001</span>
+                                        </li>
+                                        <li>
+                                            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 4h11l6 6v18H8z"/><path d="M19 4v6h6M12 15h9M12 19h9M12 23h6"/></svg>
+                                            <strong>Textos digitais</strong>
+                                            <span class="w2-year">Google Books · 2004</span>
+                                        </li>
+                                        <li>
+                                            <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="6" width="24" height="20" rx="3"/><circle cx="11" cy="13" r="2.5"/><path d="M4 23l7-7 5 5 4-4 8 8"/></svg>
+                                            <strong>Imagens</strong>
+                                            <span class="w2-year">ImageNet · 2009</span>
+                                        </li>
+                                    </ul>
+                                    </div>
+
+                                    <div class="w2-bars">
+                                        <div class="w2-bar w2-bar-old">
+                                            <span class="w2-bar-label"><b>1989</b> CEPs do Bell Labs</span>
+                                            <div class="w2-bar-track"><i></i></div>
+                                            <span class="w2-bar-value">9.298 imagens</span>
+                                        </div>
+                                        <div class="w2-bar w2-bar-new">
+                                            <span class="w2-bar-label"><b>2009</b> ImageNet</span>
+                                            <div class="w2-bar-track"><i></i></div>
+                                            <span class="w2-bar-value"><b class="w2-big">0</b> imagens</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — REDES NEURAIS CONVOLUCIONAIS (CNN), conta de verdade
+                 1 MLP × CNN · 2 convolução (filtro 3×3 desliza) ·
+                 3 ativação (ReLU zera os negativos) · 4 pooling (máx 2×2).
+                 A imagem (um "7" 8×8) e o filtro estão no JS (setupCNN).
+                 ========================================================== -->
+            <section class="slide slide-cnn" aria-label="Redes Neurais Convolucionais">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body cnn-grid-layout">
+                    <div class="cnn-main">
+                        <span class="kicker" data-anim>Redes Neurais Convolucionais (CNN)</span>
+                        <h2 class="slide-title" data-anim>Redes que <span class="hero-gradient">enxergam</span></h2>
+
+                        <div class="bp-what" data-anim>
+                            <span class="highlight-label">O que são?</span>
+                            <p>Redes feitas para <b>imagens</b>: um pequeno filtro desliza pela foto procurando padrões, como bordas, curvas e formas.</p>
+                            <p class="cnn-callback">Lembra dos CEPs de 1989? Aquela rede de Yann LeCun já era uma CNN.</p>
+                        </div>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">vs</span>
+                                <div>
+                                    <strong>MLP × CNN</strong>
+                                    <p>O MLP liga tudo em tudo; a CNN olha por pedaços.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">C</span>
+                                <div>
+                                    <strong>Camada de convolução</strong>
+                                    <p>Um filtro 3×3 desliza e marca onde achou o padrão.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">A</span>
+                                <div>
+                                    <strong>Camada de ativação</strong>
+                                    <p>A ReLU zera os negativos: só passa o que foi achado.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">P</span>
+                                <div>
+                                    <strong>Camada de pooling</strong>
+                                    <p>Guarda o maior de cada bloco 2×2 e encolhe a imagem.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="cnn-card" data-anim>
+                        <div class="cnn-stage">
+                            <div class="cnn-row">
+                                <div class="cnn-col cnn-col-img">
+                                    <span class="cnn-label">Imagem</span>
+                                    <div class="cnn-grid cnn-img"><i class="cnn-win"></i></div>
+                                    <span class="cnn-dim">8 × 8</span>
+                                </div>
+
+                                <div class="cnn-op cnn-op-conv">
+                                    <div class="cnn-filter"></div>
+                                    <span class="cnn-op-name">filtro</span>
+                                    <span class="cnn-arrow">→</span>
+                                </div>
+
+                                <div class="cnn-col cnn-col-conv">
+                                    <span class="cnn-label">Convolução</span>
+                                    <div class="cnn-grid cnn-conv"></div>
+                                    <span class="cnn-dim">6 × 6</span>
+                                </div>
+
+                                <div class="cnn-op cnn-op-relu">
+                                    <span class="cnn-op-name">ReLU</span>
+                                    <span class="cnn-arrow">→</span>
+                                </div>
+
+                                <div class="cnn-col cnn-col-relu">
+                                    <span class="cnn-label">Ativação</span>
+                                    <div class="cnn-grid cnn-relu"><i class="cnn-win cnn-win-pool"></i></div>
+                                    <span class="cnn-dim">6 × 6</span>
+                                </div>
+
+                                <div class="cnn-op cnn-op-pool">
+                                    <span class="cnn-op-name">máx<br>2×2</span>
+                                    <span class="cnn-arrow">→</span>
+                                </div>
+
+                                <div class="cnn-col cnn-col-pool">
+                                    <span class="cnn-label">Pooling</span>
+                                    <div class="cnn-grid cnn-pool"></div>
+                                    <span class="cnn-dim">3 × 3</span>
+                                </div>
+
+                                <!-- etapa 1: MLP × CNN (cobre o resto da linha) -->
+                                <div class="cnn-compare">
+                                    <div class="cnn-cmp">
+                                        <span class="highlight-label">MLP</span>
+                                        <svg class="cnn-cmp-art cnn-cmp-mlp" viewBox="0 0 200 120" aria-hidden="true"></svg>
+                                        <p>Achata a imagem numa fila: cada neurônio liga em <b>todos os 64 pixels</b> e perde quem é vizinho de quem.</p>
+                                    </div>
+                                    <div class="cnn-cmp">
+                                        <span class="highlight-label">CNN</span>
+                                        <div class="cnn-cmp-art cnn-cmp-cnn" aria-hidden="true"><div class="cnn-mini"><i class="cnn-mini-win"></i></div><span class="cnn-arrow">→</span><i class="cnn-mini-out"></i></div>
+                                        <p>Um filtro de <b>só 9 pesos</b> desliza pela imagem e procura o mesmo padrão em todo lugar.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mlp-panel">
+                                <p class="mlp-readout" aria-live="polite"></p>
+                                <p class="mlp-note"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — REDES NEURAIS RECORRENTES (RNN)
+                 1 MLP/CNN × RNN (tudo de uma vez × uma palavra por vez) ·
+                 2 para que servem (NLP, séries temporais, voz) ·
+                 3 memória de curto prazo (o "Brasil" vai sumindo).
+                 A frase e o quanto a memória apaga por palavra estão no
+                 JS (setupRNN).
+                 ========================================================== -->
+            <section class="slide slide-rnn" aria-label="Redes Neurais Recorrentes">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body rnn-grid">
+                    <div class="rnn-main">
+                        <span class="kicker" data-anim>Redes Neurais Recorrentes (RNN)</span>
+                        <h2 class="slide-title" data-anim>Redes com <span class="hero-gradient">memória</span></h2>
+
+                        <div class="bp-what" data-anim>
+                            <span class="highlight-label">O que são?</span>
+                            <p>Redes que leem uma <b>sequência</b>, um item de cada vez, e passam adiante um resumo do que já viram: a memória.</p>
+                        </div>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">vs</span>
+                                <div>
+                                    <strong>MLP e CNN × RNN</strong>
+                                    <p>MLP e CNN veem tudo de uma vez. A RNN lê em ordem e lembra.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">✦</span>
+                                <div>
+                                    <strong>Para que são usadas?</strong>
+                                    <div class="rnn-uses-chips">
+                                        <span>NLP</span>
+                                        <span>Séries temporais</span>
+                                        <span>Reconhecimento de voz</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">!</span>
+                                <div>
+                                    <strong>Memória de curto prazo</strong>
+                                    <p>A lembrança vai se apagando: numa frase longa, o começo some.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="rnn-card" data-anim>
+                        <div class="rnn-stage">
+                            <div class="rnn-views">
+                                <!-- VISTA 1: tudo de uma vez × uma palavra por vez (etapas 0–1) -->
+                                <div class="rnn-view rnn-v-read">
+                                    <div class="rnn-lane rnn-lane-mlp">
+                                        <span class="highlight-label">MLP / CNN</span>
+                                        <div class="rnn-lane-row">
+                                            <div class="rnn-tokens"><span>Eu</span><span>gosto</span><span>muito</span><span>de</span><span>café</span></div>
+                                            <span class="cnn-arrow">→</span>
+                                            <div class="rnn-box">rede</div>
+                                        </div>
+                                        <p class="rnn-lane-cap">Tudo de uma vez · tamanho fixo · sem memória</p>
+                                    </div>
+
+                                    <div class="rnn-lane rnn-lane-rnn">
+                                        <span class="highlight-label">RNN</span>
+                                        <div class="rnn-lane-row">
+                                            <div class="rnn-tokens"><span>Eu</span><span>gosto</span><span>muito</span><span>de</span><span>café</span></div>
+                                            <span class="cnn-arrow">→</span>
+                                            <div class="rnn-box rnn-cell">
+                                                RNN
+                                                <svg class="rnn-loop" viewBox="0 0 60 30" aria-hidden="true"><path d="M 10 28 C 10 4, 50 4, 50 28" pathLength="100"/><path class="rnn-loop-head" d="M 44 22 L 50 29 L 55 21"/></svg>
+                                            </div>
+                                            <span class="cnn-arrow">→</span>
+                                            <div class="rnn-mem"><i></i><i></i><i></i><i></i><i></i></div>
+                                        </div>
+                                        <p class="rnn-lane-cap">Uma palavra por vez · guarda um resumo do que já leu</p>
+                                    </div>
+                                </div>
+
+                                <!-- VISTA 2: para que servem (etapa 2) -->
+                                <div class="rnn-view rnn-v-uses">
+                                    <div class="rnn-use">
+                                        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 7h22v14H14l-6 5v-5H5z"/><path d="M10 12h12M10 16h8"/></svg>
+                                        <strong>Linguagem natural (NLP)</strong>
+                                        <p>Tradução, corretor e prever a próxima palavra.</p>
+                                        <div class="rnn-use-art rnn-type"><span>Eu gosto de</span><b>café</b></div>
+                                    </div>
+                                    <div class="rnn-use">
+                                        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 26h24"/><path d="M5 21l6-6 5 4 6-9 5 3"/></svg>
+                                        <strong>Séries temporais</strong>
+                                        <p>Previsão do tempo, bolsa de valores, consumo de energia.</p>
+                                        <svg class="rnn-use-art rnn-series" viewBox="0 0 200 60" aria-hidden="true">
+                                            <path class="rnn-series-past" d="M 0 40 L 20 32 L 40 38 L 60 24 L 80 30 L 100 18 L 120 26 L 140 14"/>
+                                            <path class="rnn-series-next" d="M 140 14 L 160 22 L 180 10 L 200 16"/>
+                                            <circle cx="140" cy="14" r="4"/>
+                                        </svg>
+                                    </div>
+                                    <div class="rnn-use">
+                                        <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="12" y="4" width="8" height="15" rx="4"/><path d="M7 15a9 9 0 0 0 18 0M16 24v4M11 28h10"/></svg>
+                                        <strong>Reconhecimento de voz</strong>
+                                        <p>Ditado, legendas automáticas e assistentes virtuais.</p>
+                                        <div class="rnn-use-art rnn-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                                    </div>
+                                </div>
+
+                                <!-- VISTA 3: memória de curto prazo (etapa 3) -->
+                                <div class="rnn-view rnn-v-mem">
+                                    <div class="rnn-sentence"></div>
+                                    <div class="rnn-mem-row">
+                                        <span class="highlight-label">Memória da RNN</span>
+                                        <div class="rnn-mem-long"></div>
+                                    </div>
+                                    <div class="rnn-recall">
+                                        <span>Lembrança de <b>“Brasil”</b></span>
+                                        <div class="w2-progress rnn-recall-bar"><i></i></div>
+                                        <strong class="rnn-recall-pct">—</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mlp-panel">
+                                <p class="mlp-readout" aria-live="polite"></p>
+                                <p class="mlp-note"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — A SOLUÇÃO: LSTM E GRU (mesma frase do slide anterior)
+                 0 a RNN esquecia · 1 LSTM (3 portões) · 2 GRU (2 portões).
+                 Os portões abrem/fecham por palavra e a curva mostra a
+                 lembrança de "Brasil" (simulação simplificada, setupGates).
+                 ========================================================== -->
+            <section class="slide slide-lg" aria-label="LSTM e GRU">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body rnn-grid">
+                    <div class="rnn-main">
+                        <span class="kicker" data-anim>A solução para a memória curta</span>
+                        <h2 class="slide-title" data-anim>LSTM e <span class="hero-gradient">GRU</span></h2>
+                        <p class="w2-lead" data-anim>Células com <b>portões</b> que decidem o que guardar, o que esquecer e o que usar.</p>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">L</span>
+                                <div>
+                                    <strong>LSTM <em class="lg-full">Long Short-Term Memory</em></strong>
+                                    <span class="lg-who">Hochreiter e Schmidhuber · 1997</span>
+                                    <p>Uma “esteira” de memória de longo prazo e 3 portões: esquecer, entrada e saída.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">G</span>
+                                <div>
+                                    <strong>GRU <em class="lg-full">Gated Recurrent Unit</em></strong>
+                                    <span class="lg-who">Cho e colegas · 2014</span>
+                                    <p>Versão simplificada, com 2 portões (atualização e reinício): mais leve e rápida.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="rnn-card" data-anim>
+                        <div class="lg-stage">
+                            <div class="rnn-sentence"></div>
+
+                            <div class="lg-cell">
+                                <span class="lg-model"><b class="lg-name">LSTM</b><span class="lg-count">3 portões</span></span>
+                                <div class="lg-belt">
+                                    <span class="lg-belt-label">Memória de longo prazo</span>
+                                    <div class="lg-belt-track"><span class="lg-item">Brasil</span></div>
+                                </div>
+                                <div class="lg-gates lg-gates-lstm">
+                                    <div class="lg-gate"><b>Esquecer</b><span>mantém</span></div>
+                                    <div class="lg-gate"><b>Entrada</b><span>ignora</span></div>
+                                    <div class="lg-gate"><b>Saída</b><span>—</span></div>
+                                </div>
+                                <div class="lg-gates lg-gates-gru">
+                                    <div class="lg-gate"><b>Atualização</b><span>mantém</span></div>
+                                    <div class="lg-gate"><b>Reinício</b><span>usa o passado</span></div>
+                                </div>
+                            </div>
+
+                            <div class="lg-chart">
+                                <div class="lg-chart-head">
+                                    <span class="highlight-label">Lembrança de “Brasil”</span>
+                                    <span class="lg-legend"><i class="is-rnn"></i>RNN <i class="is-lstm"></i>LSTM <i class="is-gru"></i>GRU</span>
+                                </div>
+                                <svg viewBox="0 0 600 140" aria-label="Quanto cada rede ainda lembra de Brasil a cada palavra">
+                                    <line class="lg-axis" x1="40" y1="124" x2="580" y2="124"/>
+                                    <line class="lg-grid" x1="40" y1="14" x2="580" y2="14"/>
+                                    <text class="lg-tick" x="28" y="14">100%</text>
+                                    <text class="lg-tick" x="28" y="124">0%</text>
+                                    <path class="lg-line lg-line-rnn"/>
+                                    <path class="lg-line lg-line-lstm"/>
+                                    <path class="lg-line lg-line-gru"/>
+                                </svg>
+                                <span class="lg-note">simulação simplificada</span>
+                            </div>
+
+                            <div class="mlp-panel">
+                                <p class="mlp-readout" aria-live="polite"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — A REVOLUÇÃO DO DEEP LEARNING (o degelo)
+                 0 "deep" = muitas camadas · 1 ReLU (o erro não some) ·
+                 2 AlexNet 2012 + GPUs · 3 Big Data.
+                 A faixa no topo do card vira ✓ a cada peça resolvida.
+                 Números no JS (setupDeep).
+                 ========================================================== -->
+            <section class="slide slide-dl" aria-label="A revolução do Deep Learning">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body rnn-grid">
+                    <div class="rnn-main">
+                        <span class="kicker" data-anim>Anos 2010 · o degelo</span>
+                        <h2 class="slide-title dl-title" data-anim>A revolução do <span class="hero-gradient">Deep Learning</span></h2>
+                        <p class="w2-lead" data-anim>As peças que faltavam se encaixaram, e as redes ficaram <b>profundas</b>: muitas camadas.</p>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">ƒ</span>
+                                <div>
+                                    <strong>Função ReLU</strong>
+                                    <p>max(0, x): rápida, e o sinal do erro não some em redes com muitas camadas.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">12</span>
+                                <div>
+                                    <strong>2012 · AlexNet</strong>
+                                    <p>Venceu o desafio ImageNet com folga, treinada em 2 GPUs de videogame.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">∞</span>
+                                <div>
+                                    <strong>Big Data</strong>
+                                    <p>Redes sociais e smartphones: bilhões de fotos, textos e vídeos todos os dias.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="rnn-card" data-anim>
+                        <div class="vstage dl-stage" data-view="0">
+                            <div class="dl-status">
+                                <span class="dl-pill" data-at="1"><i></i>Algoritmo</span>
+                                <span class="dl-pill" data-at="2"><i></i>Hardware</span>
+                                <span class="dl-pill" data-at="3"><i></i>Dados</span>
+                            </div>
+
+                            <div class="views">
+                                <!-- 0 · o que é "deep" -->
+                                <div class="view" data-v="0">
+                                    <svg class="dl-deep" viewBox="0 0 640 220" aria-label="Uma rede com muitas camadas"></svg>
+                                    <p class="dl-caption"><b>Deep</b> = muitas camadas entre a entrada e a saída</p>
+                                </div>
+
+                                <!-- 1 · ReLU: o sinal do erro voltando por 8 camadas -->
+                                <div class="view dl-relu" data-v="1">
+                                    <div class="dl-fn">
+                                        <svg viewBox="0 0 160 120" aria-hidden="true">
+                                            <line class="lg-axis" x1="10" y1="100" x2="150" y2="100"/>
+                                            <line class="lg-axis" x1="80" y1="10" x2="80" y2="110"/>
+                                            <path class="dl-fn-sig" d="M 10 98 C 60 98, 70 100, 80 70 S 100 40, 150 40"/>
+                                            <path class="dl-fn-relu" d="M 10 100 L 80 100 L 150 30"/>
+                                        </svg>
+                                        <span class="lg-legend"><i class="is-rnn"></i>sigmóide <i class="is-lstm"></i>ReLU</span>
+                                    </div>
+                                    <div class="dl-chain">
+                                        <span class="dl-chain-title">Sinal do erro voltando por 8 camadas</span>
+                                        <div class="dl-row dl-row-sig"><b>Sigmóide</b><div class="dl-bars"></div><span class="dl-end"></span></div>
+                                        <div class="dl-row dl-row-relu"><b>ReLU</b><div class="dl-bars"></div><span class="dl-end"></span></div>
+                                        <span class="dl-chain-axis"><span>← entrada</span><span>saída</span></span>
+                                    </div>
+                                </div>
+
+                                <!-- 2 · AlexNet + GPUs -->
+                                <div class="view dl-alex" data-v="2">
+                                    <div class="dl-chart">
+                                        <span class="dl-chain-title">ImageNet: erro do vencedor (top-5)</span>
+                                        <div class="dl-col"><div class="dl-col-bar" style="--h: 28.2"><span>28,2%</span></div><b>2010</b></div>
+                                        <div class="dl-col"><div class="dl-col-bar" style="--h: 25.8"><span>25,8%</span></div><b>2011</b></div>
+                                        <div class="dl-col is-alex"><div class="dl-col-bar" style="--h: 15.3"><span>15,3%</span></div><b>2012<br>AlexNet</b></div>
+                                    </div>
+                                    <div class="w2-chip dl-gpu">
+                                        <div class="w2-cores w2-gpu-cores"></div>
+                                        <strong>2 GPUs</strong>
+                                        <span>NVIDIA GTX 580</span>
+                                        <em class="w2-lock dl-unlock">Agora usada<br>para IA!</em>
+                                    </div>
+                                </div>
+
+                                <!-- 3 · Big Data -->
+                                <div class="view dl-data" data-v="3">
+                                    <ol class="dl-timeline">
+                                        <li><b>2004</b>Facebook</li>
+                                        <li><b>2005</b>YouTube</li>
+                                        <li><b>2007</b>iPhone</li>
+                                        <li><b>2010</b>Instagram</li>
+                                        <li><b>2012</b>Facebook passa de 1 bilhão de usuários</li>
+                                    </ol>
+                                    <div class="dl-flood" aria-hidden="true"></div>
+                                </div>
+                            </div>
+
+                            <div class="mlp-panel">
+                                <p class="mlp-readout" aria-live="polite"></p>
+                                <p class="mlp-note"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — O TRANSFORMER (2017)
+                 0 o "T" do ChatGPT · 1 vantagem (× RNN) · 2 self-attention ·
+                 3 processamento paralelo · 4 encoder-decoder.
+                 Pesos de atenção ilustrativos no JS (setupTransformer).
+                 ========================================================== -->
+            <section class="slide slide-tf" aria-label="O Transformer">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body rnn-grid">
+                    <div class="rnn-main">
+                        <span class="kicker" data-anim>2017 · “Attention Is All You Need”</span>
+                        <h2 class="slide-title" data-anim>O <span class="hero-gradient">Transformer</span></h2>
+
+                        <div class="bp-what" data-anim>
+                            <span class="highlight-label">O que é?</span>
+                            <p>Uma arquitetura que olha o texto <b>inteiro de uma vez</b> e descobre quais palavras importam para entender cada uma. É o “T” do ChatGPT.</p>
+                        </div>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">+</span>
+                                <div>
+                                    <strong>Vantagem</strong>
+                                    <p>Treina muito mais rápido e não esquece o começo do texto.</p>
+                                </div>
+                            </li>
+                            <li class="layer-group">Funcionamento: 3 pilares</li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">1</span>
+                                <div>
+                                    <strong>Self-attention</strong>
+                                    <p>Cada palavra “presta atenção” nas que explicam o seu sentido.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">2</span>
+                                <div>
+                                    <strong>Processamento paralelo</strong>
+                                    <p>Todas as palavras são calculadas ao mesmo tempo, nas GPUs.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">3</span>
+                                <div>
+                                    <strong>Estrutura encoder-decoder</strong>
+                                    <p>Um lado entende a frase; o outro gera a resposta.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="rnn-card" data-anim>
+                        <div class="vstage tf-stage" data-view="0">
+                            <div class="views">
+                                <!-- 0 · o T do GPT -->
+                                <div class="view tf-gpt" data-v="0">
+                                    <div class="tf-letters">
+                                        <div><b>G</b><span>Generative</span><em>gera texto</em></div>
+                                        <div><b>P</b><span>Pre-trained</span><em>pré-treinado</em></div>
+                                        <div class="is-t"><b>T</b><span>Transformer</span><em>a arquitetura</em></div>
+                                    </div>
+                                </div>
+
+                                <!-- 1 · vantagem -->
+                                <div class="view" data-v="1">
+                                    <div class="tf-table">
+                                        <span></span><b>RNN</b><b class="is-t">Transformer</b>
+                                        <span>Leitura</span><em class="is-bad">palavra por palavra</em><em class="is-good">tudo de uma vez</em>
+                                        <span>Memória</span><em class="is-bad">esquece o começo</em><em class="is-good">vê o texto todo</em>
+                                        <span>Treino</span><em class="is-bad">lento, em fila</em><em class="is-good">rápido, em paralelo</em>
+                                    </div>
+                                </div>
+
+                                <!-- 2 · self-attention -->
+                                <div class="view" data-v="2">
+                                    <div class="tf-attn">
+                                        <svg class="tf-arcs" aria-hidden="true"></svg>
+                                        <div class="tf-words"></div>
+                                    </div>
+                                </div>
+
+                                <!-- 3 · processamento paralelo -->
+                                <div class="view tf-par" data-v="3">
+                                    <div class="rnn-lane tf-lane tf-lane-rnn">
+                                        <span class="highlight-label">RNN · em fila</span>
+                                        <div class="tf-lane-row"><div class="tf-toks"></div><strong class="tf-steps">0 passos</strong></div>
+                                    </div>
+                                    <div class="rnn-lane tf-lane tf-lane-tf">
+                                        <span class="highlight-label">Transformer · em paralelo</span>
+                                        <div class="tf-lane-row"><div class="tf-toks"></div><strong class="tf-steps">0 passos</strong></div>
+                                    </div>
+                                </div>
+
+                                <!-- 4 · encoder-decoder -->
+                                <div class="view tf-ed" data-v="4">
+                                    <div class="tf-block tf-enc">
+                                        <span class="highlight-label">Encoder</span>
+                                        <p>entende</p>
+                                        <div class="tf-toks"><span>Eu</span><span>gosto</span><span>de</span><span>café</span></div>
+                                    </div>
+                                    <div class="tf-meaning" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><span>significado</span></div>
+                                    <div class="tf-block tf-dec">
+                                        <span class="highlight-label">Decoder</span>
+                                        <p>gera, palavra por palavra</p>
+                                        <div class="tf-toks"><span>I</span><span>like</span><span>coffee</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mlp-panel">
+                                <p class="mlp-readout" aria-live="polite"></p>
+                                <p class="mlp-note"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — EMBEDDINGS (palavras viram números)
+                 1 palavra → vetor (gato ≈ cachorro ≠ carro) · 2 mapa de
+                 significados · 3 rei − homem + mulher ≈ rainha ·
+                 4 no ChatGPT (cada token vira um vetor antes do Transformer).
+                 Vetores e posições ilustrativos (setupEmbeddings).
+                 ========================================================== -->
+            <section class="slide slide-emb" aria-label="Embeddings">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body rnn-grid">
+                    <div class="rnn-main">
+                        <span class="kicker" data-anim>Como a máquina entende palavras</span>
+                        <h2 class="slide-title" data-anim><span class="hero-gradient">Embeddings</span></h2>
+
+                        <div class="bp-what" data-anim>
+                            <span class="highlight-label">O que são?</span>
+                            <p>Cada palavra vira uma <b>lista de números</b> (um vetor), que funciona como um endereço num <b>mapa de significados</b>.</p>
+                        </div>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">#</span>
+                                <div>
+                                    <strong>Palavra → números</strong>
+                                    <p>A rede só entende números; o sentido fica guardado neles.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">⌖</span>
+                                <div>
+                                    <strong>Um mapa de significados</strong>
+                                    <p>Sentidos parecidos ficam perto: gato perto de cachorro.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">±</span>
+                                <div>
+                                    <strong>Contas com significado</strong>
+                                    <p>rei − homem + mulher ≈ rainha</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">→</span>
+                                <div>
+                                    <strong>No ChatGPT</strong>
+                                    <p>É o primeiro passo: o texto vira vetores antes da atenção.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="rnn-card" data-anim>
+                        <div class="vstage emb-stage" data-view="0">
+                            <div class="views">
+                                <!-- 0–1 · palavras viram vetores -->
+                                <div class="view emb-vecs" data-v="1">
+                                    <div class="emb-vec" data-word="gato"><span class="emb-word">gato</span><span class="cnn-arrow">→</span><div class="emb-bars"></div></div>
+                                    <div class="emb-vec" data-word="cachorro"><span class="emb-word">cachorro</span><span class="cnn-arrow">→</span><div class="emb-bars"></div></div>
+                                    <div class="emb-vec" data-word="carro"><span class="emb-word">carro</span><span class="cnn-arrow">→</span><div class="emb-bars"></div></div>
+                                </div>
+
+                                <!-- 2–3 · o mapa -->
+                                <div class="view" data-v="2">
+                                    <svg class="emb-map" viewBox="0 0 640 330" aria-label="Mapa de significados: palavras parecidas ficam perto">
+                                        <defs>
+                                            <marker id="embArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                                                <path d="M 0 0 L 10 5 L 0 10 z"/>
+                                            </marker>
+                                        </defs>
+                                        <rect class="limit-frame" x="0" y="0" width="640" height="330" rx="14"/>
+
+                                        <g class="emb-group"><ellipse cx="150" cy="92" rx="88" ry="62"/><text x="150" y="20">ANIMAIS</text></g>
+                                        <g class="emb-group"><ellipse cx="525" cy="95" rx="78" ry="55"/><text x="525" y="28">FRUTAS</text></g>
+                                        <g class="emb-group"><ellipse cx="510" cy="262" rx="82" ry="48"/><text x="510" y="202">VEÍCULOS</text></g>
+                                        <g class="emb-group"><ellipse cx="200" cy="262" rx="125" ry="52"/><text x="110" y="198">PESSOAS</text></g>
+
+                                        <g class="emb-near">
+                                            <line class="is-near" x1="120" y1="78" x2="172" y2="104"/>
+                                            <line class="is-near" x1="120" y1="78" x2="105" y2="128"/>
+                                            <line class="is-far" x1="120" y1="78" x2="480" y2="250"/>
+                                            <text class="is-near" x="200" y="80">perto</text>
+                                            <text class="is-far" x="330" y="150">longe</text>
+                                        </g>
+
+                                        <g class="emb-analogy">
+                                            <line class="emb-arrow emb-arrow-a" x1="122" y1="238" x2="262" y2="210" pathLength="100" marker-end="url(#embArrow)"/>
+                                            <line class="emb-arrow emb-arrow-b" x1="122" y1="296" x2="262" y2="268" pathLength="100" marker-end="url(#embArrow)"/>
+                                        </g>
+
+                                        <g class="emb-pts"></g>
+                                    </svg>
+                                </div>
+
+                                <!-- 4 · no ChatGPT -->
+                                <div class="view emb-pipe" data-v="4">
+                                    <div class="emb-tokens"></div>
+                                    <span class="cnn-arrow">→</span>
+                                    <div class="tf-block emb-tf">
+                                        <span class="highlight-label">Transformer</span>
+                                        <p>atenção entre os vetores</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mlp-panel">
+                                <p class="mlp-readout" aria-live="polite"></p>
+                                <p class="mlp-note"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — ONDE OS EMBEDDINGS ESTÃO HOJE
+                 1 busca por significado × por palavras · 2 banco vetorial
+                 + RAG (pergunta → vetor → trecho certo → resposta) ·
+                 3 recomendação (você vira um ponto no mapa de músicas).
+                 Exemplos e notas ilustrativos (setupEmbUses).
+                 ========================================================== -->
+            <section class="slide slide-use" aria-label="Onde os embeddings são usados">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body rnn-grid">
+                    <div class="rnn-main">
+                        <span class="kicker" data-anim>Embeddings no dia a dia</span>
+                        <h2 class="slide-title" data-anim>Onde estão <span class="hero-gradient">hoje</span></h2>
+                        <p class="w2-lead" data-anim>Comparar vetores é comparar <b>significados</b>. Isso move muita coisa que você usa.</p>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">1</span>
+                                <div>
+                                    <strong>Mecanismos de busca avançados</strong>
+                                    <p>Acham pelo sentido, não só pelas palavras exatas.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">2</span>
+                                <div>
+                                    <strong>Bancos de dados vetoriais <em class="lg-full">RAG</em></strong>
+                                    <p>Guardam documentos como vetores e entregam à IA o trecho certo para responder.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">3</span>
+                                <div>
+                                    <strong>Sistemas de recomendação</strong>
+                                    <p>Como no Spotify e na Netflix: você e as músicas viram pontos; o mais perto é sugerido.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="rnn-card" data-anim>
+                        <div class="vstage use-stage" data-view="0">
+                            <div class="views">
+                                <!-- 0 · resumo -->
+                                <div class="view use-intro" data-v="0">
+                                    <div class="use-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="14" r="8"/><path d="M20 20l7 7"/></svg><b>Busca</b></div>
+                                    <div class="use-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="8" rx="10" ry="3.5"/><path d="M6 8v16c0 2 4.5 3.5 10 3.5s10-1.5 10-3.5V8"/><path d="M6 16c0 2 4.5 3.5 10 3.5s10-1.5 10-3.5"/></svg><b>RAG</b></div>
+                                    <div class="use-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12"/><path d="M13 11l8 5-8 5z"/></svg><b>Recomendação</b></div>
+                                </div>
+
+                                <!-- 1 · busca -->
+                                <div class="view use-search" data-v="1">
+                                    <div class="use-query"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="14" cy="14" r="8"/><path d="M20 20l7 7"/></svg><span class="use-typed"></span><i class="use-caret"></i></div>
+                                    <div class="use-cols">
+                                        <div class="use-col is-bad">
+                                            <span class="highlight-label">Por palavras exatas</span>
+                                            <div class="use-res"><b>Como deixar o celular menos lento</b><span>4 palavras iguais</span></div>
+                                            <div class="use-res"><b>Café: a história da bebida</b><span>1 palavra igual</span></div>
+                                        </div>
+                                        <div class="use-col is-good">
+                                            <span class="highlight-label">Por significado</span>
+                                            <div class="use-res"><b>5 dicas para suavizar o sabor do café</b><span>semelhança 0,91</span></div>
+                                            <div class="use-res"><b>Por que o café fica amargo? Torra e água</b><span>semelhança 0,87</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 2 · RAG -->
+                                <div class="view use-rag" data-v="2">
+                                    <div class="rag-step"><span class="rag-num">1</span><b>Pergunta</b><p>“Quantos dias de férias eu tenho?”</p></div>
+                                    <span class="cnn-arrow">→</span>
+                                    <div class="rag-step"><span class="rag-num">2</span><b>Vira vetor</b><div class="rag-vec"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+                                    <span class="cnn-arrow">→</span>
+                                    <div class="rag-step rag-db"><span class="rag-num">3</span><b>Banco vetorial</b><div class="rag-dots"></div><p class="rag-hit">Manual do RH, p. 12</p></div>
+                                    <span class="cnn-arrow">→</span>
+                                    <div class="rag-step"><span class="rag-num">4</span><b>IA responde</b><p class="rag-answer">“30 dias por ano, segundo o Manual do RH.”</p></div>
+                                </div>
+
+                                <!-- 3 · recomendação -->
+                                <div class="view" data-v="3">
+                                    <svg class="emb-map use-rec" viewBox="0 0 640 300" aria-label="Mapa de músicas: as mais próximas de você são sugeridas">
+                                        <rect class="limit-frame" x="0" y="0" width="640" height="300" rx="14"/>
+                                        <g class="use-genres"></g>
+                                        <g class="use-songs"></g>
+                                        <g class="use-you">
+                                            <circle class="use-you-ring" r="62"/>
+                                            <circle class="use-you-dot" r="11"/>
+                                            <text y="30">Você</text>
+                                        </g>
+                                    </svg>
+                                    <div class="use-legend">
+                                        <span><i class="is-heard"></i>você ouviu</span>
+                                        <span><i class="is-sugg"></i>sugestão</span>
+                                        <span><i></i>outras músicas</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mlp-panel">
+                                <p class="mlp-readout" aria-live="polite"></p>
+                                <p class="mlp-note"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — O QUE É UM LLM
+                 0 Large · Language · Model · 1 um dentro do outro
+                 (rede neural ⊃ Transformer ⊃ LLM) · 2 prever a próxima
+                 palavra · 3 a escala · 4 o treino transforma pesos
+                 aleatórios no LLM. Probabilidades ilustrativas (setupLLM).
+                 ========================================================== -->
+            <section class="slide slide-llm" aria-label="O que é um LLM">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body rnn-grid">
+                    <div class="rnn-main">
+                        <span class="kicker" data-anim>Large Language Model</span>
+                        <h2 class="slide-title" data-anim>O que é um <span class="hero-gradient">LLM</span></h2>
+
+                        <div class="bp-what" data-anim>
+                            <span class="highlight-label">Em uma frase</span>
+                            <p>Uma <b>rede neural</b> do tipo Transformer, gigante, treinada com uma montanha de texto para fazer uma coisa só: <b>prever a próxima palavra</b>.</p>
+                        </div>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">1</span>
+                                <div>
+                                    <strong>É uma rede neural</strong>
+                                    <p>Rede neural ⊃ Transformer ⊃ LLM: um dentro do outro.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">2</span>
+                                <div>
+                                    <strong>Prevê a próxima palavra</strong>
+                                    <p>Calcula a chance de cada palavra, escolhe uma e repete.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">3</span>
+                                <div>
+                                    <strong>“Large”: a escala</strong>
+                                    <p>Bilhões de pesos, treinados com bilhões de palavras.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">4</span>
+                                <div>
+                                    <strong>O treino cria o LLM</strong>
+                                    <p>Os pesos ajustados são o LLM: um “cérebro” já educado.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="rnn-card" data-anim>
+                        <div class="vstage llm-stage" data-view="0">
+                            <div class="views">
+                                <!-- 0 · a sigla -->
+                                <div class="view" data-v="0">
+                                    <div class="tf-letters llm-letters">
+                                        <div class="is-t"><b>L</b><span>Large</span><em>grande</em></div>
+                                        <div class="is-t"><b>L</b><span>Language</span><em>de linguagem</em></div>
+                                        <div class="is-t"><b>M</b><span>Model</span><em>modelo</em></div>
+                                    </div>
+                                </div>
+
+                                <!-- 1 · um dentro do outro -->
+                                <div class="view llm-nest-view" data-v="1">
+                                    <div class="llm-nest llm-n1">
+                                        <span class="llm-nest-name">Rede neural <em>1943 →</em></span>
+                                        <div class="llm-nest llm-n2">
+                                            <span class="llm-nest-name">Transformer <em>2017</em></span>
+                                            <div class="llm-nest llm-n3">
+                                                <span class="llm-nest-name">LLM <em>ex.: GPT</em></span>
+                                                <div class="llm-chat">ChatGPT<small>o aplicativo feito com um LLM</small></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 2 · próxima palavra -->
+                                <div class="view llm-next" data-v="2">
+                                    <div class="llm-ctx"><span class="llm-ctx-text"></span><span class="llm-ctx-blank">___</span></div>
+                                    <div class="llm-cands"></div>
+                                </div>
+
+                                <!-- 3 · escala -->
+                                <div class="view llm-scale" data-v="3">
+                                    <div class="llm-rows"></div>
+                                    <p class="llm-axis">escala logarítmica: cada risquinho = ×10</p>
+                                </div>
+
+                                <!-- 4 · o treino -->
+                                <div class="view llm-train" data-v="4">
+                                    <div class="llm-brain">
+                                        <div class="llm-grid llm-grid-a"></div>
+                                        <b>Pesos aleatórios</b>
+                                        <span>a estrutura vazia</span>
+                                    </div>
+                                    <div class="llm-mid">
+                                        <span class="cnn-arrow">→</span>
+                                        <small>texto + backpropagation<br>bilhões de vezes</small>
+                                    </div>
+                                    <div class="llm-brain">
+                                        <div class="llm-grid llm-grid-b"></div>
+                                        <b>Pesos ajustados = LLM</b>
+                                        <span>o “cérebro” educado</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mlp-panel">
+                                <p class="mlp-readout" aria-live="polite"></p>
+                                <p class="mlp-note"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — COMO O CHATGPT FOI TREINADO (volta à criança do slide 2)
+                 1 pré-treino = compreensão (tokens) · 2 ajuste fino =
+                 correção · 3 RLHF = erro/consequência.
+                 Exemplos ilustrativos (setupTraining).
+                 ========================================================== -->
+            <section class="slide slide-train" aria-label="Como o ChatGPT foi treinado">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body rnn-grid">
+                    <div class="rnn-main">
+                        <span class="kicker" data-anim>Como o ChatGPT foi treinado</span>
+                        <h2 class="slide-title dl-title" data-anim>As 3 maneiras de <span class="hero-gradient">ensinar</span></h2>
+                        <p class="learn-callback" data-anim>Lembra da criança do começo? A IA aprendeu do mesmo jeito.</p>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">1</span>
+                                <div>
+                                    <strong>Pré-treino <em class="tr-tag">= compreensão</em></strong>
+                                    <p>Lê uma montanha de texto, em pedaços (tokens), prevendo a próxima palavra.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">2</span>
+                                <div>
+                                    <strong>Ajuste fino <em class="tr-tag">= correção</em></strong>
+                                    <p>Pessoas escrevem exemplos de boas respostas: ele aprende a ser assistente.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">3</span>
+                                <div>
+                                    <strong>RLHF <em class="tr-tag">= erro e consequência</em></strong>
+                                    <p>Pessoas dão notas às respostas; ele aprende com a consequência.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="rnn-card" data-anim>
+                        <div class="vstage tr-stage" data-view="0">
+                            <div class="tr-map">
+                                <div class="tr-row" data-at="1"><span class="tr-kid">Compreensão</span><span class="tr-eq">→</span><b>Pré-treino</b></div>
+                                <div class="tr-row" data-at="2"><span class="tr-kid">Correção</span><span class="tr-eq">→</span><b>Ajuste fino</b></div>
+                                <div class="tr-row" data-at="3"><span class="tr-kid">Erro</span><span class="tr-eq">→</span><b>RLHF</b></div>
+                            </div>
+
+                            <div class="views tr-views">
+                                <div class="view tr-intro" data-v="0">
+                                    <p>Três etapas, uma depois da outra, transformam a rede do slide anterior no ChatGPT.</p>
+                                </div>
+
+                                <!-- 1 · pré-treino: tokens -->
+                                <div class="view" data-v="1">
+                                    <div class="tr-tokens"></div>
+                                    <div class="tr-count"><b class="tr-count-n">0</b><span>tokens lidos no treino do GPT-3</span></div>
+                                </div>
+
+                                <!-- 2 · ajuste fino: antes × depois -->
+                                <div class="view" data-v="2">
+                                    <p class="tr-ask">“Explique fotossíntese para uma criança.”</p>
+                                    <div class="tr-cols">
+                                        <div class="tr-ans is-bad"><span class="highlight-label">Só pré-treino</span><p>“Explique respiração para uma criança. Explique digestão para…”</p><small>só continua o texto</small></div>
+                                        <div class="tr-ans is-good"><span class="highlight-label">Depois do ajuste</span><p>“As plantas usam a luz do sol para fabricar o próprio alimento!”</p><small>responde como assistente</small></div>
+                                    </div>
+                                </div>
+
+                                <!-- 3 · RLHF: notas -->
+                                <div class="view" data-v="3">
+                                    <p class="tr-ask">“Como eu faço um bolo simples?”</p>
+                                    <div class="tr-cols">
+                                        <div class="tr-ans tr-vote" data-vote="up"><span class="highlight-label">Resposta A</span><p>“Misture farinha, ovos, açúcar e leite; asse a 180 °C por 40 min.”</p><i class="tr-thumb">👍</i></div>
+                                        <div class="tr-ans tr-vote" data-vote="down"><span class="highlight-label">Resposta B</span><p>“Bolos são alimentos doces muito antigos.”</p><i class="tr-thumb">👎</i></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mlp-panel">
+                                <p class="mlp-readout" aria-live="polite"></p>
+                                <p class="mlp-note"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 02 — OS LIMITES (antes de confiar)
+                 1 alucinação · 2 data de corte · 3 vieses.
+                 Exemplos ilustrativos (setupLimits).
+                 ========================================================== -->
+            <section class="slide slide-limits" aria-label="Os limites">
+                <div class="section-rule" data-anim>
+                    <span>02 — DÉCADAS DE EVOLUÇÃO</span>
+                    <span>ERA DA IA</span>
+                </div>
+
+                <div class="slide-body rnn-grid">
+                    <div class="rnn-main">
+                        <span class="kicker" data-anim>Antes de confiar</span>
+                        <h2 class="slide-title" data-anim>Os <span class="hero-gradient">limites</span></h2>
+                        <p class="w2-lead" data-anim>Ele prevê o que é <b>provável</b>, não o que é <b>verdadeiro</b>.</p>
+
+                        <ol class="layer-list" data-anim>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">1</span>
+                                <div>
+                                    <strong>Alucinação</strong>
+                                    <p>Inventa com confiança: fatos, números e até referências.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">2</span>
+                                <div>
+                                    <strong>Data de corte</strong>
+                                    <p>Só sabe o que estava no texto de treino. Busca e RAG ajudam.</p>
+                                </div>
+                            </li>
+                            <li class="layer-item fragment">
+                                <span class="layer-num">3</span>
+                                <div>
+                                    <strong>Vieses</strong>
+                                    <p>Aprendeu com textos humanos e pode repetir os preconceitos deles.</p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="rnn-card" data-anim>
+                        <div class="vstage lim-stage" data-view="0">
+                            <div class="views">
+                                <div class="view lim-intro" data-v="0">
+                                    <span class="lim-big">provável <b>≠</b> verdadeiro</span>
+                                </div>
+
+                                <!-- 1 · alucinação -->
+                                <div class="view" data-v="1">
+                                    <div class="lim-chat">
+                                        <p class="lim-q">Me indique um livro sobre IA escrito pela Suzana Cavalcante.</p>
+                                        <p class="lim-a">Claro! <b>“Redes Neurais na Prática”</b> (Suzana Cavalcante, Editora Futura, 2019) é uma ótima escolha.</p>
+                                        <span class="lim-stamp">Inventado!</span>
+                                    </div>
+                                </div>
+
+                                <!-- 2 · data de corte -->
+                                <div class="view" data-v="2">
+                                    <div class="lim-time">
+                                        <div class="lim-seen"><span>texto de treino</span></div>
+                                        <div class="lim-cut"><b>data de corte</b></div>
+                                        <div class="lim-unseen"><span>ele não viu</span></div>
+                                    </div>
+                                    <div class="tr-cols lim-cols">
+                                        <div class="tr-ans is-bad"><span class="highlight-label">Sem busca</span><p>“Quem ganhou o jogo de ontem?” → chuta ou diz que não sabe</p></div>
+                                        <div class="tr-ans is-good"><span class="highlight-label">Com busca / RAG</span><p>consulta uma fonte atual antes de responder</p></div>
+                                    </div>
+                                </div>
+
+                                <!-- 3 · vieses -->
+                                <div class="view" data-v="3">
+                                    <div class="llm-ctx lim-ctx">“O engenheiro chegou e ___ disse…”</div>
+                                    <div class="llm-cands lim-cands">
+                                        <div class="llm-cand is-pick"><span>ele</span><i style="--w: 92%"></i><span>92%</span></div>
+                                        <div class="llm-cand"><span>ela</span><i style="--w: 8%"></i><span>8%</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mlp-panel">
+                                <p class="mlp-readout" aria-live="polite"></p>
+                                <p class="mlp-note"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 FECHAMENTO — linha do tempo + "agora você sabe"
+                 Sem rodapé (data-bare); a linha do tempo entra em cascata.
+                 ========================================================== -->
+            <section class="slide slide-impact slide-end" data-bare aria-label="Encerramento">
+                <canvas class="neural-bg" aria-hidden="true"></canvas>
+
+                <div class="end-wrap">
+                    <h2 class="impact-statement end-statement">
+                        <span data-anim>Agora você sabe</span>
+                        <span data-anim><span class="hero-gradient">como funciona</span>.</span>
+                    </h2>
+
+                    <ol class="end-line" data-anim>
+                        <li><b>1943</b>Neurônio artificial</li>
+                        <li><b>1958</b>Perceptron</li>
+                        <li class="is-ice"><b>1969</b>1º inverno</li>
+                        <li><b>1986</b>Backpropagation</li>
+                        <li class="is-ice"><b>anos 90</b>2º inverno</li>
+                        <li><b>2012</b>AlexNet</li>
+                        <li><b>2017</b>Transformer</li>
+                        <li class="is-now"><b>2022</b>ChatGPT</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- ==========================================================
+                 AGRADECIMENTOS — último slide (sem rodapé)
+                 Foto, "Obrigada!" e os contatos do slide de redes sociais.
+                 ========================================================== -->
+            <section class="slide slide-impact slide-thanks" data-bare aria-label="Agradecimentos">
+                <canvas class="neural-bg" aria-hidden="true"></canvas>
+
+                <div class="thanks-wrap">
+                    <div class="thanks-photo" data-anim>
+                        <img src="./img/perfil.jpeg" alt="Foto de Suzana Cavalcante">
+                    </div>
+
+                    <h2 class="impact-statement thanks-title" data-anim><span class="hero-gradient">Obrigada!</span></h2>
+                    <p class="thanks-sub" data-anim>Agora é com vocês: <b>perguntas?</b></p>
+
+                    <ul class="thanks-chips">
+                        <li class="thanks-chip" data-anim><span class="social-icon"><svg class="is-fill" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.94 5a2 2 0 1 1-4-.002 2 2 0 0 1 4 .002zM7 8.48H3V21h4V8.48zm6.32 0H9.34V21h3.94v-6.57c0-3.66 4.77-4 4.77 0V21H22v-7.93c0-6.17-7.06-5.94-8.72-2.91l.04-1.68z"/></svg></span><span><small>LinkedIn</small><b>in/suzanacavalcante</b></span></li>
+                        <li class="thanks-chip" data-anim><span class="social-icon"><svg class="is-fill" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></span><span><small>GitHub</small><b>suzanacavalcante</b></span></li>
+                        <li class="thanks-chip" data-anim><span class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/></svg></span><span><small>Instagram</small><b>@prod.susu</b></span></li>
+                        <li class="thanks-chip" data-anim><span class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span><span><small>E-mail</small><b>contato@suzanacavalcante.com.br</b></span></li>
+                        <li class="thanks-chip" data-anim><span class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span><span><small>Portfólio</small><b>suzanacavalcante.com.br</b></span></li>
+                    </ul>
+
+                    <p class="thanks-who" data-anim><b>Suzana Cavalcante</b> · Data Engineer I — Bradesco · Palestra FATEC</p>
+                </div>
+            </section>
+
+            <!-- Rodapé fixo (oculto nos slides com data-bare) -->
+            <footer class="deck-foot">
+                <span class="deck-foot-brand"><strong>Suzana Cavalcante</strong> — Era da IA: Você sabe como funciona?</span>
+
+                <nav class="deck-nav" aria-label="Navegação dos slides">
+                    <span class="deck-count" aria-live="polite">
+                        <span id="deckCurrent">01</span> / <span id="deckTotal">04</span>
+                    </span>
+                    <button class="deck-btn" id="deckPrev" aria-label="Slide anterior">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+                    </button>
+                    <button class="deck-btn" id="deckNext" aria-label="Próximo slide">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+                    </button>
+                </nav>
+            </footer>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
