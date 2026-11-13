@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Estudo de Domain-Driven Design da pós-graduação em Arquitetura de Software: design estratégico, tático, Event Storming e preparação de requisitos.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Domain-Driven Design</title>
+</head>
+<body>
+    <a class="back-link" href="index.html">&larr; Voltar aos projetos</a>
+
+    <header>
+        <h1>Domain-Driven Design</h1>
+        <p>Arquitetura de Software · Pós-graduação FIAP</p>
+        <span>Estudo contínuo</span>
+    </header>
+
+    <main>
+        <ul class="toc">
+            <li><a href="#visao-geral">Visão geral</a></li>
+            <li><a href="#estrategico">Design estratégico</a></li>
+            <li><a href="#storytelling">Domain Storytelling</a></li>
+            <li><a href="#linguagem">Linguagem ubíqua</a></li>
+            <li><a href="#contextos">Contextos delimitados</a></li>
+            <li><a href="#tatico">Design tático</a></li>
+            <li><a href="#event-storming">Event Storming</a></li>
+            <li><a href="#requisitos">Requisitos e refinamento</a></li>
+            <li><a href="#dor-dod">DoR e DoD</a></li>
+            <li><a href="#aprendizados">Aprendizados</a></li>
+        </ul>
+
+        <!-- ========================= VISÃO GERAL ========================= -->
+        <section id="visao-geral">
+            <h2>Visão geral</h2>
+            <p class="lead">DDD é uma forma de conduzir o desenvolvimento de software a partir do negócio: primeiro entender o problema junto de quem o conhece, depois transformar esse entendimento em código.</p>
+            <p>Esta página reúne o que aprendi na disciplina, organizado pela ordem em que as ideias se encadeiam na prática. Primeiro descobrimos <strong>o que</strong> e <strong>por que</strong> construir (estratégico), depois decidimos <strong>como</strong> construir (tático) e, por fim, como preparar o trabalho para que o time consiga entregar com previsibilidade.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 150" role="img" aria-label="Fluxo do estudo: descobrir o negócio, modelar, implementar e preparar a entrega">
+                    <defs>
+                        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#a768f0"/>
+                        </marker>
+                    </defs>
+                    <g stroke="#a768f0" stroke-width="1.5" fill="none" marker-end="url(#arrow)">
+                        <line x1="170" y1="75" x2="195" y2="75"/>
+                        <line x1="365" y1="75" x2="390" y2="75"/>
+                        <line x1="535" y1="75" x2="560" y2="75"/>
+                    </g>
+                    <g>
+                        <rect x="10" y="35" width="160" height="80" rx="12" fill="#1b1b29" stroke="#8A2BE2"/>
+                        <text x="90" y="68" text-anchor="middle" font-size="14" font-weight="700">Descobrir</text>
+                        <text x="90" y="90" text-anchor="middle" font-size="11" class="muted">domínio, histórias,</text>
+                        <text x="90" y="105" text-anchor="middle" font-size="11" class="muted">linguagem ubíqua</text>
+
+                        <rect x="195" y="35" width="170" height="80" rx="12" fill="#1b1b29" stroke="#8A2BE2"/>
+                        <text x="280" y="68" text-anchor="middle" font-size="14" font-weight="700">Delimitar</text>
+                        <text x="280" y="90" text-anchor="middle" font-size="11" class="muted">contextos e como</text>
+                        <text x="280" y="105" text-anchor="middle" font-size="11" class="muted">eles se integram</text>
+
+                        <rect x="390" y="35" width="145" height="80" rx="12" fill="#1b1b29" stroke="#8A2BE2"/>
+                        <text x="462" y="68" text-anchor="middle" font-size="14" font-weight="700">Implementar</text>
+                        <text x="462" y="90" text-anchor="middle" font-size="11" class="muted">camadas, entidades,</text>
+                        <text x="462" y="105" text-anchor="middle" font-size="11" class="muted">agregados</text>
+
+                        <rect x="560" y="35" width="150" height="80" rx="12" fill="#1b1b29" stroke="#e0388f"/>
+                        <text x="635" y="68" text-anchor="middle" font-size="14" font-weight="700">Preparar</text>
+                        <text x="635" y="90" text-anchor="middle" font-size="11" class="muted">requisitos, refinamento,</text>
+                        <text x="635" y="105" text-anchor="middle" font-size="11" class="muted">DoR e DoD</text>
+                    </g>
+                </svg>
+                <figcaption>Do entendimento do negócio até a entrega do código</figcaption>
+            </div>
+
+            <div class="callout">
+                <p><strong>Por que DDD?</strong> O conhecimento do negócio nunca está concentrado em uma pessoa só. Cada pessoa enxerga uma parte, usa palavras diferentes e tem prioridades próprias. DDD não é uma metodologia de projeto, mas cria uma cultura de comunicação e documentação que reduz ruídos entre quem conhece o negócio e quem escreve o software.</p>
+            </div>
+        </section>
+
+        <!-- ========================= ESTRATÉGICO ========================= -->
+        <section id="estrategico">
+            <span class="phase-tag">Design estratégico</span>
+            <h2>Domínio, subdomínios e Domain Experts</h2>
+            <p>O <strong>domínio</strong> é a área de atividade em que o software atua. No caso de um banco digital, é o universo de dinheiro, contas e crédito; em um app de entregas, é a logística de levar comida do restaurante até a casa de alguém. Todo domínio se divide em partes menores, os <strong>subdomínios</strong>, e a classificação deles define onde vale investir mais esforço.</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Principal (Core)</span>
+                    <h4>O que diferencia o negócio</h4>
+                    <p>É a razão de a empresa competir no mercado. Concentra a lógica mais valiosa e merece o time mais experiente e o modelo mais refinado.</p>
+                    <p><em>Ex.: o motor de recomendação em uma plataforma de streaming.</em></p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Genérico (Generic)</span>
+                    <h4>Problema comum a todo mercado</h4>
+                    <p>É complexo, mas não traz vantagem competitiva. Normalmente vale comprar, ou usar uma solução pronta, em vez de construir.</p>
+                    <p><em>Ex.: autenticação, envio de e-mails, emissão de nota fiscal.</em></p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Suporte (Supporting)</span>
+                    <h4>Apoia o principal</h4>
+                    <p>Tem lógica simples, geralmente um CRUD, e dá sustentação ao subdomínio principal sem ser diferencial.</p>
+                    <p><em>Ex.: cadastro de categorias, parametrizações internas.</em></p>
+                </div>
+            </div>
+
+            <div class="callout">
+                <p><strong>Depende do contexto.</strong> Um mesmo assunto pode ser principal para uma empresa e genérico para outra. Faturamento é genérico para uma locadora de filmes, mas é o coração de uma empresa que vende software de cobrança. Por isso a classificação nunca vem de uma lista pronta: ela nasce da pergunta "isso nos diferencia dos concorrentes?".</p>
+            </div>
+
+            <h3>Domain Expert</h3>
+            <p>É a pessoa que realmente conhece o processo, que viveu o problema e sabe explicar o que acontece, por que acontece e como. Em um domínio com vários subdomínios haverá vários especialistas. Quem desenvolve precisa saber ouvi-los, porque o conhecimento que alimenta o modelo vem deles, e não de suposições de quem programa.</p>
+        </section>
+
+        <!-- ========================= STORYTELLING ========================= -->
+        <section id="storytelling">
+            <h2>Domain Storytelling</h2>
+            <p>É uma técnica colaborativa para contar o negócio em forma de histórias desenhadas. Em vez de começar por tabelas ou telas, o time pede ao especialista que narre um processo, e um modelador vai desenhando enquanto a história acontece. O resultado é um diagrama que qualquer pessoa, técnica ou não, consegue ler e corrigir.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Elemento</th><th>Para que serve</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Atores</td><td>Quem participa: pessoas, grupos ou sistemas. São nomeados pelo papel (ex.: "Analista"), nunca pelo nome próprio.</td></tr>
+                        <tr><td>Objetos de trabalho</td><td>O que os atores manipulam: documentos, e-mails, formulários, telas.</td></tr>
+                        <tr><td>Atividades</td><td>Setas que ligam ator e objeto, nomeadas com um verbo que descreve a ação.</td></tr>
+                        <tr><td>Números sequenciais</td><td>Ordem em que os passos acontecem. Ações paralelas dividem o mesmo número.</td></tr>
+                        <tr><td>Anotações</td><td>Regras, limites e gatilhos que não cabem na seta.</td></tr>
+                        <tr><td>Grupos</td><td>Delimitam trechos da história, como um subprocesso ou um subdomínio.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Boas práticas que mais me marcaram</h3>
+            <ul>
+                <li><strong>Sem condicionais e sem retornos no mesmo fluxo.</strong> Cada "e se" vira outra história. Isso mantém cada diagrama simples e focado.</li>
+                <li><strong>Realidade versus desejo (AS-IS e TO-BE).</strong> Ao narrar, o especialista mistura o que acontece hoje com o que gostaria que acontecesse. Vale separar as duas histórias para não construir a solução em cima de um processo que não existe.</li>
+                <li><strong>Escolher a altura certa.</strong> A história deve ficar no nível dos objetivos do usuário, sem descer a detalhes de tela, e sem ficar tão alta que perca o sentido do processo.</li>
+                <li><strong>Papéis na sessão:</strong> especialistas (contam), ouvintes (aprendem), moderador (conduz as perguntas) e modelador (desenha).</li>
+            </ul>
+        </section>
+
+        <!-- ========================= LINGUAGEM UBÍQUA ========================= -->
+        <section id="linguagem">
+            <h2>Linguagem ubíqua</h2>
+            <p>É o vocabulário comum entre o negócio e a tecnologia. Os mesmos termos aparecem nas conversas, nos documentos, no modelo e no código. Se o negócio diz "apólice" e o código chama de <code>contract</code>, já existe uma tradução silenciosa, e é nela que nascem os mal-entendidos.</p>
+
+            <div class="two-cols">
+                <div class="info-card">
+                    <h4>Termos ambíguos</h4>
+                    <p>Uma mesma palavra com vários significados no mesmo contexto. É preciso decidir e registrar o que ela quer dizer ali.</p>
+                    <p><em>Ex.: "conta" pode ser conta bancária, conta de usuário ou conta a pagar.</em></p>
+                </div>
+                <div class="info-card">
+                    <h4>Termos sinônimos</h4>
+                    <p>Palavras diferentes usadas para o mesmo conceito, ou uma palavra que esconde conceitos distintos. O ideal é separar e dar uma definição única para cada um.</p>
+                    <p><em>Ex.: "login" para o ato de entrar e também para o nome do usuário.</em></p>
+                </div>
+            </div>
+
+            <h3>Onde documentar</h3>
+            <p>Não existe uma ferramenta obrigatória, o que importa é manter o material vivo e acessível. Uma estrutura simples que serve bem em wikis ou Notion:</p>
+            <ul>
+                <li>Uma página por subdomínio.</li>
+                <li>Uma seção de glossário, o dicionário da linguagem ubíqua.</li>
+                <li>Uma seção para os cenários e histórias, com premissas e limitações.</li>
+                <li>Links para o repositório de código e para a ferramenta de gestão do projeto.</li>
+            </ul>
+        </section>
+
+        <!-- ========================= CONTEXTOS ========================= -->
+        <section id="contextos">
+            <h2>Contextos delimitados e mapa de contexto</h2>
+            <p>Um <strong>contexto delimitado (Bounded Context)</strong> é uma fronteira dentro da qual o modelo e a linguagem ubíqua têm um único significado. Fora dela, o mesmo termo pode significar outra coisa. "Cliente" para o time de cobrança não é a mesma coisa que "cliente" para o time de marketing, e tudo bem, desde que cada contexto cuide do seu.</p>
+
+            <ul>
+                <li>Não existe tamanho certo. Uma boa métrica é a própria linguagem: termos e processos muito parecidos pedem o mesmo contexto; muito diferentes, contextos separados.</li>
+                <li>Cada contexto é trabalhado por <strong>um único time</strong>, mas um time pode cuidar de vários contextos.</li>
+                <li>Contexto não é o mesmo que subdomínio. Subdomínio pertence ao problema, contexto pertence à solução.</li>
+            </ul>
+
+            <h3>Padrões de relacionamento entre contextos</h3>
+            <p>Contextos raramente vivem isolados. O que define como se integram é a relação de poder e de comunicação entre os times.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Padrão</th><th>Como funciona</th><th>Quando usar</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Parceria (Partnership)</td><td>Os times evoluem juntos e se avisam das mudanças com antecedência.</td><td>Comunicação fácil e objetivos alinhados.</td></tr>
+                        <tr><td>Kernel compartilhado</td><td>Uma parte do modelo e do código é de propriedade comum.</td><td>Desencorajado, mas inevitável em alguns legados enquanto se moderniza.</td></tr>
+                        <tr><td>Cliente-Fornecedor</td><td>O fornecedor (upstream) provê um serviço e o cliente (downstream) consome.</td><td>Times independentes com dependência de serviço.</td></tr>
+                        <tr><td>Conformista</td><td>O cliente aceita o modelo do fornecedor como ele é.</td><td>Fornecedor externo que não negocia, como um provedor OAuth.</td></tr>
+                        <tr><td>Camada anticorrupção (ACL)</td><td>O cliente cria uma camada que traduz o modelo do fornecedor para o seu.</td><td>Proteger um subdomínio principal, isolar legados ou absorver mudanças frequentes.</td></tr>
+                        <tr><td>Serviço de host aberto (OHS)</td><td>O fornecedor expõe uma interface estável e pública para todos os clientes.</td><td>Muitos consumidores e necessidade de evoluir o interior sem quebrar ninguém.</td></tr>
+                        <tr><td>Linguagem publicada</td><td>Formato de troca documentado e padronizado, geralmente junto de um OHS.</td><td>Integrações entre empresas, como no setor financeiro e logístico.</td></tr>
+                        <tr><td>Caminhos separados</td><td>Os contextos simplesmente não se integram.</td><td>Custo de integrar maior que o de duplicar a solução.</td></tr>
+                        <tr><td>Grande bola de lama</td><td>Sistema sem fronteiras claras, com modelos misturados.</td><td>Delimitar, isolar e evitar que contamine outros contextos.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Exemplo de mapa de contexto</h3>
+            <p>O <strong>mapa de contexto</strong> desenha todos esses contextos e as relações entre eles. É um documento vivo, que muda conforme o sistema evolui. Abaixo, um exemplo ilustrativo para uma plataforma de finanças pessoais:</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 330" role="img" aria-label="Mapa de contexto de exemplo com Identidade, Lançamentos, Metas, Relatórios e um provedor externo de bancos">
+                    <defs>
+                        <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+
+                    <!-- conexões -->
+                    <g stroke="#b6b6c3" stroke-width="1.5" fill="none" marker-end="url(#arrow2)">
+                        <line x1="190" y1="80" x2="285" y2="80"/>
+                        <line x1="430" y1="80" x2="525" y2="80"/>
+                        <line x1="110" y1="120" x2="110" y2="205"/>
+                        <line x1="360" y1="120" x2="360" y2="205"/>
+                        <line x1="190" y1="240" x2="285" y2="240"/>
+                    </g>
+
+                    <!-- contextos -->
+                    <rect x="30" y="40" width="160" height="80" rx="40" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                    <text x="110" y="76" text-anchor="middle" font-size="13" font-weight="700">Banco externo</text>
+                    <text x="110" y="95" text-anchor="middle" font-size="11" class="muted">provedor de dados</text>
+
+                    <rect x="285" y="40" width="145" height="80" rx="40" fill="#1b1b29" stroke="#e0388f" stroke-width="2"/>
+                    <text x="357" y="76" text-anchor="middle" font-size="13" font-weight="700">Lançamentos</text>
+                    <text x="357" y="95" text-anchor="middle" font-size="11" class="muted">subdomínio principal</text>
+
+                    <rect x="525" y="40" width="165" height="80" rx="40" fill="#1b1b29" stroke="#6495ED" stroke-width="2"/>
+                    <text x="607" y="76" text-anchor="middle" font-size="13" font-weight="700">Relatórios</text>
+                    <text x="607" y="95" text-anchor="middle" font-size="11" class="muted">suporte</text>
+
+                    <rect x="30" y="205" width="160" height="80" rx="40" fill="#1b1b29" stroke="#6495ED" stroke-width="2"/>
+                    <text x="110" y="241" text-anchor="middle" font-size="13" font-weight="700">Identidade</text>
+                    <text x="110" y="260" text-anchor="middle" font-size="11" class="muted">genérico</text>
+
+                    <rect x="285" y="205" width="145" height="80" rx="40" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                    <text x="357" y="241" text-anchor="middle" font-size="13" font-weight="700">Metas</text>
+                    <text x="357" y="260" text-anchor="middle" font-size="11" class="muted">suporte</text>
+
+                    <!-- rótulos dos padrões -->
+                    <g font-size="11" class="muted">
+                        <text x="237" y="70" text-anchor="middle" class="muted">ACL</text>
+                        <text x="477" y="70" text-anchor="middle" class="muted">OHS</text>
+                        <text x="122" y="168" class="muted">Conformista</text>
+                        <text x="372" y="168" class="muted">Parceria</text>
+                        <text x="237" y="230" text-anchor="middle" class="muted">Cliente-Fornecedor</text>
+                    </g>
+                </svg>
+                <figcaption>Mapa de contexto ilustrativo. As setas apontam do fornecedor (upstream) para o cliente (downstream)</figcaption>
+            </div>
+        </section>
+
+        <!-- ========================= TÁTICO ========================= -->
+        <section id="tatico">
+            <span class="phase-tag">Design tático</span>
+            <h2>Arquitetura em camadas e blocos de construção</h2>
+            <p>Com o problema entendido e as fronteiras desenhadas, o design tático responde ao <strong>como</strong>: como organizar o código dentro de cada contexto para que o modelo de negócio fique protegido.</p>
+
+            <h3>As quatro camadas</h3>
+            <div class="diagram">
+                <svg viewBox="0 0 720 300" role="img" aria-label="Quatro camadas: interface de usuário, aplicação, domínio e infraestrutura">
+                    <g>
+                        <rect x="60" y="15" width="600" height="55" rx="10" fill="#1b1b29" stroke="#6495ED" stroke-width="1.5"/>
+                        <text x="360" y="40" text-anchor="middle" font-size="14" font-weight="700">Interface de usuário</text>
+                        <text x="360" y="58" text-anchor="middle" font-size="11" class="muted">telas, APIs REST, linha de comando</text>
+
+                        <rect x="60" y="85" width="600" height="55" rx="10" fill="#1b1b29" stroke="#8A2BE2" stroke-width="1.5"/>
+                        <text x="360" y="110" text-anchor="middle" font-size="14" font-weight="700">Aplicação</text>
+                        <text x="360" y="128" text-anchor="middle" font-size="11" class="muted">orquestra casos de uso, sem regra de negócio</text>
+
+                        <rect x="60" y="155" width="600" height="65" rx="10" fill="#2a1730" stroke="#e0388f" stroke-width="2"/>
+                        <text x="360" y="182" text-anchor="middle" font-size="14" font-weight="700">Domínio</text>
+                        <text x="360" y="202" text-anchor="middle" font-size="11" class="muted">regras de negócio, entidades, agregados, serviços de domínio</text>
+
+                        <rect x="60" y="235" width="600" height="55" rx="10" fill="#1b1b29" stroke="#b6b6c3" stroke-width="1.5"/>
+                        <text x="360" y="260" text-anchor="middle" font-size="14" font-weight="700">Infraestrutura</text>
+                        <text x="360" y="278" text-anchor="middle" font-size="11" class="muted">banco de dados, mensageria, serviços externos</text>
+                    </g>
+                </svg>
+                <figcaption>A camada de domínio é o coração do software, e as demais existem para servi-la</figcaption>
+            </div>
+
+            <ul>
+                <li><strong>Interface de usuário:</strong> recebe a interação, seja uma tela, uma chamada de API ou um comando.</li>
+                <li><strong>Aplicação:</strong> coordena as tarefas do sistema. Chama o domínio, recebe o resultado e entrega para quem pediu. Não decide regras de negócio. Em sistemas pequenos pode se fundir com a camada de interface.</li>
+                <li><strong>Domínio:</strong> concentra as regras que tornam o negócio único. É onde o estado muda e as decisões acontecem, sem saber como nada é armazenado.</li>
+                <li><strong>Infraestrutura:</strong> o suporte técnico, como persistência, filas e integrações.</li>
+            </ul>
+
+            <h3>Blocos de construção</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <h4>Objeto de valor</h4>
+                    <p>Não tem identidade, é definido apenas pelos seus valores e é imutável. Se algo muda, cria-se outro objeto.</p>
+                    <p><em>Ex.: Dinheiro (valor + moeda), Endereço, Período.</em></p>
+                </div>
+                <div class="info-card">
+                    <h4>Entidade</h4>
+                    <p>Tem identidade própria que persiste no tempo, mesmo que seus atributos mudem.</p>
+                    <p><em>Ex.: Conta, Usuário, Pedido.</em></p>
+                </div>
+                <div class="info-card">
+                    <h4>Agregado</h4>
+                    <p>Grupo de entidades e objetos de valor tratado como uma unidade de consistência. Só é alterado por dentro, por meio de uma raiz (aggregate root).</p>
+                    <p><em>Ex.: Conta + seus Lançamentos.</em></p>
+                </div>
+                <div class="info-card">
+                    <h4>Serviço de domínio</h4>
+                    <p>Operação de negócio que não pertence naturalmente a uma entidade só e costuma envolver vários agregados.</p>
+                    <p><em>Ex.: Transferência entre contas.</em></p>
+                </div>
+            </div>
+
+            <h3>Exemplos</h3>
+            <p>Um trecho ilustrativo de um contexto de finanças pessoais, que mostra os blocos em ação. A conta é a raiz do agregado: ninguém altera os lançamentos por fora, apenas pede para a conta registrar. Escolha a linguagem na aba abaixo.</p>
+
+            <div class="code-container code-tabs">
+                <div class="code-tab-list" role="tablist" aria-label="Linguagem do exemplo">
+                    <button type="button" class="code-tab active" role="tab" aria-selected="true" data-lang="python">Python</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="java">Java</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="go">Golang</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="clojure">Clojure</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="c">C</button>
+                </div>
+                <div class="code-panel" data-lang="python">
+                <pre><code class="language-python">from dataclasses import dataclass, field
+from decimal import Decimal
+from uuid import UUID, uuid4
+
+
+@dataclass(frozen=True)              # Objeto de valor: imutável, comparado pelo valor
+class Dinheiro:
+    valor: Decimal
+    moeda: str = "BRL"
+
+    def somar(self, outro: "Dinheiro") -&gt; "Dinheiro":
+        if self.moeda != outro.moeda:
+            raise ValueError("Moedas diferentes")
+        return Dinheiro(self.valor + outro.valor, self.moeda)
+
+
+@dataclass(frozen=True)
+class Lancamento:                    # Também é objeto de valor dentro do agregado
+    descricao: str
+    valor: Dinheiro
+
+
+@dataclass
+class Conta:                         # Entidade e raiz do agregado
+    id: UUID = field(default_factory=uuid4)
+    titular: str = ""
+    _lancamentos: list[Lancamento] = field(default_factory=list)
+
+    def registrar(self, descricao: str, valor: Dinheiro) -&gt; None:
+        """Único caminho para mudar o estado: a regra fica protegida aqui."""
+        if valor.valor == 0:
+            raise ValueError("Lançamento não pode ter valor zero")
+        self._lancamentos.append(Lancamento(descricao, valor))
+
+    def saldo(self) -&gt; Dinheiro:
+        total = Dinheiro(Decimal("0"))
+        for lancamento in self._lancamentos:
+            total = total.somar(lancamento.valor)
+        return total</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="java" hidden>
+                    <pre><code class="language-java">import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+// Objeto de valor: record é imutável e comparado pelo valor
+record Dinheiro(long centavos, String moeda) {
+    Dinheiro somar(Dinheiro outro) {
+        if (!moeda.equals(outro.moeda)) {
+            throw new IllegalArgumentException("Moedas diferentes");
+        }
+        return new Dinheiro(centavos + outro.centavos, moeda);
+    }
+}
+
+// Também é objeto de valor dentro do agregado
+record Lancamento(String descricao, Dinheiro valor) {}
+
+// Entidade e raiz do agregado
+class Conta {
+    private final UUID id = UUID.randomUUID();
+    private final String titular;
+    private final List&lt;Lancamento&gt; lancamentos = new ArrayList&lt;&gt;();
+
+    Conta(String titular) {
+        this.titular = titular;
+    }
+
+    // Único caminho para mudar o estado: a regra fica protegida aqui
+    void registrar(String descricao, Dinheiro valor) {
+        if (valor.centavos() == 0) {
+            throw new IllegalArgumentException("Lançamento não pode ter valor zero");
+        }
+        lancamentos.add(new Lancamento(descricao, valor));
+    }
+
+    Dinheiro saldo() {
+        Dinheiro total = new Dinheiro(0, "BRL");
+        for (Lancamento l : lancamentos) {
+            total = total.somar(l.valor());
+        }
+        return total;
+    }
+}</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="go" hidden>
+                    <pre><code class="language-go">package conta
+
+import (
+	"errors"
+	"fmt"
+)
+
+// Objeto de valor: sem setters, cada operação devolve uma cópia
+type Dinheiro struct {
+	Centavos int64
+	Moeda    string
+}
+
+func (d Dinheiro) Somar(outro Dinheiro) (Dinheiro, error) {
+	if d.Moeda != outro.Moeda {
+		return Dinheiro{}, errors.New("moedas diferentes")
+	}
+	return Dinheiro{d.Centavos + outro.Centavos, d.Moeda}, nil
+}
+
+// Também é objeto de valor dentro do agregado
+type Lancamento struct {
+	Descricao string
+	Valor     Dinheiro
+}
+
+// Entidade e raiz do agregado: campos não exportados protegem o estado
+type Conta struct {
+	id          string
+	titular     string
+	lancamentos []Lancamento
+}
+
+func NovaConta(id, titular string) *Conta {
+	return &amp;Conta{id: id, titular: titular}
+}
+
+// Único caminho para mudar o estado: a regra fica protegida aqui
+func (c *Conta) Registrar(descricao string, valor Dinheiro) error {
+	if valor.Centavos == 0 {
+		return fmt.Errorf("lançamento não pode ter valor zero")
+	}
+	c.lancamentos = append(c.lancamentos, Lancamento{descricao, valor})
+	return nil
+}
+
+func (c *Conta) Saldo() (Dinheiro, error) {
+	total := Dinheiro{0, "BRL"}
+	for _, l := range c.lancamentos {
+		var err error
+		if total, err = total.Somar(l.Valor); err != nil {
+			return Dinheiro{}, err
+		}
+	}
+	return total, nil
+}</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="clojure" hidden>
+                    <pre><code class="language-clojure">;; Objeto de valor: um mapa imutável, comparado pelo valor
+(defn dinheiro
+  ([centavos] (dinheiro centavos "BRL"))
+  ([centavos moeda] {:centavos centavos :moeda moeda}))
+
+(defn somar [a b]
+  (when (not= (:moeda a) (:moeda b))
+    (throw (ex-info "Moedas diferentes" {:a a :b b})))
+  (update a :centavos + (:centavos b)))
+
+;; Entidade e raiz do agregado: os dados nunca mudam no lugar,
+;; cada operação devolve uma nova versão da conta
+(defn nova-conta [titular]
+  {:id (random-uuid) :titular titular :lancamentos []})
+
+;; Único caminho para mudar o estado: a regra fica protegida aqui
+(defn registrar [conta descricao valor]
+  (when (zero? (:centavos valor))
+    (throw (ex-info "Lançamento não pode ter valor zero" {:valor valor})))
+  (update conta :lancamentos conj {:descricao descricao :valor valor}))
+
+(defn saldo [conta]
+  (reduce somar (dinheiro 0) (map :valor (:lancamentos conta))))</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="c" hidden>
+                    <pre><code class="language-c">#include &lt;stdbool.h&gt;
+#include &lt;string.h&gt;
+
+#define MAX_LANCAMENTOS 100
+
+/* Objeto de valor: struct passada por cópia, sem alteração depois de criada */
+typedef struct {
+    long centavos;
+    char moeda[4];
+} Dinheiro;
+
+static Dinheiro dinheiro_somar(Dinheiro a, Dinheiro b) {
+    /* Em produção, moedas diferentes deveriam ser tratadas como erro */
+    Dinheiro r = a;
+    r.centavos += b.centavos;
+    return r;
+}
+
+/* Também é objeto de valor dentro do agregado */
+typedef struct {
+    char descricao[64];
+    Dinheiro valor;
+} Lancamento;
+
+/* Entidade e raiz do agregado */
+typedef struct {
+    int id;
+    char titular[64];
+    Lancamento lancamentos[MAX_LANCAMENTOS];
+    int total;
+} Conta;
+
+/* Único caminho para mudar o estado: a regra fica protegida aqui */
+bool conta_registrar(Conta *c, const char *descricao, Dinheiro valor) {
+    if (valor.centavos == 0 || c-&gt;total &gt;= MAX_LANCAMENTOS) {
+        return false;
+    }
+    Lancamento *l = &amp;c-&gt;lancamentos[c-&gt;total++];
+    strncpy(l-&gt;descricao, descricao, sizeof(l-&gt;descricao) - 1);
+    l-&gt;descricao[sizeof(l-&gt;descricao) - 1] = '\0';
+    l-&gt;valor = valor;
+    return true;
+}
+
+Dinheiro conta_saldo(const Conta *c) {
+    Dinheiro total = {0, "BRL"};
+    for (int i = 0; i &lt; c-&gt;total; i++) {
+        total = dinheiro_somar(total, c-&gt;lancamentos[i].valor);
+    }
+    return total;
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================= EVENT STORMING ========================= -->
+        <section id="event-storming">
+            <h2>Event Storming</h2>
+            <p>É um workshop colaborativo, feito com post-its coloridos em uma parede (ou em um quadro digital), para modelar um processo de negócio a partir dos <strong>eventos</strong> que acontecem nele. Ele conversa muito com o Domain Storytelling, mas com foco em descobrir agregados e fronteiras de contexto.</p>
+
+            <h3>Legenda dos post-its</h3>
+            <div class="sticky-legend">
+                <div class="sticky sticky-event"><strong>Evento de domínio</strong>Algo que aconteceu, sempre no passado.</div>
+                <div class="sticky sticky-hotspot"><strong>Ponto de atenção</strong>Dúvida, gargalo ou risco identificado.</div>
+                <div class="sticky sticky-command"><strong>Comando</strong>Ação que causa um evento, no imperativo.</div>
+                <div class="sticky sticky-policy"><strong>Política</strong>Regra que reage a um evento e dispara um comando.</div>
+                <div class="sticky sticky-read"><strong>Modelo de leitura</strong>Informação consultada antes de decidir.</div>
+                <div class="sticky sticky-external"><strong>Sistema externo</strong>Algo fora do domínio em estudo.</div>
+                <div class="sticky sticky-aggregate"><strong>Agregado</strong>Quem recebe o comando e produz o evento.</div>
+            </div>
+
+            <h3>Passo a passo do workshop</h3>
+            <ol>
+                <li><strong>Tempestade de ideias:</strong> todo mundo escreve eventos soltos, sem ordem. Para quando as ideias secam.</li>
+                <li><strong>Linha do tempo:</strong> organiza os eventos em sequência, descarta duplicados e adiciona os caminhos alternativos.</li>
+                <li><strong>Pontos de atenção:</strong> marca o que gera dúvida ou parece um gargalo.</li>
+                <li><strong>Eventos pivotais:</strong> identifica eventos que viram a chave de uma fase para outra. Eles costumam indicar fronteiras entre contextos.</li>
+                <li><strong>Comandos, atores e políticas:</strong> descobre o que causa cada evento, quem age e o que acontece automaticamente.</li>
+                <li><strong>Modelos de leitura e sistemas externos:</strong> mapeia as informações de apoio à decisão e as dependências de fora.</li>
+                <li><strong>Agregados:</strong> agrupa comandos e eventos pelo objeto principal.</li>
+                <li><strong>Contextos delimitados:</strong> junta agregados fortemente ligados e desenha as fronteiras.</li>
+            </ol>
+
+            <h3>Exemplo de linha do tempo</h3>
+            <p>Recorte ilustrativo do fluxo de um lançamento financeiro:</p>
+            <div class="timeline" aria-label="Exemplo de linha do tempo de Event Storming">
+                <div class="sticky sticky-command"><strong>Registrar lançamento</strong>Ator: Usuário</div>
+                <div class="sticky sticky-event"><strong>Lançamento registrado</strong>Agregado: Conta</div>
+                <div class="sticky sticky-policy"><strong>Se saldo &lt; 0</strong>Política: avisar usuário</div>
+                <div class="sticky sticky-event"><strong>Alerta de saldo negativo enviado</strong></div>
+                <div class="sticky sticky-hotspot"><strong>E se o alerta falhar?</strong>Ponto de atenção</div>
+            </div>
+        </section>
+
+        <!-- ========================= REQUISITOS ========================= -->
+        <section id="requisitos">
+            <span class="phase-tag">Preparando a entrega</span>
+            <h2>Levantamento de requisitos</h2>
+            <p>Entender o domínio é metade do caminho. A outra metade é transformar esse entendimento em demandas que o time consiga desenvolver sem surpresas. É aqui que entra o levantamento de requisitos, a primeira etapa de um fluxo que vai da ideia ao código.</p>
+
+            <h3>Os quatro riscos de produto (Marty Cagan)</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <h4>Valor</h4>
+                    <p>O cliente vai querer usar, ou pagar? É o primeiro risco a ser validado.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Negócio</h4>
+                    <p>A solução serve à estratégia da empresa e é viável financeira e juridicamente?</p>
+                </div>
+                <div class="info-card">
+                    <h4>Usabilidade</h4>
+                    <p>As pessoas conseguem usar sem esforço? Teste de usabilidade ajuda a responder.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Técnico</h4>
+                    <p>O time consegue construir com os recursos e o prazo que tem? É o foco da disciplina.</p>
+                </div>
+            </div>
+
+            <h3>Upstream e Downstream</h3>
+            <p>O trabalho se divide em duas metades. No <strong>upstream</strong>, ideias são exploradas, validadas e viram demandas. No <strong>downstream</strong>, essas demandas são desenvolvidas, testadas e entregues. Quando quem desenvolve só entra no downstream, aparecem requisitos mal compreendidos, imprevistos e bugs. Por isso é importante que a liderança técnica participe do upstream.</p>
+
+            <h3>O que um bom documento de requisitos precisa ter</h3>
+            <ul class="check-list">
+                <li><strong>Persona:</strong> quem vai usar a solução.</li>
+                <li><strong>Problema e jornada atual:</strong> como essa pessoa resolve hoje e onde dói.</li>
+                <li><strong>Objetivo:</strong> o que se espera alcançar, de preferência mensurável.</li>
+                <li><strong>Jornada da solução:</strong> os passos que a pessoa percorrerá no produto novo.</li>
+                <li><strong>Requisitos funcionais:</strong> o que o sistema faz.</li>
+                <li><strong>Requisitos não funcionais:</strong> restrições como segurança, disponibilidade, desempenho e escalabilidade.</li>
+            </ul>
+        </section>
+
+        <!-- ========================= REFINAMENTO ========================= -->
+        <section id="refinamento">
+            <h2>Refinamento técnico</h2>
+            <p>É a etapa em que a liderança técnica pega os requisitos de negócio e os traduz para decisões técnicas. Pular essa etapa é o caminho mais curto para considerações não mapeadas, bugs e dívida técnica.</p>
+
+            <h3>Spikes e POCs</h3>
+            <p>Quando existe uma dúvida técnica relevante, é melhor validar do que apostar. <strong>Spike</strong> é um item de trabalho, com tempo definido, dedicado a explorar uma solução e aprender. <strong>POC (Prova de Conceito)</strong> é um experimento pequeno para confirmar se uma ideia técnica atende ao objetivo antes de levá-la para produção. Ambos reduzem o risco técnico e tornam as estimativas mais realistas.</p>
+
+            <h3>Desenho da arquitetura</h3>
+            <p>Com a jornada refinada, desenha-se como as peças vão conversar. Os componentes mais comuns que considerei nessa etapa:</p>
+            <ul>
+                <li>Front-end e API Gateway como porta de entrada.</li>
+                <li>Serviços de autenticação e autorização.</li>
+                <li>Banco de dados relacional ou NoSQL, conforme o tipo de dado.</li>
+                <li>Filas e mensageria para tarefas assíncronas.</li>
+                <li>Observabilidade, com logs, métricas e alertas.</li>
+                <li>Segurança em todas as camadas, em trânsito e em repouso.</li>
+            </ul>
+
+            <h3>Estimativas</h3>
+            <div class="two-cols">
+                <div class="info-card">
+                    <h4>Planning Poker</h4>
+                    <p>O time vota em tamanho e complexidade usando uma sequência como Fibonacci (1, 2, 3, 5, 8...). O maior valor está na conversa gerada pelas divergências.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Monte Carlo</h4>
+                    <p>Usa o histórico de entregas do time para simular milhares de cenários e responder "qual a chance de entregarmos tantos itens neste período?". Complementa o Planning Poker com dados.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================= DoR / DoD ========================= -->
+        <section id="dor-dod">
+            <h2>Definition of Ready e Definition of Done</h2>
+            <p>São dois acordos de time que fecham o ciclo. Um garante que o trabalho só comece quando está claro; o outro garante que só seja considerado pronto quando atinge o padrão de qualidade combinado.</p>
+
+            <div class="two-cols">
+                <div class="info-card">
+                    <span class="tag tag-support">Antes de começar</span>
+                    <h4>Definition of Ready</h4>
+                    <ul class="check-list">
+                        <li>Requisitos documentados</li>
+                        <li>Refinamento técnico realizado</li>
+                        <li>Arquitetura da solução desenhada</li>
+                        <li>Quebra em itens de desenvolvimento</li>
+                        <li>Estimativa feita</li>
+                        <li>Priorizada pelo PM ou PO</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-core">Para concluir</span>
+                    <h4>Definition of Done</h4>
+                    <ul class="check-list">
+                        <li>Code review aprovado</li>
+                        <li>Testes passando e QA aprovado</li>
+                        <li>Documentação atualizada</li>
+                        <li>Validação com o usuário final</li>
+                        <li>Deploy realizado conforme o plano</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout">
+                <p><strong>Observação:</strong> as listas acima são pontos de partida. O valor está em cada time ajustar os critérios à sua realidade e revisá-los com frequência.</p>
+            </div>
+        </section>
+
+        <!-- ========================= APRENDIZADOS ========================= -->
+        <section id="aprendizados">
+            <h2>O que levo daqui</h2>
+            <ul>
+                <li>O modelo mais importante é o que está na cabeça de quem conhece o negócio, e o trabalho do time é trazer isso para o código sem perder nada no caminho.</li>
+                <li>Investir esforço de modelagem onde está o diferencial do negócio, e comprar ou simplificar o resto.</li>
+                <li>Fronteiras claras entre contextos evitam que uma mudança em uma área quebre outra.</li>
+                <li>Regras de negócio devem morar no domínio, longe de detalhes de banco, framework ou tela.</li>
+                <li>Uma demanda bem preparada, com DoR e DoD claros, vale mais que pressa na hora de codar.</li>
+            </ul>
+        </section>
+
+        <!-- ========================= REFERÊNCIAS ========================= -->
+        <section id="referencias">
+            <h2>Para aprofundar</h2>
+            <ul class="references">
+                <li>EVANS, Eric. <em>Domain-Driven Design: Tackling Complexity in the Heart of Software</em>. Addison-Wesley, 2003.</li>
+                <li>VERNON, Vaughn. <em>Implementing Domain-Driven Design</em>. Addison-Wesley, 2013.</li>
+                <li>KHONONOV, Vlad. <em>Learning Domain-Driven Design</em>. O'Reilly, 2021.</li>
+                <li>HOFER, Stefan; SCHWENTER, Henning. <em>Domain Storytelling</em>. Addison-Wesley, 2021.</li>
+                <li>CAGAN, Marty. <em>Inspired: How to Create Tech Products Customers Love</em>. Wiley, 2017.</li>
+            </ul>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-clojure.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+    <script>
+        document.querySelectorAll('.code-tabs').forEach(function (box) {
+            var tabs = box.querySelectorAll('.code-tab');
+            var panels = box.querySelectorAll('.code-panel');
+            tabs.forEach(function (tab) {
+                tab.addEventListener('click', function () {
+                    tabs.forEach(function (t) {
+                        var on = t === tab;
+                        t.classList.toggle('active', on);
+                        t.setAttribute('aria-selected', on ? 'true' : 'false');
+                    });
+                    panels.forEach(function (p) {
+                        p.hidden = p.dataset.lang !== tab.dataset.lang;
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
