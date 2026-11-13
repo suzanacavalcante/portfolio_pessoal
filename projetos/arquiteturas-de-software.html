@@ -211,10 +211,18 @@
 
             <p><strong>CQRS (Command Query Responsibility Segregation)</strong> separa as operações de escrita (comandos) das de leitura (consultas), com modelos de dados distintos. O lado de escrita foca em consistência e validação; depois de gravar, publica eventos que atualizam o lado de leitura, que pode ser desnormalizado e otimizado para consulta. Em troca, a leitura passa a ter consistência eventual.</p>
 
-            <h3>Exemplo de portas e adaptadores em Python</h3>
-            <p>O caso de uso depende apenas de uma porta (um contrato). Qual banco está por trás é um detalhe de um adaptador, que pode ser trocado, inclusive por um falso nos testes.</p>
+            <h3>Exemplos</h3>
+            <p>O caso de uso depende apenas de uma porta (um contrato). Qual banco está por trás é um detalhe de um adaptador, que pode ser trocado, inclusive por um falso nos testes. Escolha a linguagem na aba abaixo.</p>
 
-            <div class="code-container">
+            <div class="code-container code-tabs">
+                <div class="code-tab-list" role="tablist" aria-label="Linguagem do exemplo">
+                    <button type="button" class="code-tab active" role="tab" aria-selected="true" data-lang="python">Python</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="java">Java</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="go">Golang</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="clojure">Clojure</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="c">C</button>
+                </div>
+                <div class="code-panel" data-lang="python">
                 <pre><code class="language-python">from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -263,6 +271,212 @@ class MetaEmMemoria(MetaRepositorio):     # Em produção seria um adaptador de 
 
 caso_de_uso = DepositarNaMeta(MetaEmMemoria())
 print(caso_de_uso.executar("Viagem", 250))</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="java" hidden>
+                    <pre><code class="language-java">import java.util.HashMap;
+import java.util.Map;
+
+// ----- Núcleo: domínio e porta (valores em centavos) -----
+class Meta {
+    final String nome;
+    final long valorAlvo;
+    long valorAtual;
+
+    Meta(String nome, long valorAlvo) {
+        this.nome = nome;
+        this.valorAlvo = valorAlvo;
+    }
+}
+
+interface MetaRepositorio {          // Porta de saída: o núcleo define o contrato
+    Meta buscar(String nome);
+    void salvar(Meta meta);
+}
+
+// ----- Núcleo: caso de uso (só conhece a porta) -----
+class DepositarNaMeta {
+    private final MetaRepositorio repositorio;
+
+    DepositarNaMeta(MetaRepositorio repositorio) {
+        this.repositorio = repositorio;
+    }
+
+    Meta executar(String nome, long valor) {
+        if (valor &lt;= 0) {
+            throw new IllegalArgumentException("Depósito precisa ser positivo");
+        }
+        Meta meta = repositorio.buscar(nome);
+        meta.valorAtual += valor;
+        repositorio.salvar(meta);
+        return meta;
+    }
+}
+
+// ----- Adaptador: detalhe técnico fora do núcleo -----
+class MetaEmMemoria implements MetaRepositorio {   // Em produção seria um adaptador de PostgreSQL
+    private final Map&lt;String, Meta&gt; dados = new HashMap&lt;&gt;(
+            Map.of("Viagem", new Meta("Viagem", 500_000)));
+
+    public Meta buscar(String nome) { return dados.get(nome); }
+    public void salvar(Meta meta) { dados.put(meta.nome, meta); }
+}
+
+class Main {
+    public static void main(String[] args) {
+        var casoDeUso = new DepositarNaMeta(new MetaEmMemoria());
+        System.out.println(casoDeUso.executar("Viagem", 25_000).valorAtual);
+    }
+}</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="go" hidden>
+                    <pre><code class="language-go">package main
+
+import (
+	"errors"
+	"fmt"
+)
+
+// ----- Núcleo: domínio e porta (valores em centavos) -----
+type Meta struct {
+	Nome       string
+	ValorAlvo  int64
+	ValorAtual int64
+}
+
+// Porta de saída: em Go, qualquer tipo com esses métodos a satisfaz
+type MetaRepositorio interface {
+	Buscar(nome string) (*Meta, error)
+	Salvar(meta *Meta) error
+}
+
+// ----- Núcleo: caso de uso (só conhece a porta) -----
+type DepositarNaMeta struct {
+	repositorio MetaRepositorio
+}
+
+func (c DepositarNaMeta) Executar(nome string, valor int64) (*Meta, error) {
+	if valor &lt;= 0 {
+		return nil, errors.New("depósito precisa ser positivo")
+	}
+	meta, err := c.repositorio.Buscar(nome)
+	if err != nil {
+		return nil, err
+	}
+	meta.ValorAtual += valor
+	return meta, c.repositorio.Salvar(meta)
+}
+
+// ----- Adaptador: detalhe técnico fora do núcleo -----
+type MetaEmMemoria struct { // Em produção seria um adaptador de PostgreSQL
+	dados map[string]*Meta
+}
+
+func (m *MetaEmMemoria) Buscar(nome string) (*Meta, error) {
+	meta, ok := m.dados[nome]
+	if !ok {
+		return nil, fmt.Errorf("meta %q não encontrada", nome)
+	}
+	return meta, nil
+}
+
+func (m *MetaEmMemoria) Salvar(meta *Meta) error {
+	m.dados[meta.Nome] = meta
+	return nil
+}
+
+func main() {
+	repo := &amp;MetaEmMemoria{dados: map[string]*Meta{
+		"Viagem": {Nome: "Viagem", ValorAlvo: 500000},
+	}}
+	casoDeUso := DepositarNaMeta{repositorio: repo}
+	meta, _ := casoDeUso.Executar("Viagem", 25000)
+	fmt.Println(meta.ValorAtual)
+}</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="clojure" hidden>
+                    <pre><code class="language-clojure">;; ----- Núcleo: porta (valores em centavos) -----
+;; O protocolo é o contrato que o núcleo define
+(defprotocol MetaRepositorio
+  (buscar [repo nome])
+  (salvar [repo meta]))
+
+;; ----- Núcleo: caso de uso (só conhece a porta) -----
+(defn depositar-na-meta [repo nome valor]
+  (when (&lt;= valor 0)
+    (throw (ex-info "Depósito precisa ser positivo" {:valor valor})))
+  (let [meta (update (buscar repo nome) :valor-atual + valor)]
+    (salvar repo meta)
+    meta))
+
+;; ----- Adaptador: detalhe técnico fora do núcleo -----
+;; Em produção seria um adaptador de PostgreSQL
+(defn meta-em-memoria []
+  (let [dados (atom {"Viagem" {:nome "Viagem" :valor-alvo 500000 :valor-atual 0}})]
+    (reify MetaRepositorio
+      (buscar [_ nome] (get @dados nome))
+      (salvar [_ meta] (swap! dados assoc (:nome meta) meta)))))
+
+(println (depositar-na-meta (meta-em-memoria) "Viagem" 25000))</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="c" hidden>
+                    <pre><code class="language-c">#include &lt;stdbool.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+/* ----- Núcleo: domínio e porta (valores em centavos) ----- */
+typedef struct {
+    char nome[32];
+    long valor_alvo;
+    long valor_atual;
+} Meta;
+
+/* Porta de saída: em C, uma tabela de ponteiros para função faz o papel de interface */
+typedef struct MetaRepositorio {
+    Meta *(*buscar)(struct MetaRepositorio *self, const char *nome);
+    void (*salvar)(struct MetaRepositorio *self, const Meta *meta);
+} MetaRepositorio;
+
+/* ----- Núcleo: caso de uso (só conhece a porta) ----- */
+bool depositar_na_meta(MetaRepositorio *repo, const char *nome, long valor) {
+    if (valor &lt;= 0) {
+        return false;
+    }
+    Meta *meta = repo-&gt;buscar(repo, nome);
+    if (meta == NULL) {
+        return false;
+    }
+    Meta atualizada = *meta;
+    atualizada.valor_atual += valor;
+    repo-&gt;salvar(repo, &amp;atualizada);
+    return true;
+}
+
+/* ----- Adaptador: detalhe técnico fora do núcleo ----- */
+typedef struct {
+    MetaRepositorio porta;   /* primeiro campo: permite converter o ponteiro */
+    Meta meta;               /* Em produção seria um adaptador de PostgreSQL */
+} MetaEmMemoria;
+
+static Meta *mem_buscar(MetaRepositorio *self, const char *nome) {
+    MetaEmMemoria *m = (MetaEmMemoria *)self;
+    return strcmp(m-&gt;meta.nome, nome) == 0 ? &amp;m-&gt;meta : NULL;
+}
+
+static void mem_salvar(MetaRepositorio *self, const Meta *meta) {
+    ((MetaEmMemoria *)self)-&gt;meta = *meta;
+}
+
+int main(void) {
+    MetaEmMemoria repo = {{mem_buscar, mem_salvar}, {"Viagem", 500000, 0}};
+    depositar_na_meta(&amp;repo.porta, "Viagem", 25000);
+    printf("%ld\n", repo.meta.valor_atual);
+    return 0;
+}</code></pre>
+                </div>
             </div>
         </section>
 
@@ -628,5 +842,27 @@ MySQL: viável, mas sem vantagem sobre a experiência do time.</code></pre>
 
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-clojure.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+    <script>
+        document.querySelectorAll('.code-tabs').forEach(function (box) {
+            var tabs = box.querySelectorAll('.code-tab');
+            var panels = box.querySelectorAll('.code-panel');
+            tabs.forEach(function (tab) {
+                tab.addEventListener('click', function () {
+                    tabs.forEach(function (t) {
+                        var on = t === tab;
+                        t.classList.toggle('active', on);
+                        t.setAttribute('aria-selected', on ? 'true' : 'false');
+                    });
+                    panels.forEach(function (p) {
+                        p.hidden = p.dataset.lang !== tab.dataset.lang;
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>
