@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Estudo de Arquiteturas de Software da pós-graduação: arquiteturas modernas e trade-offs, modelo C4, requisitos, RFCs, ADRs e débito técnico.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Arquiteturas de Software</title>
+</head>
+<body>
+    <a class="back-link" href="index.html">&larr; Voltar aos projetos</a>
+
+    <header>
+        <h1>Arquiteturas de Software</h1>
+        <p>Arquitetura de Software · Pós-graduação FIAP</p>
+        <span>Estudo contínuo</span>
+    </header>
+
+    <main>
+        <ul class="toc">
+            <li><a href="#visao-geral">Visão geral</a></li>
+            <li><a href="#arquiteturas">Arquiteturas modernas</a></li>
+            <li><a href="#tradeoffs">Trade-offs</a></li>
+            <li><a href="#c4">Modelo C4</a></li>
+            <li><a href="#requisitos">Requisitos</a></li>
+            <li><a href="#decisoes">RFCs e ADRs</a></li>
+            <li><a href="#debito">Débito técnico</a></li>
+            <li><a href="#aprendizados">Aprendizados</a></li>
+        </ul>
+
+        <!-- ========================= VISÃO GERAL ========================= -->
+        <section id="visao-geral">
+            <h2>Visão geral</h2>
+            <p class="lead">Arquitetura de software é o conjunto de decisões que são caras de mudar depois: como o código se organiza, como o sistema é explicado para outras pessoas e como as escolhas são registradas e mantidas ao longo do tempo.</p>
+            <p>Esta página reúne o que estudei em cinco temas que se complementam. Começo pelas formas de estruturar o código, passo pela documentação e pelos requisitos que guiam a solução e termino em como registrar decisões e cuidar da saúde do sistema no longo prazo.</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">1</span>
+                    <h4>Como estruturar</h4>
+                    <p>Hexagonal, Onion, Clean e Vertical Slice, com seus trade-offs.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">2</span>
+                    <h4>Como comunicar</h4>
+                    <p>Modelo C4 para documentar a arquitetura em quatro níveis.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">3</span>
+                    <h4>O que construir</h4>
+                    <p>Requisitos funcionais e não funcionais, priorização e rastreabilidade.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-core">4</span>
+                    <h4>Como decidir</h4>
+                    <p>RFCs para discutir e ADRs para registrar decisões.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">5</span>
+                    <h4>Como manter</h4>
+                    <p>Gerenciamento do débito técnico ao longo do ciclo de vida.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================= ARQUITETURAS ========================= -->
+        <section id="arquiteturas">
+            <span class="phase-tag">Estrutura do código</span>
+            <h2>Arquiteturas modernas</h2>
+            <p>Escolher entre monólito e microsserviços é só uma parte da conversa. A organização <em>interna</em> do código, com seus domínios, casos de uso e dependências, é o que decide se o sistema será fácil ou difícil de testar, manter e evoluir.</p>
+
+            <h3>Separation of Concerns e inversão de dependência</h3>
+            <p>Dois princípios sustentam quase tudo o que vem a seguir:</p>
+            <ul>
+                <li><strong>Separation of Concerns (SoC):</strong> cada módulo cuida de um único assunto. O MVC é o exemplo clássico, com View para apresentar, Model para regras e dados e Controller para coordenar.</li>
+                <li><strong>Inversão de dependência (o "D" do SOLID):</strong> o núcleo define contratos (interfaces) e os detalhes técnicos, como banco e frameworks, é que dependem deles. Assim, trocar uma tecnologia não mexe nas regras de negócio.</li>
+            </ul>
+
+            <h3>Arquitetura hexagonal (Portas e Adaptadores)</h3>
+            <p>Proposta por Alistair Cockburn nos anos 90, como alternativa à organização tradicional em camadas. A ideia é isolar toda a lógica da aplicação no centro e deixar tudo o que é externo, como telas, APIs, banco de dados e filas, do lado de fora, conectado por <strong>portas</strong> (contratos) e <strong>adaptadores</strong> (implementações). O papel do adaptador é parecido com o de um adaptador de tomada.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 320" role="img" aria-label="Arquitetura hexagonal com o núcleo no centro, portas nas bordas e adaptadores de entrada e saída">
+                    <defs>
+                        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <polygon points="470,160 415,255 305,255 250,160 305,65 415,65" fill="#2a1730" stroke="#e0388f" stroke-width="2"/>
+                    <text x="360" y="150" text-anchor="middle" font-size="15" font-weight="700">Núcleo</text>
+                    <text x="360" y="170" text-anchor="middle" font-size="11" class="muted">domínio e casos de uso</text>
+
+                    <!-- portas -->
+                    <circle cx="250" cy="160" r="9" fill="#8A2BE2"/>
+                    <circle cx="470" cy="160" r="9" fill="#8A2BE2"/>
+                    <circle cx="305" cy="65" r="9" fill="#8A2BE2"/>
+                    <circle cx="415" cy="255" r="9" fill="#8A2BE2"/>
+
+                    <!-- adaptadores esquerda -->
+                    <g font-size="12" font-weight="600">
+                        <rect x="20" y="40" width="140" height="42" rx="10" fill="#1b1b29" stroke="#6495ED"/>
+                        <text x="90" y="66" text-anchor="middle">API REST</text>
+                        <rect x="20" y="139" width="140" height="42" rx="10" fill="#1b1b29" stroke="#6495ED"/>
+                        <text x="90" y="165" text-anchor="middle">Interface web</text>
+                        <rect x="20" y="238" width="140" height="42" rx="10" fill="#1b1b29" stroke="#6495ED"/>
+                        <text x="90" y="264" text-anchor="middle">Testes e CLI</text>
+
+                        <rect x="560" y="40" width="140" height="42" rx="10" fill="#1b1b29" stroke="#8A2BE2"/>
+                        <text x="630" y="66" text-anchor="middle">Banco de dados</text>
+                        <rect x="560" y="139" width="140" height="42" rx="10" fill="#1b1b29" stroke="#8A2BE2"/>
+                        <text x="630" y="165" text-anchor="middle">Fila de mensagens</text>
+                        <rect x="560" y="238" width="140" height="42" rx="10" fill="#1b1b29" stroke="#8A2BE2"/>
+                        <text x="630" y="264" text-anchor="middle">Serviço externo</text>
+                    </g>
+
+                    <g stroke="#b6b6c3" stroke-width="1.5" fill="none" marker-end="url(#ah)">
+                        <line x1="160" y1="61" x2="296" y2="65"/>
+                        <line x1="160" y1="160" x2="241" y2="160"/>
+                        <line x1="160" y1="259" x2="250" y2="200" />
+                    </g>
+                    <g stroke="#b6b6c3" stroke-width="1.5" fill="none" marker-end="url(#ah)">
+                        <line x1="479" y1="160" x2="556" y2="160"/>
+                        <line x1="415" y1="264" x2="556" y2="259"/>
+                        <line x1="323" y1="58" x2="556" y2="61"/>
+                    </g>
+                    <text x="90" y="20" text-anchor="middle" font-size="11" class="muted">Quem aciona o sistema</text>
+                    <text x="630" y="20" text-anchor="middle" font-size="11" class="muted">O que o sistema usa</text>
+                </svg>
+                <figcaption>Os adaptadores ficam fora do núcleo e se conectam por portas. Trocar um adaptador não afeta as regras de negócio</figcaption>
+            </div>
+
+            <div class="callout">
+                <p><strong>Curiosidade:</strong> o hexágono não tem nada de especial. O formato só representa que o sistema tem vários lados, ou seja, vários motivos para conversar com o mundo externo. Poderia ser um pentágono. O próprio Cockburn chegou a sugerir o nome "Portas e Adaptadores", mas o nome original foi o que pegou.</p>
+            </div>
+
+            <h3>Onion Architecture</h3>
+            <p>Proposta por Jeffrey Palermo em 2008, também como resposta ao acoplamento entre regras de negócio e infraestrutura que acontece em camadas tradicionais. A analogia é a cebola: anéis concêntricos, com o <strong>domínio puro</strong> no centro, os <strong>serviços de aplicação</strong> em volta, depois as <strong>interfaces</strong> e, por fora, a <strong>infraestrutura</strong>. A regra de ouro é que as dependências sempre apontam para o centro.</p>
+
+            <h3>Clean Architecture</h3>
+            <p>Formulada por Robert C. Martin (Uncle Bob) em 2012 e consolidada em livro em 2017. É uma síntese das ideias anteriores, com nomes e papéis de camada bem definidos. A motivação é evitar sistemas que ficam presos às tecnologias escolhidas no começo.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 340" role="img" aria-label="Clean Architecture em anéis concêntricos: entidades, casos de uso, adaptadores de interface e frameworks">
+                    <defs>
+                        <marker id="ac" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#a768f0"/>
+                        </marker>
+                    </defs>
+                    <circle cx="250" cy="170" r="150" fill="#1b1b29" stroke="#6495ED" stroke-width="2"/>
+                    <circle cx="250" cy="170" r="112" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                    <circle cx="250" cy="170" r="74" fill="#2a1730" stroke="#e0388f" stroke-width="2"/>
+                    <circle cx="250" cy="170" r="38" fill="#3a1d3f" stroke="#e0388f" stroke-width="2"/>
+                    <text x="250" y="175" text-anchor="middle" font-size="12" font-weight="700">Entidades</text>
+                    <text x="250" y="130" text-anchor="middle" font-size="12" font-weight="700">Casos de uso</text>
+                    <text x="250" y="86" text-anchor="middle" font-size="12" font-weight="700">Adaptadores de interface</text>
+                    <text x="250" y="42" text-anchor="middle" font-size="12" font-weight="700">Frameworks e drivers</text>
+
+                    <g stroke="#a768f0" stroke-width="2" fill="none" marker-end="url(#ac)">
+                        <line x1="430" y1="40" x2="300" y2="40"/>
+                    </g>
+                    <text x="440" y="36" font-size="12" font-weight="700">As dependências</text>
+                    <text x="440" y="54" font-size="12" font-weight="700">apontam para dentro</text>
+
+                    <g font-size="12" class="muted">
+                        <text x="440" y="120" class="muted">Entidades: regras de negócio gerais</text>
+                        <text x="440" y="145" class="muted">Casos de uso: regras da aplicação</text>
+                        <text x="440" y="170" class="muted">Adaptadores: controllers, presenters, DTOs</text>
+                        <text x="440" y="195" class="muted">Frameworks: banco, web, UI</text>
+                    </g>
+                </svg>
+                <figcaption>Cada anel só conhece o anel de dentro. O núcleo não depende de nada externo</figcaption>
+            </div>
+
+            <ul>
+                <li><strong>Entidades:</strong> regras de negócio gerais e reutilizáveis. Não dependem de nada.</li>
+                <li><strong>Casos de uso:</strong> regras específicas da aplicação. Orquestram fluxos e entidades.</li>
+                <li><strong>Adaptadores de interface:</strong> traduzem dados entre o formato externo e o interno (controllers, presenters, DTOs).</li>
+                <li><strong>Frameworks e drivers:</strong> banco de dados, framework web, interface. São detalhes substituíveis.</li>
+            </ul>
+
+            <h3>Vertical Slice e CQRS</h3>
+            <p>A Vertical Slice vai na contramão das anteriores. Em vez de organizar por tipo de arquivo (pasta de Controllers, pasta de Services, pasta de Repositories), organiza por <strong>funcionalidade</strong>. Cada fatia vertical carrega tudo de que precisa: entrada, processamento e saída. Ganhou força por volta de 2014, junto com o CQRS, e foi muito difundida por Jimmy Bogard na comunidade .NET.</p>
+
+            <div class="two-cols">
+                <div class="info-card">
+                    <h4>Em camadas (horizontal)</h4>
+<pre style="background:transparent;border:0;padding:0;margin:0;color:#e8e8f0;font-size:1.3rem;line-height:1.6;">/Controllers
+/Services
+/Repositories
+/Models</pre>
+                    <p>Para mexer em uma funcionalidade é preciso passar por todas as pastas.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Em fatias (vertical)</h4>
+<pre style="background:transparent;border:0;padding:0;margin:0;color:#e8e8f0;font-size:1.3rem;line-height:1.6;">/Features
+  /CriarPedido
+    Comando
+    Validador
+    Handler
+  /BuscarPedido
+    Consulta
+    Handler</pre>
+                    <p>Tudo o que uma funcionalidade precisa está junto.</p>
+                </div>
+            </div>
+
+            <p><strong>CQRS (Command Query Responsibility Segregation)</strong> separa as operações de escrita (comandos) das de leitura (consultas), com modelos de dados distintos. O lado de escrita foca em consistência e validação; depois de gravar, publica eventos que atualizam o lado de leitura, que pode ser desnormalizado e otimizado para consulta. Em troca, a leitura passa a ter consistência eventual.</p>
+
+            <h3>Exemplo de portas e adaptadores em Python</h3>
+            <p>O caso de uso depende apenas de uma porta (um contrato). Qual banco está por trás é um detalhe de um adaptador, que pode ser trocado, inclusive por um falso nos testes.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
+
+# ----- Núcleo: domínio e porta -----
+@dataclass
+class Meta:
+    nome: str
+    valor_alvo: float
+    valor_atual: float = 0.0
+
+
+class MetaRepositorio(ABC):          # Porta de saída: o núcleo define o contrato
+    @abstractmethod
+    def buscar(self, nome: str) -&gt; Meta: ...
+
+    @abstractmethod
+    def salvar(self, meta: Meta) -&gt; None: ...
+
+
+# ----- Núcleo: caso de uso (só conhece a porta) -----
+class DepositarNaMeta:
+    def __init__(self, repositorio: MetaRepositorio):
+        self.repositorio = repositorio
+
+    def executar(self, nome: str, valor: float) -&gt; Meta:
+        if valor &lt;= 0:
+            raise ValueError("Depósito precisa ser positivo")
+        meta = self.repositorio.buscar(nome)
+        meta.valor_atual += valor
+        self.repositorio.salvar(meta)
+        return meta
+
+
+# ----- Adaptador: detalhe técnico fora do núcleo -----
+class MetaEmMemoria(MetaRepositorio):     # Em produção seria um adaptador de PostgreSQL
+    def __init__(self):
+        self._dados = {"Viagem": Meta("Viagem", 5000)}
+
+    def buscar(self, nome: str) -&gt; Meta:
+        return self._dados[nome]
+
+    def salvar(self, meta: Meta) -&gt; None:
+        self._dados[meta.nome] = meta
+
+
+caso_de_uso = DepositarNaMeta(MetaEmMemoria())
+print(caso_de_uso.executar("Viagem", 250))</code></pre>
+            </div>
+        </section>
+
+        <!-- ========================= TRADE-OFFS ========================= -->
+        <section id="tradeoffs">
+            <h2>Comparando os trade-offs</h2>
+            <p>Não existe arquitetura universalmente correta. Cada uma entrega benefícios e cobra um preço em simplicidade, curva de aprendizado ou volume de código. O papel de quem arquiteta é conhecer esses custos e escolher conscientemente, de acordo com o contexto, a maturidade do time e o horizonte do projeto.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Arquitetura</th><th>Ganhos</th><th>Custos</th><th>Quando faz sentido</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Hexagonal</td><td>Alto desacoplamento, testabilidade, independência de tecnologia, várias interfaces</td><td>Curva de aprendizado, mais abstrações, excesso em projetos simples</td><td>Sistemas com várias formas de entrada (API, CLI, eventos) e integrações</td></tr>
+                        <tr><td>Onion</td><td>Domínio protegido, camadas claras, facilita testes, alinhada ao SOLID</td><td>Complexidade inicial, conceitos mal interpretados com facilidade</td><td>Médio e grande porte, com regras de negócio ricas e muitas integrações</td></tr>
+                        <tr><td>Clean</td><td>Responsabilidades claras, independência de frameworks, orientada a testes, evolutiva</td><td>Verbosidade, esforço inicial de estruturação</td><td>Projetos de longo prazo, com alta exigência de qualidade e mudanças de tecnologia</td></tr>
+                        <tr><td>Vertical Slice</td><td>Organização por funcionalidade, testes simples, baixo acoplamento, combina com CQRS</td><td>Risco de duplicação e de inconsistência entre fatias</td><td>APIs modernas, microsserviços, sistemas orientados a casos de uso</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Regra prática que guardei:</strong> para maximizar a coesão do domínio e isolar a infraestrutura, hexagonal e onion são boas escolhas. Para uma base longeva e muito testável, clean. Para entregas rápidas com organização por caso de uso, vertical slice.</p>
+            </div>
+        </section>
+
+        <!-- ========================= C4 ========================= -->
+        <section id="c4">
+            <span class="phase-tag">Comunicação</span>
+            <h2>Documentação com o modelo C4</h2>
+            <p>Um único diagrama que "mostra tudo" costuma ficar superficial, difícil de manter e pouco útil. O modelo C4, criado por Simon Brown, propõe o contrário: vários diagramas simples, cada um em um nível de abstração, como se fosse um zoom em um mapa. É independente de tecnologia e pode ser desenhado em ferramentas como Draw.io, PlantUML, Structurizr ou Lucidchart.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 200" role="img" aria-label="Os quatro níveis do C4: contexto, contêiner, componente e código, com zoom crescente">
+                    <defs>
+                        <marker id="az" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#a768f0"/>
+                        </marker>
+                    </defs>
+                    <g stroke="#a768f0" stroke-width="1.5" fill="none" marker-end="url(#az)">
+                        <line x1="170" y1="95" x2="190" y2="95"/>
+                        <line x1="350" y1="95" x2="370" y2="95"/>
+                        <line x1="530" y1="95" x2="550" y2="95"/>
+                    </g>
+                    <g>
+                        <rect x="10" y="30" width="160" height="130" rx="12" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="90" y="62" text-anchor="middle" font-size="12" class="muted">Nível 1</text>
+                        <text x="90" y="86" text-anchor="middle" font-size="15" font-weight="700">Contexto</text>
+                        <text x="90" y="112" text-anchor="middle" font-size="11" class="muted">o sistema, quem usa</text>
+                        <text x="90" y="128" text-anchor="middle" font-size="11" class="muted">e com o que conversa</text>
+
+                        <rect x="190" y="30" width="160" height="130" rx="12" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="270" y="62" text-anchor="middle" font-size="12" class="muted">Nível 2</text>
+                        <text x="270" y="86" text-anchor="middle" font-size="15" font-weight="700">Contêiner</text>
+                        <text x="270" y="112" text-anchor="middle" font-size="11" class="muted">apps, APIs e bancos</text>
+                        <text x="270" y="128" text-anchor="middle" font-size="11" class="muted">que rodam separados</text>
+
+                        <rect x="370" y="30" width="160" height="130" rx="12" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="450" y="62" text-anchor="middle" font-size="12" class="muted">Nível 3</text>
+                        <text x="450" y="86" text-anchor="middle" font-size="15" font-weight="700">Componente</text>
+                        <text x="450" y="112" text-anchor="middle" font-size="11" class="muted">módulos dentro</text>
+                        <text x="450" y="128" text-anchor="middle" font-size="11" class="muted">de um contêiner</text>
+
+                        <rect x="550" y="30" width="160" height="130" rx="12" fill="#1b1b29" stroke="#e0388f" stroke-width="2" stroke-dasharray="6 4"/>
+                        <text x="630" y="62" text-anchor="middle" font-size="12" class="muted">Nível 4 (opcional)</text>
+                        <text x="630" y="86" text-anchor="middle" font-size="15" font-weight="700">Código</text>
+                        <text x="630" y="112" text-anchor="middle" font-size="11" class="muted">classes e arquivos</text>
+                        <text x="630" y="128" text-anchor="middle" font-size="11" class="muted">de um componente</text>
+                    </g>
+                    <text x="360" y="190" text-anchor="middle" font-size="11" class="muted">mais abrangente e para todos</text>
+                    <text x="640" y="190" text-anchor="end" font-size="11" class="muted">mais detalhado e técnico</text>
+                </svg>
+                <figcaption>Do mais amplo ao mais detalhado: cada nível responde a uma pergunta diferente e atende a um público diferente</figcaption>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Nível</th><th>Pergunta que responde</th><th>Público típico</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Contexto</td><td>Qual o propósito do sistema, quem o usa e com quais outros sistemas ele se relaciona?</td><td>Negócio, stakeholders e time</td></tr>
+                        <tr><td>Contêiner</td><td>Em quais blocos executáveis o sistema se divide (web, API, banco) e como conversam?</td><td>Time técnico e arquitetura</td></tr>
+                        <tr><td>Componente</td><td>Quais são os módulos principais de cada contêiner e suas responsabilidades?</td><td>Quem desenvolve</td></tr>
+                        <tr><td>Código</td><td>Como as classes ou arquivos de um componente estão organizados?</td><td>Quem mantém o código, auditorias</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Existe ainda o <strong>System Landscape</strong>, que é um diagrama de contexto sem foco em um sistema só, mostrando como todos os sistemas de uma organização se conectam. E o C4 também se estende para diagramas de implantação (deployment).</p>
+
+            <h3>Dicas de uso</h3>
+            <ul>
+                <li>Use o <strong>Contexto</strong> para alinhar negócio e tecnologia.</li>
+                <li>Use o <strong>Contêiner</strong> para definir responsabilidades e identificar dependências excessivas.</li>
+                <li>Use o <strong>Componente</strong> para organizar módulos complexos.</li>
+                <li>Deixe o <strong>Código</strong> para os casos em que o detalhe realmente precisa ser registrado.</li>
+            </ul>
+            <p>O ganho prático é melhor comunicação entre equipes, onboarding mais rápido e uma base sólida para revisões de arquitetura.</p>
+        </section>
+
+        <!-- ========================= REQUISITOS ========================= -->
+        <section id="requisitos">
+            <span class="phase-tag">O que construir</span>
+            <h2>Requisitos funcionais e não funcionais</h2>
+            <p>Requisitos alinham expectativas entre negócio e time e reduzem retrabalho. Eles se dividem em duas famílias que precisam ser tratadas juntas.</p>
+
+            <div class="two-cols">
+                <div class="info-card">
+                    <span class="tag tag-core">O quê</span>
+                    <h4>Funcionais</h4>
+                    <p>Descrevem o que o sistema faz: ações, operações e comportamentos esperados.</p>
+                    <p><em>Ex.: "o usuário pode transferir fundos entre contas".</em></p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Como</span>
+                    <h4>Não funcionais</h4>
+                    <p>Descrevem como o sistema se comporta: desempenho, segurança, usabilidade, escalabilidade e confiabilidade.</p>
+                    <p><em>Ex.: "responder em até 2 segundos com 10.000 usuários simultâneos".</em></p>
+                </div>
+            </div>
+
+            <p>Para a arquitetura, os requisitos não funcionais costumam ser os que mais pesam, porque é neles que as grandes escolhas estruturais são tomadas. Quem arquiteta faz a ponte entre o negócio e a implementação técnica, trabalhando ao lado de PM, PO e stakeholders. Hoje a construção de requisitos é mais colaborativa e contínua do que o antigo modelo de "coletar tudo no início".</p>
+
+            <h3>Priorização com MoSCoW</h3>
+            <p>Nem tudo cabe no primeiro ciclo. A técnica MoSCoW classifica cada requisito por impacto e urgência: <strong>Must</strong> (essencial), <strong>Should</strong> (importante), <strong>Could</strong> (desejável) e <strong>Won't</strong> (fica para depois). Exemplo ilustrativo:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Requisito</th><th>MoSCoW</th><th>Justificativa</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Login com autenticação segura</td><td>Must</td><td>Sem isso nenhum dado pode ser exposto</td></tr>
+                        <tr><td>Exportar relatório em CSV</td><td>Should</td><td>Apoia a análise, mas há alternativas manuais</td></tr>
+                        <tr><td>Tema escuro</td><td>Could</td><td>Melhora a experiência, sem impacto no negócio</td></tr>
+                        <tr><td>Tutorial interativo</td><td>Won't</td><td>Fica para uma versão futura</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Rastreabilidade</h3>
+            <p>Cada requisito vira um cartão com um identificador único (RF-01, RNF-03), a descrição, o caso de uso associado, o critério de teste e a decisão arquitetural relacionada. Assim é possível seguir o caminho <strong>requisito → caso de uso → teste → decisão</strong> e evitar itens esquecidos.</p>
+
+            <h3>Validação e verificação</h3>
+            <ul>
+                <li><strong>Com stakeholders:</strong> protótipos e wireframes, workshops de storyboarding e entrevistas com perguntas abertas, que ajudam a descobrir requisitos implícitos.</li>
+                <li><strong>Técnica:</strong> revisões em par, testes de aceitação automatizados (BDD) e checklists de pronto e feito.</li>
+            </ul>
+
+            <div class="code-container">
+                <pre><code>Dado que o usuário está na página de login
+Quando ele informa credenciais válidas
+Então deve ser redirecionado para o painel</code></pre>
+            </div>
+            <p>Exemplo de critério de aceitação em formato BDD (Given-When-Then, aqui traduzido para Dado-Quando-Então).</p>
+
+            <h3>Personas, jornadas e agilidade</h3>
+            <ul>
+                <li><strong>Personas e jornadas</strong> ajudam a descobrir requisitos escondidos. Uma dor na jornada, como "o filtro demora e a exportação fica lenta", pode virar diretamente um requisito não funcional ("exportar em até 5 segundos").</li>
+                <li><strong>Épicos, features e histórias</strong> organizam o trabalho de grande para pequeno. As histórias seguem o formato "Como [perfil], quero [ação] para [benefício]".</li>
+                <li><strong>DoR e DoD</strong> definem quando uma história pode entrar na sprint e quando pode ser considerada concluída.</li>
+                <li><strong>Segurança e conformidade</strong> entram como requisitos não funcionais: autenticação e autorização (OAuth2, SAML, papéis e permissões), criptografia em trânsito e em repouso, auditoria e logs com retenção definida e aderência a normas como LGPD, ISO 27001 e PCI-DSS.</li>
+            </ul>
+        </section>
+
+        <!-- ========================= DECISÕES ========================= -->
+        <section id="decisoes">
+            <span class="phase-tag">Decisões</span>
+            <h2>RFCs e ADRs</h2>
+            <p>Boa parte do conhecimento de uma arquitetura mora no <em>porquê</em> das escolhas, e é justamente a parte que se perde quando pessoas saem do time. RFCs e ADRs resolvem isso em duas etapas: primeiro discutir, depois registrar.</p>
+
+            <div class="two-cols">
+                <div class="info-card">
+                    <span class="tag tag-support">Antes da decisão</span>
+                    <h4>RFC (Request for Comments)</h4>
+                    <p>Proposta aberta para discussão assíncrona. Qualquer pessoa do time pode descrever uma ideia, levantar riscos e sugerir alternativas. Serve para amadurecer a decisão até haver consenso.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-core">Depois da decisão</span>
+                    <h4>ADR (Architecture Decision Record)</h4>
+                    <p>Registro curto e imutável de uma decisão já tomada, com o contexto e as consequências. Várias ADRs formam o log de decisões do projeto.</p>
+                </div>
+            </div>
+
+            <h3>Quando abrir uma RFC</h3>
+            <ul>
+                <li>Quando há divergência técnica e o time precisa alinhar.</li>
+                <li>Quando a proposta afeta vários sistemas, squads ou áreas.</li>
+                <li>Quando é importante registrar as alternativas que foram analisadas.</li>
+            </ul>
+
+            <h3>Estrutura de uma RFC</h3>
+            <p>Título, data, status (rascunho, aberta para comentários, revisada, encerrada como aprovada ou rejeitada), resumo, problema, proposta técnica, impacto esperado, alternativas consideradas e pontos em aberto. Uma RFC aprovada pode originar uma ADR.</p>
+
+            <h3>Ciclo de vida de uma ADR</h3>
+            <div class="diagram">
+                <svg viewBox="0 0 720 170" role="img" aria-label="Estados de uma ADR: proposta, aceita, depreciada ou substituída, e rejeitada">
+                    <defs>
+                        <marker id="ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#a768f0"/>
+                        </marker>
+                    </defs>
+                    <g stroke="#a768f0" stroke-width="1.5" fill="none" marker-end="url(#ad)">
+                        <line x1="150" y1="60" x2="230" y2="60"/>
+                        <line x1="150" y1="60" x2="230" y2="125" />
+                        <line x1="380" y1="60" x2="470" y2="35"/>
+                        <line x1="380" y1="60" x2="470" y2="95"/>
+                    </g>
+                    <g font-size="13" font-weight="700">
+                        <rect x="20" y="38" width="130" height="44" rx="10" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="85" y="65" text-anchor="middle">Proposta</text>
+
+                        <rect x="230" y="38" width="150" height="44" rx="10" fill="#1b1b29" stroke="#e0388f" stroke-width="2"/>
+                        <text x="305" y="65" text-anchor="middle">Aceita</text>
+
+                        <rect x="230" y="110" width="150" height="44" rx="10" fill="#1b1b29" stroke="#6495ED" stroke-width="2"/>
+                        <text x="305" y="137" text-anchor="middle">Rejeitada</text>
+
+                        <rect x="470" y="14" width="150" height="44" rx="10" fill="#1b1b29" stroke="#6495ED" stroke-width="2"/>
+                        <text x="545" y="41" text-anchor="middle">Depreciada</text>
+
+                        <rect x="470" y="74" width="150" height="44" rx="10" fill="#1b1b29" stroke="#6495ED" stroke-width="2"/>
+                        <text x="545" y="101" text-anchor="middle">Substituída</text>
+                    </g>
+                </svg>
+                <figcaption>Depois de aceita, a ADR não é editada. Para mudar, cria-se uma nova ADR e a anterior passa a "Substituída"</figcaption>
+            </div>
+
+            <h3>Estrutura de uma ADR</h3>
+            <p>Título, data, status e quatro blocos principais: <strong>contexto</strong> (o problema e as restrições), <strong>decisão</strong> (o que foi escolhido e por quê), <strong>consequências</strong> (benefícios e limitações) e <strong>alternativas</strong> (o que foi descartado e por quê). Um exemplo ilustrativo:</p>
+
+            <div class="code-container">
+                <pre><code>ADR-007: Usar PostgreSQL como banco de dados principal
+Data: 13/11/2026
+Status: Aceita
+
+Contexto
+O sistema precisa de integridade transacional para lançamentos
+financeiros e de consultas relacionais para relatórios. O time
+já tem experiência com bancos relacionais.
+
+Decisão
+Adotaremos PostgreSQL como banco principal, acessado por meio de
+uma porta de repositório, para não acoplar o domínio ao banco.
+
+Consequências
+(+) Transações ACID e ecossistema maduro de ferramentas.
+(-) Escalar escrita horizontalmente exige mais planejamento.
+
+Alternativas consideradas
+MongoDB: descartado pela necessidade de joins e transações.
+MySQL: viável, mas sem vantagem sobre a experiência do time.</code></pre>
+            </div>
+
+            <h3>Quando usar e quando não usar</h3>
+            <ul>
+                <li><strong>Vale uma ADR</strong> para decisões que afetam a estrutura do sistema, requisitos não funcionais, dependências entre componentes, interfaces e contratos de API, ou técnicas de construção, principalmente quando são difíceis de reverter.</li>
+                <li><strong>Não vale</strong> para decisões triviais ou temporárias, como subir a versão de uma dependência pequena. Registrar tudo gera "dívida de documentação".</li>
+                <li><strong>Sem ADRs</strong> o conhecimento se perde, equipes tomam decisões conflitantes e mudanças são revertidas sem análise.</li>
+            </ul>
+            <p>Boas práticas: ser conciso, guardar as ADRs em um repositório central (de preferência junto do código, no Git) e organizá-las em pastas claras.</p>
+        </section>
+
+        <!-- ========================= DÉBITO TÉCNICO ========================= -->
+        <section id="debito">
+            <span class="phase-tag">Manutenção</span>
+            <h2>Gerenciamento de débito técnico</h2>
+            <p>O termo foi cunhado por Ward Cunningham, como uma analogia com dívida financeira: uma decisão rápida hoje acelera a entrega, mas cobra <strong>juros</strong> depois. Quanto mais tempo a dívida fica, mais caro e arriscado é pagá-la. Ter débito técnico não significa que o código é ruim. Muitas vezes é uma escolha válida diante de prazo, orçamento ou validação de negócio. O problema está em não reconhecer, não registrar e não pagar.</p>
+
+            <h3>Tipos</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <h4>Deliberado</h4>
+                    <p>Assumido de propósito para acelerar uma entrega ou validar uma hipótese.</p>
+                    <p><em>Ex.: pular testes automatizados em um MVP.</em></p>
+                </div>
+                <div class="info-card">
+                    <h4>Acidental</h4>
+                    <p>Surge sem que o time perceba, por falta de experiência ou mudança inesperada de requisito.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Planejado</h4>
+                    <p>O time sabe que a solução não é ideal, documenta a limitação e agenda o pagamento.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Negligenciado</h4>
+                    <p>Foi identificado, mas ignorado por muito tempo. Pode virar risco estrutural.</p>
+                </div>
+            </div>
+
+            <h3>Causas e impactos</h3>
+            <div class="two-cols">
+                <div class="info-card">
+                    <h4>Causas comuns</h4>
+                    <ul>
+                        <li>Pressão por prazos</li>
+                        <li>Ausência de testes automatizados</li>
+                        <li>Arquitetura rígida ou desatualizada</li>
+                        <li>Regras de negócio que mudaram e o código não acompanhou</li>
+                        <li>Decisões não registradas (sem ADRs ou RFCs)</li>
+                        <li>Times isolados e sem alinhamento</li>
+                        <li>Falta de cultura de melhoria contínua</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Impactos</h4>
+                    <ul>
+                        <li>Código mais complexo e acoplado</li>
+                        <li>Mais bugs e comportamentos imprevisíveis</li>
+                        <li>Entregas cada vez mais lentas</li>
+                        <li>Barreiras para inovar e evoluir</li>
+                        <li>Retrabalho e custo de manutenção maiores</li>
+                        <li>Queda na motivação e dificuldade no onboarding</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Como identificar</h3>
+            <p>Os sinais aparecem de várias formas: <em>code smells</em> (funções e classes enormes, duplicação, acoplamento alto), ferramentas de análise estática e cobertura de testes, e métricas do dia a dia, como a taxa de falhas em produção e o tempo médio de correção de bugs. Quando esses indicadores pioram aos poucos, o débito provavelmente está crescendo.</p>
+
+            <h3>Estratégias para gerenciar</h3>
+            <ol>
+                <li><strong>Definir critérios:</strong> o time precisa concordar sobre o que conta como débito técnico.</li>
+                <li><strong>Manter um backlog de débitos:</strong> visível, com descrição, impacto, risco e esforço de cada item.</li>
+                <li><strong>Priorizar</strong> por impacto técnico e de negócio: o que trava a produtividade, impede evolução ou representa risco de segurança vem primeiro.</li>
+                <li><strong>Refatorar continuamente:</strong> em pequenos passos, junto das funcionalidades, seguindo a "regra do escoteiro" (deixe o código melhor do que encontrou).</li>
+                <li><strong>Levar o tema às cerimônias:</strong> planning, code review e retrospectiva.</li>
+                <li><strong>Registrar as decisões</strong> com ADRs e RFCs, para evitar débitos invisíveis.</li>
+                <li><strong>Negociar tempo no roadmap</strong> com PO e gestão, tratando o pagamento como investimento e não como algo opcional.</li>
+            </ol>
+            <p>Também ajuda comunicar com clareza os riscos das decisões temporárias, tratar bugs recorrentes como sintomas de problemas estruturais e usar métricas para justificar refatorações perante o negócio. A tendência do mercado é integrar métricas de saúde do código ao pipeline de CI/CD.</p>
+        </section>
+
+        <!-- ========================= APRENDIZADOS ========================= -->
+        <section id="aprendizados">
+            <h2>O que levo daqui</h2>
+            <ul>
+                <li>Arquitetura é sobre tomar decisões conscientes e conhecer o que se ganha e o que se abre mão em cada uma.</li>
+                <li>Proteger as regras de negócio dos detalhes técnicos, com dependências apontando para o núcleo, facilita testes e trocas de tecnologia.</li>
+                <li>Diagramas em níveis (C4) comunicam melhor do que um único desenho gigante.</li>
+                <li>Requisitos não funcionais são tão importantes quanto os funcionais, e precisam ser rastreáveis até os testes e as decisões.</li>
+                <li>Registrar o porquê, com RFCs e ADRs, preserva o conhecimento mesmo quando o time muda.</li>
+                <li>Débito técnico não se elimina, se gerencia: identificar, registrar, priorizar e pagar de forma contínua.</li>
+            </ul>
+        </section>
+
+        <!-- ========================= REFERÊNCIAS ========================= -->
+        <section id="referencias">
+            <h2>Para aprofundar</h2>
+            <ul class="references">
+                <li>COCKBURN, Alistair. <em>Hexagonal Architecture (Ports and Adapters)</em>. 2005. alistair.cockburn.us</li>
+                <li>MARTIN, Robert C. <em>Clean Architecture: A Craftsman's Guide to Software Structure and Design</em>. Prentice Hall, 2017.</li>
+                <li>BOGARD, Jimmy. <em>Vertical Slice Architecture</em>. jimmybogard.com</li>
+                <li>BROWN, Simon. <em>The C4 Model for Visualising Software Architecture</em>. c4model.com</li>
+                <li>RICHARDS, Mark; FORD, Neal. <em>Fundamentos da Arquitetura de Software</em>. Bookman, 2020.</li>
+                <li>NYGARD, Michael. <em>Documenting Architecture Decisions</em>. 2011. Referência clássica sobre ADRs, também reunida em adr.github.io</li>
+                <li>VALENTE, Marco Tulio. <em>Engenharia de Software Moderna</em>. UFMG, 2020.</li>
+            </ul>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>
