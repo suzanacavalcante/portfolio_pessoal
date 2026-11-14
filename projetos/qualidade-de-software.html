@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Estudo de Qualidade de Software da pós-graduação: TDD, testes unitários, análise estática, dublês de teste, testes de integração e BDD.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Qualidade de Software</title>
+</head>
+<body>
+    <a class="back-link" href="index.html">&larr; Voltar aos projetos</a>
+
+    <header>
+        <h1>Qualidade de Software</h1>
+        <p>Arquitetura de Software · Pós-graduação FIAP</p>
+        <span>Estudo contínuo</span>
+    </header>
+
+    <main>
+        <ul class="toc">
+            <li><a href="#visao-geral">Visão geral</a></li>
+            <li><a href="#tdd">TDD</a></li>
+            <li><a href="#estrutura">Estrutura dos testes</a></li>
+            <li><a href="#estatica">Análise estática</a></li>
+            <li><a href="#dubles">Dublês de teste</a></li>
+            <li><a href="#piramide">Pirâmide de testes</a></li>
+            <li><a href="#integracao">Testes de integração</a></li>
+            <li><a href="#bdd">BDD e E2E</a></li>
+            <li><a href="#aprendizados">Aprendizados</a></li>
+        </ul>
+
+        <!-- ========================= VISÃO GERAL ========================= -->
+        <section id="visao-geral">
+            <h2>Visão geral</h2>
+            <p class="lead">Qualidade de software não é uma etapa no fim do projeto: é um conjunto de hábitos que acompanha o código desde a primeira linha. Testar é a forma mais direta de provar que o que foi escrito faz o que promete.</p>
+            <p>Esta página reúne o que estudei sobre como construir essa confiança em camadas: começando pelo TDD e pelos testes unitários, passando por ferramentas que inspecionam o código sem executá-lo e por dublês que isolam dependências, até testes de integração, de comportamento e de ponta a ponta.</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">1</span>
+                    <h4>Testar primeiro</h4>
+                    <p>TDD: o teste descreve o comportamento antes do código existir.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">2</span>
+                    <h4>Inspecionar</h4>
+                    <p>Lint, estilo de código, cobertura e quality gates.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">3</span>
+                    <h4>Isolar</h4>
+                    <p>Stubs, fakes, spies e mocks para controlar dependências.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-core">4</span>
+                    <h4>Integrar</h4>
+                    <p>Testar controladores e APIs com requisições reais.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">5</span>
+                    <h4>Validar o comportamento</h4>
+                    <p>BDD com Gherkin e testes de ponta a ponta.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================= TDD ========================= -->
+        <section id="tdd">
+            <span class="phase-tag">Testes unitários</span>
+            <h2>TDD: Desenvolvimento Orientado a Testes</h2>
+            <p>Aprendemos a programar por tentativa e erro: escrevemos, rodamos, ajustamos. O TDD organiza essa intuição em um método. É um raciocínio <strong>hipotético-dedutivo</strong>: formulo uma hipótese sobre o comportamento ("se a conexão com o banco falhar, serei avisado do erro") e escrevo um teste que a confirma ou derruba. Só depois escrevo o código que faz o teste passar.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 230" role="img" aria-label="Ciclo do TDD: escrever o teste, fazê-lo passar, refatorar e analisar o resultado">
+                    <defs>
+                        <marker id="t1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#a768f0"/>
+                        </marker>
+                    </defs>
+                    <g stroke="#a768f0" stroke-width="1.5" fill="none" marker-end="url(#t1)">
+                        <line x1="170" y1="70" x2="195" y2="70"/>
+                        <line x1="365" y1="70" x2="390" y2="70"/>
+                        <line x1="560" y1="70" x2="585" y2="70"/>
+                        <path d="M650 112 L650 190 L90 190 L90 112"/>
+                    </g>
+                    <g>
+                        <rect x="10" y="30" width="160" height="80" rx="12" fill="#1b1b29" stroke="#e0388f" stroke-width="2"/>
+                        <text x="90" y="64" text-anchor="middle" font-size="14" font-weight="700">1. Escrever</text>
+                        <text x="90" y="84" text-anchor="middle" font-size="11" class="muted">um teste que falha</text>
+
+                        <rect x="195" y="30" width="170" height="80" rx="12" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="280" y="64" text-anchor="middle" font-size="14" font-weight="700">2. Fazer passar</text>
+                        <text x="280" y="84" text-anchor="middle" font-size="11" class="muted">o código mínimo</text>
+
+                        <rect x="390" y="30" width="170" height="80" rx="12" fill="#1b1b29" stroke="#6495ED" stroke-width="2"/>
+                        <text x="475" y="64" text-anchor="middle" font-size="14" font-weight="700">3. Refatorar</text>
+                        <text x="475" y="84" text-anchor="middle" font-size="11" class="muted">sem quebrar os testes</text>
+
+                        <rect x="585" y="30" width="125" height="80" rx="12" fill="#1b1b29" stroke="#b6b6c3" stroke-width="2"/>
+                        <text x="647" y="64" text-anchor="middle" font-size="14" font-weight="700">4. Analisar</text>
+                        <text x="647" y="84" text-anchor="middle" font-size="11" class="muted">o resultado</text>
+                    </g>
+                    <text x="370" y="215" text-anchor="middle" font-size="11" class="muted">e volta para o próximo teste</text>
+                </svg>
+                <figcaption>O ciclo se repete a cada comportamento novo: um teste por vez, em passos pequenos</figcaption>
+            </div>
+
+            <h3>Começar falhando</h3>
+            <p>Um truque do método: transformar a lista de comportamentos esperados em testes que <strong>falham de propósito</strong>. Um teste vazio é considerado sucesso pelo framework, então ele precisa nascer vermelho. A lista vira um checklist e cada teste que fica verde é uma pergunta respondida. É normal descobrir novos testes no meio do caminho.</p>
+
+            <h3>Exemplo de ciclo completo</h3>
+            <p>Uma função que aplica desconto em um preço, com os três testes que a descrevem: um caso comum, o limite e o caso inválido. Escolha a linguagem na aba abaixo.</p>
+
+            <div class="code-container code-tabs">
+                <div class="code-tab-list" role="tablist" aria-label="Linguagem do exemplo">
+                    <button type="button" class="code-tab active" role="tab" aria-selected="true" data-lang="python">Python</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="java">Java</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="go">Golang</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="clojure">Clojure</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="c">C</button>
+                </div>
+                <div class="code-panel" data-lang="python">
+                    <pre><code class="language-python"># ----- desconto.py -----
+def aplicar_desconto(preco: float, percentual: float) -&gt; float:
+    if not 0 &lt;= percentual &lt;= 100:
+        raise ValueError("Percentual deve estar entre 0 e 100")
+    return round(preco * (1 - percentual / 100), 2)
+
+
+# ----- test_desconto.py (pytest) -----
+import pytest
+from desconto import aplicar_desconto
+
+
+def test_deve_aplicar_desconto_de_10_por_cento():
+    assert aplicar_desconto(200, 10) == 180
+
+
+def test_deve_manter_o_preco_quando_desconto_e_zero():
+    assert aplicar_desconto(200, 0) == 200
+
+
+def test_deve_lancar_erro_quando_percentual_passa_de_100():
+    with pytest.raises(ValueError, match="entre 0 e 100"):
+        aplicar_desconto(200, 120)</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="java" hidden>
+                    <pre><code class="language-java">// ----- Desconto.java -----
+public class Desconto {
+    public static double aplicar(double preco, double percentual) {
+        if (percentual &lt; 0 || percentual &gt; 100) {
+            throw new IllegalArgumentException("Percentual deve estar entre 0 e 100");
+        }
+        return Math.round(preco * (1 - percentual / 100) * 100.0) / 100.0;
+    }
+}
+
+// ----- DescontoTest.java (JUnit 5) -----
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class DescontoTest {
+
+    @Test
+    void deveAplicarDescontoDe10PorCento() {
+        assertEquals(180.0, Desconto.aplicar(200, 10), "200 com 10% deve virar 180");
+    }
+
+    @Test
+    void deveManterOPrecoQuandoDescontoEZero() {
+        assertEquals(200.0, Desconto.aplicar(200, 0));
+    }
+
+    @Test
+    void deveLancarErroQuandoPercentualPassaDe100() {
+        var erro = assertThrows(IllegalArgumentException.class,
+                () -&gt; Desconto.aplicar(200, 120));
+        assertEquals("Percentual deve estar entre 0 e 100", erro.getMessage());
+    }
+}</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="go" hidden>
+                    <pre><code class="language-go">// ----- desconto.go -----
+package desconto
+
+import (
+	"errors"
+	"math"
+)
+
+func Aplicar(preco, percentual float64) (float64, error) {
+	if percentual &lt; 0 || percentual &gt; 100 {
+		return 0, errors.New("percentual deve estar entre 0 e 100")
+	}
+	return math.Round(preco*(1-percentual/100)*100) / 100, nil
+}
+
+// ----- desconto_test.go (go test) -----
+package desconto
+
+import "testing"
+
+func TestDeveAplicarDescontoDe10PorCento(t *testing.T) {
+	got, err := Aplicar(200, 10)
+	if err != nil || got != 180 {
+		t.Errorf("esperava 180, recebi %v (erro: %v)", got, err)
+	}
+}
+
+func TestDeveManterOPrecoQuandoDescontoEZero(t *testing.T) {
+	if got, _ := Aplicar(200, 0); got != 200 {
+		t.Errorf("esperava 200, recebi %v", got)
+	}
+}
+
+func TestDeveRetornarErroQuandoPercentualPassaDe100(t *testing.T) {
+	if _, err := Aplicar(200, 120); err == nil {
+		t.Error("esperava erro, mas nenhum foi retornado")
+	}
+}</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="clojure" hidden>
+                    <pre><code class="language-clojure">;; ----- src/desconto/core.clj -----
+(ns desconto.core)
+
+(defn aplicar-desconto [preco percentual]
+  (when-not (&lt;= 0 percentual 100)
+    (throw (IllegalArgumentException. "Percentual deve estar entre 0 e 100")))
+  (/ (Math/round (* preco (- 1 (/ percentual 100.0)) 100)) 100.0))
+
+
+;; ----- test/desconto/core_test.clj (clojure.test) -----
+(ns desconto.core-test
+  (:require [clojure.test :refer [deftest is thrown-with-msg?]]
+            [desconto.core :refer [aplicar-desconto]]))
+
+(deftest aplica-desconto-de-10-por-cento
+  (is (= 180.0 (aplicar-desconto 200 10))))
+
+(deftest mantem-o-preco-quando-desconto-e-zero
+  (is (= 200.0 (aplicar-desconto 200 0))))
+
+(deftest erro-quando-percentual-passa-de-100
+  (is (thrown-with-msg? IllegalArgumentException #"entre 0 e 100"
+                        (aplicar-desconto 200 120))))</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="c" hidden>
+                    <pre><code class="language-c">/* Em C não há framework embutido: assert.h já serve para um teste simples.
+   Compilar com: gcc desconto.c -o desconto -lm &amp;&amp; ./desconto */
+#include &lt;assert.h&gt;
+#include &lt;math.h&gt;
+#include &lt;stdbool.h&gt;
+
+/* Retorna false quando o percentual é inválido */
+bool aplicar_desconto(double preco, double percentual, double *resultado) {
+    if (percentual &lt; 0 || percentual &gt; 100) {
+        return false;
+    }
+    *resultado = round(preco * (1 - percentual / 100) * 100) / 100;
+    return true;
+}
+
+int main(void) {
+    double r;
+
+    /* deve aplicar desconto de 10 por cento */
+    assert(aplicar_desconto(200, 10, &amp;r) &amp;&amp; r == 180.0);
+
+    /* deve manter o preço quando o desconto é zero */
+    assert(aplicar_desconto(200, 0, &amp;r) &amp;&amp; r == 200.0);
+
+    /* deve falhar quando o percentual passa de 100 */
+    assert(!aplicar_desconto(200, 120, &amp;r));
+
+    return 0;
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="callout">
+                <p><strong>Não é só Java:</strong> quase toda linguagem tem sua forma de escrever testes. Algumas das mais usadas: JUnit e TestNG (Java), xUnit e NUnit (C#), Jest e Mocha (JavaScript), pytest e unittest (Python), <code>go test</code> (Go), RSpec (Ruby), PHPUnit (PHP). O raciocínio é o mesmo em todas.</p>
+            </div>
+        </section>
+
+        <!-- ========================= ESTRUTURA ========================= -->
+        <section id="estrutura">
+            <h2>Anatomia de um teste</h2>
+            <p>Todo teste unitário segue o mesmo padrão em três tempos, o <strong>Triplo A</strong>: <em>Arrange</em> (preparar o cenário), <em>Act</em> (executar a ação) e <em>Assert</em> (verificar o resultado). Os verificadores (<em>asserts</em>) variam: igualdade, nulo, verdadeiro, mesma referência, lançamento de exceção, além das versões negadas.</p>
+
+            <h3>Ganchos de ciclo de vida</h3>
+            <p>Frameworks como o JUnit permitem rodar código de preparação e limpeza em momentos fixos, o que evita repetir o mesmo setup em cada teste. Uma classe auxiliar pode concentrar o que é comum, como abrir conexão, gerar dados ou chamar uma API.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Gancho (JUnit 5)</th><th>Quando executa</th><th>Uso típico</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>@BeforeAll</td><td>Uma vez, antes de todos os testes da classe</td><td>Subir conexão ou configurar URL base</td></tr>
+                        <tr><td>@BeforeEach</td><td>Antes de cada teste</td><td>Criar os objetos do cenário do zero</td></tr>
+                        <tr><td>@Test</td><td>O teste em si</td><td>Preparar, agir e verificar</td></tr>
+                        <tr><td>@AfterEach</td><td>Depois de cada teste</td><td>Limpar estado e fechar recursos</td></tr>
+                        <tr><td>@AfterAll</td><td>Uma vez, depois de todos os testes</td><td>Encerrar o que foi aberto no início</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Em herança, a regra de ordem é: os ganchos "antes" da classe-base rodam primeiro e os "depois" dela rodam por último, de forma que a classe-base envolve a classe filha.</p>
+
+            <div class="callout">
+                <p><strong>Boa prática:</strong> nome de teste descreve comportamento, não implementação. <code>deveLancarErroQuandoPercentualPassaDe100</code> diz o que esperar, e quando falhar já indica onde procurar.</p>
+            </div>
+        </section>
+
+        <!-- ========================= ESTÁTICA ========================= -->
+        <section id="estatica">
+            <span class="phase-tag">Inspeção</span>
+            <h2>Análise estática e cobertura</h2>
+            <p>Parte dos problemas pode ser encontrada <strong>sem executar</strong> o código. Os analisadores estáticos, chamados de <em>lint</em>, rodam na IDE, no terminal ou na integração contínua e avisam em tempo real sobre más práticas, bugs prováveis, vulnerabilidades e desvios de formatação. Cada alerta vem com uma explicação do porquê e uma sugestão de correção.</p>
+
+            <div class="two-cols">
+                <div class="info-card">
+                    <span class="tag tag-core">Qualidade</span>
+                    <h4>Lint (análise de problemas)</h4>
+                    <p>Procura <em>code smells</em>, bugs e falhas de segurança. Exemplos de alertas: variável privada nunca usada, captura de exceção genérica em vez de uma específica.</p>
+                    <p><em>SonarLint, PMD, PyLint, ESLint, RuboCop.</em></p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Estilo</span>
+                    <h4>Code style (convenções)</h4>
+                    <p>Garante padrão de escrita e formatação, como camelCase para métodos e documentação obrigatória. Mantém todo o time escrevendo da mesma forma.</p>
+                    <p><em>Checkstyle, StyleCop, Prettier, Black, Reek.</em></p>
+                </div>
+            </div>
+
+            <h3>Cobertura de código</h3>
+            <p>É a métrica que mostra quanto do código foi executado pelos testes. Ajuda a descobrir um <code>if</code> ou uma exceção que nenhum teste exercita. Ela indica o que <em>não</em> foi testado, mas não garante que o que foi testado está bem verificado: cobertura alta com asserts fracos é falsa segurança.</p>
+
+            <h3>Quality gate</h3>
+            <p>Ferramentas como o SonarQube reúnem métricas (code smells, falhas, vulnerabilidades, duplicação, cobertura) e viram um <strong>portão de qualidade</strong> na integração contínua. Se um Pull Request para a branch principal piora alguma dessas métricas, ele é barrado com o motivo. Dá para praticar integrando um projeto do GitHub ao SonarCloud.</p>
+        </section>
+
+        <!-- ========================= DUBLÊS ========================= -->
+        <section id="dubles">
+            <span class="phase-tag">Isolamento</span>
+            <h2>Dublês de teste e Mockito</h2>
+            <p>Um teste unitário deve falhar por causa do código que está sendo testado, não porque o banco de dados caiu. Quando o código depende de algo externo (banco, API REST, outra biblioteca), usamos <strong>dublês</strong>: objetos falsos que se comportam de forma controlada e previsível. Isso permite simular cenários felizes, erros previstos e até reproduzir um defeito visto em produção.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Dublê</th><th>O que faz</th><th>Exemplo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Stub</td><td>Devolve uma resposta fixa e pré-definida</td><td>Um cálculo que sempre retorna 10</td></tr>
+                        <tr><td>Fake</td><td>Implementação simplificada, mas funcional</td><td>Banco de dados em memória</td></tr>
+                        <tr><td>Spy</td><td>Observa e registra como foi chamado</td><td>Contar quantas vezes um método rodou</td></tr>
+                        <tr><td>Mock</td><td>Define o comportamento esperado e verifica as interações</td><td>"Quando receber X, retorne Y"</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>A estratégia que guardei: <strong>testes unitários</strong> usam mocks nas dependências externas, e <strong>testes integrados</strong> usam um fake, como um banco em memória, para ser rápido sem depender de infraestrutura. Tudo isso só funciona porque a classe recebe suas dependências por <strong>injeção de dependência</strong>, por meio de uma interface, e não as cria por conta própria. É a mesma ideia de portas e adaptadores vista em Arquiteturas de Software.</p>
+
+            <p>No Java, a biblioteca de referência é o <strong>Mockito</strong>. Em outras linguagens existem equivalentes (Moq em C#, Sinon.JS em JavaScript, RSpec em Ruby) e algumas já trazem isso embutido, como o <code>unittest.mock</code> do Python. Abaixo, um exemplo em que uma cobrança depende de um gateway de pagamento externo:</p>
+
+            <div class="code-container code-tabs">
+                <div class="code-tab-list" role="tablist" aria-label="Linguagem do exemplo">
+                    <button type="button" class="code-tab active" role="tab" aria-selected="true" data-lang="python">Python</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="java">Java</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="go">Golang</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="clojure">Clojure</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="c">C</button>
+                </div>
+                <div class="code-panel" data-lang="python">
+                    <pre><code class="language-python">from unittest.mock import Mock
+import pytest
+
+
+class Cobranca:
+    def __init__(self, gateway):          # Dependência injetada
+        self.gateway = gateway
+
+    def cobrar(self, valor):
+        if valor &lt;= 0:
+            raise ValueError("Valor deve ser positivo")
+        return "aprovada" if self.gateway.cobrar(valor) else "recusada"
+
+
+def test_deve_aprovar_quando_gateway_autoriza():
+    gateway = Mock()
+    gateway.cobrar.return_value = True            # Define o comportamento (stub)
+
+    assert Cobranca(gateway).cobrar(100) == "aprovada"
+    gateway.cobrar.assert_called_once_with(100)   # Verifica a interação (mock)
+
+
+def test_nao_deve_chamar_gateway_com_valor_invalido():
+    gateway = Mock()
+
+    with pytest.raises(ValueError):
+        Cobranca(gateway).cobrar(0)
+
+    gateway.cobrar.assert_not_called()</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="java" hidden>
+                    <pre><code class="language-java">import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
+
+interface Gateway {
+    boolean cobrar(long centavos);
+}
+
+class Cobranca {
+    private final Gateway gateway;                 // Dependência injetada
+
+    Cobranca(Gateway gateway) {
+        this.gateway = gateway;
+    }
+
+    String cobrar(long centavos) {
+        if (centavos &lt;= 0) {
+            throw new IllegalArgumentException("Valor deve ser positivo");
+        }
+        return gateway.cobrar(centavos) ? "aprovada" : "recusada";
+    }
+}
+
+@ExtendWith(MockitoExtension.class)
+class CobrancaTest {
+
+    @Mock
+    Gateway gateway;
+
+    @Test
+    void deveAprovarQuandoGatewayAutoriza() {
+        when(gateway.cobrar(10_000)).thenReturn(true);       // Define o comportamento
+
+        assertEquals("aprovada", new Cobranca(gateway).cobrar(10_000));
+        verify(gateway, times(1)).cobrar(10_000);            // Verifica a interação
+    }
+
+    @Test
+    void naoDeveChamarGatewayComValorInvalido() {
+        assertThrows(IllegalArgumentException.class,
+                () -&gt; new Cobranca(gateway).cobrar(0));
+
+        verify(gateway, never()).cobrar(anyLong());
+    }
+}</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="go" hidden>
+                    <pre><code class="language-go">package cobranca
+
+import (
+	"errors"
+	"testing"
+)
+
+type Gateway interface {
+	Cobrar(centavos int64) bool
+}
+
+type Cobranca struct {
+	gateway Gateway // Dependência injetada
+}
+
+func (c Cobranca) Cobrar(centavos int64) (string, error) {
+	if centavos &lt;= 0 {
+		return "", errors.New("valor deve ser positivo")
+	}
+	if c.gateway.Cobrar(centavos) {
+		return "aprovada", nil
+	}
+	return "recusada", nil
+}
+
+// Dublê escrito à mão: age como stub (autoriza) e como spy (conta chamadas)
+type gatewaySpy struct {
+	autoriza bool
+	chamadas int
+}
+
+func (g *gatewaySpy) Cobrar(int64) bool {
+	g.chamadas++
+	return g.autoriza
+}
+
+func TestDeveAprovarQuandoGatewayAutoriza(t *testing.T) {
+	gw := &amp;gatewaySpy{autoriza: true}
+
+	got, _ := Cobranca{gw}.Cobrar(10000)
+
+	if got != "aprovada" || gw.chamadas != 1 {
+		t.Errorf("esperava aprovada com 1 chamada, recebi %q com %d", got, gw.chamadas)
+	}
+}
+
+func TestNaoDeveChamarGatewayComValorInvalido(t *testing.T) {
+	gw := &amp;gatewaySpy{}
+
+	_, err := Cobranca{gw}.Cobrar(0)
+
+	if err == nil || gw.chamadas != 0 {
+		t.Errorf("esperava erro sem chamar o gateway (chamadas: %d)", gw.chamadas)
+	}
+}</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="clojure" hidden>
+                    <pre><code class="language-clojure">(ns cobranca.core-test
+  (:require [clojure.test :refer [deftest is]]))
+
+;; O gateway é só uma função recebida como argumento (injeção de dependência)
+(defn cobrar [gateway valor]
+  (when-not (pos? valor)
+    (throw (IllegalArgumentException. "Valor deve ser positivo")))
+  (if (gateway valor) "aprovada" "recusada"))
+
+(deftest aprova-quando-gateway-autoriza
+  (let [chamadas (atom [])
+        gateway  (fn [valor] (swap! chamadas conj valor) true)]   ; stub + spy
+    (is (= "aprovada" (cobrar gateway 10000)))
+    (is (= [10000] @chamadas))))
+
+(deftest nao-chama-gateway-com-valor-invalido
+  (let [chamadas (atom 0)
+        gateway  (fn [_] (swap! chamadas inc) true)]
+    (is (thrown? IllegalArgumentException (cobrar gateway 0)))
+    (is (zero? @chamadas))))</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="c" hidden>
+                    <pre><code class="language-c">#include &lt;assert.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;stddef.h&gt;
+#include &lt;string.h&gt;
+
+/* A dependência é um ponteiro para função, que podemos trocar por um dublê */
+typedef bool (*Gateway)(long centavos, void *contexto);
+
+/* Retorna NULL quando o valor é inválido */
+const char *cobrar(Gateway gateway, void *contexto, long centavos) {
+    if (centavos &lt;= 0) {
+        return NULL;
+    }
+    return gateway(centavos, contexto) ? "aprovada" : "recusada";
+}
+
+/* Dublê: age como stub (autoriza) e como spy (conta chamadas) */
+typedef struct {
+    bool autoriza;
+    int chamadas;
+} GatewayFalso;
+
+static bool gateway_falso(long centavos, void *contexto) {
+    (void)centavos;
+    GatewayFalso *g = contexto;
+    g-&gt;chamadas++;
+    return g-&gt;autoriza;
+}
+
+int main(void) {
+    /* deve aprovar quando o gateway autoriza */
+    GatewayFalso a = {true, 0};
+    assert(strcmp(cobrar(gateway_falso, &amp;a, 10000), "aprovada") == 0);
+    assert(a.chamadas == 1);
+
+    /* não deve chamar o gateway com valor inválido */
+    GatewayFalso b = {true, 0};
+    assert(cobrar(gateway_falso, &amp;b, 0) == NULL);
+    assert(b.chamadas == 0);
+
+    return 0;
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>O que olhar em um teste com mock</h3>
+            <ul>
+                <li><strong>Definir o comportamento:</strong> "ao receber este parâmetro, devolva aquele valor". Se o código chamar com outro valor, o teste falha, porque o comportamento só foi definido para o primeiro. Em casos genéricos usam-se coringas, como <code>anyString()</code> e <code>anyInt()</code>.</li>
+                <li><strong>Verificar interações:</strong> a dependência foi chamada quantas vezes? Em alguns cenários o certo é que nem tenha sido chamada (<code>never</code>).</li>
+                <li><strong>Cenários de exceção:</strong> o mock pode devolver <code>null</code> ou lançar erro, para provar que o código trata a falha corretamente.</li>
+                <li><strong>Reiniciar entre testes:</strong> cada teste começa com mocks limpos para que nenhum estado vaze de um para o outro.</li>
+            </ul>
+        </section>
+
+        <!-- ========================= PIRÂMIDE ========================= -->
+        <section id="piramide">
+            <span class="phase-tag">Estratégia</span>
+            <h2>Pirâmide de testes</h2>
+            <p>Os tipos de teste se organizam em camadas. Quanto mais embaixo, mais rápidos, baratos e numerosos. Quanto mais em cima, mais próximos do uso real, porém mais lentos e frágeis.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 280" role="img" aria-label="Pirâmide de testes com unitários na base, integração no meio e ponta a ponta no topo">
+                    <polygon points="360,20 460,110 260,110" fill="#2a1730" stroke="#e0388f" stroke-width="2"/>
+                    <polygon points="260,110 460,110 560,190 160,190" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                    <polygon points="160,190 560,190 660,270 60,270" fill="#1b1b29" stroke="#6495ED" stroke-width="2"/>
+                    <text x="360" y="85" text-anchor="middle" font-size="14" font-weight="700">E2E</text>
+                    <text x="360" y="155" text-anchor="middle" font-size="14" font-weight="700">Integração</text>
+                    <text x="360" y="236" text-anchor="middle" font-size="14" font-weight="700">Unitários</text>
+
+                    <g font-size="12" class="muted">
+                        <text x="500" y="70" class="muted">Poucos, lentos, fiéis ao uso real</text>
+                        <text x="580" y="155" class="muted">Quantidade média</text>
+                        <text x="20" y="236" class="muted">Muitos, rápidos, isolados</text>
+                    </g>
+                </svg>
+                <figcaption>A base larga concentra a maior parte dos testes, e o topo é reservado para os fluxos mais críticos</figcaption>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tipo</th><th>Foco</th><th>Dependências</th><th>Velocidade</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Unitário</td><td>A menor unidade do código, isolada</td><td>Dublês e mocks</td><td>Muito rápido</td></tr>
+                        <tr><td>Integração</td><td>O código conversando com dependências externas</td><td>Fakes, como banco em memória</td><td>Rápido a moderado</td></tr>
+                        <tr><td>Sistema (E2E)</td><td>A aplicação inteira em execução</td><td>Reais, ou simuladas por ferramentas de API fake</td><td>Mais lento</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>No Maven, dá para separar essas execuções com <strong>profiles</strong>: um perfil roda só os unitários no dia a dia, outro roda os mais pesados na integração contínua, e assim o ciclo de feedback local continua rápido.</p>
+        </section>
+
+        <!-- ========================= INTEGRAÇÃO ========================= -->
+        <section id="integracao">
+            <h2>Testes de integração em APIs REST</h2>
+            <p>A camada do controlador recebe requisições HTTP e conversa com a camada de serviço. Ela pode ser testada de duas formas complementares:</p>
+            <ul>
+                <li><strong>Isolando o controlador:</strong> com mocks no lugar dos serviços, para validar apenas o comportamento dele.</li>
+                <li><strong>Fazendo requisições de verdade:</strong> com uma ferramenta como o <strong>REST-assured</strong> (Java), validando status, cabeçalhos e corpo da resposta, sem precisar de uma ferramenta visual.</li>
+            </ul>
+            <p>Esse estilo de escrita segue o padrão <em>given / when / then</em>: <strong>given</strong> define o que enviar (cabeçalhos, corpo, parâmetros), <strong>when</strong> é a ação (método e caminho) e <strong>then</strong> valida a resposta. Abaixo, dois testes contra uma API pública de exemplo, um GET e um POST:</p>
+
+            <div class="code-container code-tabs">
+                <div class="code-tab-list" role="tablist" aria-label="Linguagem do exemplo">
+                    <button type="button" class="code-tab active" role="tab" aria-selected="true" data-lang="python">Python</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="java">Java</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="go">Golang</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="clojure">Clojure</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="c">C</button>
+                </div>
+                <div class="code-panel" data-lang="python">
+                    <pre><code class="language-python">import requests
+
+BASE = "https://jsonplaceholder.typicode.com"
+
+
+def test_deve_buscar_post_existente():
+    resposta = requests.get(f"{BASE}/posts/1", timeout=10)
+
+    assert resposta.status_code == 200
+    assert resposta.json()["id"] == 1
+
+
+def test_deve_criar_post():
+    corpo = {"title": "foo", "body": "bar", "userId": 1}
+
+    resposta = requests.post(f"{BASE}/posts", json=corpo, timeout=10)
+
+    assert resposta.status_code == 201
+    assert resposta.json()["title"] == "foo"</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="java" hidden>
+                    <pre><code class="language-java">import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+
+class PostsApiTest {
+
+    @BeforeAll
+    static void configurar() {
+        RestAssured.baseURI = "https://jsonplaceholder.typicode.com";
+        // Em CI, o log completo só aparece quando a validação falha
+        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+    }
+
+    @Test
+    void deveBuscarPostExistente() {
+        given()
+        .when()
+            .get("/posts/{id}", 1)
+        .then()
+            .statusCode(200)
+            .body("id", equalTo(1));
+    }
+
+    @Test
+    void deveCriarPost() {
+        given()
+            .contentType(ContentType.JSON)
+            .body("{\"title\": \"foo\", \"body\": \"bar\", \"userId\": 1}")
+        .when()
+            .post("/posts")
+        .then()
+            .statusCode(201)
+            .body("title", equalTo("foo"));
+    }
+}</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="go" hidden>
+                    <pre><code class="language-go">package api
+
+import (
+	"encoding/json"
+	"net/http"
+	"strings"
+	"testing"
+)
+
+const base = "https://jsonplaceholder.typicode.com"
+
+func TestDeveBuscarPostExistente(t *testing.T) {
+	resp, err := http.Get(base + "/posts/1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("esperava 200, recebi %d", resp.StatusCode)
+	}
+	var post struct {
+		ID int `json:"id"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&amp;post); err != nil || post.ID != 1 {
+		t.Errorf("esperava id 1, recebi %d (erro: %v)", post.ID, err)
+	}
+}
+
+func TestDeveCriarPost(t *testing.T) {
+	corpo := strings.NewReader(`{"title": "foo", "body": "bar", "userId": 1}`)
+
+	resp, err := http.Post(base+"/posts", "application/json", corpo)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		t.Errorf("esperava 201, recebi %d", resp.StatusCode)
+	}
+}</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="clojure" hidden>
+                    <pre><code class="language-clojure">(ns posts-api-test
+  (:require [clojure.test :refer [deftest is]]
+            [clj-http.client :as http]))
+
+(def base "https://jsonplaceholder.typicode.com")
+
+(deftest busca-post-existente
+  (let [resposta (http/get (str base "/posts/1") {:as :json})]
+    (is (= 200 (:status resposta)))
+    (is (= 1 (get-in resposta [:body :id])))))
+
+(deftest cria-post
+  (let [resposta (http/post (str base "/posts")
+                            {:form-params  {:title "foo" :body "bar" :userId 1}
+                             :content-type :json
+                             :as           :json})]
+    (is (= 201 (:status resposta)))
+    (is (= "foo" (get-in resposta [:body :title])))))</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="c" hidden>
+                    <pre><code class="language-c">/* Compilar com: gcc api_test.c -o api_test -lcurl */
+#include &lt;assert.h&gt;
+#include &lt;curl/curl.h&gt;
+
+#define BASE "https://jsonplaceholder.typicode.com"
+
+static size_t descartar(char *dados, size_t tamanho, size_t n, void *contexto) {
+    (void)dados; (void)contexto;
+    return tamanho * n;                       /* ignora o corpo da resposta */
+}
+
+/* Faz a requisição (POST se houver json) e devolve o status HTTP */
+static long requisitar(const char *url, const char *json) {
+    CURL *curl = curl_easy_init();
+    struct curl_slist *cabecalhos = NULL;
+    long status = 0;
+
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, descartar);
+    if (json != NULL) {
+        cabecalhos = curl_slist_append(cabecalhos, "Content-Type: application/json");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, cabecalhos);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json);
+    }
+    if (curl_easy_perform(curl) == CURLE_OK) {
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &amp;status);
+    }
+    curl_slist_free_all(cabecalhos);
+    curl_easy_cleanup(curl);
+    return status;
+}
+
+int main(void) {
+    /* deve buscar post existente */
+    assert(requisitar(BASE "/posts/1", NULL) == 200);
+
+    /* deve criar post */
+    assert(requisitar(BASE "/posts",
+                      "{\"title\": \"foo\", \"body\": \"bar\", \"userId\": 1}") == 201);
+    return 0;
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>Pontos que aprendi</h3>
+            <ul>
+                <li><strong>Log só na falha:</strong> durante o desenvolvimento é útil ver requisição e resposta completas, mas na integração contínua o ideal é mostrar o log apenas quando uma validação falha, para manter a saída limpa.</li>
+                <li><strong>Validar por schema:</strong> em vez de conferir campo por campo, é possível validar o corpo da resposta contra um esquema, o que reduz o esforço e garante a estrutura do documento.</li>
+                <li><strong>Explorar antes de automatizar:</strong> ferramentas visuais como o Postman (ou Insomnia, ou o Thunder Client no VS Code) ajudam a entender uma API. Com ambientes e variáveis como <code>baseUrl</code>, a mesma coleção roda contra servidores diferentes.</li>
+                <li><strong>Segurança:</strong> a lista OWASP das falhas mais comuns em APIs é um ótimo roteiro para pensar em cenários de teste negativos.</li>
+            </ul>
+        </section>
+
+        <!-- ========================= BDD ========================= -->
+        <section id="bdd">
+            <span class="phase-tag">Comportamento</span>
+            <h2>BDD, Cucumber e testes de ponta a ponta</h2>
+            <p>O BDD (<em>Behavior-Driven Development</em>) descreve testes na linguagem do negócio, para que analistas, pessoas desenvolvedoras, liderança e gestão falem do mesmo comportamento. A linguagem usada é o <strong>Gherkin</strong>, e a ferramenta mais conhecida que a executa é o <strong>Cucumber</strong>.</p>
+
+            <div class="code-container">
+                <pre><code># language: pt
+Funcionalidade: Login
+  Como usuário do sistema
+  Quero acessar a aplicação
+  Para ter acesso às funcionalidades restritas a usuários logados
+
+  Cenário: Login válido
+    Dado que o usuário tenha uma conta válida
+    Quando efetuar acesso ao sistema
+    Então será possível ter acesso às funcionalidades com login
+
+  Cenário: Login inválido
+    Dado que o usuário não tenha uma conta existente
+    Quando efetuar acesso ao sistema
+    Então uma mensagem de aviso sobre o acesso inválido deve ser apresentada</code></pre>
+            </div>
+            <p>Cada linha do arquivo <code>.feature</code> é ligada a um código de apoio (os <em>steps</em>), que executa a ação por baixo, por exemplo chamando a API com REST-assured. Um executor (<em>runner</em>) integra o Cucumber ao JUnit.</p>
+
+            <h3>Comparação com o teste unitário</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Conceito</th><th>JUnit</th><th>BDD (Cucumber)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Conjunto de testes</td><td>Classe de teste</td><td>Arquivo de funcionalidade (.feature)</td></tr>
+                        <tr><td>Um teste</td><td>Método</td><td>Cenário</td></tr>
+                        <tr><td>Estrutura</td><td>Preparar, Executar, Validar (AAA)</td><td>Dado, Quando, Então</td></tr>
+                        <tr><td>Quem lê</td><td>Quem desenvolve</td><td>Todo o time, inclusive negócio</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Testes E2E e relatórios</h3>
+            <p>No topo da pirâmide, os testes de sistema validam a aplicação inteira em execução, com dependências reais ou simuladas por APIs falsas. O BDD é uma ótima forma de escrevê-los, porque os cenários se parecem com o que o cliente espera ao usar o produto. Para dar visibilidade aos resultados, o <strong>Allure Report</strong> gera relatórios navegáveis da execução, e os profiles do Maven permitem rodar só esse conjunto quando necessário.</p>
+        </section>
+
+        <!-- ========================= APRENDIZADOS ========================= -->
+        <section id="aprendizados">
+            <h2>O que levo daqui</h2>
+            <ul>
+                <li>TDD é uma forma de pensar: o teste é a especificação, e escrevê-lo primeiro obriga a decidir o comportamento antes da implementação.</li>
+                <li>Um bom teste unitário é rápido, isolado e tem nome que descreve o comportamento esperado.</li>
+                <li>Lint, estilo e cobertura encontram problemas antes mesmo de o teste rodar, e o quality gate impede que eles entrem na branch principal.</li>
+                <li>Dublês só funcionam bem quando as dependências são injetadas por interfaces, o que conecta qualidade diretamente com a arquitetura.</li>
+                <li>A pirâmide guia o investimento: muitos testes unitários, alguns de integração e poucos E2E nos fluxos críticos.</li>
+                <li>BDD aproxima negócio e tecnologia ao descrever o comportamento na linguagem do domínio.</li>
+            </ul>
+        </section>
+
+        <!-- ========================= REFERÊNCIAS ========================= -->
+        <section id="referencias">
+            <h2>Para aprofundar</h2>
+            <ul class="references">
+                <li>ANICHE, Maurício. <em>Test-Driven Development: Teste e Design no Mundo Real</em>. Casa do Código, 2014.</li>
+                <li>ANICHE, Maurício. <em>Effective Software Testing: A Developer's Guide</em>. Manning, 2022.</li>
+                <li>FOWLER, Martin. <em>Mocks Aren't Stubs</em>. martinfowler.com</li>
+                <li>FOWLER, Martin. <em>GivenWhenThen</em>. martinfowler.com/bliki</li>
+                <li>Documentação do JUnit 5, do Mockito, do REST-assured e do Cucumber.</li>
+                <li>OWASP. <em>API Security Top 10</em>. owasp.org</li>
+            </ul>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-clojure.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+    <script>
+        document.querySelectorAll('.code-tabs').forEach(function (box) {
+            var tabs = box.querySelectorAll('.code-tab');
+            var panels = box.querySelectorAll('.code-panel');
+            tabs.forEach(function (tab) {
+                tab.addEventListener('click', function () {
+                    tabs.forEach(function (t) {
+                        var on = t === tab;
+                        t.classList.toggle('active', on);
+                        t.setAttribute('aria-selected', on ? 'true' : 'false');
+                    });
+                    panels.forEach(function (p) {
+                        p.hidden = p.dataset.lang !== tab.dataset.lang;
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
