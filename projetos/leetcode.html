@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Estudo de algoritmos e LeetCode da pós-graduação: análise de complexidade, estruturas de dados, estratégias de resolução de problemas e como praticar na plataforma.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <style>
+        /* Gráfico de crescimento de complexidade (paleta categórica validada para fundo escuro) */
+        .viz-root {
+            --s1: #3987e5;
+            --s2: #d95926;
+            --s3: #199e70;
+            --s4: #c98500;
+            --s5: #d55181;
+            --grid: rgba(255, 255, 255, .09);
+            --axis: #b6b6c3;
+            position: relative;
+        }
+        .viz-root svg .grid { stroke: var(--grid); stroke-width: 1; }
+        .viz-root svg .axis-text { fill: var(--axis); font-size: 11px; }
+        .viz-root svg .curve { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .viz-root svg .cursor { stroke: var(--axis); stroke-width: 1; stroke-dasharray: 4 4; }
+        .viz-root svg .dot { stroke: #141420; stroke-width: 2; }
+        .viz-legend { display: flex; flex-wrap: wrap; gap: .6rem 1.8rem; justify-content: center; margin: 1.2rem 0 0; padding: 0; list-style: none; }
+        .viz-legend li { display: inline-flex; align-items: center; gap: .7rem; font-size: 1.3rem; color: var(--color-white-dim); margin: 0; }
+        .viz-legend .swatch { width: 1.8rem; height: 3px; border-radius: 2px; display: inline-block; }
+        .viz-tip {
+            position: absolute; pointer-events: none; display: none; z-index: 5;
+            padding: .8rem 1.2rem; border-radius: 8px; background: #1b1b29; border: 1px solid rgba(255,255,255,.14);
+            font-size: 1.2rem; color: var(--color-white); box-shadow: 0 10px 30px -10px rgba(0,0,0,.8); white-space: nowrap;
+        }
+        .viz-tip b { display: block; margin-bottom: .3rem; }
+        .viz-tip span.k { display: inline-block; width: 1rem; height: 3px; margin-right: .6rem; vertical-align: middle; border-radius: 2px; }
+        .note-small { font-size: 1.25rem; color: var(--color-white-dim); }
+    </style>
+    <title>LeetCode e Algoritmos</title>
+</head>
+<body>
+    <a class="back-link" href="index.html">&larr; Voltar aos projetos</a>
+
+    <header>
+        <h1>LeetCode: Algoritmos e Estruturas de Dados</h1>
+        <p>Arquitetura de Software · Pós-graduação FIAP</p>
+        <span>Estudo contínuo</span>
+    </header>
+
+    <main>
+        <ul class="toc">
+            <li><a href="#algoritmos">O que são algoritmos</a></li>
+            <li><a href="#complexidade">Análise de complexidade</a></li>
+            <li><a href="#estruturas">Estruturas de dados</a></li>
+            <li><a href="#estrategias">Estratégias de resolução</a></li>
+            <li><a href="#leetcode">A plataforma LeetCode</a></li>
+            <li><a href="#metodo">Meu método</a></li>
+            <li><a href="#aprendizados">Aprendizados</a></li>
+        </ul>
+
+        <!-- ========================= ALGORITMOS ========================= -->
+        <section id="algoritmos">
+            <h2>O que são algoritmos</h2>
+            <p class="lead">Um algoritmo é uma sequência finita de instruções bem definidas que resolve um problema. Toda a computação, de um cálculo simples ao reconhecimento facial, é feita de algoritmos.</p>
+            <p>Mesmo com a IA gerando código, entender algoritmos continua essencial. É isso que permite avaliar se uma solução gerada é eficiente e escalável, e escolher conscientemente entre alternativas. Para quem atua em arquitetura, a eficiência de uma solução é uma decisão de projeto, não um detalhe de implementação.</p>
+
+            <h3>Um conceito antigo</h3>
+            <ul>
+                <li>O nome vem de al-Khwarizmi, matemático persa do século IX, autor de um tratado influente sobre cálculo.</li>
+                <li>O algoritmo de Euclides para o máximo divisor comum, de cerca de 300 a.C., é um dos primeiros formalmente descritos e ainda é ensinado.</li>
+                <li>Ada Lovelace escreveu, no século XIX, o primeiro algoritmo pensado para ser executado por uma máquina, a Máquina Analítica de Babbage.</li>
+                <li>No século XX, Alan Turing e John von Neumann estabeleceram as bases teóricas do que pode ser calculado.</li>
+            </ul>
+
+            <h3>Os três desafios de escrever um bom algoritmo</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Tempo e memória</span>
+                    <h4>Eficiência</h4>
+                    <p>Resolver usando o mínimo de recursos. Mais otimização costuma significar mais complexidade de código, então é preciso decidir quando vale a pena.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Sem exceções</span>
+                    <h4>Correção</h4>
+                    <p>Funcionar para toda entrada válida. Como não dá para testar todas, os casos limite e a variedade de tamanhos importam.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Crescimento</span>
+                    <h4>Escalabilidade</h4>
+                    <p>O que funciona com 100 itens pode ser inútil com 100 milhões. O desempenho precisa se manter quando os dados crescem.</p>
+                </div>
+            </div>
+
+            <h3>Como se constrói um algoritmo</h3>
+            <ol>
+                <li><strong>Definir entradas e saídas:</strong> que tipo de dado entra, o que deve sair.</li>
+                <li><strong>Dividir o problema</strong> em subproblemas menores ("dividir para conquistar") e abstrair os detalhes irrelevantes.</li>
+                <li><strong>Escolher as estruturas de dados</strong> adequadas, porque a escolha certa pode transformar uma solução inviável em uma rápida.</li>
+                <li><strong>Analisar a complexidade</strong> de tempo e de espaço antes mesmo de implementar.</li>
+                <li><strong>Escolher a estratégia</strong> de resolução (programação dinâmica, gulosa, backtracking e outras).</li>
+                <li><strong>Verificar e refinar:</strong> testes com casos limite e tamanhos variados, medindo o desempenho.</li>
+            </ol>
+        </section>
+
+        <!-- ========================= COMPLEXIDADE ========================= -->
+        <section id="complexidade">
+            <span class="phase-tag">Análise de algoritmos</span>
+            <h2>Análise de complexidade</h2>
+            <p>Medir segundos em uma máquina depende do hardware. A análise de algoritmos olha para outra coisa: <strong>como o consumo de recursos cresce em relação ao tamanho da entrada</strong>. A notação mais usada é a <strong>Big O</strong>, que descreve esse crescimento no pior caso, tanto para tempo quanto para memória.</p>
+
+            <h3>Um exemplo: buscar em uma lista</h3>
+            <p>A busca linear olha item por item: no pior caso, 5.000 itens significam 5.000 comparações, ou seja, O(n). A busca binária exige a lista ordenada, mas descarta metade dos candidatos a cada passo: no pior caso, 5.000 itens significam cerca de 13 comparações, ou seja, O(log n). Para um bilhão de itens, são cerca de 30.</p>
+
+            <div class="code-container code-tabs">
+                <div class="code-tab-list" role="tablist" aria-label="Linguagem do exemplo">
+                    <button type="button" class="code-tab active" role="tab" aria-selected="true" data-lang="python">Python</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="java">Java</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="go">Golang</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="clojure">Clojure</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="c">C</button>
+                </div>
+                <div class="code-panel" data-lang="python">
+                    <pre><code class="language-python">def busca_linear(lista, alvo):
+    for i, valor in enumerate(lista):          # O(n)
+        if valor == alvo:
+            return i
+    return -1
+
+
+def busca_binaria(lista_ordenada, alvo):       # O(log n): exige lista ordenada
+    baixo, alto = 0, len(lista_ordenada) - 1
+    while baixo &lt;= alto:
+        meio = (baixo + alto) // 2
+        if lista_ordenada[meio] == alvo:
+            return meio
+        if lista_ordenada[meio] &lt; alvo:
+            baixo = meio + 1                   # descarta a metade de baixo
+        else:
+            alto = meio - 1                    # descarta a metade de cima
+    return -1</code></pre>
+                </div>
+                <div class="code-panel" data-lang="java" hidden>
+                    <pre><code class="language-java">class Busca {
+
+    static int linear(int[] v, int alvo) {                // O(n)
+        for (int i = 0; i &lt; v.length; i++) {
+            if (v[i] == alvo) return i;
+        }
+        return -1;
+    }
+
+    static int binaria(int[] ordenado, int alvo) {        // O(log n): exige vetor ordenado
+        int baixo = 0, alto = ordenado.length - 1;
+        while (baixo &lt;= alto) {
+            int meio = baixo + (alto - baixo) / 2;        // evita estouro de int
+            if (ordenado[meio] == alvo) return meio;
+            if (ordenado[meio] &lt; alvo) baixo = meio + 1;
+            else alto = meio - 1;
+        }
+        return -1;
+    }
+}</code></pre>
+                </div>
+                <div class="code-panel" data-lang="go" hidden>
+                    <pre><code class="language-go">func BuscaLinear(v []int, alvo int) int { // O(n)
+	for i, x := range v {
+		if x == alvo {
+			return i
+		}
+	}
+	return -1
+}
+
+func BuscaBinaria(ordenado []int, alvo int) int { // O(log n): exige slice ordenado
+	baixo, alto := 0, len(ordenado)-1
+	for baixo &lt;= alto {
+		meio := baixo + (alto-baixo)/2
+		switch {
+		case ordenado[meio] == alvo:
+			return meio
+		case ordenado[meio] &lt; alvo:
+			baixo = meio + 1
+		default:
+			alto = meio - 1
+		}
+	}
+	return -1
+}</code></pre>
+                </div>
+                <div class="code-panel" data-lang="clojure" hidden>
+                    <pre><code class="language-clojure">(defn busca-linear [v alvo]                       ; O(n)
+  (or (first (keep-indexed (fn [i x] (when (= x alvo) i)) v))
+      -1))                                            ; 0 é verdadeiro em Clojure
+
+(defn busca-binaria [ordenado alvo]                   ; O(log n): exige vetor ordenado
+  (loop [baixo 0, alto (dec (count ordenado))]
+    (if (&gt; baixo alto)
+      -1
+      (let [meio (quot (+ baixo alto) 2)
+            x    (nth ordenado meio)]
+        (cond
+          (= x alvo) meio
+          (&lt; x alvo) (recur (inc meio) alto)
+          :else      (recur baixo (dec meio)))))))</code></pre>
+                </div>
+                <div class="code-panel" data-lang="c" hidden>
+                    <pre><code class="language-c">int busca_linear(const int *v, int n, int alvo) {          /* O(n) */
+    for (int i = 0; i &lt; n; i++) {
+        if (v[i] == alvo) return i;
+    }
+    return -1;
+}
+
+int busca_binaria(const int *ordenado, int n, int alvo) {  /* O(log n): exige vetor ordenado */
+    int baixo = 0, alto = n - 1;
+    while (baixo &lt;= alto) {
+        int meio = baixo + (alto - baixo) / 2;
+        if (ordenado[meio] == alvo) return meio;
+        if (ordenado[meio] &lt; alvo) baixo = meio + 1;
+        else alto = meio - 1;
+    }
+    return -1;
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>As classes de complexidade</h3>
+            <div class="diagram">
+                <div class="viz-root" id="bigo">
+                    <svg id="bigo-svg" viewBox="0 0 720 360" role="img" aria-label="Gráfico do número de operações em função do tamanho da entrada n, para O(1), O(log n), O(n), O(n log n) e O(n²). A curva de O(n²) cresce muito mais rápido que as demais.">
+                    </svg>
+                    <div class="viz-tip" id="bigo-tip"></div>
+                    <ul class="viz-legend" id="bigo-legend"></ul>
+                </div>
+                <figcaption>Operações em função de n (passe o mouse sobre o gráfico). A curva O(n²) sai do quadro perto de n = 10. A tabela abaixo traz os mesmos dados em números, incluindo as classes que nem cabem no gráfico</figcaption>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Classe</th><th>Exemplos típicos</th><th>n = 10</th><th>n = 100</th><th>Veredicto</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>O(1) constante</td><td>Acessar um array por índice, ler uma chave em uma tabela hash</td><td>1</td><td>1</td><td>O ideal: não degrada com o tamanho</td></tr>
+                        <tr><td>O(log n) logarítmica</td><td>Busca binária, operações em árvores de busca balanceadas</td><td>3</td><td>7</td><td>Excelente em grandes volumes</td></tr>
+                        <tr><td>O(n) linear</td><td>Percorrer uma lista, busca linear</td><td>10</td><td>100</td><td>Comum e geralmente aceitável</td></tr>
+                        <tr><td>O(n log n)</td><td>Merge Sort, Heap Sort, Quick Sort (caso médio)</td><td>33</td><td>664</td><td>O melhor para ordenação por comparação</td></tr>
+                        <tr><td>O(n²) quadrática</td><td>Bubble Sort, dois loops aninhados, comparar todos os pares</td><td>100</td><td>10.000</td><td>Serve para poucos dados. Dez vezes mais dados custa cem vezes mais tempo</td></tr>
+                        <tr><td>O(2ⁿ) exponencial</td><td>Fibonacci recursivo ingênuo, gerar todos os subconjuntos</td><td>1.024</td><td>cerca de 1,3 × 10³⁰</td><td>Inviável além de entradas pequenas</td></tr>
+                        <tr><td>O(n!) fatorial</td><td>Gerar todas as permutações, caixeiro-viajante por força bruta</td><td>3.628.800</td><td>cerca de 9 × 10¹⁵⁷</td><td>Quase sempre impraticável</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Para sentir o exponencial:</strong> um algoritmo O(2ⁿ) que leva 1 segundo com 10 elementos leva cerca de 17 minutos com 20, uns 12 dias com 30 e mais de 35 milhões de anos com 60. Por isso transformar uma solução exponencial em polinomial, como veremos com programação dinâmica, é uma das otimizações mais valiosas que existem.</p>
+            </div>
+        </section>
+
+        <!-- ========================= ESTRUTURAS ========================= -->
+        <section id="estruturas">
+            <span class="phase-tag">Matéria-prima</span>
+            <h2>Estruturas de dados</h2>
+            <p>Cada estrutura oferece uma troca (<em>trade-off</em>) diferente entre velocidade de acesso, facilidade de modificação e uso de memória. Escolher a estrutura é, muitas vezes, metade da solução.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Estrutura</th><th>Como funciona</th><th>Pontos fortes</th><th>Usos comuns</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Array (lista)</td><td>Elementos em blocos contíguos de memória, acessados por posição</td><td>Acesso por índice em O(1). Inserir ou remover no meio custa O(n)</td><td>Resultados de consultas, histórico cronológico</td></tr>
+                        <tr><td>Lista ligada</td><td>Nós que guardam o dado e uma referência para o próximo (ou também para o anterior)</td><td>Inserir e remover em O(1) quando já se tem a posição. Acesso por posição custa O(n)</td><td>Playlists, histórico do navegador, editores de texto</td></tr>
+                        <tr><td>Fila (FIFO)</td><td>O primeiro a entrar é o primeiro a sair (enqueue e dequeue)</td><td>Respeita a ordem de chegada</td><td>Requisições de servidor, impressão, busca em largura (BFS)</td></tr>
+                        <tr><td>Pilha (LIFO)</td><td>O último a entrar é o primeiro a sair (push e pop)</td><td>Trabalha sempre com o mais recente</td><td>Desfazer (undo), pilha de chamadas, busca em profundidade (DFS)</td></tr>
+                        <tr><td>Árvore binária</td><td>Hierarquia em que cada nó tem no máximo dois filhos</td><td>Em árvores de busca balanceadas, busca, inserção e remoção em O(log n)</td><td>Índices de banco de dados (B-tree), heaps, compressão (Huffman), árvores de decisão</td></tr>
+                        <tr><td>Grafo</td><td>Vértices ligados por arestas, direcionadas ou não, com ou sem peso</td><td>Modela relações arbitrárias</td><td>Rotas (Dijkstra, A*), redes sociais, dependências entre tarefas</td></tr>
+                        <tr><td>Tabela hash</td><td>Associa chaves únicas a valores por meio de uma função de espalhamento</td><td>Busca, inserção e remoção em O(1) em média, sem ordem</td><td>Dicionários, caches, índices, contagem de ocorrências</td></tr>
+                        <tr><td>Union-Find (conjuntos disjuntos)</td><td>Mantém partições de itens e responde se dois itens estão no mesmo grupo</td><td>Com otimizações, operações em tempo quase constante</td><td>Componentes conexos, agrupamentos</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Um detalhe que costuma confundir:</strong> fila e pilha são mais <em>políticas</em> de ordem de acesso do que estruturas independentes. Podem ser implementadas com arrays ou listas ligadas.</p>
+            </div>
+
+            <h3>Estrutura certa, algoritmo mais rápido</h3>
+            <p>O clássico problema <strong>Two Sum</strong> pede os índices de dois números de um vetor que somam um alvo. A força bruta compara todos os pares: O(n²). Guardando em uma tabela hash os valores já vistos, cada elemento só precisa perguntar "o complemento que eu preciso já apareceu?", e a resposta vem em O(1). O algoritmo cai para O(n), em troca de O(n) de memória extra. Foi o meu primeiro desafio na plataforma (<a href="two-sum.html">página do Two Sum</a>).</p>
+
+            <div class="code-container code-tabs">
+                <div class="code-tab-list" role="tablist" aria-label="Linguagem do exemplo">
+                    <button type="button" class="code-tab active" role="tab" aria-selected="true" data-lang="python">Python</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="java">Java</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="go">Golang</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="clojure">Clojure</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="c">C</button>
+                </div>
+                <div class="code-panel" data-lang="python">
+                    <pre><code class="language-python">def two_sum_forca_bruta(nums, alvo):          # O(n²) tempo, O(1) espaço
+    for i in range(len(nums)):
+        for j in range(i + 1, len(nums)):
+            if nums[i] + nums[j] == alvo:
+                return [i, j]
+    return []
+
+
+def two_sum(nums, alvo):                      # O(n) tempo, O(n) espaço
+    vistos = {}                               # valor -&gt; índice (tabela hash)
+    for i, n in enumerate(nums):
+        complemento = alvo - n
+        if complemento in vistos:             # busca em O(1)
+            return [vistos[complemento], i]
+        vistos[n] = i
+    return []</code></pre>
+                </div>
+                <div class="code-panel" data-lang="java" hidden>
+                    <pre><code class="language-java">import java.util.HashMap;
+import java.util.Map;
+
+class TwoSum {
+
+    static int[] forcaBruta(int[] nums, int alvo) {          // O(n²)
+        for (int i = 0; i &lt; nums.length; i++) {
+            for (int j = i + 1; j &lt; nums.length; j++) {
+                if (nums[i] + nums[j] == alvo) return new int[]{i, j};
+            }
+        }
+        return new int[0];
+    }
+
+    static int[] comHash(int[] nums, int alvo) {             // O(n)
+        Map&lt;Integer, Integer&gt; vistos = new HashMap&lt;&gt;();      // valor -&gt; índice
+        for (int i = 0; i &lt; nums.length; i++) {
+            Integer j = vistos.get(alvo - nums[i]);          // busca em O(1)
+            if (j != null) return new int[]{j, i};
+            vistos.put(nums[i], i);
+        }
+        return new int[0];
+    }
+}</code></pre>
+                </div>
+                <div class="code-panel" data-lang="go" hidden>
+                    <pre><code class="language-go">func TwoSumForcaBruta(nums []int, alvo int) []int { // O(n²)
+	for i := range nums {
+		for j := i + 1; j &lt; len(nums); j++ {
+			if nums[i]+nums[j] == alvo {
+				return []int{i, j}
+			}
+		}
+	}
+	return nil
+}
+
+func TwoSum(nums []int, alvo int) []int { // O(n)
+	vistos := make(map[int]int) // valor -&gt; índice
+	for i, n := range nums {
+		if j, ok := vistos[alvo-n]; ok { // busca em O(1)
+			return []int{j, i}
+		}
+		vistos[n] = i
+	}
+	return nil
+}</code></pre>
+                </div>
+                <div class="code-panel" data-lang="clojure" hidden>
+                    <pre><code class="language-clojure">(defn two-sum-forca-bruta [nums alvo]                        ; O(n²)
+  (first (for [i (range (count nums))
+               j (range (inc i) (count nums))
+               :when (= alvo (+ (nums i) (nums j)))]
+           [i j])))
+
+(defn two-sum [nums alvo]                                    ; O(n)
+  (let [resultado (reduce (fn [vistos [i n]]
+                            (if-let [j (vistos (- alvo n))]  ; busca em O(1)
+                              (reduced [j i])
+                              (assoc vistos n i)))           ; valor -&gt; índice
+                          {}
+                          (map-indexed vector nums))]
+    (if (vector? resultado) resultado [])))</code></pre>
+                </div>
+                <div class="code-panel" data-lang="c" hidden>
+                    <pre><code class="language-c">#include &lt;stdbool.h&gt;
+#include &lt;stdlib.h&gt;
+
+/* O(n²) tempo, O(1) espaço */
+bool two_sum_forca_bruta(const int *nums, int n, int alvo, int r[2]) {
+    for (int i = 0; i &lt; n; i++) {
+        for (int j = i + 1; j &lt; n; j++) {
+            if (nums[i] + nums[j] == alvo) {
+                r[0] = i; r[1] = j;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/* C não traz tabela hash: aqui, uma tabela de endereçamento aberto feita à mão */
+#define TAM 2048                          /* potência de 2, maior que 2n */
+
+typedef struct { bool usado; int chave; int indice; } Entrada;
+
+static unsigned posicao(int chave) {
+    return ((unsigned)chave * 2654435761u) &amp; (TAM - 1);
+}
+
+/* O(n) em média, O(n) de espaço. Supõe n &lt; TAM / 2. */
+bool two_sum(const int *nums, int n, int alvo, int r[2]) {
+    Entrada *tabela = calloc(TAM, sizeof *tabela);
+    bool achou = false;
+
+    for (int i = 0; i &lt; n &amp;&amp; !achou; i++) {
+        int complemento = alvo - nums[i];
+        for (unsigned s = posicao(complemento); tabela[s].usado; s = (s + 1) &amp; (TAM - 1)) {
+            if (tabela[s].chave == complemento) {
+                r[0] = tabela[s].indice; r[1] = i;
+                achou = true;
+                break;
+            }
+        }
+        if (!achou) {
+            unsigned s = posicao(nums[i]);
+            while (tabela[s].usado) s = (s + 1) &amp; (TAM - 1);
+            tabela[s] = (Entrada){true, nums[i], i};
+        }
+    }
+    free(tabela);
+    return achou;
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================= ESTRATÉGIAS ========================= -->
+        <section id="estrategias">
+            <span class="phase-tag">Paradigmas</span>
+            <h2>Estratégias de resolução de problemas</h2>
+            <p>Poucos problemas são realmente novos. Reconhecer a família a que um problema pertence leva a um modelo mental pronto, e esse é o grande ganho de estudar estratégias.</p>
+
+            <h3>Dividir para conquistar</h3>
+            <p>Quebrar o problema em instâncias menores do mesmo tipo, resolver cada uma (em geral de forma recursiva, até um caso base trivial) e <strong>combinar</strong> os resultados. A etapa de combinar costuma ser a mais difícil de analisar. Exemplos: Merge Sort, Quick Sort e o algoritmo de Karatsuba para multiplicar números grandes. Os subproblemas independentes também se prestam bem à execução paralela e distribuída.</p>
+
+            <h3>Programação dinâmica</h3>
+            <p>Para problemas com <strong>subproblemas sobrepostos</strong> e <strong>subestrutura ótima</strong>. Em vez de recalcular o que já foi resolvido, guarda os resultados intermediários, como um cache. Pode ser <em>top-down</em> (recursão com <strong>memoização</strong>) ou <em>bottom-up</em> (<strong>tabulação</strong>, preenchendo uma tabela do menor para o maior). O trabalho principal é achar a relação de recorrência entre os estados. O Fibonacci recursivo ingênuo é O(2ⁿ) porque recalcula os mesmos valores. Com memoização ou tabulação, vira O(n).</p>
+
+            <div class="code-container code-tabs">
+                <div class="code-tab-list" role="tablist" aria-label="Linguagem do exemplo">
+                    <button type="button" class="code-tab active" role="tab" aria-selected="true" data-lang="python">Python</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="java">Java</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="go">Golang</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="clojure">Clojure</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="c">C</button>
+                </div>
+                <div class="code-panel" data-lang="python">
+                    <pre><code class="language-python">from functools import lru_cache
+
+
+def fib_ingenuo(n):                 # O(2^n): recalcula os mesmos subproblemas
+    return n if n &lt; 2 else fib_ingenuo(n - 1) + fib_ingenuo(n - 2)
+
+
+@lru_cache(maxsize=None)
+def fib_memo(n):                    # top-down com memoização: O(n)
+    return n if n &lt; 2 else fib_memo(n - 1) + fib_memo(n - 2)
+
+
+def fib_tabela(n):                  # bottom-up com tabulação: O(n) tempo, O(1) espaço
+    anterior, atual = 0, 1
+    for _ in range(n):
+        anterior, atual = atual, anterior + atual
+    return anterior</code></pre>
+                </div>
+                <div class="code-panel" data-lang="java" hidden>
+                    <pre><code class="language-java">import java.util.HashMap;
+import java.util.Map;
+
+class Fibonacci {
+
+    static long ingenuo(int n) {                              // O(2^n)
+        return n &lt; 2 ? n : ingenuo(n - 1) + ingenuo(n - 2);
+    }
+
+    private static final Map&lt;Integer, Long&gt; memo = new HashMap&lt;&gt;();
+
+    static long memoizado(int n) {                            // top-down: O(n)
+        if (n &lt; 2) return n;
+        Long guardado = memo.get(n);
+        if (guardado != null) return guardado;
+        long resultado = memoizado(n - 1) + memoizado(n - 2);
+        memo.put(n, resultado);
+        return resultado;
+    }
+
+    static long tabulado(int n) {                             // bottom-up: O(n)
+        long anterior = 0, atual = 1;
+        for (int i = 0; i &lt; n; i++) {
+            long proximo = anterior + atual;
+            anterior = atual;
+            atual = proximo;
+        }
+        return anterior;
+    }
+}</code></pre>
+                </div>
+                <div class="code-panel" data-lang="go" hidden>
+                    <pre><code class="language-go">func FibIngenuo(n int) int { // O(2^n)
+	if n &lt; 2 {
+		return n
+	}
+	return FibIngenuo(n-1) + FibIngenuo(n-2)
+}
+
+func FibMemo(n int, memo map[int]int) int { // top-down: O(n)
+	if n &lt; 2 {
+		return n
+	}
+	if v, ok := memo[n]; ok {
+		return v
+	}
+	memo[n] = FibMemo(n-1, memo) + FibMemo(n-2, memo)
+	return memo[n]
+}
+
+func FibTabela(n int) int { // bottom-up: O(n)
+	anterior, atual := 0, 1
+	for i := 0; i &lt; n; i++ {
+		anterior, atual = atual, anterior+atual
+	}
+	return anterior
+}</code></pre>
+                </div>
+                <div class="code-panel" data-lang="clojure" hidden>
+                    <pre><code class="language-clojure">(defn fib-ingenuo [n]                                ; O(2^n)
+  (if (&lt; n 2)
+    n
+    (+' (fib-ingenuo (- n 1)) (fib-ingenuo (- n 2)))))
+
+(def fib-memo                                        ; top-down: O(n)
+  (memoize (fn [n]                                   ; memoize guarda os resultados
+             (if (&lt; n 2)
+               n
+               (+' (fib-memo (- n 1)) (fib-memo (- n 2)))))))
+
+(defn fib-tabela [n]                                 ; bottom-up: O(n)
+  (first (reduce (fn [[a b] _] [b (+' a b)])
+                 [0 1]
+                 (range n))))</code></pre>
+                </div>
+                <div class="code-panel" data-lang="c" hidden>
+                    <pre><code class="language-c">/* O(2^n) */
+unsigned long long fib_ingenuo(int n) {
+    return n &lt; 2 ? n : fib_ingenuo(n - 1) + fib_ingenuo(n - 2);
+}
+
+/* top-down: O(n). 'memo' tem n + 1 posições, inicializadas com 0 */
+unsigned long long fib_memo(int n, unsigned long long *memo) {
+    if (n &lt; 2) return n;
+    if (memo[n] != 0) return memo[n];
+    return memo[n] = fib_memo(n - 1, memo) + fib_memo(n - 2, memo);
+}
+
+/* bottom-up: O(n) */
+unsigned long long fib_tabela(int n) {
+    unsigned long long anterior = 0, atual = 1;
+    for (int i = 0; i &lt; n; i++) {
+        unsigned long long proximo = anterior + atual;
+        anterior = atual;
+        atual = proximo;
+    }
+    return anterior;
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>Algoritmos gulosos (greedy)</h3>
+            <p>A cada passo, escolhem a opção <strong>localmente ótima</strong>, sem reconsiderar, na esperança de chegar ao ótimo global. São simples e rápidos, mas só funcionam quando o problema tem a <em>propriedade da escolha gulosa</em> e subestrutura ótima. Exemplos: Dijkstra, seleção de atividades e troco de moedas.</p>
+
+            <div class="code-container code-tabs">
+                <div class="code-tab-list" role="tablist" aria-label="Linguagem do exemplo">
+                    <button type="button" class="code-tab active" role="tab" aria-selected="true" data-lang="python">Python</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="java">Java</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="go">Golang</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="clojure">Clojure</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="c">C</button>
+                </div>
+                <div class="code-panel" data-lang="python">
+                    <pre><code class="language-python">def troco(valor, moedas=(100, 50, 25, 10, 5, 1)):
+    """Guloso: sempre a maior moeda que ainda cabe. Ótimo para este conjunto de moedas."""
+    resultado = []
+    for moeda in moedas:                    # moedas em ordem decrescente
+        while valor &gt;= moeda:
+            valor -= moeda
+            resultado.append(moeda)
+    return resultado
+
+
+# troco(289) -&gt; [100, 100, 50, 25, 10, 1, 1, 1, 1]</code></pre>
+                </div>
+                <div class="code-panel" data-lang="java" hidden>
+                    <pre><code class="language-java">import java.util.ArrayList;
+import java.util.List;
+
+class Troco {
+
+    // Guloso: sempre a maior moeda que ainda cabe
+    static List&lt;Integer&gt; calcular(int valor) {
+        int[] moedas = {100, 50, 25, 10, 5, 1};      // em ordem decrescente
+        List&lt;Integer&gt; resultado = new ArrayList&lt;&gt;();
+        for (int moeda : moedas) {
+            while (valor &gt;= moeda) {
+                valor -= moeda;
+                resultado.add(moeda);
+            }
+        }
+        return resultado;
+    }
+}</code></pre>
+                </div>
+                <div class="code-panel" data-lang="go" hidden>
+                    <pre><code class="language-go">// Guloso: sempre a maior moeda que ainda cabe
+func Troco(valor int) []int {
+	moedas := []int{100, 50, 25, 10, 5, 1} // em ordem decrescente
+	var resultado []int
+	for _, moeda := range moedas {
+		for valor &gt;= moeda {
+			valor -= moeda
+			resultado = append(resultado, moeda)
+		}
+	}
+	return resultado
+}</code></pre>
+                </div>
+                <div class="code-panel" data-lang="clojure" hidden>
+                    <pre><code class="language-clojure">;; Guloso: sempre a maior moeda que ainda cabe
+(defn troco [valor]
+  (first
+    (reduce (fn [[resultado restante] moeda]
+              (let [qtd (quot restante moeda)]
+                [(into resultado (repeat qtd moeda))
+                 (rem restante moeda)]))
+            [[] valor]
+            [100 50 25 10 5 1])))                ; em ordem decrescente</code></pre>
+                </div>
+                <div class="code-panel" data-lang="c" hidden>
+                    <pre><code class="language-c">/* Guloso: sempre a maior moeda que ainda cabe.
+   Preenche 'saida' com as moedas usadas e devolve a quantidade. */
+int troco(int valor, int *saida) {
+    const int moedas[] = {100, 50, 25, 10, 5, 1};   /* em ordem decrescente */
+    int n = 0;
+    for (int i = 0; i &lt; 6; i++) {
+        while (valor &gt;= moedas[i]) {
+            valor -= moedas[i];
+            saida[n++] = moedas[i];
+        }
+    }
+    return n;
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="callout">
+                <p><strong>Cuidado:</strong> guloso nem sempre é ótimo. No conjunto de moedas {1, 3, 4}, para dar troco de 6 o guloso escolhe 4 + 1 + 1 (três moedas), enquanto a resposta ótima é 3 + 3 (duas). Nesse caso é preciso programação dinâmica. Antes de usar a abordagem gulosa, vale checar se a propriedade vale.</p>
+            </div>
+
+            <h3>Backtracking</h3>
+            <p>Uma força bruta refinada: constrói a solução passo a passo e, quando percebe que o caminho atual não pode dar certo, <strong>desfaz a última escolha</strong> e tenta a próxima alternativa. A <strong>poda</strong> dessa árvore de possibilidades é o que o diferencia da força bruta pura. Serve para problemas combinatórios e de satisfação de restrições: Sudoku, coloração de grafos, permutações e combinações.</p>
+
+            <div class="code-container code-tabs">
+                <div class="code-tab-list" role="tablist" aria-label="Linguagem do exemplo">
+                    <button type="button" class="code-tab active" role="tab" aria-selected="true" data-lang="python">Python</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="java">Java</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="go">Golang</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="clojure">Clojure</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="c">C</button>
+                </div>
+                <div class="code-panel" data-lang="python">
+                    <pre><code class="language-python">def subconjuntos_com_soma(nums, alvo):
+    """Todos os subconjuntos de números positivos que somam 'alvo'."""
+    nums = sorted(nums)
+    resultado = []
+
+    def explorar(inicio, atual, soma):
+        if soma == alvo:
+            resultado.append(list(atual))
+            return
+        for i in range(inicio, len(nums)):
+            if soma + nums[i] &gt; alvo:        # poda: os próximos só aumentam a soma
+                break
+            atual.append(nums[i])            # escolhe
+            explorar(i + 1, atual, soma + nums[i])
+            atual.pop()                      # desfaz (o "passo atrás")
+
+    explorar(0, [], 0)
+    return resultado
+
+
+# subconjuntos_com_soma([2, 3, 5, 7], 10) -&gt; [[2, 3, 5], [3, 7]]</code></pre>
+                </div>
+                <div class="code-panel" data-lang="java" hidden>
+                    <pre><code class="language-java">import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+class Subconjuntos {
+
+    static List&lt;List&lt;Integer&gt;&gt; comSoma(int[] nums, int alvo) {
+        int[] ordenado = nums.clone();
+        Arrays.sort(ordenado);
+        List&lt;List&lt;Integer&gt;&gt; resultado = new ArrayList&lt;&gt;();
+        explorar(ordenado, 0, alvo, new ArrayList&lt;&gt;(), resultado);
+        return resultado;
+    }
+
+    private static void explorar(int[] nums, int inicio, int restante,
+                                 List&lt;Integer&gt; atual, List&lt;List&lt;Integer&gt;&gt; resultado) {
+        if (restante == 0) {
+            resultado.add(new ArrayList&lt;&gt;(atual));
+            return;
+        }
+        for (int i = inicio; i &lt; nums.length; i++) {
+            if (nums[i] &gt; restante) break;           // poda
+            atual.add(nums[i]);                      // escolhe
+            explorar(nums, i + 1, restante - nums[i], atual, resultado);
+            atual.remove(atual.size() - 1);          // desfaz (o "passo atrás")
+        }
+    }
+}</code></pre>
+                </div>
+                <div class="code-panel" data-lang="go" hidden>
+                    <pre><code class="language-go">import "sort"
+
+func SubconjuntosComSoma(nums []int, alvo int) [][]int {
+	ordenado := append([]int(nil), nums...)
+	sort.Ints(ordenado)
+	var resultado [][]int
+	var atual []int
+
+	var explorar func(inicio, restante int)
+	explorar = func(inicio, restante int) {
+		if restante == 0 {
+			resultado = append(resultado, append([]int(nil), atual...))
+			return
+		}
+		for i := inicio; i &lt; len(ordenado); i++ {
+			if ordenado[i] &gt; restante {
+				break // poda
+			}
+			atual = append(atual, ordenado[i]) // escolhe
+			explorar(i+1, restante-ordenado[i])
+			atual = atual[:len(atual)-1] // desfaz (o "passo atrás")
+		}
+	}
+	explorar(0, alvo)
+	return resultado
+}</code></pre>
+                </div>
+                <div class="code-panel" data-lang="clojure" hidden>
+                    <pre><code class="language-clojure">;; Com estruturas imutáveis não há "desfazer": cada chamada recebe sua própria
+;; versão de 'atual', e o passo atrás acontece sozinho ao retornar.
+(defn subconjuntos-com-soma [nums alvo]
+  (let [ordenado (vec (sort nums))]
+    (letfn [(explorar [inicio restante atual]
+              (if (zero? restante)
+                [atual]
+                (mapcat (fn [i]
+                          (let [x (ordenado i)]
+                            (when (&lt;= x restante)             ; poda
+                              (explorar (inc i) (- restante x) (conj atual x)))))
+                        (range inicio (count ordenado)))))]
+      (explorar 0 alvo []))))</code></pre>
+                </div>
+                <div class="code-panel" data-lang="c" hidden>
+                    <pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+static int comparar(const void *a, const void *b) {
+    return *(const int *)a - *(const int *)b;
+}
+
+static void explorar(const int *nums, int n, int inicio, int restante,
+                     int *atual, int tamanho) {
+    if (restante == 0) {
+        for (int i = 0; i &lt; tamanho; i++) printf("%d ", atual[i]);
+        printf("\n");
+        return;
+    }
+    for (int i = inicio; i &lt; n; i++) {
+        if (nums[i] &gt; restante) break;                /* poda */
+        atual[tamanho] = nums[i];                     /* escolhe */
+        explorar(nums, n, i + 1, restante - nums[i], atual, tamanho + 1);
+        /* "desfazer" é só voltar a usar 'tamanho': o valor antigo é sobrescrito */
+    }
+}
+
+/* Imprime cada subconjunto de 'nums' (positivos) que soma 'alvo'. Supõe n &lt;= 64. */
+void subconjuntos_com_soma(int *nums, int n, int alvo) {
+    int atual[64];
+    qsort(nums, n, sizeof *nums, comparar);
+    explorar(nums, n, 0, alvo, atual, 0);
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>Janela deslizante</h3>
+            <p>Mantém uma "janela" de elementos adjacentes que se move pelo array ou pela string, atualizando o resultado de forma incremental em vez de recalcular tudo. A janela pode ter <strong>tamanho fixo</strong> (média móvel, maior soma de k elementos) ou <strong>variável</strong> (menor substring que contém certos caracteres, como no problema Minimum Window Substring). Transforma soluções O(n·k) ou O(n²) em O(n).</p>
+
+            <div class="code-container code-tabs">
+                <div class="code-tab-list" role="tablist" aria-label="Linguagem do exemplo">
+                    <button type="button" class="code-tab active" role="tab" aria-selected="true" data-lang="python">Python</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="java">Java</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="go">Golang</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="clojure">Clojure</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="c">C</button>
+                </div>
+                <div class="code-panel" data-lang="python">
+                    <pre><code class="language-python">def maior_soma_janela(nums, k):
+    """Maior soma de k elementos consecutivos. Supõe len(nums) &gt;= k."""
+    janela = sum(nums[:k])                  # primeira janela
+    melhor = janela
+    for i in range(k, len(nums)):
+        janela += nums[i] - nums[i - k]     # entra um elemento, sai outro
+        melhor = max(melhor, janela)
+    return melhor
+
+
+# maior_soma_janela([2, 1, 5, 1, 3, 2], 3) -&gt; 9   (5 + 1 + 3)</code></pre>
+                </div>
+                <div class="code-panel" data-lang="java" hidden>
+                    <pre><code class="language-java">class JanelaDeslizante {
+
+    // Maior soma de k elementos consecutivos. Supõe nums.length &gt;= k.
+    static long maiorSoma(int[] nums, int k) {
+        long janela = 0;
+        for (int i = 0; i &lt; k; i++) janela += nums[i];     // primeira janela
+        long melhor = janela;
+        for (int i = k; i &lt; nums.length; i++) {
+            janela += nums[i] - nums[i - k];               // entra um, sai outro
+            melhor = Math.max(melhor, janela);
+        }
+        return melhor;
+    }
+}</code></pre>
+                </div>
+                <div class="code-panel" data-lang="go" hidden>
+                    <pre><code class="language-go">// Maior soma de k elementos consecutivos. Supõe len(nums) &gt;= k.
+func MaiorSomaJanela(nums []int, k int) int {
+	janela := 0
+	for _, x := range nums[:k] { // primeira janela
+		janela += x
+	}
+	melhor := janela
+	for i := k; i &lt; len(nums); i++ {
+		janela += nums[i] - nums[i-k] // entra um, sai outro
+		if janela &gt; melhor {
+			melhor = janela
+		}
+	}
+	return melhor
+}</code></pre>
+                </div>
+                <div class="code-panel" data-lang="clojure" hidden>
+                    <pre><code class="language-clojure">;; Maior soma de k elementos consecutivos. Supõe (count nums) &gt;= k.
+(defn maior-soma-janela [nums k]
+  (let [v        (vec nums)
+        inicial  (reduce + (subvec v 0 k))]            ; primeira janela
+    (loop [i k, janela inicial, melhor inicial]
+      (if (= i (count v))
+        melhor
+        (let [nova (+ janela (v i) (- (v (- i k))))]   ; entra um, sai outro
+          (recur (inc i) nova (max melhor nova)))))))</code></pre>
+                </div>
+                <div class="code-panel" data-lang="c" hidden>
+                    <pre><code class="language-c">/* Maior soma de k elementos consecutivos. Supõe n &gt;= k. */
+long maior_soma_janela(const int *nums, int n, int k) {
+    long janela = 0;
+    for (int i = 0; i &lt; k; i++) janela += nums[i];     /* primeira janela */
+    long melhor = janela;
+    for (int i = k; i &lt; n; i++) {
+        janela += nums[i] - nums[i - k];               /* entra um, sai outro */
+        if (janela &gt; melhor) melhor = janela;
+    }
+    return melhor;
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================= LEETCODE ========================= -->
+        <section id="leetcode">
+            <span class="phase-tag">Prática</span>
+            <h2>A plataforma LeetCode</h2>
+            <p>O LeetCode é um ambiente on-line para praticar algoritmos, muito usado na preparação para entrevistas técnicas. Você escreve, testa e submete a solução em várias linguagens e recebe um retorno imediato: ela é executada contra um conjunto de testes e avaliada em <strong>tempo de execução</strong> e <strong>uso de memória</strong>, com comparação com outras soluções enviadas.</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <h4>Problems</h4>
+                    <p>Milhares de problemas em três níveis (fácil, médio e difícil), filtráveis por tópico (arrays, strings, árvores, grafos, programação dinâmica) e por empresas que costumam usá-los. Tem problema do dia, planos de estudo e listas personalizadas.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Explore</h4>
+                    <p>Trilhas de aprendizagem organizadas por assunto, para estudar de forma guiada.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Contest</h4>
+                    <p>Competições cronometradas, semanais e quinzenais, com ranking. Simulam a pressão de uma entrevista.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Discuss</h4>
+                    <p>O fórum. Para cada problema há discussões com abordagens, otimizações e explicações passo a passo da comunidade.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Interview</h4>
+                    <p>Simulações de entrevista, também usadas por algumas empresas em processos seletivos.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Extensão para VS Code</h4>
+                    <p>Dá para resolver os problemas direto do editor, depois de entrar na conta.</p>
+                </div>
+            </div>
+
+            <p>Pode-se submeter mais de uma solução para o mesmo problema. Reenviar uma versão melhor é uma ótima forma de medir se o raciocínio algorítmico está evoluindo, olhando os percentis de tempo e memória.</p>
+        </section>
+
+        <!-- ========================= MÉTODO ========================= -->
+        <section id="metodo">
+            <h2>Meu método para resolver um problema</h2>
+            <p>Um roteiro que junta a teoria acima e que uso como checklist. É uma síntese minha, não uma regra da plataforma.</p>
+
+            <ol>
+                <li><strong>Entender:</strong> entradas, saídas e restrições. O tamanho máximo de n indica a complexidade aceitável: com n até uns 20, até exponencial passa; com n em torno de 10⁵, é preciso O(n log n) ou melhor.</li>
+                <li><strong>Exemplificar:</strong> resolver à mão os exemplos do enunciado e listar casos limite (vazio, um elemento, valores repetidos, negativos).</li>
+                <li><strong>Começar pela força bruta:</strong> uma solução correta, mesmo lenta, serve de referência para testar as otimizações.</li>
+                <li><strong>Otimizar:</strong> perguntar "que estrutura de dados ou estratégia reduz o trabalho repetido?".</li>
+                <li><strong>Implementar e testar</strong> com os exemplos e os casos limite.</li>
+                <li><strong>Declarar a complexidade</strong> de tempo e de espaço.</li>
+                <li><strong>Comparar</strong> com outras soluções e com as discussões, para aprender a abordagem que não ocorreu.</li>
+            </ol>
+
+            <h3>Pistas no enunciado</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Se o problema tem...</th><th>Pense em...</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>"Já vi este valor antes?", contagem de ocorrências, pares</td><td>Tabela hash</td></tr>
+                        <tr><td>Lista ordenada, ou algo que dá para ordenar</td><td>Busca binária, dois ponteiros</td></tr>
+                        <tr><td>Subarray ou substring contíguo</td><td>Janela deslizante</td></tr>
+                        <tr><td>Subproblemas que se repetem, "quantas maneiras", "mínimo/máximo"</td><td>Programação dinâmica</td></tr>
+                        <tr><td>"Todas as combinações / permutações / caminhos"</td><td>Backtracking, com poda</td></tr>
+                        <tr><td>Escolhas locais que parecem ótimas (intervalos, trocos, filas de prioridade)</td><td>Guloso, depois conferir se vale</td></tr>
+                        <tr><td>Relações, redes, dependências, menor caminho</td><td>Grafos, BFS, DFS, Dijkstra</td></tr>
+                        <tr><td>Estrutura hierárquica</td><td>Árvores e recursão</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ========================= APRENDIZADOS ========================= -->
+        <section id="aprendizados">
+            <h2>O que levo daqui</h2>
+            <ul>
+                <li>Um algoritmo não precisa só estar certo: precisa ser eficiente e escalar, e a análise de complexidade é a ferramenta para isso.</li>
+                <li>A estrutura de dados certa muda a classe de complexidade da solução, como o Two Sum mostra com a tabela hash.</li>
+                <li>Estratégias (dividir para conquistar, programação dinâmica, guloso, backtracking, janela deslizante) são modelos mentais que se reconhecem em problemas novos.</li>
+                <li>Complexidade e arquitetura se encontram: escolher entre abordagens com Big O diferente é uma decisão sobre custo e escala do sistema.</li>
+                <li>Praticar de forma contínua, com a força bruta primeiro e a otimização depois, vale mais do que decorar soluções.</li>
+            </ul>
+        </section>
+
+        <!-- ========================= REFERÊNCIAS ========================= -->
+        <section id="referencias">
+            <h2>Para aprofundar</h2>
+            <ul class="references">
+                <li>BHARGAVA, Aditya. <em>Entendendo Algoritmos: Um Guia Ilustrado para Programadores e Outros Curiosos</em>. Novatec, 2017.</li>
+                <li>CORMEN, Thomas; LEISERSON, Charles; RIVEST, Ronald; STEIN, Clifford. <em>Algoritmos: Teoria e Prática</em>. LTC.</li>
+                <li>SEDGEWICK, Robert; WAYNE, Kevin. <em>Algorithms</em>. Addison-Wesley, 2011.</li>
+                <li>SKIENA, Steven. <em>The Algorithm Design Manual</em>. Springer, 2020.</li>
+                <li>LeetCode. leetcode.com</li>
+            </ul>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-clojure.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+    <script>
+        document.querySelectorAll('.code-tabs').forEach(function (box) {
+            var tabs = box.querySelectorAll('.code-tab');
+            var panels = box.querySelectorAll('.code-panel');
+            tabs.forEach(function (tab) {
+                tab.addEventListener('click', function () {
+                    tabs.forEach(function (t) {
+                        var on = t === tab;
+                        t.classList.toggle('active', on);
+                        t.setAttribute('aria-selected', on ? 'true' : 'false');
+                    });
+                    panels.forEach(function (p) {
+                        p.hidden = p.dataset.lang !== tab.dataset.lang;
+                    });
+                });
+            });
+        });
+
+        /* Gráfico de crescimento: operações em função de n */
+        (function () {
+            var NS = 'http://www.w3.org/2000/svg';
+            var svg = document.getElementById('bigo-svg');
+            var tip = document.getElementById('bigo-tip');
+            var legend = document.getElementById('bigo-legend');
+            var root = document.getElementById('bigo');
+            if (!svg) return;
+
+            var W = 720, L = 56, R = 700, T = 16, B = 316, NMAX = 20, YMAX = 100;
+            var series = [
+                { nome: 'O(1)',       cor: 'var(--s1)', f: function () { return 1; } },
+                { nome: 'O(log n)',   cor: 'var(--s2)', f: function (n) { return Math.log2(n); } },
+                { nome: 'O(n)',       cor: 'var(--s3)', f: function (n) { return n; } },
+                { nome: 'O(n log n)', cor: 'var(--s4)', f: function (n) { return n * Math.log2(n); } },
+                { nome: 'O(n²)',      cor: 'var(--s5)', f: function (n) { return n * n; } }
+            ];
+
+            function X(n) { return L + (n - 1) / (NMAX - 1) * (R - L); }
+            function Y(v) { return B - Math.min(v, YMAX * 4) / YMAX * (B - T); }
+            function el(tag, attrs, parent) {
+                var e = document.createElementNS(NS, tag);
+                for (var k in attrs) e.setAttribute(k, attrs[k]);
+                if (parent) parent.appendChild(e);
+                return e;
+            }
+
+            var clip = el('clipPath', { id: 'bigo-clip' }, svg);
+            el('rect', { x: L, y: T, width: R - L, height: B - T }, clip);
+
+            [0, 25, 50, 75, 100].forEach(function (v) {
+                el('line', { x1: L, x2: R, y1: Y(v), y2: Y(v), 'class': 'grid' }, svg);
+                var t = el('text', { x: L - 8, y: Y(v) + 4, 'text-anchor': 'end', 'class': 'axis-text' }, svg);
+                t.textContent = v;
+            });
+            [1, 5, 10, 15, 20].forEach(function (n) {
+                var t = el('text', { x: X(n), y: B + 18, 'text-anchor': 'middle', 'class': 'axis-text' }, svg);
+                t.textContent = n;
+            });
+            var xl = el('text', { x: (L + R) / 2, y: B + 38, 'text-anchor': 'middle', 'class': 'axis-text' }, svg);
+            xl.textContent = 'tamanho da entrada (n)';
+            var yl = el('text', { x: 14, y: (T + B) / 2, 'text-anchor': 'middle', 'class': 'axis-text', transform: 'rotate(-90 14 ' + (T + B) / 2 + ')' }, svg);
+            yl.textContent = 'operações';
+
+            var g = el('g', { 'clip-path': 'url(#bigo-clip)' }, svg);
+            series.forEach(function (s) {
+                var d = '';
+                for (var n = 1; n <= NMAX + 0.001; n += 0.25) {
+                    d += (d ? 'L' : 'M') + X(n).toFixed(1) + ' ' + Y(s.f(n)).toFixed(1);
+                }
+                el('path', { d: d, 'class': 'curve', stroke: s.cor }, g);
+
+                var li = document.createElement('li');
+                li.innerHTML = '<span class="swatch" style="background:' + s.cor + '"></span>' + s.nome;
+                legend.appendChild(li);
+            });
+
+            var cursor = el('line', { y1: T, y2: B, 'class': 'cursor', visibility: 'hidden' }, svg);
+            var dots = series.map(function (s) {
+                return el('circle', { r: 4, fill: s.cor, 'class': 'dot', visibility: 'hidden' }, svg);
+            });
+
+            function fmt(v) { return v >= 100 ? Math.round(v).toString() : v.toFixed(1).replace('.', ','); }
+
+            function show(e) {
+                var rect = svg.getBoundingClientRect();
+                var px = (e.clientX - rect.left) / rect.width * W;
+                var n = Math.max(1, Math.min(NMAX, Math.round(1 + (px - L) / (R - L) * (NMAX - 1))));
+                cursor.setAttribute('x1', X(n)); cursor.setAttribute('x2', X(n));
+                cursor.setAttribute('visibility', 'visible');
+                var html = '<b>n = ' + n + '</b>';
+                series.forEach(function (s, i) {
+                    var v = s.f(n);
+                    var visible = v <= YMAX * 4;
+                    dots[i].setAttribute('cx', X(n)); dots[i].setAttribute('cy', Y(v));
+                    dots[i].setAttribute('visibility', (v <= YMAX) ? 'visible' : 'hidden');
+                    html += '<span class="k" style="background:' + s.cor + '"></span>' + s.nome + ': ' + fmt(v) + '<br>';
+                });
+                tip.innerHTML = html;
+                tip.style.display = 'block';
+                var r2 = root.getBoundingClientRect();
+                var left = e.clientX - r2.left + 14;
+                if (left + tip.offsetWidth > r2.width) left = e.clientX - r2.left - tip.offsetWidth - 14;
+                tip.style.left = Math.max(0, left) + 'px';
+                tip.style.top = '16px';
+            }
+            function hide() {
+                cursor.setAttribute('visibility', 'hidden');
+                dots.forEach(function (d) { d.setAttribute('visibility', 'hidden'); });
+                tip.style.display = 'none';
+            }
+            svg.addEventListener('pointermove', show);
+            svg.addEventListener('pointerleave', hide);
+        })();
+    </script>
+</body>
+</html>

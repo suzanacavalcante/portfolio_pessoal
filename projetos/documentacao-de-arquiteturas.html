@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Estudo de Documentação de Arquiteturas de Soluções da pós-graduação: tipos de documento, HLD e LLD, C4, diagramas de sequência, ADRs, DAS e documentação junto do código.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Documentação de Arquiteturas</title>
+</head>
+<body>
+    <a class="back-link" href="index.html">&larr; Voltar aos projetos</a>
+
+    <header>
+        <h1>Documentação de Arquiteturas de Soluções</h1>
+        <p>Arquitetura de Software · Pós-graduação FIAP</p>
+        <span>Estudo contínuo</span>
+    </header>
+
+    <main>
+        <ul class="toc">
+            <li><a href="#visao-geral">Por que documentar</a></li>
+            <li><a href="#mapa">Mapa dos documentos</a></li>
+            <li><a href="#hld-lld">HLD e LLD</a></li>
+            <li><a href="#c4">C4 como ponte</a></li>
+            <li><a href="#sequencia">Diagrama de sequência</a></li>
+            <li><a href="#requisitos-adr">Requisitos e ADRs</a></li>
+            <li><a href="#das">DAS</a></li>
+            <li><a href="#codigo">Documentação junto do código</a></li>
+            <li><a href="#manutencao">Manter atualizada</a></li>
+            <li><a href="#aprendizados">Aprendizados</a></li>
+        </ul>
+
+        <!-- ========================= POR QUE ========================= -->
+        <section id="visao-geral">
+            <h2>Por que documentar</h2>
+            <p class="lead">Imagine herdar um sistema com anos de existência, vários módulos e integrações, em que quem o escreveu já saiu da empresa e não há nada registrado. Cada mudança vira uma investigação.</p>
+            <p>A documentação de arquitetura é o registro do desenho e das decisões técnicas de um sistema: sua estrutura, componentes, interações e, principalmente, as <strong>motivações</strong> por trás das escolhas. Ela funciona como guia para quem chega, como ponte entre áreas técnicas e não técnicas e como memória do projeto.</p>
+
+            <div class="two-cols">
+                <div class="info-card">
+                    <span class="tag tag-support">Com documentação</span>
+                    <h4>O que se ganha</h4>
+                    <ul>
+                        <li>Visão comum do sistema entre as áreas</li>
+                        <li>Onboarding mais rápido de novas pessoas</li>
+                        <li>Menos retrabalho e menos dependência de "pessoas-chave"</li>
+                        <li>Decisões que podem ser justificadas e revisadas</li>
+                        <li>Conhecimento que sobrevive à rotatividade do time</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-core">Sem documentação</span>
+                    <h4>O que se paga</h4>
+                    <ul>
+                        <li>Engenharia reversa a cada demanda</li>
+                        <li>Bugs corrigidos sem saber as dependências entre módulos</li>
+                        <li>Perda de conhecimento quando alguém sai</li>
+                        <li>Escolhas de tecnologia sem justificativa, difíceis de ajustar</li>
+                        <li>Dependência total de um único fornecedor ou pessoa</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que isso quer dizer na prática:</strong> um arquivo de texto genérico, sem jornadas mapeadas nem visão da integração, não é documentação de arquitetura. Documentar bem é escolher o <em>documento certo</em> para cada pergunta e público.</p>
+            </div>
+        </section>
+
+        <!-- ========================= MAPA ========================= -->
+        <section id="mapa">
+            <h2>Mapa dos documentos</h2>
+            <p>Cada documento responde a uma pergunta diferente. Juntos, cobrem do conceito até a implementação detalhada.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Documento</th><th>Pergunta que responde</th><th>Quando usar</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>ADR</td><td>Por que escolhemos isto e não aquilo?</td><td>Sempre que uma decisão arquitetural relevante é tomada</td></tr>
+                        <tr><td>DAS</td><td>O que foi decidido e quem aprovou?</td><td>Na validação formal do design, antes da implementação</td></tr>
+                        <tr><td>HLD</td><td>Como o sistema se organiza em linhas gerais?</td><td>No início, para alinhar equipe e stakeholders</td></tr>
+                        <tr><td>LLD</td><td>Como cada componente é construído por dentro?</td><td>Depois do HLD, como guia de implementação</td></tr>
+                        <tr><td>Modelo C4</td><td>Como enxergar o sistema em níveis de zoom?</td><td>Em projetos complexos com várias equipes</td></tr>
+                        <tr><td>Requisitos funcionais e não funcionais</td><td>O que o sistema faz e como deve se comportar?</td><td>No levantamento e ao longo dos testes e da operação</td></tr>
+                        <tr><td>Diagrama de sequência</td><td>Como os componentes colaboram em um fluxo?</td><td>No desenho detalhado de funcionalidades críticas</td></tr>
+                        <tr><td>Diagrama de classes</td><td>Quais classes existem e como se relacionam?</td><td>No design detalhado e na implementação</td></tr>
+                        <tr><td>Diagrama de componentes</td><td>Quais são os módulos e suas dependências?</td><td>No design arquitetural e na integração</td></tr>
+                        <tr><td>Modelo de dados</td><td>Como os dados se organizam e se relacionam?</td><td>Na camada de persistência, sobretudo com muito volume</td></tr>
+                        <tr><td>Documentação de API</td><td>Como outras pessoas se integram a esse sistema?</td><td>Sempre atualizada, principalmente em microsserviços</td></tr>
+                        <tr><td>Plano de testes</td><td>Como garantimos que atende aos requisitos?</td><td>Do desenvolvimento à produção</td></tr>
+                        <tr><td>Manual de instalação e configuração</td><td>Como subir o sistema em cada ambiente?</td><td>Para DevOps e administração, mantendo consistência entre ambientes</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ========================= HLD LLD ========================= -->
+        <section id="hld-lld">
+            <span class="phase-tag">Dois níveis de detalhe</span>
+            <h2>HLD e LLD</h2>
+            <p>São documentos complementares: o <strong>High-Level Design</strong> mostra o mapa, e o <strong>Low-Level Design</strong> mostra as plantas de cada cômodo. O HLD costuma vir primeiro, e o LLD nasce dele.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>HLD (alto nível)</th><th>LLD (baixo nível)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Foco</td><td>Estrutura global e como as partes principais se conectam</td><td>Detalhes técnicos de cada componente</td></tr>
+                        <tr><td>Conteúdo</td><td>Objetivo e funcionalidades, diagrama de arquitetura, componentes-chave, requisitos de alto nível</td><td>Fluxos de dados, algoritmos, interfaces, diagramas de classes, de sequência e fluxogramas</td></tr>
+                        <tr><td>Nível de tecnologia</td><td>Fala de tipos de peça (banco de dados, fila, serviço), sem se prender a produto</td><td>Nomeia serviços, tecnologias, linguagens e até fornecedores</td></tr>
+                        <tr><td>Público</td><td>Stakeholders, negócio e time técnico</td><td>Quem vai implementar e manter</td></tr>
+                        <tr><td>Quando</td><td>Início do projeto, para validar a direção</td><td>Antes e durante a implementação</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Exemplo de HLD</h3>
+            <p>Um HLD ilustrativo de uma plataforma de finanças pessoais. Repare que ele mostra tipos de peça e como conversam, sem entrar em detalhes de código.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 330" role="img" aria-label="HLD de exemplo: clientes, gateway de API, serviços, banco de dados, fila e provedor de identidade">
+                    <defs>
+                        <marker id="d1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <g stroke="#b6b6c3" stroke-width="1.5" fill="none" marker-end="url(#d1)">
+                        <line x1="150" y1="165" x2="195" y2="165"/>
+                        <line x1="325" y1="165" x2="372" y2="165"/>
+                        <line x1="525" y1="75" x2="572" y2="75"/>
+                        <line x1="525" y1="165" x2="572" y2="165"/>
+                        <line x1="525" y1="255" x2="572" y2="255"/>
+                        <line x1="260" y1="125" x2="260" y2="78"/>
+                    </g>
+                    <g font-size="13" font-weight="700">
+                        <rect x="15" y="105" width="135" height="120" rx="12" fill="#1b1b29" stroke="#6495ED" stroke-width="2"/>
+                        <text x="82" y="150" text-anchor="middle">Clientes</text>
+                        <text x="82" y="170" text-anchor="middle" font-size="11" class="muted">web e mobile</text>
+
+                        <rect x="195" y="125" width="130" height="80" rx="12" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="260" y="160" text-anchor="middle">API Gateway</text>
+                        <text x="260" y="180" text-anchor="middle" font-size="11" class="muted">ponto de entrada</text>
+
+                        <rect x="195" y="25" width="130" height="53" rx="12" fill="#1b1b29" stroke="#b6b6c3" stroke-width="2" stroke-dasharray="6 4"/>
+                        <text x="260" y="48" text-anchor="middle" font-size="12">Provedor de</text>
+                        <text x="260" y="65" text-anchor="middle" font-size="12">identidade</text>
+
+                        <rect x="372" y="25" width="153" height="100" rx="12" fill="#1b1b29" stroke="#e0388f" stroke-width="2"/>
+                        <text x="448" y="70" text-anchor="middle">Serviço de</text>
+                        <text x="448" y="88" text-anchor="middle">Lançamentos</text>
+
+                        <rect x="372" y="125" width="153" height="80" rx="12" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="448" y="170" text-anchor="middle">Serviço de Metas</text>
+
+                        <rect x="372" y="215" width="153" height="80" rx="12" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="448" y="260" text-anchor="middle">Relatórios</text>
+
+                        <rect x="572" y="45" width="135" height="60" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="640" y="80" text-anchor="middle">Banco de dados</text>
+                        <rect x="572" y="135" width="135" height="60" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="640" y="170" text-anchor="middle">Fila de eventos</text>
+                        <rect x="572" y="225" width="135" height="60" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="640" y="250" text-anchor="middle">Armazém de</text>
+                        <text x="640" y="268" text-anchor="middle">dados analíticos</text>
+                    </g>
+                </svg>
+                <figcaption>HLD ilustrativo: blocos e conexões, sem classes, métodos ou detalhes de implantação</figcaption>
+            </div>
+
+            <h3>Boas práticas</h3>
+            <ul>
+                <li><strong>HLD:</strong> incluir só os aspectos mais críticos, descrever cada componente com clareza e validar com o time técnico e com os stakeholders. Revisitá-lo durante o desenvolvimento para garantir que a implementação segue o desenho.</li>
+                <li><strong>LLD:</strong> organizar de forma lógica, com diagramas detalhados (classes, fluxos de processo) e padrões específicos de implementação. Em times ágeis, pode ser mais enxuto e evoluir por demanda.</li>
+                <li><strong>Os dois:</strong> revisar e atualizar sempre que o projeto muda. Documentação desatualizada engana mais do que ajuda.</li>
+            </ul>
+        </section>
+
+        <!-- ========================= C4 ========================= -->
+        <section id="c4">
+            <h2>C4 como ponte entre os dois</h2>
+            <p>O modelo C4 (Contexto, Contêiner, Componente e Código) faz a transição gradual entre a visão ampla do HLD e os detalhes do LLD, em níveis de zoom que cada público escolhe. Uma equipe de vendas apresentando o sistema a um cliente usa o diagrama de Contexto. Quem desenvolve usa Contêiner e Componente.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 190" role="img" aria-label="Comparação entre HLD, C4 e LLD">
+                    <g font-size="13" font-weight="700">
+                        <text x="70" y="45" text-anchor="middle">HLD</text>
+                        <text x="70" y="102" text-anchor="middle">C4</text>
+                        <text x="70" y="160" text-anchor="middle">LLD</text>
+
+                        <rect x="150" y="22" width="285" height="36" rx="10" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="292" y="45" text-anchor="middle" font-weight="600" font-size="12">visão geral e blocos principais</text>
+
+                        <rect x="440" y="140" width="260" height="36" rx="10" fill="#1b1b29" stroke="#e0388f" stroke-width="2"/>
+                        <text x="570" y="163" text-anchor="middle" font-weight="600" font-size="12">detalhes de implementação</text>
+                    </g>
+                    <g font-size="12" font-weight="600">
+                        <rect x="150" y="82" width="135" height="36" rx="8" fill="#201a33" stroke="#a768f0"/>
+                        <text x="217" y="105" text-anchor="middle">Contexto</text>
+                        <rect x="295" y="82" width="135" height="36" rx="8" fill="#201a33" stroke="#a768f0"/>
+                        <text x="362" y="105" text-anchor="middle">Contêiner</text>
+                        <rect x="440" y="82" width="135" height="36" rx="8" fill="#201a33" stroke="#a768f0"/>
+                        <text x="507" y="105" text-anchor="middle">Componente</text>
+                        <rect x="585" y="82" width="115" height="36" rx="8" fill="#201a33" stroke="#a768f0" stroke-dasharray="5 3"/>
+                        <text x="642" y="105" text-anchor="middle">Código</text>
+                    </g>
+                    <text x="425" y="187" text-anchor="middle" font-size="11" class="muted">do mais amplo ao mais detalhado</text>
+                </svg>
+                <figcaption>Contexto fica próximo do HLD, Componente e Código se aproximam do LLD, e Contêiner é o degrau intermediário</figcaption>
+            </div>
+
+            <p>O C4 também tem o diagrama de <strong>System Landscape</strong> (todos os sistemas de uma organização) e se estende a diagramas de implantação. Detalhei os quatro níveis, as perguntas que cada um responde e as dicas de uso na página <a href="arquiteturas-de-software.html#c4">Arquiteturas de Software</a>.</p>
+        </section>
+
+        <!-- ========================= SEQUÊNCIA ========================= -->
+        <section id="sequencia">
+            <h2>Diagrama de sequência</h2>
+            <p>Mostra como componentes ou objetos colaboram <strong>ao longo do tempo</strong> para realizar uma funcionalidade. É a peça do LLD que revela o fluxo de chamadas e respostas, e ajuda a enxergar gargalos e pontos de falha antes de escrever código. A regra é focar nas interações importantes e dar identificadores claros, sem poluir o desenho.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 360" role="img" aria-label="Diagrama de sequência do registro de um lançamento entre usuário, aplicação web, API, serviço de lançamentos e banco de dados">
+                    <defs>
+                        <marker id="q1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#f5f5f7"/>
+                        </marker>
+                    </defs>
+                    <g font-size="12" font-weight="700">
+                        <rect x="10" y="10" width="110" height="34" rx="8" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="65" y="32" text-anchor="middle">Usuário</text>
+                        <rect x="150" y="10" width="110" height="34" rx="8" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="205" y="32" text-anchor="middle">App web</text>
+                        <rect x="290" y="10" width="110" height="34" rx="8" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="345" y="32" text-anchor="middle">API</text>
+                        <rect x="430" y="10" width="140" height="34" rx="8" fill="#1b1b29" stroke="#e0388f" stroke-width="2"/>
+                        <text x="500" y="32" text-anchor="middle">Svc Lançamentos</text>
+                        <rect x="600" y="10" width="110" height="34" rx="8" fill="#1b1b29" stroke="#6495ED" stroke-width="2"/>
+                        <text x="655" y="32" text-anchor="middle">Banco de dados</text>
+                    </g>
+                    <g stroke="#b6b6c3" stroke-width="1" stroke-dasharray="4 4">
+                        <line x1="65" y1="44" x2="65" y2="345"/>
+                        <line x1="205" y1="44" x2="205" y2="345"/>
+                        <line x1="345" y1="44" x2="345" y2="345"/>
+                        <line x1="500" y1="44" x2="500" y2="345"/>
+                        <line x1="655" y1="44" x2="655" y2="345"/>
+                    </g>
+                    <g stroke="#f5f5f7" stroke-width="1.5" fill="none" marker-end="url(#q1)">
+                        <line x1="65" y1="80" x2="203" y2="80"/>
+                        <line x1="205" y1="120" x2="343" y2="120"/>
+                        <line x1="345" y1="160" x2="498" y2="160"/>
+                        <line x1="500" y1="200" x2="653" y2="200"/>
+                    </g>
+                    <g stroke="#b6b6c3" stroke-width="1.5" stroke-dasharray="6 4" fill="none" marker-end="url(#q1)">
+                        <line x1="655" y1="240" x2="502" y2="240"/>
+                        <line x1="500" y1="280" x2="347" y2="280"/>
+                        <line x1="345" y1="320" x2="207" y2="320"/>
+                    </g>
+                    <g font-size="11">
+                        <text x="135" y="72" text-anchor="middle">1. registrar lançamento</text>
+                        <text x="275" y="112" text-anchor="middle">2. POST /lancamentos</text>
+                        <text x="422" y="152" text-anchor="middle">3. validar e registrar</text>
+                        <text x="577" y="192" text-anchor="middle">4. INSERT</text>
+                        <text x="577" y="232" text-anchor="middle">5. ok</text>
+                        <text x="422" y="272" text-anchor="middle">6. lançamento criado</text>
+                        <text x="275" y="312" text-anchor="middle">7. 201 Created</text>
+                    </g>
+                </svg>
+                <figcaption>Setas contínuas são chamadas e tracejadas são respostas. O tempo corre de cima para baixo</figcaption>
+            </div>
+
+            <h3>Diagrama como texto</h3>
+            <p>Diagramas também podem ser escritos como texto (PlantUML, Mermaid e semelhantes), versionados junto do código e revisados em Pull Request, em vez de ficarem presos em uma imagem que ninguém consegue editar. O mesmo fluxo acima em PlantUML:</p>
+
+            <div class="code-container">
+                <pre><code>@startuml
+actor Usuário
+participant "App web" as App
+participant API
+participant "Serviço de Lançamentos" as Svc
+database "Banco de dados" as DB
+
+Usuário -&gt; App: registrar lançamento
+App -&gt; API: POST /lancamentos
+API -&gt; Svc: validar e registrar
+Svc -&gt; DB: INSERT
+DB --&gt; Svc: ok
+Svc --&gt; API: lançamento criado
+API --&gt; App: 201 Created
+@enduml</code></pre>
+            </div>
+        </section>
+
+        <!-- ========================= REQUISITOS E ADR ========================= -->
+        <section id="requisitos-adr">
+            <h2>Requisitos e ADRs na documentação</h2>
+
+            <h3>Requisitos funcionais e não funcionais</h3>
+            <p>São a base de tudo: os funcionais dizem <em>o que</em> o sistema faz, os não funcionais dizem <em>como</em> ele se comporta (desempenho, segurança, escalabilidade, disponibilidade, manutenibilidade). Na documentação, ajudam a definir os critérios dos testes e orientam as escolhas técnicas. Boas práticas: lista clara e objetiva, validação com stakeholders, organização por prioridade e uso de templates padronizados. A construção hoje é colaborativa, e quem arquiteta a solução faz a ponte entre o negócio e a técnica. Mais detalhes, com MoSCoW e rastreabilidade, estão em <a href="arquiteturas-de-software.html#requisitos">Arquiteturas de Software</a>.</p>
+
+            <h3>ADR: o "porquê" das decisões</h3>
+            <p>A ADR registra uma decisão significativa com seu contexto e consequências, tem um status no ciclo de vida e, depois de aceita, fica imutável: para mudar, cria-se outra que a substitui. O conjunto forma o <strong>log de decisões</strong> do projeto. A estrutura tem quatro blocos (contexto, decisão, consequências e alternativas), e os status possíveis são proposta, aceita, depreciada, substituída e rejeitada. O processo completo, e quando <em>não</em> usar, está em <a href="arquiteturas-de-software.html#decisoes">Arquiteturas de Software</a>. Mais um exemplo ilustrativo:</p>
+
+            <div class="code-container">
+                <pre><code>ADR-012: Usar busca textual do PostgreSQL em vez de um mecanismo dedicado
+Data: 13/11/2026
+Status: Aceita
+
+Contexto
+A busca de lançamentos por descrição precisa ser rápida, mas o volume
+esperado no primeiro ano é pequeno e o time é enxuto. Já operamos
+PostgreSQL em produção e não queremos um novo componente para manter.
+
+Decisão
+Usaremos os recursos de busca textual nativos do PostgreSQL, atrás
+de uma interface de repositório que permita trocar a implementação.
+
+Consequências
+(+) Sem nova infraestrutura nem sincronização de dados.
+(-) Menos recursos de relevância e de tolerância a erros de digitação.
+(-) Se o volume crescer muito, será preciso reavaliar esta decisão.
+
+Alternativas consideradas
+Elasticsearch: poderoso, mas custo operacional alto para o cenário atual.
+Busca no cliente: inviável com a quantidade de dados esperada.</code></pre>
+            </div>
+        </section>
+
+        <!-- ========================= DAS ========================= -->
+        <section id="das">
+            <span class="phase-tag">Consolidação</span>
+            <h2>DAS: Design Approval Sheet</h2>
+            <p>É o documento mestre que reúne e formaliza as decisões de arquitetura de um projeto para <strong>validação e aprovação</strong> pelos stakeholders. Funciona como um marco: todos concordam com a direção do design antes de seguir para a implementação. Pode ser revisitado depois para confirmar se as escolhas continuam alinhadas aos objetivos.</p>
+
+            <p>Onde os outros documentos cobrem um aspecto (o desenho, as decisões, os requisitos), o DAS os organiza em um só lugar, com referência a cada um. É especialmente útil em projetos com várias equipes, em que vira uma ponte de comunicação e alinha expectativas.</p>
+
+            <h3>Estrutura</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>#</th><th>Seção</th><th>O que contém</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td>Identificação</td><td>Título, versão, data de criação e identificador único, para controle de revisões</td></tr>
+                        <tr><td>2</td><td>Contexto</td><td>Circunstâncias, restrições e justificativas, ou seja, o "porquê" das decisões</td></tr>
+                        <tr><td>3</td><td>Requisitos e restrições</td><td>Funcionais e não funcionais, com os limites a respeitar</td></tr>
+                        <tr><td>4</td><td>Diagramas de arquitetura</td><td>Contexto, contêineres e componentes (C4), mais sequência e implantação onde ajudarem</td></tr>
+                        <tr><td>5</td><td>ADRs</td><td>Cada decisão técnica importante, com contexto, alternativas, justificativas e consequências</td></tr>
+                        <tr><td>6</td><td>Plano de testes e monitoramento</td><td>Tipos de teste (unitário, integração, carga), ferramentas e métricas de monitoramento</td></tr>
+                        <tr><td>7</td><td>Modelo de dados</td><td>Diagrama de entidade-relacionamento, com tabelas e relacionamentos</td></tr>
+                        <tr><td>8</td><td>Documentação de API</td><td>Endpoints, métodos, parâmetros, cabeçalhos e exemplos de resposta</td></tr>
+                        <tr><td>9</td><td>Implantação e configuração</td><td>Diagrama de infraestrutura e instruções de instalação</td></tr>
+                        <tr><td>10</td><td>Continuidade e backup</td><td>Como o sistema segue operando em falhas e as rotinas de backup (para sistemas críticos)</td></tr>
+                        <tr><td>11</td><td>Segurança e compliance</td><td>Autenticação, controle de acesso, criptografia e conformidade (LGPD, GDPR, PCI DSS)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Esqueleto para preencher</h3>
+            <div class="code-container">
+                <pre><code>DESIGN APPROVAL SHEET (DAS)
+Projeto: [nome]        Versão: [x.y]
+Data: [dd/mm/aaaa]     Identificador: [DAS-000]
+
+1. Contexto
+   Panorama, objetivos e valor do sistema para usuários e empresa.
+
+2. Requisitos
+   Funcionais:     [o que o sistema oferece]
+   Não funcionais: [desempenho, segurança, disponibilidade, ...]
+
+3. Arquitetura e tecnologias
+   [front-end, back-end, banco, autenticação, infraestrutura]
+   Justificativa de cada escolha: [...]
+
+4. Diagramas
+   C1 Contexto · C2 Contêineres · C3 Componentes · Sequência · Implantação
+
+5. Restrições e decisões técnicas
+   [limitações e ADRs relacionadas: ADR-001, ADR-002, ...]
+
+6. Testes e monitoramento · 7. Modelo de dados · 8. API
+9. Implantação · 10. Continuidade e backup · 11. Segurança e compliance
+
+Aprovações
+   [nome / papel / data / ok]</code></pre>
+            </div>
+
+            <h3>Governança, benefícios e desafios</h3>
+            <div class="two-cols">
+                <div class="info-card">
+                    <span class="tag tag-support">Vantagens</span>
+                    <ul>
+                        <li>Transparência e rastreabilidade das decisões</li>
+                        <li>Consistência: todo o time na mesma direção</li>
+                        <li>Menos reuniões só para realinhar</li>
+                        <li>Controle de conformidade com políticas e normas da organização</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-core">Desafios</span>
+                    <ul>
+                        <li>Dá trabalho documentar e justificar cada decisão</li>
+                        <li>Pode encontrar resistência à formalização</li>
+                        <li>Em projeto pequeno, formalidade demais pesa mais do que ajuda</li>
+                        <li>Precisa ser monitorado e atualizado, ou vira registro morto</li>
+                    </ul>
+                </div>
+            </div>
+            <p>Para criar e guardar, servem ferramentas colaborativas como Confluence, Google Docs e Word, de preferência com <em>templates</em> padronizados e integrados às ADRs.</p>
+        </section>
+
+        <!-- ========================= CÓDIGO ========================= -->
+        <section id="codigo">
+            <span class="phase-tag">Documentação viva</span>
+            <h2>Documentação junto do código</h2>
+            <p>A documentação que mais envelhece é a que mora longe do código. A abordagem <em>docs as code</em> aproxima as duas: texto em formatos versionados, guardado no mesmo repositório e revisado nas mesmas Pull Requests. No nível mais detalhado, o do LLD e da documentação de API, o próprio código carrega a documentação em comentários estruturados, de onde ferramentas geram páginas navegáveis.</p>
+
+            <p>A mesma função de transferência entre contas, documentada na convenção de cada linguagem:</p>
+
+            <div class="code-container code-tabs">
+                <div class="code-tab-list" role="tablist" aria-label="Linguagem do exemplo">
+                    <button type="button" class="code-tab active" role="tab" aria-selected="true" data-lang="python">Python</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="java">Java</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="go">Golang</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="clojure">Clojure</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="c">C</button>
+                </div>
+                <div class="code-panel" data-lang="python">
+                    <pre><code class="language-python">from dataclasses import dataclass
+
+
+@dataclass
+class Conta:
+    """Conta com saldo em centavos."""
+    saldo: int = 0
+
+
+def transferir(origem: Conta, destino: Conta, valor: int) -&gt; None:
+    """Transfere um valor entre duas contas.
+
+    Args:
+        origem: conta que será debitada.
+        destino: conta que será creditada.
+        valor: valor positivo a transferir, em centavos.
+
+    Raises:
+        ValueError: se o valor não for positivo.
+        RuntimeError: se a conta de origem não tiver saldo suficiente.
+    """
+    if valor &lt;= 0:
+        raise ValueError("O valor deve ser positivo")
+    if origem.saldo &lt; valor:
+        raise RuntimeError("Saldo insuficiente")
+    origem.saldo -= valor
+    destino.saldo += valor</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="java" hidden>
+                    <pre><code class="language-java">class Conta {
+    long saldo;                 // em centavos
+}
+
+class Transferencias {
+
+    /**
+     * Transfere um valor entre duas contas.
+     *
+     * @param origem  conta que será debitada
+     * @param destino conta que será creditada
+     * @param valor   valor positivo a transferir, em centavos
+     * @throws IllegalArgumentException se o valor não for positivo
+     * @throws IllegalStateException    se a origem não tiver saldo suficiente
+     */
+    static void transferir(Conta origem, Conta destino, long valor) {
+        if (valor &lt;= 0) {
+            throw new IllegalArgumentException("O valor deve ser positivo");
+        }
+        if (origem.saldo &lt; valor) {
+            throw new IllegalStateException("Saldo insuficiente");
+        }
+        origem.saldo -= valor;
+        destino.saldo += valor;
+    }
+}</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="go" hidden>
+                    <pre><code class="language-go">package conta
+
+import "errors"
+
+var (
+	ErrValorInvalido     = errors.New("o valor deve ser positivo")
+	ErrSaldoInsuficiente = errors.New("saldo insuficiente")
+)
+
+// Conta guarda o saldo em centavos.
+type Conta struct {
+	Saldo int64
+}
+
+// Transferir move um valor, em centavos, da conta de origem para a de destino.
+//
+// Retorna ErrValorInvalido se valor não for positivo e ErrSaldoInsuficiente
+// se a origem não tiver saldo suficiente. Em caso de erro, nenhuma das
+// contas é alterada.
+func Transferir(origem, destino *Conta, valor int64) error {
+	if valor &lt;= 0 {
+		return ErrValorInvalido
+	}
+	if origem.Saldo &lt; valor {
+		return ErrSaldoInsuficiente
+	}
+	origem.Saldo -= valor
+	destino.Saldo += valor
+	return nil
+}</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="clojure" hidden>
+                    <pre><code class="language-clojure">(defn transferir
+  "Transfere `valor` (em centavos) da conta `origem` para a conta `destino`.
+
+  Devolve um vetor [origem' destino'] com as novas versões das contas;
+  as contas originais não são alteradas.
+  Lança ex-info se o valor não for positivo ou se faltar saldo."
+  [origem destino valor]
+  (when-not (pos? valor)
+    (throw (ex-info "O valor deve ser positivo" {:valor valor})))
+  (when (&lt; (:saldo origem) valor)
+    (throw (ex-info "Saldo insuficiente" {:saldo (:saldo origem) :valor valor})))
+  [(update origem :saldo - valor)
+   (update destino :saldo + valor)])</code></pre>
+                </div>
+
+                <div class="code-panel" data-lang="c" hidden>
+                    <pre><code class="language-c">typedef struct {
+    long saldo;                 /* em centavos */
+} Conta;
+
+/**
+ * @brief Transfere um valor entre duas contas.
+ *
+ * @param origem  conta que será debitada.
+ * @param destino conta que será creditada.
+ * @param valor   valor positivo a transferir, em centavos.
+ * @return 0 em caso de sucesso, -1 se o valor não for positivo
+ *         e -2 se a origem não tiver saldo suficiente.
+ */
+int transferir(Conta *origem, Conta *destino, long valor) {
+    if (valor &lt;= 0) return -1;
+    if (origem-&gt;saldo &lt; valor) return -2;
+    origem-&gt;saldo -= valor;
+    destino-&gt;saldo += valor;
+    return 0;
+}</code></pre>
+                </div>
+            </div>
+
+            <p>Cada convenção alimenta uma ferramenta de geração: <code>pydoc</code> ou Sphinx (Python), <code>javadoc</code> (Java), <code>go doc</code> e pkg.go.dev (Go), codox ou cljdoc (Clojure) e Doxygen (C). Como a documentação fica ao lado do código, quem altera a função vê o comentário e tem a chance de atualizá-lo.</p>
+
+            <h3>Documentação de API</h3>
+            <p>Para APIs HTTP, a documentação precisa listar endpoints, métodos, parâmetros, cabeçalhos e exemplos de resposta, e ficar sempre em dia, principalmente em arquiteturas de microsserviços. Um padrão muito usado é a especificação OpenAPI, escrita em texto e usada para gerar páginas e validar contratos:</p>
+
+            <div class="code-container">
+                <pre><code>openapi: 3.0.3
+info:
+  title: API de Lançamentos
+  version: 1.0.0
+paths:
+  /lancamentos:
+    post:
+      summary: Registra um lançamento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [descricao, valor]
+              properties:
+                descricao: { type: string }
+                valor:     { type: integer, description: "Valor em centavos" }
+      responses:
+        "201":
+          description: Lançamento criado
+        "400":
+          description: Dados inválidos</code></pre>
+            </div>
+        </section>
+
+        <!-- ========================= MANUTENÇÃO ========================= -->
+        <section id="manutencao">
+            <h2>Manter a documentação viva</h2>
+            <p>Escrever é a parte fácil. O difícil é manter útil ao longo do tempo. Algumas práticas que reuni:</p>
+            <ul>
+                <li><strong>Escolher o documento pelo público e pela pergunta:</strong> o C4 de Contexto para o negócio, o diagrama de sequência para quem vai implementar.</li>
+                <li><strong>Centralizar e organizar:</strong> um lugar único, acessível a todo o time, com estrutura de pastas por tema ou componente.</li>
+                <li><strong>Padronizar com templates:</strong> acelera o preenchimento e facilita a leitura por quem chega.</li>
+                <li><strong>Revisar junto da mudança:</strong> se o desenho muda, a documentação muda na mesma entrega, de preferência na mesma Pull Request.</li>
+                <li><strong>Ser enxuto:</strong> o suficiente para orientar, sem registrar cada detalhe trivial. Excesso vira dívida de documentação.</li>
+                <li><strong>Evitar o isolamento em arquivos soltos:</strong> ferramentas como Confluence ou Google Docs e diagramas em texto permitem colaboração e histórico.</li>
+            </ul>
+        </section>
+
+        <!-- ========================= APRENDIZADOS ========================= -->
+        <section id="aprendizados">
+            <h2>O que levo daqui</h2>
+            <ul>
+                <li>Documentar não é produzir um grande documento, e sim ter o documento certo para cada pergunta.</li>
+                <li>HLD dá o mapa e LLD dá os detalhes, e o C4 organiza a passagem entre os dois.</li>
+                <li>O mais valioso de registrar é o porquê das decisões, e é isso que as ADRs e o DAS guardam.</li>
+                <li>O DAS consolida o projeto em um lugar só e formaliza a aprovação, mas precisa ser proporcional ao tamanho do projeto.</li>
+                <li>Documentação perto do código, versionada e revisada nas mesmas Pull Requests, tem muito mais chance de se manter atual.</li>
+                <li>Boa documentação protege o projeto da rotatividade e reduz a dependência de pessoas específicas.</li>
+            </ul>
+        </section>
+
+        <!-- ========================= REFERÊNCIAS ========================= -->
+        <section id="referencias">
+            <h2>Para aprofundar</h2>
+            <ul class="references">
+                <li>BASS, Len; CLEMENTS, Paul; KAZMAN, Rick. <em>Software Architecture in Practice</em>. Addison-Wesley.</li>
+                <li>RICHARDS, Mark; FORD, Neal. <em>Fundamentos da Arquitetura de Software</em>. Bookman, 2020.</li>
+                <li>BROWN, Simon. <em>The C4 Model for Visualising Software Architecture</em>. c4model.com</li>
+                <li>NYGARD, Michael. <em>Documenting Architecture Decisions</em>. 2011.</li>
+                <li>Repositório e modelos de ADR em adr.github.io</li>
+                <li>OpenAPI Initiative. <em>OpenAPI Specification</em>. openapis.org</li>
+            </ul>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-clojure.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+    <script>
+        document.querySelectorAll('.code-tabs').forEach(function (box) {
+            var tabs = box.querySelectorAll('.code-tab');
+            var panels = box.querySelectorAll('.code-panel');
+            tabs.forEach(function (tab) {
+                tab.addEventListener('click', function () {
+                    tabs.forEach(function (t) {
+                        var on = t === tab;
+                        t.classList.toggle('active', on);
+                        t.setAttribute('aria-selected', on ? 'true' : 'false');
+                    });
+                    panels.forEach(function (p) {
+                        p.hidden = p.dataset.lang !== tab.dataset.lang;
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
