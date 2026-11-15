@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Desafio Tech Challenge 1 da pós-graduação em Arquitetura de Software da FIAP: o SIAES, um sistema de gestão de oficina mecânica com DDD, monólito em camadas, FastAPI, PostgreSQL, testes automatizados, análise de segurança e entrega em Docker.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Desafio Tech Challenge 1</title>
+    <style>
+        /* Números em destaque */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1.4rem; margin: 2.4rem 0; }
+        .stat { padding: 1.8rem 1.6rem; border-radius: var(--radius-md); background: var(--surface); border: 1px solid var(--border-soft); text-align: center; }
+        .stat b { display: block; font-size: 3.2rem; line-height: 1.1; color: var(--color-white); }
+        .stat span { display: block; margin-top: .6rem; font-size: 1.25rem; color: #b6b6c3; }
+
+        /* Espaço para imagem: aparece como caixa tracejada até o arquivo existir */
+        .miro-embed { margin: 2.4rem 0; }
+        .miro-frame { position: relative; width: 100%; aspect-ratio: 6 / 5; min-height: 320px; border-radius: var(--radius-md); border: 1px solid var(--border-soft); overflow: hidden; background: #fff; }
+        .miro-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+        .miro-embed figcaption { margin-top: 1rem; }
+        .mermaid-fig { margin: 2.4rem 0; }
+        .mermaid-scroll { overflow-x: auto; padding: 1.6rem; border-radius: var(--radius-md); border: 1px solid var(--border-soft); background: #14141c; }
+        .mermaid-scroll pre.mermaid { margin: 0; background: none; border: 0; padding: 0; text-align: center; color: #b6b6c3; font-size: 1.2rem; }
+        .mermaid-scroll svg { height: auto; }
+        .mermaid-fig.larga svg { min-width: 1600px; }
+        .mermaid-fig figcaption { margin-top: 1rem; }
+        .zoom-btn { display: inline-flex; align-items: center; gap: .6rem; margin: 0 0 1rem; padding: .7rem 1.4rem; border-radius: 999px; border: 1px solid var(--border-soft); background: #1c1c28; color: #fff; font: inherit; font-size: 1.3rem; font-weight: 600; cursor: pointer; }
+        .zoom-btn:hover { border-color: #a46bff; }
+        .zoom-btn:focus-visible, .zoom-bar button:focus-visible { outline: 2px solid #7fb9ff; outline-offset: 2px; }
+        .zoom-overlay { position: fixed; inset: 0; z-index: 1000; display: none; flex-direction: column; background: #05050a; }
+        .zoom-overlay.aberto { display: flex; }
+        .zoom-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem; padding: 1rem 1.6rem; border-bottom: 1px solid var(--border-soft); color: #b6b6c3; font-size: 1.3rem; }
+        .zoom-bar .titulo { margin-right: auto; font-weight: 600; color: #fff; }
+        .zoom-bar button { min-width: 4rem; padding: .6rem 1.2rem; border-radius: 8px; border: 1px solid var(--border-soft); background: #1c1c28; color: #fff; font: inherit; font-size: 1.4rem; cursor: pointer; }
+        .zoom-bar button:hover { border-color: #a46bff; }
+        .zoom-view { flex: 1; overflow: auto; padding: 1.6rem; cursor: grab; }
+        .zoom-view.arrastando { cursor: grabbing; user-select: none; }
+        .zoom-view svg { display: block; max-width: none !important; height: auto; margin: 0 auto; }
+        .img-slot { margin: 2.4rem 0; }
+        .img-slot img { display: block; width: 100%; height: auto; border-radius: var(--radius-md); border: 1px solid var(--border-soft); }
+        .img-slot .img-aviso { display: none; }
+        .img-slot.vazio img { display: none; }
+        .img-slot.vazio .img-aviso { display: block; padding: 3rem 2rem; border: 2px dashed #6b6b80; border-radius: var(--radius-md); background: rgba(255, 255, 255, .03); text-align: center; color: #b6b6c3; font-size: 1.3rem; line-height: 1.6; }
+        .img-slot.vazio .img-aviso strong { display: block; margin-bottom: .4rem; color: #ffd1e3; font-size: 1.4rem; }
+        .img-slot.vazio .img-aviso code { font-size: 1.2rem; color: #7fb9ff; word-break: break-all; }
+        .img-slot figcaption { margin-top: 1rem; }
+        .img-par { display: grid; grid-template-columns: repeat(auto-fit, minmax(28rem, 1fr)); gap: 1.6rem; }
+        .img-par .img-slot { margin: 1.2rem 0; }
+
+        /* Valores a preencher */
+        .todo { padding: .1rem .7rem; border: 1px dashed #ff8fb8; border-radius: 6px; color: #ffd1e3; font-weight: 600; }
+
+        /* Post-it de ator */
+        .sticky-actor { background: #fff7c2; }
+        .timeline .sticky { flex: 0 0 16rem; }
+
+        /* Árvore de diretórios */
+        .tree { margin: 0; white-space: pre; }
+    </style>
+</head>
+<body>
+    <a class="back-link" href="index.html">&larr; Voltar aos projetos</a>
+
+    <header>
+        <h1>SIAES - Sistema Integrado de Atendimento e Execução de Serviços</h1>
+        <p>Desafio Tech Challenge 1 · Arquitetura de Software · Pós-graduação FIAP</p>
+        <span>Projeto em grupo · Fase 1</span>
+    </header>
+
+    <main>
+        <ul class="toc">
+            <li><a href="#desafio">O desafio</a></li>
+            <li><a href="#solucao">A solução</a></li>
+            <li><a href="#equipe">Equipe e processo</a></li>
+            <li><a href="#ddd">Modelagem com DDD</a></li>
+            <li><a href="#requisitos">Requisitos</a></li>
+            <li><a href="#maquina">Máquina de estados</a></li>
+            <li><a href="#arquitetura">Arquitetura</a></li>
+            <li><a href="#regras">Regras de negócio</a></li>
+            <li><a href="#exemplos">Exemplos</a></li>
+            <li><a href="#seguranca">Segurança</a></li>
+            <li><a href="#qualidade">Qualidade e testes</a></li>
+            <li><a href="#api">API e interface web</a></li>
+            <li><a href="#execucao">Execução</a></li>
+            <li><a href="#entrega">Entrega</a></li>
+            <li><a href="#aprendizados">Aprendizados</a></li>
+        </ul>
+
+        <!-- ========================= DESAFIO ========================= -->
+        <section id="desafio">
+            <span class="phase-tag">Contexto</span>
+            <h2>O desafio</h2>
+            <p class="lead">O Tech Challenge é o trabalho que fecha cada fase da pós-graduação: um projeto único, em grupo, que reúne o que foi estudado em todas as matérias. Na Fase 1 do curso de Arquitetura de Software, o desafio foi construir o MVP de um sistema para uma oficina mecânica, do primeiro contato com o cliente até a entrega do veículo.</p>
+            <p>O resultado é o <strong>SIAES</strong>, o Sistema Integrado de Atendimento e Execução de Serviços. Ele controla as <strong>ordens de serviço</strong> (OS), o <strong>orçamento</strong>, o <strong>estoque de peças</strong> e o <strong>acompanhamento pelo cliente</strong>, com regras de negócio explícitas, rastreabilidade de cada mudança de status e segurança no acesso às informações.</p>
+            <p>Esta página conta o projeto de ponta a ponta: da modelagem do negócio e da documentação até a execução, os testes, a análise de segurança e a entrega. Cada decisão aparece junto com o motivo, porque o aprendizado do desafio está tanto no que foi construído quanto no porquê.</p>
+
+            <div class="stats">
+                <div class="stat"><b>4</b><span>pessoas no grupo</span></div>
+                <div class="stat"><b>404</b><span>commits, de 05/10 a 03/11/2026</span></div>
+                <div class="stat"><b>27 + 16</b><span>requisitos funcionais e não funcionais</span></div>
+                <div class="stat"><b>9</b><span>status no ciclo de vida da OS</span></div>
+                <div class="stat"><b>1.872</b><span>testes automatizados</span></div>
+                <div class="stat"><b>100%</b><span>de cobertura em domínio e aplicação</span></div>
+                <div class="stat"><b>62 ms</b><span>de p95 medido, contra um limite de 500 ms</span></div>
+                <div class="stat"><b>0</b><span>vulnerabilidades críticas</span></div>
+            </div>
+
+            <figure class="img-slot">
+                <img src="../img/projetos/tech-challenge-1/capa-siaes.png" alt="Visão geral do SIAES" loading="lazy" onerror="this.closest('.img-slot').classList.add('vazio')">
+                <div class="img-aviso"><strong>Inserir imagem aqui</strong>Imagem de abertura do projeto: um print do quadro da oficina ou uma colagem das telas principais.<br><code>img/projetos/tech-challenge-1/capa-siaes.png</code></div>
+                <figcaption>Visão geral do SIAES</figcaption>
+            </figure>
+        </section>
+
+        <!-- ========================= SOLUÇÃO ========================= -->
+        <section id="solucao">
+            <h2>A solução</h2>
+            <p>O sistema é uma API REST com duas frentes, que atendem públicos diferentes e têm regras de acesso diferentes.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Frente</th><th>Quem usa</th><th>Como acessa</th><th>O que oferece</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Loja</strong></td>
+                            <td>Atendente, Mecânico e Gerente</td>
+                            <td>Login com token JWT e permissões por perfil (RBAC)</td>
+                            <td>Cadastros de clientes, veículos, serviços, peças e usuários; abertura e acompanhamento das OS; diagnóstico, orçamento, execução e entrega; registro da decisão do cliente no balcão; relatório de tempos médios</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cliente</strong></td>
+                            <td>Cliente da oficina</td>
+                            <td>Público, sem login: número da OS junto com CPF/CNPJ, com limite de requisições</td>
+                            <td>Consulta do status e da estimativa de entrega; aprovação ou rejeição do orçamento</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-support">Atendente</span>
+                    <h4>Porta de entrada e de saída</h4>
+                    <p>Cadastra cliente e veículo, abre a OS e entrega o carro no final. Também registra no balcão a decisão que o cliente dá pessoalmente sobre o orçamento.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-core">Mecânico</span>
+                    <h4>Diagnóstico e execução</h4>
+                    <p>Assume a OS, inclui serviços e peças, fecha o orçamento, inicia e conclui o serviço. Só o mecânico atribuído à OS (ou o Gerente) pode iniciá-la e concluí-la.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Gerente</span>
+                    <h4>Gestão da oficina</h4>
+                    <p>Acesso total: catálogo, estoque, usuários, cancelamento de OS com motivo e o relatório de tempos médios.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Cliente</span>
+                    <h4>Transparência</h4>
+                    <p>Acompanha a OS sem precisar ligar para a oficina e decide sobre o orçamento pelo celular, com a estimativa de entrega à vista.</p>
+                </div>
+            </div>
+
+            <div class="img-par">
+                <figure class="img-slot">
+                    <img src="../img/projetos/tech-challenge-1/web-oficina-quadro.png" alt="Quadro das ordens de serviço por status na interface da oficina" loading="lazy" onerror="this.closest('.img-slot').classList.add('vazio')">
+                    <div class="img-aviso"><strong>Inserir imagem aqui</strong>Print do quadro das OS por status, em <code>/oficina/</code>.<br><code>img/projetos/tech-challenge-1/web-oficina-quadro.png</code></div>
+                    <figcaption>Frente da Loja: quadro das OS por status</figcaption>
+                </figure>
+                <figure class="img-slot">
+                    <img src="../img/projetos/tech-challenge-1/web-cliente.png" alt="Página pública de acompanhamento da OS pelo cliente" loading="lazy" onerror="this.closest('.img-slot').classList.add('vazio')">
+                    <div class="img-aviso"><strong>Inserir imagem aqui</strong>Print da página do cliente, em <code>/cliente/</code>, com uma OS consultada.<br><code>img/projetos/tech-challenge-1/web-cliente.png</code></div>
+                    <figcaption>Frente do Cliente: acompanhamento da OS</figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <!-- ========================= EQUIPE ========================= -->
+        <section id="equipe">
+            <span class="phase-tag">Pessoas e processo</span>
+            <h2>Equipe e forma de trabalho</h2>
+            <p>O grupo tem quatro integrantes: Devysson Cardoso, Gabriel Vieira de Arimatéa, Guilherme Yamamoto e eu. O código fica no repositório <a href="https://github.com/vieira-gabriel/FIAP_SIAES" target="_blank" rel="noopener">vieira-gabriel/FIAP_SIAES</a>.</p>
+
+            <h3>Como organizamos o trabalho</h3>
+            <ul>
+                <li><strong>Roadmap em fases:</strong> da fundação (decisões e repositório) à entrega, passando por modelagem DDD, infraestrutura, domínio, cadastros, fluxo da OS, gestão, qualidade e documentação. Cada tarefa apontava os requisitos que atendia e era marcada como concluída no mesmo Pull Request.</li>
+                <li><strong>Nada direto na <code>main</code>:</strong> toda mudança vinha por branch (<code>tipo/descricao-curta</code>) e Pull Request, citando os requisitos atendidos. Foram mais de 170 PRs.</li>
+                <li><strong>Commits padronizados:</strong> <code>feat</code>, <code>fix</code>, <code>test</code>, <code>docs</code>, <code>refactor</code> e <code>chore</code>, em português, com a descrição do que mudou.</li>
+                <li><strong>Definição de pronto:</strong> uma tarefa só fecha com revisão de outra pessoa, regra de dependência entre camadas respeitada, testes passando (inclusive as permissões por perfil), Swagger atualizado, linguagem ubíqua em dia e nenhum segredo no repositório.</li>
+                <li><strong>Documentação viva:</strong> o guia de desenvolvimento registra as decisões técnicas (as decididas e as em aberto), e um changelog guarda o porquê de cada mudança estrutural.</li>
+            </ul>
+
+            <h3>Minha participação</h3>
+            <p>Atuei em quase todas as camadas do sistema. Os pontos principais:</p>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Domínio</span>
+                    <h4>O coração do sistema</h4>
+                    <p>Agregado <code>OrdemServico</code> com itens, orçamento, máquina de estados e histórico imutável; agregado <code>EstoquePeca</code> com reserva, baixa, estorno e alocação por prioridade; estimativa de entrega e eventos de domínio.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Fluxo da OS</span>
+                    <h4>Do diagnóstico à entrega</h4>
+                    <p>Atribuição do mecânico, itens e conclusão do orçamento, reserva e alocação de peças, início da execução, conclusão, entrega, cancelamento pelo Gerente, aprovação e rejeição pelo cliente e consulta pública com limite de requisições.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Gestão</span>
+                    <h4>Métricas</h4>
+                    <p>Relatório de tempos médios (execução, espera por peça e total da OS), com a decisão de medir pelo mês da finalização.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Qualidade e segurança</span>
+                    <h4>Evidências</h4>
+                    <p>Testes de integração dos fluxos principais, cenário de desempenho com Locust, revisão de XSS, revisão do Swagger, análise de vulnerabilidades, revisão de segredos e a evidência de cobertura.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Fundação</span>
+                    <h4>Infraestrutura base</h4>
+                    <p>Unidade de trabalho e engine do SQLAlchemy, migrations com Alembic, montagem do container de dependências e o health check que verifica o banco.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================= DDD ========================= -->
+        <section id="ddd">
+            <span class="phase-tag">Entender o negócio antes do código</span>
+            <h2>Modelagem com DDD</h2>
+            <p>Antes de qualquer linha de código, o grupo modelou o domínio com <strong>Domain-Driven Design</strong>. É o mesmo assunto da <a href="ddd.html">página de DDD</a>, aqui aplicado a um problema real. O resultado ficou em três documentos: o Event Storming, a Linguagem Ubíqua e o modelo C4.</p>
+
+            <h3>Event Storming</h3>
+            <p>O board foi montado no Miro, com os post-its na ordem do fluxo: ator, comando, política, evento, modelo de leitura e agregado. Ele cobre o acompanhamento pelo cliente, a criação da OS, o ciclo de vida da OS aprovada e a gestão administrativa (acesso, serviços, peças, clientes, veículos e OS). O board é a fonte da verdade: quando muda, o PDF exportado é refeito no mesmo PR.</p>
+            <p><a href="https://miro.com/app/board/uXjVEebLYnw=/?share_link_id=963442578083" target="_blank" rel="noopener">Abrir o board no Miro</a> (leitura pública).</p>
+
+            <figure class="miro-embed">
+                <div class="miro-frame">
+                    <iframe src="https://miro.com/app/live-embed/uXjVEebLYnw=/?focusWidget=3458764686127115546&amp;embedMode=view_only_without_ui&amp;embedId=549909223930" title="Board de Event Storming do SIAES no Miro" loading="lazy" frameborder="0" scrolling="no" allow="fullscreen; clipboard-read; clipboard-write" allowfullscreen></iframe>
+                </div>
+                <figcaption>Board de Event Storming no Miro (interativo: arraste para mover e use a roda do mouse para dar zoom)</figcaption>
+            </figure>
+
+            <p>Um trecho do fluxo de criação da OS, reescrito como post-its. Repare que o status aparece como <em>política</em>, ou seja, uma reação a um evento:</p>
+
+            <div class="timeline" aria-label="Trecho do Event Storming: criação da ordem de serviço">
+                <div class="sticky sticky-actor"><strong>Atendente</strong>Ator</div>
+                <div class="sticky sticky-command"><strong>Abrir OS</strong>Comando</div>
+                <div class="sticky sticky-event"><strong>OS aberta</strong>Evento · agregado OrdemServico</div>
+                <div class="sticky sticky-command"><strong>Vincular veículo</strong>Comando</div>
+                <div class="sticky sticky-event"><strong>Veículo vinculado à OS</strong>Evento</div>
+                <div class="sticky sticky-policy"><strong>Gera o número da OS</strong>Política · status RECEBIDA</div>
+                <div class="sticky sticky-actor"><strong>Mecânico</strong>Ator</div>
+                <div class="sticky sticky-command"><strong>Inicia diagnóstico</strong>Comando</div>
+                <div class="sticky sticky-policy"><strong>Status EM_DIAGNOSTICO</strong>Política</div>
+                <div class="sticky sticky-event"><strong>Orçamento gerado</strong>Evento</div>
+                <div class="sticky sticky-policy"><strong>Reservar peças</strong>Política · altera o EstoquePeca</div>
+                <div class="sticky sticky-policy"><strong>Sinaliza peça pendente</strong>Política</div>
+            </div>
+
+            <h3>Divergências que o grupo decidiu por escrito</h3>
+            <p>Um board feito em oficina de post-its inevitavelmente diverge dos requisitos. Em vez de esconder isso, o documento do Event Storming tem uma tabela de <strong>divergências conhecidas</strong>, cada uma com a decisão do grupo. Alguns exemplos:</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Ponto</th><th>No board</th><th>Decisão</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Identificação do cliente</td><td>"Entra com credenciais" sugere login</td><td>Prevalece o requisito: número da OS + CPF/CNPJ, sem login</td></tr>
+                        <tr><td>Histórico de status</td><td>Cada mudança de status é uma política separada</td><td>O board continua assim; o histórico imutável fica garantido no código</td></tr>
+                        <tr><td>Decisão no balcão</td><td>Só o cliente aprova ou reprova</td><td>Atendente e Gerente podem registrar a decisão dada pessoalmente, com origem <code>USUARIO</code> no histórico</td></tr>
+                        <tr><td>Agregado de estoque</td><td>Aparece só na área do ciclo de vida da OS</td><td>Prevalece a Linguagem Ubíqua, que define o <code>EstoquePeca</code></td></tr>
+                        <tr><td>Cancelamento</td><td>Existia o comando "Remover OS"</td><td>Não há remoção de OS; o Gerente cancela, com motivo</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Linguagem Ubíqua</h3>
+            <p>O vocabulário do negócio virou o vocabulário do código, com um glossário que liga cada termo à classe correspondente. Alguns dos termos centrais:</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Termo do negócio</th><th>O que significa</th><th>No código</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Ordem de Serviço</strong></td><td>Raiz do agregado principal: todo o ciclo de vida do atendimento</td><td><code>OrdemServico</code></td></tr>
+                        <tr><td><strong>Número da OS</strong></td><td>3 primeiros dígitos do CPF/CNPJ, hífen e 8 caracteres do UUID (ex.: <code>123-7F3A9C2B</code>)</td><td><code>NumeroOS</code></td></tr>
+                        <tr><td><strong>Estoque</strong></td><td>Quantidade física, reservada e saldo disponível de cada peça</td><td><code>EstoquePeca</code></td></tr>
+                        <tr><td><strong>Reserva</strong></td><td>Peça separada para uma OS, sem sair ainda do estoque físico</td><td>Quantidade reservada em <code>ItemPeca</code> e <code>EstoquePeca</code></td></tr>
+                        <tr><td><strong>Peça pendente</strong></td><td>Parte do pedido que ficou sem saldo; é alocada na reposição, da OS mais antiga para a mais nova</td><td>Quantidade pendente em <code>ItemPeca</code></td></tr>
+                        <tr><td><strong>Baixa</strong></td><td>Saída definitiva das peças reservadas, no início da execução</td><td><code>EstoquePeca.baixar</code></td></tr>
+                        <tr><td><strong>Estorno</strong></td><td>Devolução das reservas ao saldo quando a OS é rejeitada ou cancelada</td><td><code>EstoquePeca.estornar</code></td></tr>
+                        <tr><td><strong>Histórico de status</strong></td><td>Registro imutável de cada transição: de, para, quando, origem, quem e motivo</td><td><code>HistoricoStatusOS</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Contextos delimitados e agregados</h3>
+            <div class="diagram">
+                <svg viewBox="0 0 720 310" role="img" aria-label="Cinco contextos delimitados: Identidade e Acesso e Atendimento e Cadastro alimentam Ordem de Serviço, que se relaciona com Estoque e Peças e com Acompanhamento Público">
+                    <defs>
+                        <marker id="cx" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <rect x="40" y="10" width="270" height="70" rx="10" fill="#1c1c28" stroke="#7fb9ff" stroke-width="1.5"/>
+                    <text x="175" y="40" text-anchor="middle" font-size="14" font-weight="700">Identidade e Acesso</text>
+                    <text x="175" y="62" text-anchor="middle" font-size="11.5" class="muted">JWT, perfis e permissões (RBAC)</text>
+
+                    <rect x="410" y="10" width="270" height="70" rx="10" fill="#1c1c28" stroke="#7fb9ff" stroke-width="1.5"/>
+                    <text x="545" y="40" text-anchor="middle" font-size="14" font-weight="700">Atendimento e Cadastro</text>
+                    <text x="545" y="62" text-anchor="middle" font-size="11.5" class="muted">Clientes, veículos, serviços</text>
+
+                    <rect x="190" y="125" width="340" height="80" rx="10" fill="#2a1f3a" stroke="#c9a6ff" stroke-width="2.5"/>
+                    <text x="360" y="155" text-anchor="middle" font-size="15" font-weight="700">Ordem de Serviço (núcleo)</text>
+                    <text x="360" y="178" text-anchor="middle" font-size="11.5" class="muted">Ciclo de vida, orçamento, histórico de status</text>
+
+                    <rect x="40" y="235" width="270" height="65" rx="10" fill="#1c1c28" stroke="#ffb347" stroke-width="1.5"/>
+                    <text x="175" y="263" text-anchor="middle" font-size="14" font-weight="700">Estoque e Peças</text>
+                    <text x="175" y="283" text-anchor="middle" font-size="11.5" class="muted">Reserva, baixa, estorno, reposição</text>
+
+                    <rect x="410" y="235" width="270" height="65" rx="10" fill="#1c1c28" stroke="#a8e6a1" stroke-width="1.5"/>
+                    <text x="545" y="263" text-anchor="middle" font-size="14" font-weight="700">Acompanhamento Público</text>
+                    <text x="545" y="283" text-anchor="middle" font-size="11.5" class="muted">Portal do cliente</text>
+
+                    <g stroke="#b6b6c3" stroke-width="1.6" fill="none" marker-end="url(#cx)">
+                        <path d="M175 80 L175 100 L290 100 L290 122"/>
+                        <path d="M545 80 L545 100 L430 100 L430 122"/>
+                        <path d="M290 207 L290 220 L175 220 L175 232"/>
+                        <path d="M430 207 L430 220 L545 220 L545 232"/>
+                    </g>
+                </svg>
+                <figcaption>Cinco contextos delimitados. A OS é o núcleo, e o estoque reage a ela por eventos de domínio</figcaption>
+            </div>
+
+            <p>Dentro do núcleo existem dois <strong>agregados</strong>: <code>OrdemServico</code>, com itens, orçamento e histórico, e <code>EstoquePeca</code>, com as quantidades física e reservada de cada peça. Os <strong>objetos de valor</strong> carregam as regras de formato: <code>CPF</code> e <code>CNPJ</code> (com dígitos verificadores), <code>Placa</code> (padrão antigo e Mercosul), <code>Valor</code> (precisão decimal para dinheiro), <code>NumeroOS</code>, <code>StatusOS</code> e <code>PerfilUsuario</code>, entre outros.</p>
+
+            <h3>Eventos de domínio</h3>
+            <p>Quando a regra de um agregado precisa alterar o outro, ele emite um <strong>evento de domínio</strong>, e um despachante síncrono chama o handler dentro da mesma transação. Quando a reação fica dentro do mesmo agregado, o próprio método resolve e não existe evento. Foram quatro eventos:</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Evento</th><th>Quem emite</th><th>Quando</th><th>Reação</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>OrcamentoFinalizadoEvent</code></td><td>OrdemServico</td><td>Orçamento concluído</td><td>Reservar as peças, deixando como pendente o que faltar</td></tr>
+                        <tr><td><code>OSCanceladaEvent</code></td><td>OrdemServico</td><td>Rejeição do orçamento ou cancelamento</td><td>Estornar as reservas ao saldo</td></tr>
+                        <tr><td><code>ExecucaoIniciadaEvent</code></td><td>OrdemServico</td><td>Início da execução</td><td>Dar baixa nas peças reservadas</td></tr>
+                        <tr><td><code>SaldoPecaAtualizadoEvent</code></td><td>EstoquePeca</td><td>Saldo disponível aumentou</td><td>Alocar o saldo às OS com pendência, da mais antiga para a mais nova</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ========================= REQUISITOS ========================= -->
+        <section id="requisitos">
+            <h2>Requisitos</h2>
+            <p>Os requisitos foram escritos e versionados junto com o código: <strong>27 funcionais (RF)</strong> e <strong>16 não funcionais (RNF)</strong>. Cada um traz a descrição do domínio, os perfis com acesso e o critério de aceite, e cada Pull Request cita os requisitos que atende. Isso é a rastreabilidade na prática: do requisito ao teste que o prova.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Grupo</th><th>Requisitos</th><th>O que cobrem</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Autenticação e usuários</td><td>RF-01 a RF-03</td><td>Login JWT, RBAC, gestão de usuários e carga inicial</td></tr>
+                        <tr><td>Clientes e veículos</td><td>RF-04 a RF-09</td><td>Cadastro, validação de CPF/CNPJ e de placa, exclusão lógica</td></tr>
+                        <tr><td>Catálogo e estoque</td><td>RF-10 a RF-12</td><td>Serviços, peças e saldo</td></tr>
+                        <tr><td>Ciclo da OS</td><td>RF-13 a RF-24</td><td>Abertura, diagnóstico, orçamento, reserva, execução, entrega, cancelamento e histórico</td></tr>
+                        <tr><td>Frente do cliente</td><td>RF-25 e RF-26</td><td>Consulta pública e decisão sobre o orçamento</td></tr>
+                        <tr><td>Métricas</td><td>RF-27</td><td>Relatório de tempos médios</td></tr>
+                        <tr><td>Arquitetura</td><td>RNF-01, RNF-02</td><td>Monólito em camadas e domínio em Python puro</td></tr>
+                        <tr><td>Segurança</td><td>RNF-03 a RNF-07</td><td>JWT e RBAC, OWASP, rate limiting, segredos e vulnerabilidades</td></tr>
+                        <tr><td>Persistência</td><td>RNF-08, RNF-09, RNF-11</td><td>Transações ACID, PostgreSQL e valores congelados</td></tr>
+                        <tr><td>Desempenho</td><td>RNF-10</td><td>p95 abaixo de 500 ms</td></tr>
+                        <tr><td>Qualidade</td><td>RNF-12 a RNF-14</td><td>Testes de domínio, testes de integração e cobertura mínima de 80%</td></tr>
+                        <tr><td>Entrega</td><td>RNF-15, RNF-16</td><td>Docker Compose e Swagger</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Três status que o enunciado não tinha.</strong> A lista original tinha seis status. O grupo acrescentou <code>AGUARDANDO_PECA</code> (orçamento aprovado, mas falta peça), <code>AGUARDANDO_EXECUCAO</code> (aprovado e com tudo reservado, esperando o mecânico) e <code>CANCELADA</code> (rejeição ou cancelamento). Sem o segundo, o tempo médio de execução incluiria a fila de espera e deixaria de medir o trabalho do mecânico. Sem o terceiro, uma OS rejeitada ficaria para sempre em "aguardando aprovação". Cada acréscimo foi registrado com o motivo.</p>
+            </div>
+        </section>
+
+        <!-- ========================= MÁQUINA ========================= -->
+        <section id="maquina">
+            <h2>A máquina de estados da OS</h2>
+            <p>O centro do sistema é a máquina de estados da OS. Cada transição é um método do agregado <code>OrdemServico</code>, que <strong>bloqueia qualquer mudança que não esteja prevista</strong> e grava um registro no histórico. Não existe "alterar status" livre: a única exceção ao fluxo normal é o cancelamento do Gerente, que exige motivo.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 330" role="img" aria-label="Máquina de estados da OS: Recebida, Em diagnóstico, Aguardando aprovação, que leva a Aguardando peça, Aguardando execução ou Cancelada; depois Em execução, Finalizada e Entregue">
+                    <defs>
+                        <marker id="mq" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <g font-size="9" font-weight="700" text-anchor="middle">
+                        <rect x="10" y="30" width="140" height="40" rx="8" fill="#1c1c28" stroke="#7fb9ff" stroke-width="1.6"/>
+                        <text x="80" y="55">RECEBIDA</text>
+                        <rect x="210" y="30" width="140" height="40" rx="8" fill="#1c1c28" stroke="#7fb9ff" stroke-width="1.6"/>
+                        <text x="280" y="55">EM_DIAGNOSTICO</text>
+                        <rect x="410" y="30" width="140" height="40" rx="8" fill="#1c1c28" stroke="#c9a6ff" stroke-width="2.2"/>
+                        <text x="480" y="55">AGUARDANDO_APROVACAO</text>
+                        <rect x="610" y="30" width="140" height="40" rx="8" fill="#1c1c28" stroke="#ff8fb8" stroke-width="1.8"/>
+                        <text x="680" y="55">CANCELADA</text>
+
+                        <rect x="210" y="140" width="140" height="40" rx="8" fill="#1c1c28" stroke="#ffb347" stroke-width="1.8"/>
+                        <text x="280" y="165">AGUARDANDO_PECA</text>
+                        <rect x="410" y="140" width="140" height="40" rx="8" fill="#1c1c28" stroke="#7fb9ff" stroke-width="1.6"/>
+                        <text x="480" y="165">AGUARDANDO_EXECUCAO</text>
+                        <rect x="610" y="140" width="140" height="40" rx="8" fill="#1c1c28" stroke="#7fb9ff" stroke-width="1.6"/>
+                        <text x="680" y="165">EM_EXECUCAO</text>
+
+                        <rect x="410" y="250" width="140" height="40" rx="8" fill="#1c1c28" stroke="#a8e6a1" stroke-width="1.8"/>
+                        <text x="480" y="275">ENTREGUE</text>
+                        <rect x="610" y="250" width="140" height="40" rx="8" fill="#1c1c28" stroke="#7fb9ff" stroke-width="1.6"/>
+                        <text x="680" y="275">FINALIZADA</text>
+                    </g>
+
+                    <g stroke="#b6b6c3" stroke-width="1.6" fill="none" marker-end="url(#mq)">
+                        <path d="M150 50 L208 50"/>
+                        <path d="M350 50 L408 50"/>
+                        <path d="M550 50 L608 50"/>
+                        <path d="M480 70 L480 138"/>
+                        <path d="M440 70 L300 138"/>
+                        <path d="M350 160 L408 160"/>
+                        <path d="M550 160 L608 160"/>
+                        <path d="M680 180 L680 248"/>
+                        <path d="M610 270 L552 270"/>
+                    </g>
+
+                    <g font-size="10.5" class="muted">
+                        <text x="580" y="42" text-anchor="middle">rejeita</text>
+                        <text x="488" y="108">aprova, peças reservadas</text>
+                        <text x="352" y="100" text-anchor="end">aprova, com peça pendente</text>
+                        <text x="380" y="152" text-anchor="middle">reposição</text>
+                        <text x="580" y="152" text-anchor="middle">inicia</text>
+                        <text x="688" y="218">conclui</text>
+                        <text x="580" y="262" text-anchor="middle">entrega</text>
+                    </g>
+
+                    <rect x="10" y="130" width="170" height="82" rx="8" fill="none" stroke="#6b6b80" stroke-dasharray="5 4"/>
+                    <g font-size="10.5" class="muted">
+                        <text x="20" y="150">Também vai a CANCELADA:</text>
+                        <text x="20" y="166">o Gerente cancela de</text>
+                        <text x="20" y="182">RECEBIDA até EM_EXECUCAO,</text>
+                        <text x="20" y="198">sempre com motivo.</text>
+                    </g>
+                </svg>
+                <figcaption>Os estados em laranja e rosa foram acrescentados ao enunciado. A passagem de AGUARDANDO_PECA para AGUARDANDO_EXECUCAO é automática, feita pelo sistema</figcaption>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>De</th><th>Para</th><th>Ação</th><th>Quem executa</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>(abertura)</td><td>RECEBIDA</td><td>Abrir OS</td><td>Atendente, Gerente</td></tr>
+                        <tr><td>RECEBIDA</td><td>EM_DIAGNOSTICO</td><td>Atribuir mecânico</td><td>Mecânico, Gerente</td></tr>
+                        <tr><td>EM_DIAGNOSTICO</td><td>AGUARDANDO_APROVACAO</td><td>Finalizar orçamento</td><td>Mecânico, Gerente</td></tr>
+                        <tr><td>AGUARDANDO_APROVACAO</td><td>AGUARDANDO_EXECUCAO ou AGUARDANDO_PECA</td><td>Aprovar orçamento</td><td>Cliente; Atendente e Gerente no balcão</td></tr>
+                        <tr><td>AGUARDANDO_APROVACAO</td><td>CANCELADA</td><td>Rejeitar orçamento</td><td>Cliente; Atendente e Gerente no balcão</td></tr>
+                        <tr><td>AGUARDANDO_PECA</td><td>AGUARDANDO_EXECUCAO</td><td>Liberar para execução</td><td>Sistema, na reposição do estoque</td></tr>
+                        <tr><td>AGUARDANDO_EXECUCAO</td><td>EM_EXECUCAO</td><td>Iniciar execução</td><td>Mecânico atribuído, Gerente</td></tr>
+                        <tr><td>EM_EXECUCAO</td><td>FINALIZADA</td><td>Concluir manutenção</td><td>Mecânico atribuído, Gerente</td></tr>
+                        <tr><td>FINALIZADA</td><td>ENTREGUE</td><td>Entregar veículo</td><td>Atendente, Gerente</td></tr>
+                        <tr><td>RECEBIDA a EM_EXECUCAO</td><td>CANCELADA</td><td>Cancelar</td><td>Gerente</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Toda transição gera um registro imutável no histórico: status anterior, novo status, data e hora, <strong>origem</strong> (<code>USUARIO</code>, <code>CLIENTE</code> ou <code>SISTEMA</code>), usuário e motivo. É esse histórico que permite auditar quem fez o quê e calcular os tempos do relatório de gestão.</p>
+        </section>
+
+        <!-- ========================= ARQUITETURA ========================= -->
+        <section id="arquitetura">
+            <span class="phase-tag">Decisões estruturais</span>
+            <h2>Arquitetura</h2>
+            <p>O SIAES é um <strong>monólito em camadas</strong> (RNF-01) modelado com DDD. Para um MVP de uma oficina, um monólito bem organizado entrega mais valor que microsserviços: uma única implantação, transações simples entre OS e estoque e menos peças móveis. O que importa é a organização interna, e é por isso que as camadas e a regra de dependência foram tratadas como requisito. É a aplicação direta do que vimos em <a href="arquiteturas-de-software.html">Arquiteturas de Software</a>.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 300" role="img" aria-label="Camadas do SIAES: presentation e infrastructure apontam para application, que contém o domain; a infraestrutura implementa as portas">
+                    <defs>
+                        <marker id="ly" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <rect x="10" y="20" width="190" height="260" rx="12" fill="#1c1c28" stroke="#7fb9ff" stroke-width="1.6"/>
+                    <text x="105" y="48" text-anchor="middle" font-size="14" font-weight="700">presentation</text>
+                    <g font-size="11.5" class="muted" text-anchor="middle">
+                        <text x="105" y="80">Rotas FastAPI</text>
+                        <text x="105" y="100">Schemas (DTOs)</text>
+                        <text x="105" y="120">JWT, RBAC, rate limit</text>
+                        <text x="105" y="140">Tratamento de erros</text>
+                        <text x="105" y="160">Interface web</text>
+                        <text x="105" y="190" font-weight="700" style="fill:#f5f5f7">container.py</text>
+                        <text x="105" y="208">monta as dependências</text>
+                    </g>
+
+                    <rect x="250" y="20" width="220" height="260" rx="12" fill="#1c1c28" stroke="#c9a6ff" stroke-width="1.6"/>
+                    <text x="360" y="46" text-anchor="middle" font-size="14" font-weight="700">application</text>
+                    <text x="360" y="64" text-anchor="middle" font-size="11.5" class="muted">casos de uso, handlers, portas</text>
+                    <rect x="270" y="86" width="180" height="176" rx="10" fill="#2a1f3a" stroke="#ffb347" stroke-width="2.2"/>
+                    <text x="360" y="112" text-anchor="middle" font-size="14" font-weight="700">domain</text>
+                    <g font-size="11.5" class="muted" text-anchor="middle">
+                        <text x="360" y="138">Entidades e agregados</text>
+                        <text x="360" y="158">Objetos de valor</text>
+                        <text x="360" y="178">Eventos de domínio</text>
+                        <text x="360" y="198">Portas de repositório</text>
+                        <text x="360" y="224" font-weight="700" style="fill:#f5f5f7">Python puro</text>
+                        <text x="360" y="242">sem framework, ORM ou JWT</text>
+                    </g>
+
+                    <rect x="545" y="20" width="165" height="260" rx="12" fill="#1c1c28" stroke="#a8e6a1" stroke-width="1.6"/>
+                    <text x="627" y="48" text-anchor="middle" font-size="14" font-weight="700">infrastructure</text>
+                    <g font-size="10.5" class="muted" text-anchor="middle">
+                        <text x="627" y="80">SQLAlchemy assíncrono</text>
+                        <text x="627" y="100">Repositórios PostgreSQL</text>
+                        <text x="627" y="120">Unidade de trabalho</text>
+                        <text x="627" y="140">PyJWT e bcrypt</text>
+                        <text x="627" y="160">Configuração do ambiente</text>
+                    </g>
+
+                    <g stroke="#b6b6c3" stroke-width="1.6" fill="none" marker-end="url(#ly)">
+                        <path d="M200 140 L248 140"/>
+                        <path d="M545 220 L472 220" stroke-dasharray="5 4"/>
+                    </g>
+                    <g font-size="10.5" class="muted" text-anchor="middle">
+                        <text x="224" y="130">chama</text>
+                        <text x="508" y="210">implementa</text>
+                        <text x="508" y="240">as portas</text>
+                    </g>
+                </svg>
+                <figcaption>As dependências apontam para dentro. O domínio não conhece ninguém, e a infraestrutura implementa as interfaces definidas por ele</figcaption>
+            </div>
+
+            <ul>
+                <li><strong>Regra de dependência:</strong> o domínio não importa nada das outras camadas. Os casos de uso dependem de interfaces (portas), não das implementações.</li>
+                <li><strong>Portas e adaptadores:</strong> banco, token e hash de senha são interfaces; só o <code>container.py</code> conhece as implementações concretas e as monta.</li>
+                <li><strong>Unidade de trabalho:</strong> cada operação crítica roda em uma única transação, com rollback completo se algo falhar (RNF-08).</li>
+                <li><strong>Assíncrono de ponta a ponta:</strong> SQLAlchemy 2.0 com asyncpg; o bcrypt, que é pesado, roda fora do laço de eventos.</li>
+                <li><strong>Sem carregamento preguiçoso:</strong> as coleções são carregadas de forma explícita, o que evita consultas escondidas.</li>
+            </ul>
+
+            <h3>Modelo C4</h3>
+            <p>A arquitetura foi documentada nos quatro níveis do C4, escritos em Mermaid dentro do próprio repositório: <strong>contexto</strong> (quem usa o sistema), <strong>contêineres</strong> (API e banco), <strong>componentes</strong> (rotas, casos de uso, handlers, repositórios) e <strong>código</strong> (diagrama de classes do domínio). É o que apresentei em <a href="documentacao-de-arquiteturas.html">Documentação de Arquiteturas</a>, aplicado ao projeto.</p>
+
+            <figure class="mermaid-fig">
+                <div class="mermaid-scroll"><pre class="mermaid">
+flowchart TD
+    subgraph ATORES_LOJA ["🏢 Frente da Loja (Interno - JWT / RBAC)"]
+        Atendente["👤 Atendente<br/>[Pessoa]<br/>Realiza cadastro de clientes, veículos,<br/>abertura de OS e entrega de veículos."]
+        Mecanico["👤 Mecânico<br/>[Pessoa]<br/>Realiza diagnósticos, insere itens/peças,<br/>calcula orçamentos e executa serviços."]
+        Gerente["👤 Gerente / Admin<br/>[Pessoa]<br/>Administrador com acesso total (CRUD),<br/>relatórios e gestão do catálogo/estoque."]
+    end
+
+    subgraph SISTEMA ["⚙️ Fronteira do Sistema"]
+        OficinaSystem["🚘 Sistema de Gestão de Oficina Mecânica<br/>[Software System]<br/>Gerencia o ciclo de vida completo de Ordens de Serviço,<br/>controle atômico de estoque, cadastros e acompanhamento público."]
+    end
+
+    subgraph ATORES_CLIENTE ["📲 Frente do Cliente (Externo - Público)"]
+        Cliente["👤 Cliente<br/>[Pessoa]<br/>Consulta o status da OS em tempo real<br/>e aprova ou rejeita orçamentos propostos."]
+    end
+
+    Atendente -->|"Cadastra clientes/veículos e abre OS<br/>[HTTPS / REST API / JWT (Role: Atendente)]"| OficinaSystem
+    Mecanico -->|"Insere diagnósticos, peças e executa OS<br/>[HTTPS / REST API / JWT (Role: Mecanico)]"| OficinaSystem
+    Gerente -->|"Administra sistema, estoque e relatórios<br/>[HTTPS / REST API / JWT (Role: Gerente)]"| OficinaSystem
+    Cliente -->|"Consulta status da OS (Nº OS + CPF/CNPJ)<br/>e aprova/rejeita orçamento [HTTPS / REST API Pública]"| OficinaSystem
+</pre></div>
+                <figcaption>C4 nível 1: contexto (diagrama em Mermaid)</figcaption>
+            </figure>
+
+            <figure class="mermaid-fig">
+                <div class="mermaid-scroll"><pre class="mermaid">
+flowchart TD
+    subgraph CLIENTES ["🌐 Camada de Entrada / Clientes HTTP"]
+        BrowserLoja["💻 Interface web /oficina/ (POC) ou Swagger UI<br/>[Web Browser / OpenAPI]<br/>Interface interativa para atendimento e mecânicos."]
+        BrowserCliente["📱 Interface web /cliente/ (POC)<br/>[Web Browser / Mobile]<br/>Acompanhamento público e aprovação de orçamento."]
+    end
+
+    subgraph DOCKER_COMPOSE ["🐳 Docker Compose Environment"]
+        subgraph BACKEND_CONTAINER ["Contêiner: app (Python 3.12)"]
+            FastAPIApp["⚡ API Back-end Monolítica<br/>[Container: Python / FastAPI / Uvicorn]<br/>Processa regras de negócio, autenticação JWT,<br/>RBAC, máquina de estados da OS e APIs REST."]
+        end
+
+        subgraph DATABASE_CONTAINER ["Contêiner: db (PostgreSQL 16)"]
+            PostgresDB[("🐘 Banco de Dados Relacional<br/>[Container: PostgreSQL 16]<br/>Persistência transacional ACID de clientes, veículos,<br/>serviços, estoque de peças e histórico de OSs.")]
+        end
+    end
+
+    BrowserLoja -->|"Chamadas de API Autenticadas<br/>[JSON / HTTPS / Bearer JWT]"| FastAPIApp
+    BrowserCliente -->|"Consultas Públicas e Aprovação<br/>[JSON / HTTPS / Rate-Limited]"| FastAPIApp
+    FastAPIApp -->|"Persistência e Leitura Transacional<br/>[SQL / TCP Port 5432 / SQLAlchemy ORM]"| PostgresDB
+</pre></div>
+                <figcaption>C4 nível 2: contêineres (diagrama em Mermaid)</figcaption>
+            </figure>
+
+            <figure data-zoom class="mermaid-fig larga">
+                <div class="mermaid-scroll"><pre class="mermaid">
+flowchart TD
+    subgraph API_LAYER ["1. Camada de Apresentação / Entrada (src/presentation/)"]
+        RouterAutenticacao["🔐 routers/autenticacao.py<br/>Rota pública de login e emissão do JWT."]
+        RouterOS["🛠️ routers/ordens_servico.py<br/>Rotas administrativas de OS (Criar, Listar, Transicionar)."]
+        RouterClientes["👤 routers/clientes.py<br/>Rotas de CRUD de Clientes."]
+        RouterVeiculos["🚗 routers/veiculos.py<br/>Rotas de CRUD de Veículos."]
+        RouterUsuarios["👥 routers/usuarios.py<br/>Rotas de gestão de usuários, só do Gerente."]
+        RouterServicos["🔧 routers/servicos.py<br/>Rotas do catálogo de serviços."]
+        RouterEstoque["📦 routers/pecas.py<br/>Rotas de gestão de peças, reposição e ajuste do estoque."]
+        RouterAcompanhamento["📲 routers/acompanhamento_publico.py<br/>Rota desautenticada de consulta por número da OS e CPF/CNPJ."]
+
+        Dependencies["🛡️ middlewares/dependencies.py<br/>obter_usuario_autenticado e exigir_perfis validam o token Bearer<br/>e a claim 'role' (Atendente, Mecanico, Gerente)."]
+        RateLimit["⚡ middlewares/rate_limit.py<br/>limiter do SlowAPI nas rotas públicas contra força bruta."]
+        InterfaceWeb["🖥️ middlewares/interface_web.py<br/>Entrega as páginas de web/ (/oficina/ e /cliente/)<br/>com CSP e cabeçalhos de segurança; as páginas chamam a API."]
+    end
+
+    subgraph APPLICATION ["2. Camada de Aplicação (src/application/)"]
+        CriarOS["⚙️ CriarOS"]
+        AtribuirMecanico["⚙️ AtribuirMecanico"]
+        FinalizarOrcamento["⚙️ FinalizarOrcamento"]
+        CancelarOS["⚙️ CancelarOS"]
+        AprovarOrcamento["⚙️ AprovarOrcamento"]
+        RejeitarOrcamento["⚙️ RejeitarOrcamento"]
+        IniciarExecucao["⚙️ IniciarExecucao"]
+        ConsultarOSPublica["⚙️ ConsultarOSPublica"]
+        LocalizarOSDoTitular["⚙️ LocalizarOSDoTitular<br/>Número da OS + CPF/CNPJ do titular."]
+
+        Ports["🔌 Portas de Serviço (application/ports/)<br/>TokenService, PasswordHasher,<br/>UnidadeDeTrabalho, VerificadorDoBanco"]
+        EventDispatcher["⚡ EventDispatcher (In-Memory)<br/>Barramento síncrono para eventos de domínio."]
+        ReservaHandler["📦 ReservaPecasHandler<br/>Escuta OrcamentoFinalizadoEvent e reserva as peças da OS."]
+        EstornoHandler["📦 EstornoReservasHandler<br/>Escuta OSCanceladaEvent e estorna as reservas da OS."]
+        EstoqueHandler["📦 BaixaEstoqueHandler<br/>Escuta ExecucaoIniciadaEvent e efetua a baixa das peças reservadas."]
+        AlocacaoHandler["📦 AlocacaoPecasPendentesHandler<br/>Escuta SaldoPecaAtualizadoEvent, aloca o saldo às OS pendentes<br/>e libera as OS sem pendência."]
+    end
+
+    subgraph DOMAIN ["3. Camada de Domínio (src/domain/ - Pure Python Dataclasses)"]
+        AggOS[("🟩 Agregado: OrdemServico<br/>Entidade-raiz com regras da máquina de estados.")]
+        AggEstoque[("🟩 Agregado: EstoquePeca<br/>Entidade com controle quantitativo.")]
+        Entities["👤 Entidades<br/>Cliente, Veiculo, Usuario, Servico, Peca."]
+        VOs["💎 Value Objects<br/>Documento, CPF, CNPJ, Placa, Valor, NumeroOS, Orcamento,<br/>StatusOS, PerfilUsuario, OrigemTransicao."]
+        DomainEvents["🟧 Eventos de Domínio<br/>OrcamentoFinalizadoEvent, OSCanceladaEvent,<br/>ExecucaoIniciadaEvent, SaldoPecaAtualizadoEvent."]
+        Repositories["🔌 Portas de Repositório (ABCs)<br/>OrdemServicoRepository, EstoqueRepository, UsuarioRepository,<br/>ClienteRepository, VeiculoRepository, ServicoRepository,<br/>PecaRepository."]
+    end
+
+    subgraph INFRASTRUCTURE ["4. Camada de Infraestrutura (src/infrastructure/)"]
+        PgOSRepo["🐘 PostgresOrdemServicoRepository<br/>Implementação concreta SQLAlchemy."]
+        PgEstoqueRepo["🐘 PostgresEstoqueRepository<br/>Implementação concreta SQLAlchemy com Lock."]
+        PgCadastroRepo["🐘 PostgresClienteRepository, PostgresVeiculoRepository<br/>Implementações concretas SQLAlchemy."]
+        JwtTokenService["🔐 JwtTokenService<br/>Implementação de TokenService com PyJWT."]
+        BcryptHasher["🔐 BcryptPasswordHasher<br/>Implementação de PasswordHasher."]
+        PgDatabase["🐘 SQLAlchemy Session / Postgres Driver"]
+    end
+
+    Dependencies --> RouterOS
+    Dependencies --> RouterClientes
+    Dependencies --> RouterVeiculos
+    Dependencies --> RouterEstoque
+    Dependencies --> RouterUsuarios
+    Dependencies --> RouterServicos
+    RateLimit --> RouterAcompanhamento
+
+    RouterOS --> CriarOS
+    RouterOS --> AtribuirMecanico
+    RouterOS --> FinalizarOrcamento
+    RouterOS --> IniciarExecucao
+    RouterAcompanhamento --> AprovarOrcamento
+    RouterAcompanhamento --> RejeitarOrcamento
+    RejeitarOrcamento --> LocalizarOSDoTitular
+    RejeitarOrcamento --> AggOS
+    RejeitarOrcamento --> EventDispatcher
+    RouterAcompanhamento --> ConsultarOSPublica
+    ConsultarOSPublica --> LocalizarOSDoTitular
+    AprovarOrcamento --> LocalizarOSDoTitular
+    LocalizarOSDoTitular --> Repositories
+
+    AprovarOrcamento --> AggOS
+    IniciarExecucao --> AggOS
+    FinalizarOrcamento --> EventDispatcher
+    IniciarExecucao --> EventDispatcher
+    AggOS -.->|emite| DomainEvents
+    AggEstoque -.->|emite| DomainEvents
+    EventDispatcher -->|OrcamentoFinalizadoEvent| ReservaHandler
+    EventDispatcher -->|OSCanceladaEvent| EstornoHandler
+    EventDispatcher -->|ExecucaoIniciadaEvent| EstoqueHandler
+    EventDispatcher -->|SaldoPecaAtualizadoEvent| AlocacaoHandler
+    ReservaHandler --> AggEstoque
+    ReservaHandler --> AggOS
+    EstornoHandler --> AggEstoque
+    EstoqueHandler --> AggEstoque
+    AlocacaoHandler --> AggEstoque
+    AlocacaoHandler --> AggOS
+    ReservaHandler --> Repositories
+    EstornoHandler --> Repositories
+    EstoqueHandler --> Repositories
+    AlocacaoHandler --> Repositories
+
+    CriarOS --> Repositories
+    AprovarOrcamento --> Repositories
+
+    JwtTokenService -.->|Implementa| Ports
+    BcryptHasher -.->|Implementa| Ports
+    PgOSRepo -.->|Implementa| Repositories
+    PgEstoqueRepo -.->|Implementa| Repositories
+    PgOSRepo --> PgDatabase
+    PgEstoqueRepo --> PgDatabase
+</pre></div>
+                <figcaption>C4 nível 3: componentes (diagrama em Mermaid; role para os lados se necessário)</figcaption>
+            </figure>
+
+            <figure data-zoom class="mermaid-fig larga">
+                <div class="mermaid-scroll"><pre class="mermaid">
+classDiagram
+    class Cliente {
+        +UUID id
+        +str nome
+        +Documento documento
+        +str email
+        +str telefone
+        +bool ativo
+    }
+
+    class Veiculo {
+        +UUID id
+        +UUID cliente_id
+        +Placa placa
+        +str marca
+        +str modelo
+        +int ano
+        +bool ativo
+    }
+
+    class Usuario {
+        +UUID id
+        +str nome
+        +str email
+        +str senha_hash
+        +PerfilUsuario perfil
+        +bool ativo
+    }
+
+    class PerfilUsuario {
+        &lt;&lt;enumeration&gt;&gt;
+        ATENDENTE
+        MECANICO
+        GERENTE
+    }
+
+    class StatusOS {
+        &lt;&lt;enumeration&gt;&gt;
+        RECEBIDA
+        EM_DIAGNOSTICO
+        AGUARDANDO_APROVACAO
+        AGUARDANDO_PECA
+        AGUARDANDO_EXECUCAO
+        EM_EXECUCAO
+        FINALIZADA
+        ENTREGUE
+        CANCELADA
+    }
+
+    class OrdemServico {
+        +UUID id
+        +NumeroOS numero
+        +UUID cliente_id
+        +UUID veiculo_id
+        +UUID atendente_id
+        +Optional~UUID~ mecanico_id
+        +StatusOS status
+        +List~ItemServico~ servicos
+        +List~ItemPeca~ pecas
+        +datetime data_abertura
+        +Optional~datetime~ data_inicio_execucao
+        +Optional~datetime~ data_finalizacao
+        +Optional~Orcamento~ orcamento
+        +Tuple~HistoricoStatusOS~ historico
+        +List~DomainEvent~ _domain_events
+        +abrir(numero: NumeroOS, cliente_id: UUID, veiculo_id: UUID, atendente_id: UUID) OrdemServico
+        +atribuir_mecanico(mecanico: Usuario, responsavel: Usuario) void
+        +incluir_servico(servico: Servico) void
+        +incluir_peca(peca: Peca, quantidade: int) void
+        +remover_servico(servico_id: UUID) void
+        +remover_peca(peca_id: UUID) void
+        +congelar_valores(servicos_vigentes: List~Servico~, pecas_vigentes: List~Peca~) void
+        +finalizar_orcamento(usuario_id: UUID, servicos_vigentes: List~Servico~, pecas_vigentes: List~Peca~) void
+        +aprovar_orcamento(usuario_id: Optional~UUID~) void
+        +rejeitar_orcamento(usuario_id: Optional~UUID~) void
+        +alocar_peca(peca_id: UUID, quantidade: int) void
+        +liberar_para_execucao() void
+        +iniciar_execucao(usuario: Usuario) void
+        +concluir_manutencao(usuario: Usuario) void
+        +entregar_veiculo(usuario_id: UUID) void
+        +cancelar(usuario_id: UUID, motivo: str) void
+        +estimar_entrega(momento_consulta: datetime) Optional~datetime~
+        +collect_domain_events() List~DomainEvent~
+    }
+
+    class ItemServico {
+        +UUID servico_id
+        +str nome
+        +Valor preco_congelado
+        +int tempo_estimado_minutos
+        +congelar(servico: Servico) void
+    }
+
+    class ItemPeca {
+        +UUID peca_id
+        +str nome
+        +int quantidade
+        +int quantidade_reservada
+        +int quantidade_pendente
+        +Valor preco_unitario_congelado
+        +int prazo_reposicao_dias
+        +valor_total() Valor
+        +congelar(peca: Peca) void
+        +marcar_como_pendente() void
+    }
+
+    class Orcamento {
+        &lt;&lt;Value Object&gt;&gt;
+        +Valor subtotal_servicos
+        +Valor subtotal_pecas
+        +Valor total
+    }
+
+    class HistoricoStatusOS {
+        +UUID id
+        +Optional~StatusOS~ status_anterior
+        +StatusOS status_novo
+        +datetime data_hora
+        +OrigemTransicao origem
+        +Optional~UUID~ usuario_id
+        +Optional~str~ motivo
+    }
+
+    class OrigemTransicao {
+        &lt;&lt;enumeration&gt;&gt;
+        USUARIO
+        CLIENTE
+        SISTEMA
+    }
+
+    class Servico {
+        +UUID id
+        +str codigo
+        +str nome
+        +str descricao
+        +Valor valor_base
+        +int tempo_estimado_minutos
+        +bool ativo
+    }
+
+    class Peca {
+        +UUID id
+        +str codigo_referencia
+        +str nome
+        +Valor preco_unitario
+        +int prazo_reposicao_dias
+        +bool ativo
+    }
+
+    class EstoquePeca {
+        +UUID peca_id
+        +int quantidade_fisica
+        +int quantidade_reservada
+        +List~DomainEvent~ _domain_events
+        +saldo_disponivel() int
+        +reservar(quantidade: int) tuple
+        +alocar_pendencias(pendencias: List~PendenciaPeca~) List~AlocacaoPeca~
+        +baixar(quantidade: int) void
+        +estornar(quantidade: int) void
+        +repor(quantidade: int) void
+        +ajustar_quantidade_fisica(nova_quantidade: int) void
+        +collect_domain_events() List~DomainEvent~
+    }
+
+    class PendenciaPeca {
+        &lt;&lt;Value Object&gt;&gt;
+        +UUID os_id
+        +datetime data_abertura_os
+        +int quantidade_pendente
+    }
+
+    class AlocacaoPeca {
+        &lt;&lt;Value Object&gt;&gt;
+        +UUID os_id
+        +int quantidade_reservada
+    }
+
+    class QuantidadePeca {
+        &lt;&lt;Value Object&gt;&gt;
+        +UUID peca_id
+        +int quantidade
+    }
+
+    class Valor {
+        &lt;&lt;Value Object&gt;&gt;
+        +Decimal valor
+        +somar(outro: Valor) Valor
+        +multiplicar(quantidade: int) Valor
+    }
+
+    class NumeroOS {
+        &lt;&lt;Value Object&gt;&gt;
+        +str valor
+    }
+
+    class Documento {
+        &lt;&lt;abstract&gt;&gt;
+        +str valor
+        +tres_primeiros_digitos() str
+    }
+
+    class CPF {
+        &lt;&lt;Value Object&gt;&gt;
+    }
+
+    class CNPJ {
+        &lt;&lt;Value Object&gt;&gt;
+    }
+
+    class Placa {
+        &lt;&lt;Value Object&gt;&gt;
+        +str valor
+        +eh_mercosul() bool
+    }
+
+    class DomainEvent {
+        &lt;&lt;interface&gt;&gt;
+        +str event_id
+        +datetime occurred_on
+    }
+
+    class OrcamentoFinalizadoEvent {
+        +UUID os_id
+    }
+
+    class OSCanceladaEvent {
+        +UUID os_id
+        +List~QuantidadePeca~ estornos
+    }
+
+    class ExecucaoIniciadaEvent {
+        +UUID os_id
+        +List~QuantidadePeca~ baixas
+    }
+
+    class SaldoPecaAtualizadoEvent {
+        +UUID peca_id
+        +int saldo_disponivel
+    }
+
+    Usuario "1" --&gt; "1" PerfilUsuario : possui
+    Cliente --&gt; Documento : documento
+    Documento &lt;|-- CPF : pessoa física
+    Documento &lt;|-- CNPJ : pessoa jurídica
+    NumeroOS ..&gt; Documento : usa tres_primeiros_digitos
+    Veiculo "*" --&gt; "1" Cliente : pertence a (cliente_id)
+    OrdemServico "*" --&gt; "1" Cliente : referencia (cliente_id)
+    OrdemServico "*" --&gt; "1" Veiculo : referencia (veiculo_id)
+    OrdemServico "*" --&gt; "1" Usuario : atendente (atendente_id)
+    OrdemServico "*" --&gt; "0..1" Usuario : mecanico (mecanico_id)
+    OrdemServico "1" *-- "*" ItemServico : contem
+    OrdemServico "1" *-- "*" ItemPeca : contem
+    OrdemServico --&gt; StatusOS : possui estado
+    OrdemServico --&gt; NumeroOS : numero
+    OrdemServico "1" *-- "0..1" Orcamento : orcamento
+    OrdemServico "1" *-- "*" HistoricoStatusOS : historico
+    HistoricoStatusOS --&gt; OrigemTransicao : origem
+    ItemServico "*" --&gt; "1" Servico : referencia (servico_id)
+    ItemPeca "*" --&gt; "1" Peca : referencia (peca_id)
+    EstoquePeca "1" --&gt; "1" Peca : controla o estoque de (peca_id)
+    ItemServico --&gt; Valor : preco_congelado
+    ItemPeca --&gt; Valor : preco_unitario_congelado
+    Servico --&gt; Valor : valor_base
+    Peca --&gt; Valor : preco_unitario
+    Orcamento --&gt; Valor : subtotais e total
+    DomainEvent &lt;|-- OrcamentoFinalizadoEvent : herda de
+    DomainEvent &lt;|-- OSCanceladaEvent : herda de
+    DomainEvent &lt;|-- ExecucaoIniciadaEvent : herda de
+    DomainEvent &lt;|-- SaldoPecaAtualizadoEvent : herda de
+    OrdemServico *-- DomainEvent : acumula eventos
+    EstoquePeca *-- DomainEvent : acumula eventos
+    EstoquePeca ..&gt; PendenciaPeca : recebe
+    EstoquePeca ..&gt; AlocacaoPeca : devolve
+    OSCanceladaEvent --&gt; QuantidadePeca : estornos
+    ExecucaoIniciadaEvent --&gt; QuantidadePeca : baixas
+</pre></div>
+                <figcaption>C4 nível 4: classes do domínio (diagrama em Mermaid; role para os lados se necessário)</figcaption>
+            </figure>
+                    <figcaption>C4 nível 4: classes do domínio</figcaption>
+                </figure>
+            </div>
+
+            <h3>Estrutura de diretórios</h3>
+            <div class="code-container">
+                <pre class="tree"><code>.
+├── src/
+│   ├── domain/            entidades, objetos de valor, eventos, portas de repositório
+│   ├── application/       casos de uso, handlers de eventos, Event Dispatcher, portas técnicas
+│   ├── infrastructure/    banco (SQLAlchemy), repositórios PostgreSQL, JWT e bcrypt, configuração
+│   └── presentation/      FastAPI: rotas, schemas, middlewares, container e interface web
+├── migrations/            versões do schema (Alembic)
+├── tests/
+│   ├── unit/              sem banco e sem HTTP
+│   ├── integration/       fluxos de ponta a ponta com PostgreSQL
+│   └── desempenho/        cenário do Locust
+├── docs/
+│   ├── ddd/               Event Storming, Linguagem Ubíqua e modelo C4
+│   ├── evidencias/        cobertura e desempenho
+│   └── security/          vulnerabilidades e segredos
+├── .github/workflows/     pipeline de CI
+├── Dockerfile             imagem multi-stage
+└── docker-compose.yml     serviços app e db</code></pre>
+            </div>
+
+            <h3>Tecnologias</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Área</th><th>Tecnologia</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Linguagem</td><td>Python 3.12</td></tr>
+                        <tr><td>API</td><td>FastAPI e Uvicorn, com Swagger em <code>/docs</code></td></tr>
+                        <tr><td>Banco</td><td>PostgreSQL 16, com SQLAlchemy 2.0 assíncrono (asyncpg) e migrations Alembic</td></tr>
+                        <tr><td>Segurança</td><td>PyJWT, bcrypt e SlowAPI (rate limiting)</td></tr>
+                        <tr><td>Dependências</td><td>uv, com <code>pyproject.toml</code> e <code>uv.lock</code></td></tr>
+                        <tr><td>Testes e qualidade</td><td>pytest, pytest-asyncio, pytest-cov, httpx, Ruff e Locust</td></tr>
+                        <tr><td>Análise de segurança</td><td>pip-audit, Bandit, Trivy e gitleaks</td></tr>
+                        <tr><td>Execução e CI</td><td>Docker, Docker Compose e GitHub Actions</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Por que PostgreSQL</h3>
+            <ol>
+                <li><strong>Estrutura relacional forte:</strong> cliente tem veículos, cada OS pertence a um cliente e a um veículo e tem itens de serviço e de peça. O modelo relacional representa isso de forma natural.</li>
+                <li><strong>Integridade referencial:</strong> chaves estrangeiras e restrições de unicidade impedem que um dado duplicado ou uma exclusão corrompa o histórico. Clientes, veículos, serviços e peças têm <strong>exclusão lógica</strong>, para as OS antigas continuarem íntegras.</li>
+                <li><strong>Consistência atômica:</strong> reservar, baixar e estornar peças altera a OS e o estoque ao mesmo tempo. Transações ACID garantem que tudo aconteça junto ou nada aconteça, e o controle de concorrência impede que duas OS reservem o mesmo saldo.</li>
+            </ol>
+        </section>
+
+        <!-- ========================= REGRAS ========================= -->
+        <section id="regras">
+            <h2>As regras de negócio mais interessantes</h2>
+            <p>Algumas regras pareciam simples no papel e deram mais trabalho na prática. Estas são as que mais ensinaram.</p>
+
+            <h3>Reserva, pendência e prioridade da OS mais antiga</h3>
+            <p>Ao fechar o orçamento, o sistema <strong>reserva</strong> as peças da OS. Se não houver saldo suficiente, o orçamento sai mesmo assim: reserva-se o que existe e o resto fica <strong>pendente</strong>. Quando o estoque é reposto, o saldo vai primeiro para a OS aberta há mais tempo. Um exemplo com uma peça cujo estoque físico é 4:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Passo</th><th>O que acontece</th><th>Físico</th><th>Reservada</th><th>Saldo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>0</td><td>Situação inicial</td><td>4</td><td>0</td><td>4</td></tr>
+                        <tr><td>1</td><td>OS-A fecha o orçamento pedindo 3: reserva as 3</td><td>4</td><td>3</td><td>1</td></tr>
+                        <tr><td>2</td><td>OS-B (mais nova) pede 2: reserva 1, fica com 1 pendente</td><td>4</td><td>4</td><td>0</td></tr>
+                        <tr><td>3</td><td>O cliente da OS-B aprova: a OS vai para <code>AGUARDANDO_PECA</code></td><td>4</td><td>4</td><td>0</td></tr>
+                        <tr><td>4</td><td>O mecânico repõe 2 peças: o saldo vira 2, o handler aloca 1 para a OS-B, que fica sem pendência e vai sozinha para <code>AGUARDANDO_EXECUCAO</code></td><td>6</td><td>5</td><td>1</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 270" role="img" aria-label="Fluxo do evento OrcamentoFinalizado: a OS emite o evento, o despachante chama o handler de reserva, que usa EstoquePeca.alocar_pendencias e aplica cada alocação em OrdemServico.alocar_peca, tudo na mesma transação">
+                    <defs>
+                        <marker id="ev" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <rect x="4" y="4" width="752" height="262" rx="14" fill="none" stroke="#ff8fb8" stroke-width="1.5" stroke-dasharray="7 5"/>
+                    <text x="20" y="26" font-size="11.5" font-weight="700" style="fill:#ffd1e3">Uma única transação: se qualquer passo falha, tudo é desfeito</text>
+
+                    <g font-size="11.5" font-weight="700" text-anchor="middle">
+                        <rect x="20" y="55" width="210" height="62" rx="8" fill="#1c1c28" stroke="#c9a6ff" stroke-width="1.8"/>
+                        <text x="125" y="82">OrdemServico</text>
+                        <text x="125" y="100" class="muted" font-weight="400">finalizar_orcamento()</text>
+
+                        <rect x="275" y="55" width="210" height="62" rx="8" fill="#ffb347" stroke="#ffb347"/>
+                        <text x="380" y="82" style="fill:#1a1a24">OrcamentoFinalizadoEvent</text>
+                        <text x="380" y="100" style="fill:#1a1a24" font-weight="400">evento de domínio</text>
+
+                        <rect x="530" y="55" width="210" height="62" rx="8" fill="#1c1c28" stroke="#7fb9ff" stroke-width="1.8"/>
+                        <text x="635" y="82">Event Dispatcher</text>
+                        <text x="635" y="100" class="muted" font-weight="400">síncrono, em memória</text>
+
+                        <rect x="530" y="170" width="210" height="62" rx="8" fill="#1c1c28" stroke="#7fb9ff" stroke-width="1.8"/>
+                        <text x="635" y="197">ReservaPecasHandler</text>
+                        <text x="635" y="215" class="muted" font-weight="400">uma peça de cada vez</text>
+
+                        <rect x="275" y="170" width="210" height="62" rx="8" fill="#1c1c28" stroke="#a8e6a1" stroke-width="1.8"/>
+                        <text x="380" y="197">EstoquePeca</text>
+                        <text x="380" y="215" class="muted" font-weight="400">alocar_pendencias()</text>
+
+                        <rect x="20" y="170" width="210" height="62" rx="8" fill="#1c1c28" stroke="#c9a6ff" stroke-width="1.8"/>
+                        <text x="125" y="197">OrdemServico</text>
+                        <text x="125" y="215" class="muted" font-weight="400">alocar_peca()</text>
+                    </g>
+
+                    <g stroke="#b6b6c3" stroke-width="1.6" fill="none" marker-end="url(#ev)">
+                        <path d="M230 86 L273 86"/>
+                        <path d="M485 86 L528 86"/>
+                        <path d="M635 117 L635 168"/>
+                        <path d="M530 201 L487 201"/>
+                        <path d="M275 201 L232 201"/>
+                    </g>
+                </svg>
+                <figcaption>Como o orçamento fechado vira reserva de estoque. A OS e o estoque são agregados diferentes e se falam só por evento</figcaption>
+            </div>
+
+            <h3>Concorrência: duas OS disputando a mesma peça</h3>
+            <p>Se dois mecânicos fecham orçamentos ao mesmo tempo, os dois podem ler "saldo 1" e reservar a mesma peça. Para impedir isso, os casos de uso <strong>bloqueiam as linhas</strong> envolvidas (<code>SELECT ... FOR UPDATE</code>) sempre na <strong>mesma ordem</strong>: primeiro a OS, depois os estoques das peças, em ordem de id. A ordem fixa evita a maior parte dos impasses (deadlocks). Quando ainda assim ocorre um impasse, a transação inteira é <strong>repetida</strong>. Isso é coberto por testes que usam um PostgreSQL de verdade, inclusive um que provoca o impasse no banco.</p>
+
+            <h3>Preços congelados</h3>
+            <p>No momento em que o orçamento é concluído, o preço de cada serviço e de cada peça, o tempo estimado do serviço e o prazo de reposição da peça são <strong>copiados para a OS</strong>. Se o catálogo mudar depois, o valor cotado ao cliente e a estimativa de entrega não mudam (RNF-11). Os valores monetários são <code>NUMERIC(12, 2)</code> no banco e trafegam como texto no JSON, sem erro de ponto flutuante.</p>
+
+            <h3>Estimativa de entrega</h3>
+            <p>A data prevista é calculada em tempo corrido, com a soma dos tempos dos serviços e o maior prazo de reposição entre as peças pendentes, e depende do momento da OS:</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Status</th><th>Estimativa mostrada ao cliente</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>RECEBIDA, EM_DIAGNOSTICO</td><td>Nenhuma: os serviços ainda não foram definidos</td></tr>
+                        <tr><td>AGUARDANDO_APROVACAO, AGUARDANDO_PECA</td><td>Agora + prazo das peças pendentes + duração dos serviços</td></tr>
+                        <tr><td>AGUARDANDO_EXECUCAO</td><td>Agora + duração dos serviços</td></tr>
+                        <tr><td>EM_EXECUCAO</td><td>Início da execução + duração dos serviços</td></tr>
+                        <tr><td>FINALIZADA, ENTREGUE</td><td>A data de finalização registrada</td></tr>
+                        <tr><td>CANCELADA</td><td>Nenhuma</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Acompanhamento público sem vazar informação</h3>
+            <p>O cliente não tem login: ele se identifica com o <strong>número da OS e o CPF/CNPJ</strong>. Se o número não existe ou o documento não confere, a resposta é exatamente a mesma, sem dizer qual dos dois errou. Assim, ninguém descobre OS de outras pessoas por tentativa. A resposta também esconde dados pessoais e custos internos.</p>
+
+            <h3>Relatório de tempos médios</h3>
+            <p>O Gerente vê o tempo médio de execução (por mecânico), o tempo médio de espera por peça e o tempo total da OS, agrupados por período. O enunciado não definia o período, então o grupo escolheu o <strong>mês da finalização</strong>: a métrica só existe depois que a OS termina e não muda mais. A média de espera por peça considera apenas as OS que de fato esperaram.</p>
+        </section>
+
+        <!-- ========================= EXEMPLOS ========================= -->
+        <section id="exemplos">
+            <h2>Exemplos</h2>
+            <p>Dois pedaços do domínio, simplificados para ficarem curtos e independentes de framework. São versões didáticas escritas por mim, e não o código do repositório, mas seguem a mesma ideia.</p>
+
+            <h3>Transição de status com histórico</h3>
+            <p>A OS só aceita as mudanças previstas na tabela de transições e guarda cada uma no histórico. Qualquer outra levanta um erro. Esta versão reduzida tem seis dos nove status.</p>
+
+            <div class="code-container code-tabs">
+                <div class="code-tab-list" role="tablist" aria-label="Linguagem do exemplo">
+                    <button type="button" class="code-tab active" role="tab" aria-selected="true" data-lang="python">Python</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="java">Java</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="go">Golang</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="clojure">Clojure</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="c">C</button>
+                </div>
+                <div class="code-panel" data-lang="python">
+                    <pre><code class="language-python">class TransicaoInvalida(Exception):
+    pass
+
+
+PERMITIDAS = {
+    "RECEBIDA": {"EM_DIAGNOSTICO"},
+    "EM_DIAGNOSTICO": {"AGUARDANDO_APROVACAO"},
+    "AGUARDANDO_APROVACAO": {"EM_EXECUCAO", "CANCELADA"},
+    "EM_EXECUCAO": {"FINALIZADA"},
+}
+
+
+class OrdemServico:
+    def __init__(self):
+        self.status = "RECEBIDA"
+        # cada linha do histórico: (status anterior, novo status, origem)
+        self.historico = [(None, "RECEBIDA", "USUARIO")]
+
+    def mudar_status(self, novo, origem):
+        if novo not in PERMITIDAS.get(self.status, set()):
+            raise TransicaoInvalida(f"{self.status} -&gt; {novo}")
+        self.historico.append((self.status, novo, origem))
+        self.status = novo
+
+
+os_ = OrdemServico()
+os_.mudar_status("EM_DIAGNOSTICO", "USUARIO")
+os_.mudar_status("AGUARDANDO_APROVACAO", "USUARIO")
+os_.mudar_status("EM_EXECUCAO", "CLIENTE")   # aprovação feita pelo portal
+
+try:
+    os_.mudar_status("RECEBIDA", "USUARIO")  # voltar não é permitido
+except TransicaoInvalida as erro:
+    print("bloqueado:", erro)
+</code></pre>
+                </div>
+                <div class="code-panel" data-lang="java" hidden>
+                    <pre><code class="language-java">import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+public class OrdemServico {
+
+    record Registro(String anterior, String novo, String origem) {}
+
+    static final Map&lt;String, Set&lt;String&gt;&gt; PERMITIDAS = Map.of(
+        "RECEBIDA", Set.of("EM_DIAGNOSTICO"),
+        "EM_DIAGNOSTICO", Set.of("AGUARDANDO_APROVACAO"),
+        "AGUARDANDO_APROVACAO", Set.of("EM_EXECUCAO", "CANCELADA"),
+        "EM_EXECUCAO", Set.of("FINALIZADA")
+    );
+
+    String status = "RECEBIDA";
+    final List&lt;Registro&gt; historico = new ArrayList&lt;&gt;(
+        List.of(new Registro(null, "RECEBIDA", "USUARIO")));
+
+    void mudarStatus(String novo, String origem) {
+        if (!PERMITIDAS.getOrDefault(status, Set.of()).contains(novo)) {
+            throw new IllegalStateException(status + " -&gt; " + novo);
+        }
+        historico.add(new Registro(status, novo, origem));
+        status = novo;
+    }
+
+    public static void main(String[] args) {
+        OrdemServico os = new OrdemServico();
+        os.mudarStatus("EM_DIAGNOSTICO", "USUARIO");
+        os.mudarStatus("AGUARDANDO_APROVACAO", "USUARIO");
+        os.mudarStatus("EM_EXECUCAO", "CLIENTE");   // aprovação feita pelo portal
+
+        try {
+            os.mudarStatus("RECEBIDA", "USUARIO");  // voltar não é permitido
+        } catch (IllegalStateException erro) {
+            System.out.println("bloqueado: " + erro.getMessage());
+        }
+    }
+}
+</code></pre>
+                </div>
+                <div class="code-panel" data-lang="go" hidden>
+                    <pre><code class="language-go">package main
+
+import "fmt"
+
+var permitidas = map[string][]string{
+	"RECEBIDA":             {"EM_DIAGNOSTICO"},
+	"EM_DIAGNOSTICO":       {"AGUARDANDO_APROVACAO"},
+	"AGUARDANDO_APROVACAO": {"EM_EXECUCAO", "CANCELADA"},
+	"EM_EXECUCAO":          {"FINALIZADA"},
+}
+
+type Registro struct{ Anterior, Novo, Origem string }
+
+type OrdemServico struct {
+	Status    string
+	Historico []Registro
+}
+
+func Abrir() *OrdemServico {
+	return &amp;OrdemServico{
+		Status:    "RECEBIDA",
+		Historico: []Registro{{"", "RECEBIDA", "USUARIO"}},
+	}
+}
+
+func (o *OrdemServico) MudarStatus(novo, origem string) error {
+	for _, destino := range permitidas[o.Status] {
+		if destino == novo {
+			o.Historico = append(o.Historico, Registro{o.Status, novo, origem})
+			o.Status = novo
+			return nil
+		}
+	}
+	return fmt.Errorf("%s -&gt; %s", o.Status, novo)
+}
+
+func main() {
+	os := Abrir()
+	os.MudarStatus("EM_DIAGNOSTICO", "USUARIO")
+	os.MudarStatus("AGUARDANDO_APROVACAO", "USUARIO")
+	os.MudarStatus("EM_EXECUCAO", "CLIENTE") // aprovação feita pelo portal
+
+	if err := os.MudarStatus("RECEBIDA", "USUARIO"); err != nil { // voltar não é permitido
+		fmt.Println("bloqueado:", err)
+	}
+}
+</code></pre>
+                </div>
+                <div class="code-panel" data-lang="clojure" hidden>
+                    <pre><code class="language-clojure">(def permitidas
+  {"RECEBIDA"             #{"EM_DIAGNOSTICO"}
+   "EM_DIAGNOSTICO"       #{"AGUARDANDO_APROVACAO"}
+   "AGUARDANDO_APROVACAO" #{"EM_EXECUCAO" "CANCELADA"}
+   "EM_EXECUCAO"          #{"FINALIZADA"}})
+
+(defn abrir []
+  {:status "RECEBIDA"
+   :historico [{:anterior nil :novo "RECEBIDA" :origem "USUARIO"}]})
+
+(defn mudar-status [os novo origem]
+  (if (contains? (get permitidas (:status os) #{}) novo)
+    (-&gt; os
+        (update :historico conj {:anterior (:status os) :novo novo :origem origem})
+        (assoc :status novo))
+    (throw (ex-info (str (:status os) " -&gt; " novo) {:status (:status os)}))))
+
+(def os-aprovada
+  (-&gt; (abrir)
+      (mudar-status "EM_DIAGNOSTICO" "USUARIO")
+      (mudar-status "AGUARDANDO_APROVACAO" "USUARIO")
+      (mudar-status "EM_EXECUCAO" "CLIENTE")))   ; aprovação feita pelo portal
+
+(try
+  (mudar-status os-aprovada "RECEBIDA" "USUARIO") ; voltar não é permitido
+  (catch Exception e
+    (println "bloqueado:" (ex-message e))))
+</code></pre>
+                </div>
+                <div class="code-panel" data-lang="c" hidden>
+                    <pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+
+typedef enum { RECEBIDA, EM_DIAGNOSTICO, AGUARDANDO_APROVACAO,
+               EM_EXECUCAO, FINALIZADA, CANCELADA, N_STATUS } Status;
+
+static const char *NOMES[N_STATUS] = {
+    "RECEBIDA", "EM_DIAGNOSTICO", "AGUARDANDO_APROVACAO",
+    "EM_EXECUCAO", "FINALIZADA", "CANCELADA"
+};
+
+/* PERMITIDAS[de][para] == 1 quando a transição é válida */
+static const int PERMITIDAS[N_STATUS][N_STATUS] = {
+    [RECEBIDA]             = { [EM_DIAGNOSTICO] = 1 },
+    [EM_DIAGNOSTICO]       = { [AGUARDANDO_APROVACAO] = 1 },
+    [AGUARDANDO_APROVACAO] = { [EM_EXECUCAO] = 1, [CANCELADA] = 1 },
+    [EM_EXECUCAO]          = { [FINALIZADA] = 1 },
+};
+
+typedef struct { Status status; } OrdemServico;
+
+/* devolve 0 em caso de sucesso e -1 quando a transição é bloqueada */
+int mudar_status(OrdemServico *os, Status novo) {
+    if (!PERMITIDAS[os-&gt;status][novo]) return -1;
+    os-&gt;status = novo;
+    return 0;
+}
+
+int main(void) {
+    OrdemServico os = { RECEBIDA };
+    mudar_status(&amp;os, EM_DIAGNOSTICO);
+    mudar_status(&amp;os, AGUARDANDO_APROVACAO);
+    mudar_status(&amp;os, EM_EXECUCAO);
+
+    if (mudar_status(&amp;os, RECEBIDA) != 0) {      /* voltar não é permitido */
+        printf("bloqueado: %s -&gt; %s\n", NOMES[os.status], NOMES[RECEBIDA]);
+    }
+    return 0;
+}
+</code></pre>
+                </div>
+            </div>
+
+            <h3>Alocação de peças pela OS mais antiga</h3>
+            <p>Dado o saldo disponível e as pendências, o saldo é distribuído começando pela OS aberta há mais tempo. No exemplo, com saldo 4, a OS-A recebe 3 e a OS-B recebe 1 e continua com uma pendente. O custo é dominado pela ordenação, O(n log n), e a estratégia é gulosa, como vimos em <a href="leetcode.html">LeetCode e Algoritmos</a>.</p>
+
+            <div class="code-container code-tabs">
+                <div class="code-tab-list" role="tablist" aria-label="Linguagem do exemplo">
+                    <button type="button" class="code-tab active" role="tab" aria-selected="true" data-lang="python">Python</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="java">Java</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="go">Golang</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="clojure">Clojure</button>
+                    <button type="button" class="code-tab" role="tab" aria-selected="false" data-lang="c">C</button>
+                </div>
+                <div class="code-panel" data-lang="python">
+                    <pre><code class="language-python">def alocar_pendencias(saldo, pendencias):
+    """pendencias: lista de (os, dia_de_abertura, quantidade).
+    Devolve a lista de (os, quantidade) com a OS mais antiga primeiro."""
+    alocacoes = []
+    for os_, _, pedida in sorted(pendencias, key=lambda p: p[1]):
+        if saldo == 0:
+            break
+        dada = min(pedida, saldo)
+        alocacoes.append((os_, dada))
+        saldo -= dada
+    return alocacoes
+
+
+# Saldo de 4 peças; a OS-A (aberta no dia 1) espera 3 e a OS-B (dia 2) espera 2
+print(alocar_pendencias(4, [("OS-B", 2, 2), ("OS-A", 1, 3)]))
+# [('OS-A', 3), ('OS-B', 1)]  -&gt; a OS-B continua com 1 peça pendente
+</code></pre>
+                </div>
+                <div class="code-panel" data-lang="java" hidden>
+                    <pre><code class="language-java">import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+public class Estoque {
+
+    record Pendencia(String os, int dia, int quantidade) {}
+    record Alocacao(String os, int quantidade) {}
+
+    static List&lt;Alocacao&gt; alocarPendencias(int saldo, List&lt;Pendencia&gt; pendencias) {
+        List&lt;Pendencia&gt; ordenadas = new ArrayList&lt;&gt;(pendencias);
+        ordenadas.sort(Comparator.comparingInt(Pendencia::dia));   // mais antiga primeiro
+
+        List&lt;Alocacao&gt; alocacoes = new ArrayList&lt;&gt;();
+        for (Pendencia p : ordenadas) {
+            if (saldo == 0) break;
+            int dada = Math.min(p.quantidade(), saldo);
+            alocacoes.add(new Alocacao(p.os(), dada));
+            saldo -= dada;
+        }
+        return alocacoes;
+    }
+
+    public static void main(String[] args) {
+        var resultado = alocarPendencias(4, List.of(
+            new Pendencia("OS-B", 2, 2),
+            new Pendencia("OS-A", 1, 3)));
+        System.out.println(resultado);
+        // [Alocacao[os=OS-A, quantidade=3], Alocacao[os=OS-B, quantidade=1]]
+    }
+}
+</code></pre>
+                </div>
+                <div class="code-panel" data-lang="go" hidden>
+                    <pre><code class="language-go">package main
+
+import (
+	"fmt"
+	"sort"
+)
+
+type Pendencia struct {
+	OS         string
+	Dia        int
+	Quantidade int
+}
+
+type Alocacao struct {
+	OS         string
+	Quantidade int
+}
+
+func AlocarPendencias(saldo int, pendencias []Pendencia) []Alocacao {
+	ordenadas := append([]Pendencia(nil), pendencias...)
+	sort.Slice(ordenadas, func(i, j int) bool { return ordenadas[i].Dia &lt; ordenadas[j].Dia })
+
+	var alocacoes []Alocacao
+	for _, p := range ordenadas {
+		if saldo == 0 {
+			break
+		}
+		dada := min(p.Quantidade, saldo)
+		alocacoes = append(alocacoes, Alocacao{p.OS, dada})
+		saldo -= dada
+	}
+	return alocacoes
+}
+
+func main() {
+	fmt.Println(AlocarPendencias(4, []Pendencia{{"OS-B", 2, 2}, {"OS-A", 1, 3}}))
+	// [{OS-A 3} {OS-B 1}]
+}
+</code></pre>
+                </div>
+                <div class="code-panel" data-lang="clojure" hidden>
+                    <pre><code class="language-clojure">(defn alocar-pendencias
+  "pendencias: mapas com :os, :dia e :qtd. Devolve as alocações, a OS mais antiga primeiro."
+  [saldo pendencias]
+  (loop [saldo saldo
+         [p &amp; resto] (sort-by :dia pendencias)
+         alocacoes []]
+    (if (or (nil? p) (zero? saldo))
+      alocacoes
+      (let [dada (min (:qtd p) saldo)]
+        (recur (- saldo dada)
+               resto
+               (conj alocacoes {:os (:os p) :qtd dada}))))))
+
+(alocar-pendencias 4 [{:os "OS-B" :dia 2 :qtd 2}
+                      {:os "OS-A" :dia 1 :qtd 3}])
+;; =&gt; [{:os "OS-A", :qtd 3} {:os "OS-B", :qtd 1}]
+</code></pre>
+                </div>
+                <div class="code-panel" data-lang="c" hidden>
+                    <pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+typedef struct { const char *os; int dia; int quantidade; } Pendencia;
+
+static int por_dia(const void *a, const void *b) {
+    return ((const Pendencia *)a)-&gt;dia - ((const Pendencia *)b)-&gt;dia;
+}
+
+/* Preenche 'dada[i]' com a quantidade reservada para a i-ésima pendência,
+   já ordenada da OS mais antiga para a mais nova. */
+void alocar_pendencias(int saldo, Pendencia *pendencias, int n, int *dada) {
+    qsort(pendencias, n, sizeof(Pendencia), por_dia);
+    for (int i = 0; i &lt; n; i++) {
+        dada[i] = pendencias[i].quantidade &lt; saldo ? pendencias[i].quantidade : saldo;
+        saldo -= dada[i];
+    }
+}
+
+int main(void) {
+    Pendencia pendencias[] = { {"OS-B", 2, 2}, {"OS-A", 1, 3} };
+    int dada[2];
+    alocar_pendencias(4, pendencias, 2, dada);
+
+    for (int i = 0; i &lt; 2; i++)
+        printf("%s recebe %d\n", pendencias[i].os, dada[i]);
+    /* OS-A recebe 3
+       OS-B recebe 1 */
+    return 0;
+}
+</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================= SEGURANÇA ========================= -->
+        <section id="seguranca">
+            <span class="phase-tag">Segurança desde o projeto</span>
+            <h2>Segurança</h2>
+            <p>A segurança entrou nos requisitos, não só no fim, em linha com o que estudei em <a href="desenvolvimento-seguro.html">Desenvolvimento Seguro</a>. Cada controle tem um requisito e um teste.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Risco</th><th>Controle no SIAES</th><th>Requisito</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Acesso indevido às rotas da loja</td><td>Token JWT com o perfil na <em>claim</em> <code>role</code>; sem token responde <code>401</code>, com perfil sem permissão responde <code>403</code>. Senhas guardadas só como hash bcrypt</td><td>RNF-03, RF-01 a RF-03</td></tr>
+                        <tr><td>SQL Injection</td><td>Apenas ORM e consultas parametrizadas</td><td>RNF-04</td></tr>
+                        <tr><td>IDOR e enumeração de OS</td><td>Consulta e decisão públicas exigem número da OS e CPF/CNPJ; resposta única para "não encontrada"</td><td>RNF-04, RF-25, RF-26</td></tr>
+                        <tr><td>XSS</td><td>Texto livre com <code>&lt;</code> é recusado (<code>400</code>) por um objeto de valor compartilhado; a interface web envia cabeçalhos de segurança</td><td>RNF-04</td></tr>
+                        <tr><td>Força bruta e negação de serviço</td><td>Rate limiting de 10 requisições por minuto por IP nas rotas públicas (SlowAPI)</td><td>RNF-05</td></tr>
+                        <tr><td>Vazamento de segredos</td><td>Nada de credencial no repositório: tudo vem do ambiente, e a aplicação <strong>não inicia</strong> se uma variável obrigatória faltar</td><td>RNF-06</td></tr>
+                        <tr><td>Vulnerabilidades conhecidas</td><td>pip-audit, Bandit e Trivy, com justificativa de cada achado</td><td>RNF-07</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Segredos</h3>
+            <p>Uma revisão com o <strong>gitleaks</strong> percorreu todo o histórico, incluindo as branches remotas e as referências de Pull Request (que um <code>git fetch</code> comum não traz): 364 commits, sem nenhum segredo real. O único alerta foi um falso positivo, em que a regra atravessou a quebra de linha do <code>.env.example</code> e tomou como segredo a configuração pública de expiração do token. Ele ficou registrado no <code>.gitleaksignore</code>. O <code>.env</code> nunca foi versionado.</p>
+
+            <h3>Análise de vulnerabilidades</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Ferramenta</th><th>Alvo</th><th>Crítico</th><th>Alto</th><th>Médio</th><th>Baixo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>pip-audit</td><td>34 dependências de produção</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>Bandit</td><td>Código-fonte (cerca de 7,2 mil linhas)</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+                        <tr><td>Trivy (imagem)</td><td>Imagem Docker da aplicação</td><td>0</td><td>45</td><td>72</td><td>61</td></tr>
+                        <tr><td>Trivy (config)</td><td>Dockerfile</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Os achados da imagem estão todos em pacotes do sistema operacional da imagem base (Debian), <strong>sem correção publicada</strong>. Cada grupo foi analisado: são utilitários como <code>mount</code>, <code>nsenter</code>, ncurses e SQLite, que a aplicação não executa, e o processo roda sem privilégios. A primeira varredura encontrou 6 vulnerabilidades no <code>pip</code> da imagem base, e a correção foi remover o <code>pip</code> da imagem final, já que a aplicação roda por um ambiente virtual próprio.</p>
+
+            <div class="two-cols">
+                <div class="info-card">
+                    <span class="tag tag-support">Endurecimento da imagem</span>
+                    <h4>O que reduz a superfície de ataque</h4>
+                    <ul>
+                        <li>Imagem base <code>slim</code>, com o mínimo de pacotes</li>
+                        <li>Build multi-stage: ferramentas de build ficam fora da imagem final</li>
+                        <li>Processo com usuário sem privilégio (UID 10001) e código somente leitura para ele</li>
+                        <li><code>pip</code> removido da imagem final</li>
+                        <li><code>.env</code> e segredos fora da imagem</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Honestidade na análise</span>
+                    <h4>O que fica registrado</h4>
+                    <ul>
+                        <li>Achados sem correção são justificados, não escondidos</li>
+                        <li>A análise é refeita sobre o commit final da entrega</li>
+                        <li>O único alerta de configuração (falta de <code>HEALTHCHECK</code> no Dockerfile) está justificado: ele existe no Compose</li>
+                    </ul>
+                </div>
+            </div>
+
+            <figure class="img-slot">
+                <img src="../img/projetos/tech-challenge-1/analise-vulnerabilidades.png" alt="Resultado da análise de vulnerabilidades com Trivy, Bandit e pip-audit" loading="lazy" onerror="this.closest('.img-slot').classList.add('vazio')">
+                <div class="img-aviso"><strong>Inserir imagem aqui</strong>Print da saída do Trivy, do Bandit ou do pip-audit no terminal.<br><code>img/projetos/tech-challenge-1/analise-vulnerabilidades.png</code></div>
+                <figcaption>Saída da análise de vulnerabilidades</figcaption>
+            </figure>
+        </section>
+
+        <!-- ========================= QUALIDADE ========================= -->
+        <section id="qualidade">
+            <h2>Qualidade e testes</h2>
+            <p>O projeto tem <strong>1.872 testes</strong>, sendo 1.249 unitários e 623 de integração, e cerca de 18 mil linhas de teste para 8,4 mil de código de produção. A estratégia segue o que vimos em <a href="qualidade-de-software.html">Qualidade de Software</a>.</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Unitários</span>
+                    <h4>Regra de negócio isolada</h4>
+                    <p>Sem banco e sem HTTP. Cobrem objetos de valor (CPF, CNPJ, placa), a máquina de estados, o cálculo do orçamento e as regras de estoque: reserva, pendência, prioridade, baixa e estorno. Repositórios em memória substituem o banco.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Integração</span>
+                    <h4>Fluxos reais, banco real</h4>
+                    <p>Rodam pelas rotas HTTP contra um PostgreSQL de teste, recriado a cada execução: fluxo completo da OS, rejeição e cancelamento com estorno, peça pendente liberada pela reposição, permissões <code>401</code> e <code>403</code>, concorrência e migrations.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Desempenho</span>
+                    <h4>Locust</h4>
+                    <p>10 usuários por 60 segundos, com a mistura de listagens, detalhamento, consultas de catálogo e abertura de OS. O cenário falha sozinho se o p95 passar de 500 ms ou se houver qualquer erro.</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Evidência</th><th>Resultado</th><th>Meta</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Cobertura de <code>src/domain</code></td><td>100% (1.210 instruções)</td><td>80%</td></tr>
+                        <tr><td>Cobertura de <code>src/application</code></td><td>100% (1.185 instruções)</td><td>80%</td></tr>
+                        <tr><td>Tempo de resposta, p95</td><td>62 ms (mediana de 20 ms, p99 de 210 ms)</td><td>abaixo de 500 ms</td></tr>
+                        <tr><td>Requisições medidas</td><td>582, com 0 erros</td><td>sem erros</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Um limite assumido por escrito.</strong> O teste de desempenho mede leituras e a abertura de OS. As operações que bloqueiam linhas de OS e estoque (fechar orçamento, repor peça, cancelar) ficaram fora do cenário, e o relatório diz claramente que o p95 não diz nada sobre elas. Medir menos, mas dizer o que não foi medido, é mais útil que um número bonito sem contexto.</p>
+            </div>
+
+            <h3>Pipeline de integração contínua</h3>
+            <p>A cada Pull Request e a cada push na <code>main</code>, o GitHub Actions sobe um PostgreSQL 16 e executa a verificação completa. As ações usadas ficam fixadas pelo hash do commit, para que uma tag alterada não mude o pipeline.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 120" role="img" aria-label="Etapas do pipeline de CI: Ruff lint, Ruff formatação, testes com cobertura mínima de 80 por cento, Bandit, pip-audit e build da imagem Docker">
+                    <defs>
+                        <marker id="ci" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <g font-size="11" font-weight="700" text-anchor="middle">
+                        <rect x="6" y="30" width="108" height="60" rx="8" fill="#1c1c28" stroke="#7fb9ff" stroke-width="1.6"/>
+                        <text x="60" y="56">Ruff</text><text x="60" y="72" class="muted" font-weight="400">lint</text>
+                        <rect x="132" y="30" width="108" height="60" rx="8" fill="#1c1c28" stroke="#7fb9ff" stroke-width="1.6"/>
+                        <text x="186" y="56">Ruff</text><text x="186" y="72" class="muted" font-weight="400">formatação</text>
+                        <rect x="258" y="30" width="108" height="60" rx="8" fill="#1c1c28" stroke="#a8e6a1" stroke-width="1.8"/>
+                        <text x="312" y="56">Testes</text><text x="312" y="72" class="muted" font-weight="400">cobertura ≥ 80%</text>
+                        <rect x="384" y="30" width="108" height="60" rx="8" fill="#1c1c28" stroke="#ffb347" stroke-width="1.6"/>
+                        <text x="438" y="56">Bandit</text><text x="438" y="72" class="muted" font-weight="400">código</text>
+                        <rect x="510" y="30" width="108" height="60" rx="8" fill="#1c1c28" stroke="#ffb347" stroke-width="1.6"/>
+                        <text x="564" y="56">pip-audit</text><text x="564" y="72" class="muted" font-weight="400">dependências</text>
+                        <rect x="636" y="30" width="118" height="60" rx="8" fill="#1c1c28" stroke="#c9a6ff" stroke-width="1.6"/>
+                        <text x="695" y="56">docker build</text><text x="695" y="72" class="muted" font-weight="400">imagem</text>
+                    </g>
+                    <g stroke="#b6b6c3" stroke-width="1.6" fill="none" marker-end="url(#ci)">
+                        <path d="M114 60 L130 60"/><path d="M240 60 L256 60"/><path d="M366 60 L382 60"/><path d="M492 60 L508 60"/><path d="M618 60 L634 60"/>
+                    </g>
+                </svg>
+                <figcaption>Qualquer etapa que falhar derruba o CI do Pull Request</figcaption>
+            </div>
+
+            <div class="img-par">
+                <figure class="img-slot">
+                    <img src="../img/projetos/tech-challenge-1/testes-cobertura.png" alt="Execução dos testes com o relatório de cobertura" loading="lazy" onerror="this.closest('.img-slot').classList.add('vazio')">
+                    <div class="img-aviso"><strong>Inserir imagem aqui</strong>Print do terminal com <code>pytest --cov</code> mostrando os testes passando e 100% de cobertura.<br><code>img/projetos/tech-challenge-1/testes-cobertura.png</code></div>
+                    <figcaption>Testes e cobertura</figcaption>
+                </figure>
+                <figure class="img-slot">
+                    <img src="../img/projetos/tech-challenge-1/locust.png" alt="Relatório do Locust com o p95 medido" loading="lazy" onerror="this.closest('.img-slot').classList.add('vazio')">
+                    <div class="img-aviso"><strong>Inserir imagem aqui</strong>Print do relatório HTML do Locust (o arquivo está em <code>docs/evidencias/desempenho/</code>).<br><code>img/projetos/tech-challenge-1/locust.png</code></div>
+                    <figcaption>Teste de desempenho com Locust</figcaption>
+                </figure>
+            </div>
+
+            <figure class="img-slot">
+                <img src="../img/projetos/tech-challenge-1/ci-github-actions.png" alt="Pipeline de CI executado com sucesso no GitHub Actions" loading="lazy" onerror="this.closest('.img-slot').classList.add('vazio')">
+                <div class="img-aviso"><strong>Inserir imagem aqui</strong>Print de uma execução verde do workflow CI na aba Actions do repositório.<br><code>img/projetos/tech-challenge-1/ci-github-actions.png</code></div>
+                <figcaption>Pipeline de CI no GitHub Actions</figcaption>
+            </figure>
+        </section>
+
+        <!-- ========================= API ========================= -->
+        <section id="api">
+            <h2>API e interface web</h2>
+            <p>A API tem <strong>51 rotas</strong>, todas documentadas no Swagger (<code>/docs</code>), com os esquemas de entrada e saída, os códigos de status e o esquema de autenticação Bearer. Uma revisão do Swagger encontrou 15 rotas cujo erro <code>422</code> aparecia com o formato padrão do FastAPI, enquanto a API devolvia outro. Depois da correção, um teste automatizado protege o contrato, para a documentação nunca mais divergir do comportamento.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Recurso</th><th>Rotas</th><th>Quem acessa</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>/auth</code></td><td>Login</td><td>Todos os usuários internos</td></tr>
+                        <tr><td><code>/usuarios</code></td><td>CRUD, troca de senha, desativar e reativar</td><td>Gerente</td></tr>
+                        <tr><td><code>/clientes</code> e <code>/veiculos</code></td><td>CRUD com exclusão lógica</td><td>Atendente e Gerente escrevem; Mecânico consulta</td></tr>
+                        <tr><td><code>/servicos</code></td><td>CRUD do catálogo</td><td>Todos consultam; só o Gerente altera</td></tr>
+                        <tr><td><code>/pecas</code></td><td>CRUD, reposição e ajuste da quantidade física</td><td>Todos consultam; Mecânico e Gerente movimentam o estoque; só o Gerente altera o cadastro</td></tr>
+                        <tr><td><code>/ordens-servico</code></td><td>Abertura, listagem com filtros, detalhamento, mecânico, serviços, peças, orçamento, aprovação e rejeição no balcão, execução, conclusão, entrega e cancelamento</td><td>Varia por ação, conforme a tabela de transições</td></tr>
+                        <tr><td><code>/acompanhamento</code></td><td>Consulta, aprovação e rejeição pelo cliente</td><td>Público, com número da OS + CPF/CNPJ e limite de 10 por minuto</td></tr>
+                        <tr><td><code>/relatorios/tempos-medios</code></td><td>Relatório de gestão</td><td>Gerente</td></tr>
+                        <tr><td><code>/health</code></td><td>Estado da aplicação e do banco</td><td>Público</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Para a demonstração, a aplicação também traz uma <strong>interface web</strong> sem etapa de build (HTML, CSS e JavaScript puros), servida pela própria API: uma página para a oficina (<code>/oficina/</code>) e outra para o cliente (<code>/cliente/</code>). O menu e os botões mudam conforme o perfil de quem entrou.</p>
+
+            <div class="img-par">
+                <figure class="img-slot">
+                    <img src="../img/projetos/tech-challenge-1/swagger.png" alt="Documentação interativa da API no Swagger" loading="lazy" onerror="this.closest('.img-slot').classList.add('vazio')">
+                    <div class="img-aviso"><strong>Inserir imagem aqui</strong>Print do Swagger em <code>/docs</code>, com as rotas agrupadas por recurso.<br><code>img/projetos/tech-challenge-1/swagger.png</code></div>
+                    <figcaption>Swagger em /docs</figcaption>
+                </figure>
+                <figure class="img-slot">
+                    <img src="../img/projetos/tech-challenge-1/web-oficina-detalhe-os.png" alt="Detalhe de uma OS na interface da oficina, com itens, orçamento e histórico" loading="lazy" onerror="this.closest('.img-slot').classList.add('vazio')">
+                    <div class="img-aviso"><strong>Inserir imagem aqui</strong>Print do detalhe de uma OS, com serviços, peças, orçamento e histórico de status.<br><code>img/projetos/tech-challenge-1/web-oficina-detalhe-os.png</code></div>
+                    <figcaption>Detalhe de uma OS</figcaption>
+                </figure>
+                <figure class="img-slot">
+                    <img src="../img/projetos/tech-challenge-1/web-relatorio-tempos.png" alt="Relatório de tempos médios na interface da oficina" loading="lazy" onerror="this.closest('.img-slot').classList.add('vazio')">
+                    <div class="img-aviso"><strong>Inserir imagem aqui</strong>Print do relatório de tempos médios (visão do Gerente).<br><code>img/projetos/tech-challenge-1/web-relatorio-tempos.png</code></div>
+                    <figcaption>Relatório de tempos médios</figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <!-- ========================= EXECUÇÃO ========================= -->
+        <section id="execucao">
+            <h2>Execução</h2>
+            <p>Um único comando sobe o ambiente completo. A imagem é construída em dois estágios, e na subida do contêiner as migrations são aplicadas, o usuário Gerente padrão é criado e, com <code>SEED_DEMO=true</code>, também os dados de demonstração.</p>
+
+            <div class="code-container">
+                <pre><code># 1. variáveis de ambiente (o app não inicia se as obrigatórias estiverem vazias)
+cp .env.example .env
+
+# 2. sobe a API e o PostgreSQL
+docker compose up --build
+
+# 3. conferência
+curl http://localhost:8000/health</code></pre>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Endereço</th><th>O que é</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>http://localhost:8000/docs</code></td><td>Swagger</td></tr>
+                        <tr><td><code>http://localhost:8000/oficina/</code></td><td>Interface da loja (Atendente, Mecânico e Gerente)</td></tr>
+                        <tr><td><code>http://localhost:8000/cliente/</code></td><td>Interface do cliente, sem login</td></tr>
+                        <tr><td><code>http://localhost:8000/health</code></td><td>Estado da aplicação e do banco</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Dados de demonstração</h3>
+            <p>Para avaliar o sistema sem cadastrar tudo à mão, a carga inicial cria 5 serviços, 3 peças com estoque, 5 clientes com um veículo cada e <strong>10 ordens de serviço, uma em cada status</strong> (com mais de uma em alguns), com datas no passado. Há inclusive uma OS que esperou peça por 67 horas, para o relatório de tempos ter o que mostrar. A carga não duplica nada quando o contêiner reinicia.</p>
+
+            <div class="img-par">
+                <figure class="img-slot">
+                    <img src="../img/projetos/tech-challenge-1/docker-compose.png" alt="Serviços app e db saudáveis no Docker Compose" loading="lazy" onerror="this.closest('.img-slot').classList.add('vazio')">
+                    <div class="img-aviso"><strong>Inserir imagem aqui</strong>Print do <code>docker compose ps</code> com os serviços <code>app</code> e <code>db</code> como <code>healthy</code>.<br><code>img/projetos/tech-challenge-1/docker-compose.png</code></div>
+                    <figcaption>Ambiente no ar com Docker Compose</figcaption>
+                </figure>
+                <figure class="img-slot">
+                    <img src="../img/projetos/tech-challenge-1/fluxo-os-demonstracao.png" alt="Sequência de telas do fluxo completo de uma OS" loading="lazy" onerror="this.closest('.img-slot').classList.add('vazio')">
+                    <div class="img-aviso"><strong>Inserir imagem aqui</strong>Colagem do fluxo de uma OS: abertura, orçamento, aprovação pelo cliente, execução e entrega.<br><code>img/projetos/tech-challenge-1/fluxo-os-demonstracao.png</code></div>
+                    <figcaption>Fluxo completo de uma OS</figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <!-- ========================= ENTREGA ========================= -->
+        <section id="entrega">
+            <span class="phase-tag">Fechamento</span>
+            <h2>Entrega</h2>
+            <p>A correção considera apenas o commit informado na entrega, então boa parte do trabalho final foi conferir que tudo estava coerente com o código daquele commit: refazer a cobertura, a análise de vulnerabilidades e a revisão de segredos sobre a versão final e conferir se o board, os diagramas e a documentação ainda correspondiam ao código.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Item da entrega</th><th>Onde está</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Código e histórico</td><td><a href="https://github.com/vieira-gabriel/FIAP_SIAES" target="_blank" rel="noopener">github.com/vieira-gabriel/FIAP_SIAES</a></td></tr>
+                        <tr><td>README</td><td>Objetivo, solução, arquitetura, tecnologias, banco, execução, testes, Swagger, usuários de demonstração e estrutura de diretórios</td></tr>
+                        <tr><td>Documentação DDD</td><td>Event Storming (board e PDF), Linguagem Ubíqua e modelo C4, em <code>docs/ddd/</code></td></tr>
+                        <tr><td>Requisitos</td><td><code>docs/requisitos-funcionais.md</code> e <code>docs/requisitos-nao-funcionais.md</code></td></tr>
+                        <tr><td>Evidências</td><td>Cobertura e desempenho em <code>docs/evidencias/</code>; vulnerabilidades e segredos em <code>docs/security/</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>O vídeo tinha de cobrir: a proposta da solução, a arquitetura e a organização do monólito, a escolha do banco, o Event Storming, os elementos de DDD, a criação e o acompanhamento da OS, a inclusão de serviços e peças, a geração e a aprovação do orçamento, a mudança de status, a autenticação das APIs, a execução da aplicação, o Swagger, os testes automatizados e a análise de vulnerabilidades.</p>
+        </section>
+
+        <!-- ========================= APRENDIZADOS ========================= -->
+        <section id="aprendizados">
+            <h2>O que levo daqui</h2>
+            <p>O Tech Challenge foi o ponto em que as matérias deixaram de ser assuntos separados. Cada uma apareceu como uma decisão concreta:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Matéria</th><th>Onde apareceu no SIAES</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><a href="ddd.html">Domain-Driven Design</a></td><td>Event Storming, linguagem ubíqua, agregados <code>OrdemServico</code> e <code>EstoquePeca</code>, objetos de valor e eventos de domínio</td></tr>
+                        <tr><td><a href="arquiteturas-de-software.html">Arquiteturas de Software</a></td><td>Monólito em camadas, regra de dependência, portas e adaptadores, C4, RNFs e registro das decisões técnicas</td></tr>
+                        <tr><td><a href="qualidade-de-software.html">Qualidade de Software</a></td><td>1.872 testes, repositórios em memória, testes de integração com banco real, 100% de cobertura no núcleo e CI</td></tr>
+                        <tr><td><a href="desenvolvimento-seguro.html">Desenvolvimento Seguro</a></td><td>JWT e RBAC, OWASP (SQL Injection, IDOR, XSS), rate limiting, gestão de segredos, pip-audit, Bandit e Trivy</td></tr>
+                        <tr><td><a href="documentacao-de-arquiteturas.html">Documentação de Arquiteturas</a></td><td>C4, requisitos rastreáveis, guia de decisões, changelog da documentação e documentação junto do código</td></tr>
+                        <tr><td><a href="leetcode.html">LeetCode e Algoritmos</a></td><td>Alocação gulosa por prioridade, atenção à complexidade e escolha de estruturas de dados</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <ul>
+                <li>Modelar o negócio antes de programar poupa retrabalho: o vocabulário do Event Storming virou nome de classe, de método e de teste.</li>
+                <li>Regra de negócio dentro do domínio, sem depender de framework, torna os testes rápidos e a cobertura de 100% realista.</li>
+                <li>Decisão sem registro vira discussão repetida. O guia de decisões e o changelog pouparam muitas conversas.</li>
+                <li>Concorrência não aparece nos testes comuns. Foi preciso escrever testes que provocam a disputa e o impasse no banco de verdade.</li>
+                <li>Mostrar o que não foi medido ou resolvido é parte da engenharia, tanto quanto o que foi.</li>
+                <li>Trabalhar em grupo com Pull Request revisado, commits padronizados e definição de pronto deu ritmo e qualidade ao time.</li>
+            </ul>
+        </section>
+
+        <!-- ========================= REFERÊNCIAS ========================= -->
+        <section id="referencias">
+            <h2>Links do projeto</h2>
+            <ul class="references">
+                <li><a href="https://github.com/vieira-gabriel/FIAP_SIAES" target="_blank" rel="noopener">Repositório do SIAES no GitHub</a></li>
+                <li><a href="https://miro.com/app/board/uXjVEebLYnw=/?share_link_id=963442578083" target="_blank" rel="noopener">Board de Event Storming no Miro</a></li>
+                <li>EVANS, Eric. <em>Domain-Driven Design</em>. Addison-Wesley, 2003.</li>
+                <li>BROWN, Simon. <em>The C4 Model for Visualising Software Architecture</em>. c4model.com</li>
+                <li>OWASP Foundation. <em>OWASP Top 10</em>. owasp.org</li>
+                <li>FastAPI, SQLAlchemy, Alembic, PostgreSQL e uv: documentações oficiais de cada projeto.</li>
+            </ul>
+        </section>
+    </main>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'strict', flowchart: { htmlLabels: true, useMaxWidth: true } });
+        await mermaid.run({ querySelector: 'pre.mermaid' });
+
+        const overlay = document.createElement('div');
+        overlay.className = 'zoom-overlay';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.innerHTML = '<div class="zoom-bar"><span class="titulo"></span>' +
+            '<button type="button" data-a="menos" aria-label="Diminuir">&minus;</button>' +
+            '<span class="nivel" aria-live="polite">100%</span>' +
+            '<button type="button" data-a="mais" aria-label="Aumentar">+</button>' +
+            '<button type="button" data-a="ajustar">Ajustar à tela</button>' +
+            '<button type="button" data-a="fechar">Fechar (Esc)</button></div><div class="zoom-view"></div>';
+        document.body.appendChild(overlay);
+        const view = overlay.querySelector('.zoom-view');
+        const nivel = overlay.querySelector('.nivel');
+        let svg = null, larg = 1, escala = 1, ultimoFoco = null;
+
+        function aplicar(e) {
+            escala = Math.min(Math.max(e, 0.2), 6);
+            svg.style.width = (larg * escala) + 'px';
+            nivel.textContent = Math.round(escala * 100) + '%';
+        }
+        function ajustar() { aplicar((view.clientWidth - 32) / larg); }
+        function fechar() {
+            overlay.classList.remove('aberto');
+            document.body.style.overflow = '';
+            view.innerHTML = '';
+            if (ultimoFoco) ultimoFoco.focus();
+        }
+        function abrir(fig, botao) {
+            const orig = fig.querySelector('svg');
+            if (!orig) return;
+            ultimoFoco = botao;
+            svg = orig.cloneNode(true);
+            svg.removeAttribute('style');
+            svg.removeAttribute('height');
+            const vb = svg.viewBox && svg.viewBox.baseVal;
+            larg = vb && vb.width ? vb.width : orig.getBoundingClientRect().width;
+            view.innerHTML = '';
+            view.appendChild(svg);
+            overlay.querySelector('.titulo').textContent = fig.querySelector('figcaption').textContent.split(' (')[0];
+            overlay.classList.add('aberto');
+            document.body.style.overflow = 'hidden';
+            aplicar(1);
+            view.scrollTo(0, 0);
+            overlay.querySelector('[data-a="fechar"]').focus();
+        }
+
+        overlay.addEventListener('click', (e) => {
+            const a = e.target.closest('button') && e.target.closest('button').dataset.a;
+            if (a === 'mais') aplicar(escala * 1.25);
+            else if (a === 'menos') aplicar(escala / 1.25);
+            else if (a === 'ajustar') ajustar();
+            else if (a === 'fechar') fechar();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (!overlay.classList.contains('aberto')) return;
+            if (e.key === 'Escape') fechar();
+            else if (e.key === '+' || e.key === '=') aplicar(escala * 1.25);
+            else if (e.key === '-') aplicar(escala / 1.25);
+        });
+        view.addEventListener('wheel', (e) => {
+            if (!e.ctrlKey) return;
+            e.preventDefault();
+            aplicar(escala * (e.deltaY < 0 ? 1.1 : 1 / 1.1));
+        }, { passive: false });
+        let arr = null;
+        view.addEventListener('pointerdown', (e) => {
+            arr = { x: e.clientX, y: e.clientY, l: view.scrollLeft, t: view.scrollTop };
+            view.classList.add('arrastando');
+            view.setPointerCapture(e.pointerId);
+        });
+        view.addEventListener('pointermove', (e) => {
+            if (!arr) return;
+            view.scrollLeft = arr.l - (e.clientX - arr.x);
+            view.scrollTop = arr.t - (e.clientY - arr.y);
+        });
+        const soltar = () => { arr = null; view.classList.remove('arrastando'); };
+        view.addEventListener('pointerup', soltar);
+        view.addEventListener('pointercancel', soltar);
+
+        document.querySelectorAll('figure[data-zoom]').forEach((fig) => {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'zoom-btn';
+            b.textContent = '🔍 Ampliar diagrama';
+            b.addEventListener('click', () => abrir(fig, b));
+            fig.insertBefore(b, fig.firstChild);
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-go.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-clojure.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+    <script>
+        document.querySelectorAll('.code-tabs').forEach(function (box) {
+            var tabs = box.querySelectorAll('.code-tab');
+            var panels = box.querySelectorAll('.code-panel');
+            tabs.forEach(function (tab) {
+                tab.addEventListener('click', function () {
+                    tabs.forEach(function (t) {
+                        var on = t === tab;
+                        t.classList.toggle('active', on);
+                        t.setAttribute('aria-selected', on ? 'true' : 'false');
+                    });
+                    panels.forEach(function (p) {
+                        p.hidden = p.dataset.lang !== tab.dataset.lang;
+                    });
+                });
+            });
+        });
+        /* Imagens que já carregaram antes do script rodar não disparam onerror de novo; conferir as quebradas */
+        document.querySelectorAll('.img-slot img').forEach(function (img) {
+            if (img.complete && img.naturalWidth === 0) { img.closest('.img-slot').classList.add('vazio'); }
+        });
+    </script>
+</body>
+</html>
