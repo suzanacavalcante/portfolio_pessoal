@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo 2 do treinamento Databricks Fundamentals: The big idea: the lakehouse">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>The big idea: the lakehouse</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-databricks-fundamentals.html">&larr; Voltar ao Databricks Fundamentals</a>
+
+    <header>
+        <h1>The big idea: the lakehouse</h1>
+        <p>Databricks Fundamentals · Vídeo 2 de 7</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-2">
+            <p class="lead">Se toda empresa precisa acertar contexto, controle, custo e escolha, como entregar os quatro ao mesmo tempo? A resposta da Databricks começa com uma grande ideia: o lakehouse.</p>
+
+            <h3>De onde vem a ideia</h3>
+            <ul>
+                <li><strong>2013:</strong> a Databricks é fundada por pesquisadores da Universidade da Califórnia em Berkeley, entre eles os criadores originais do Apache Spark, do Delta Lake e do MLflow. Por isso a empresa nasce de uma base open source, o que molda até hoje a forma como pensa em abertura e escolha.</li>
+                <li><strong>2020:</strong> lançamento da primeira plataforma lakehouse na nuvem, combinando o melhor dos data warehouses e dos data lakes em uma única plataforma aberta e unificada para dados e IA.</li>
+                <li><strong>2021:</strong> os fundadores, junto de colegas de Berkeley e Stanford, cunham o termo <em>data lakehouse architecture</em>.</li>
+                <li><strong>2023:</strong> segundo a MIT Technology Review, 74% das empresas globais já tinham adotado um lakehouse em alguma parte do seu patrimônio de dados, e a maioria das demais pretendia adotar em até três anos.</li>
+            </ul>
+            <p>O formato é de uma fundação aberta que guarda todos os dados, com todo tipo de trabalho em cima: engenharia de dados e streaming, data warehousing, analytics e BI, e ciência de dados e IA, todos usando a mesma fonte.</p>
+
+            <h3>A chegada da IA generativa</h3>
+            <p>Em 2023, a IA generativa chegou e mudou os planos de todo mundo, entrando no trabalho diário mais rápido do que quase qualquer tecnologia anterior.</p>
+            <ul>
+                <li>91% das organizações estão experimentando ou investigando IA generativa.</li>
+                <li>75% dos CEOs acreditam que empresas com IA avançada terão uma vantagem competitiva real.</li>
+                <li>Quem usa IA generativa no dia a dia relata até 40% de aumento de desempenho.</li>
+                <li>Mesmo assim, cerca de 85% dos projetos de IA nunca saem da fase de testes.</li>
+            </ul>
+            <p>A distância entre a promessa e a produção é, em grande parte, um problema de dados. A missão da Databricks é <strong>democratizar dados e IA</strong>, tornando os dois acessíveis a todos os funcionários, técnicos ou não, e cada vez mais a própria IA é o meio de fazer isso.</p>
+
+            <h3>O que veio antes: warehouse e lake</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>Data warehouse</th><th>Data lake</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Origem</td><td>Existe desde a década de 1970</td><td>Surgiu com a computação em nuvem, no início dos anos 2010</td></tr>
+                        <tr><td>Ideia</td><td>Repositório estruturado que reúne dados de vários sistemas, limpos e reorganizados para relatórios e análises, como uma única fonte da verdade</td><td>Guarda qualquer tipo de dado (estruturado, semiestruturado ou não estruturado), com armazenamento barato</td></tr>
+                        <tr><td>Pontos fortes</td><td>Consultas rápidas e confiáveis em dados tabulares, como os de uma planilha</td><td>Abre as portas para streaming e casos de uso de IA generativa</td></tr>
+                        <tr><td>Limitações</td><td>Sofre com imagens, áudio, vídeo e texto livre. É caro para escalar, porque se paga ao fornecedor por computação e armazenamento, e costuma usar formatos proprietários fechados, o que gera lock-in</td><td>Difícil de configurar, com desempenho ruim em consultas de BI. Não tem noção nativa de tabelas e permissões, e sem disciplina vira um <em>data swamp</em>, um monte de dados em que ninguém acha nem confia em nada</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Usar os dois não resolveu</h3>
+            <p>A ideia óbvia foi usar os dois e ficar com o melhor de cada um, mas isso se mostrou muito mais difícil do que parecia:</p>
+            <ul>
+                <li>Cada sistema tem suas regras de governança e seu modelo de segurança, então as permissões precisam ser mantidas duas vezes e raramente batem.</li>
+                <li>As equipes copiam dados de um lado para o outro, o que desperdiça tempo, computação e armazenamento, e ninguém tem certeza de qual cópia está atual.</li>
+                <li>Mesmo com os dois sistemas, ainda há casos de uso que nenhum atende bem.</li>
+            </ul>
+            <p>Em vez do melhor dos dois mundos, sobraram silos de dados desconectados, modelos de segurança incompatíveis e um custo total de propriedade que só subia.</p>
+
+            <h3>O lakehouse</h3>
+            <p>O lakehouse é o melhor dos dois mundos, mas construído como <strong>um só sistema</strong>, e não como dois sistemas remendados. Ele parte de um data lake, onde todos os formatos convivem lado a lado, e acrescenta o que antes só existia no warehouse: tabelas confiáveis, transações, desempenho e governança.</p>
+
+            <div class="two-cols">
+                <div class="info-card">
+                    <span class="tag tag-support">O que entrega</span>
+                    <h4>Uma plataforma para tudo</h4>
+                    <ul>
+                        <li>Machine learning, SQL, business intelligence e streaming</li>
+                        <li>Uma única abordagem de segurança e governança para todos os dados</li>
+                        <li>Funciona em qualquer nuvem</li>
+                        <li>Construído sobre padrões abertos, sem prender a um fornecedor</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-core">Desafios resolvidos</span>
+                    <h4>Do problema à solução</h4>
+                    <ul>
+                        <li>Lock-in proprietário, resolvido com formatos abertos</li>
+                        <li>Políticas de segurança isoladas, resolvidas com governança unificada</li>
+                        <li>Uma arquitetura para todas as necessidades e um só lugar para olhar</li>
+                        <li>Confiança de que o dado à frente está no estado atual</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout">
+                <p><strong>A pergunta que fica:</strong> o lakehouse original resolveu o lock-in e os silos de segurança, mas não foi pensado necessariamente para responder o que vem agora. E a IA? E os agentes que agem sobre os dados por conta própria? É o que os próximos vídeos desenvolvem.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="databricks-fundamentals-video-1.html">&larr; Why Data &amp; AI are hard today?</a>
+            <a href="databricks-fundamentals-video-3.html">Tour of the Databricks Platform Capabilities &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

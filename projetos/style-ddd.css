@@ -292,3 +292,37 @@
 .code-panel[hidden] {
     display: none;
 }
+
+a.info-card {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
+a.info-card .card-link {
+    display: inline-block;
+    margin-top: .6rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-blue);
+}
+
+.page-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.6rem;
+    margin: 4rem 0 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-soft);
+}
+
+.page-nav a {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--color-blue);
+    text-decoration: none;
+}
+
+.page-nav a:hover {
+    text-decoration: underline;
+}

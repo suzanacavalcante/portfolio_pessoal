@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Principais tópicos da certificação Databricks Certified Data Engineer Associate, organizados por área do exame.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Databricks Data Engineer Associate</title>
+</head>
+<body>
+    <a class="back-link" href="index.html">&larr; Voltar aos projetos</a>
+
+    <header>
+        <h1>Databricks Data Engineer Associate</h1>
+        <p>Certificações · Databricks</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <ul class="toc">
+            <li><a href="#sobre">Sobre a certificação</a></li>
+            <li><a href="#topicos">Tópicos do exame</a></li>
+            <li><a href="#academy">Treinamentos da Academy</a></li>
+            <li><a href="#referencias">Referências</a></li>
+        </ul>
+
+        <!-- ========================= SOBRE ========================= -->
+        <section id="sobre">
+            <h2>Sobre a certificação</h2>
+            <p class="lead">A Databricks Certified Data Engineer Associate é a certificação de nível de entrada da Databricks para quem trabalha com engenharia de dados. Ela comprova que a pessoa consegue executar tarefas básicas de engenharia de dados na plataforma Databricks.</p>
+            <p>Na prática, o exame mede se você sabe usar a Databricks Data Intelligence Platform (o lakehouse) para construir e manter pipelines de dados: ingerir dados de diferentes fontes, transformá-los com SQL e Python (Apache Spark), armazená-los em tabelas Delta e colocar esses pipelines em produção com governança e qualidade.</p>
+
+            <div class="two-cols">
+                <div class="info-card">
+                    <span class="tag tag-support">Para quem é</span>
+                    <h4>Público</h4>
+                    <ul>
+                        <li>Quem está começando em engenharia de dados</li>
+                        <li>Analistas e cientistas de dados que querem construir pipelines</li>
+                        <li>Profissionais que vão atuar no ecossistema Databricks</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-core">O que valida</span>
+                    <h4>Competências</h4>
+                    <ul>
+                        <li>Uso da plataforma Databricks e do modelo lakehouse</li>
+                        <li>Ingestão e transformação de dados com SQL e Python</li>
+                        <li>Tabelas Delta e arquitetura em camadas (medalhão)</li>
+                        <li>Pipelines em produção, governança e qualidade dos dados</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="callout">
+                <p><strong>Por que fazer:</strong> é uma forma de validar, com o reconhecimento da própria Databricks, as bases de engenharia de dados no lakehouse, e serve de porta de entrada para as certificações de nível profissional.</p>
+            </div>
+        </section>
+
+        <!-- ========================= TÓPICOS ========================= -->
+        <section id="topicos">
+            <h2>Tópicos do exame</h2>
+            <p>O exame é dividido em sete seções, cada uma com um peso na prova. Os temas e percentuais abaixo seguem o guia oficial da Databricks (versão de agosto de 2026), que pode mudar: vale conferir a versão vigente duas semanas antes da prova.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Seção</th><th>Peso</th><th>Em torno de</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1. Databricks Intelligence Platform</td><td>6%</td><td>3 questões</td></tr>
+                        <tr><td>2. Data Ingestion and Loading</td><td>21%</td><td>9 a 10 questões</td></tr>
+                        <tr><td>3. Data Transformation and Modeling</td><td>22%</td><td>10 questões</td></tr>
+                        <tr><td>4. Working with Lakeflow Jobs</td><td>16%</td><td>7 questões</td></tr>
+                        <tr><td>5. Implementing CI/CD</td><td>10%</td><td>4 a 5 questões</td></tr>
+                        <tr><td>6. Troubleshooting, Monitoring, and Optimization</td><td>10%</td><td>4 a 5 questões</td></tr>
+                        <tr><td>7. Governance and Security</td><td>15%</td><td>7 questões</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>A quantidade de questões é uma estimativa feita sobre as 45 questões pontuadas, não um número oficial por seção.</p>
+
+            <h3>Formato da prova</h3>
+            <div class="table-wrap">
+                <table>
+                    <tbody>
+                        <tr><td>Questões</td><td>45 pontuadas, de múltipla escolha (pode haver até 10 não pontuadas)</td></tr>
+                        <tr><td>Tempo</td><td>90 minutos</td></tr>
+                        <tr><td>Aplicação</td><td>Online com fiscal (proctored) ou em centro de testes</td></tr>
+                        <tr><td>Idiomas</td><td>Inglês, japonês, português (BR) e coreano</td></tr>
+                        <tr><td>Consulta</td><td>Nenhum material permitido</td></tr>
+                        <tr><td>Taxa</td><td>US$ 200, mais impostos locais</td></tr>
+                        <tr><td>Pré-requisito</td><td>Nenhum. Recomendados seis meses de prática na plataforma</td></tr>
+                        <tr><td>Validade</td><td>2 anos</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>1. Databricks Intelligence Platform <span class="phase-tag">6%</span></h3>
+            <ul>
+                <li>Componentes centrais da plataforma: arquitetura, Delta Lake e Unity Catalog.</li>
+                <li>Serviços de computação: características, limitações e modelos de custo, e escolher a opção certa para cada carga de trabalho.</li>
+            </ul>
+
+            <h3>2. Data Ingestion and Loading <span class="phase-tag">21%</span></h3>
+            <ul>
+                <li>Padrões de ingestão: batch, streaming e carga incremental, vindos de arquivos locais e de conectores do Lakeflow Connect (padrão e gerenciados).</li>
+                <li><strong>COPY INTO</strong> para carregar arquivos do armazenamento em nuvem (ADLS, S3, GCS) em tabelas do Unity Catalog de forma incremental.</li>
+                <li><strong>Auto Loader</strong> com imposição e evolução de schema, em modo batch (listagem de diretório ou notificação de arquivos).</li>
+                <li>Configurar o Lakeflow Connect para ingerir fontes corporativas diversas.</li>
+                <li>JDBC/ODBC e clientes REST em notebooks, orquestrados com Lakeflow Jobs.</li>
+                <li>Escolher entre Auto Loader, Lakeflow Connect, conectores de parceiros e outros métodos conforme volume, frequência, tipo de dado e governança.</li>
+                <li>Dados semiestruturados e não estruturados (como JSON e dados aninhados) em tabelas Delta.</li>
+            </ul>
+
+            <h3>3. Data Transformation and Modeling <span class="phase-tag">22%</span></h3>
+            <ul>
+                <li>Limpeza de dados: ler tabelas bronze com PySpark ou SQL, tratar nulos, padronizar tipos e gravar em tabelas silver.</li>
+                <li>Combinar DataFrames: inner join, left join, broadcast join, várias chaves, cross join, union e union all.</li>
+                <li>Manipular colunas, linhas e estrutura: adicionar, remover, dividir e renomear colunas, filtrar e explodir arrays (explode).</li>
+                <li>Deduplicação e agregações, como count, approximate count distinct, mean e summary.</li>
+                <li>Parâmetros básicos de ajuste (<code>spark.sql.shuffle.partitions</code>, <code>spark.default.parallelism</code>, memória de executor e driver, <code>spark.sql.autoBroadcastJoinThreshold</code>) e medir o desempenho de novo.</li>
+                <li>Camada gold: diferença entre e como construir materialized views, views, streaming tables e tabelas para BI e análise no Unity Catalog.</li>
+                <li>Regras de qualidade e validação para garantir datasets silver e gold confiáveis.</li>
+            </ul>
+
+            <h3>4. Working with Lakeflow Jobs <span class="phase-tag">16%</span></h3>
+            <ul>
+                <li>Fluxo de controle: novas tentativas (retries) e tarefas condicionais, com ramificação e repetição.</li>
+                <li>Tarefas comuns (notebook, consulta SQL, dashboard e pipeline) e suas dependências no grafo de tarefas (DAG).</li>
+                <li>Agendamento e tipos de gatilho: agendado, chegada de arquivo e atualização de tabela.</li>
+                <li>Escolher entre gatilhos por tempo e por dados, conforme a disponibilidade dos dados e as dependências do pipeline.</li>
+            </ul>
+
+            <h3>5. Implementing CI/CD <span class="phase-tag">10%</span></h3>
+            <ul>
+                <li>Fluxo de desenvolvimento nas Git folders do Databricks (antes chamadas de Repos): branches, commit, push e pull requests.</li>
+                <li>Configuração por ambiente com variáveis e sobrescritas dos Declarative Automation Bundles (antes Databricks Asset Bundles), promovendo o mesmo código entre dev, test e prod.</li>
+                <li>Implantar bundles para empacotar e promover jobs, pipelines declarativos e outros ativos do workspace.</li>
+                <li>Databricks CLI para validar, implantar e gerenciar bundles em fluxos automatizados.</li>
+            </ul>
+
+            <h3>6. Troubleshooting, Monitoring, and Optimization <span class="phase-tag">10%</span></h3>
+            <ul>
+                <li>Tendências de desempenho no histórico de execuções do Lakeflow Jobs, comparando com o tempo habitual.</li>
+                <li>Monitorar a saúde dos pipelines: status dos jobs, grafo de tarefas, tempos de execução e taxa de falhas.</li>
+                <li>Gargalos comuns, como data skew, shuffle e disk spilling, lidos nas métricas por estágio da Spark UI.</li>
+                <li>Liquid Clustering e predictive optimization.</li>
+                <li>Diagnóstico de falhas na inicialização do cluster, conflitos de bibliotecas e falta de memória (out of memory).</li>
+            </ul>
+
+            <h3>7. Governance and Security <span class="phase-tag">15%</span></h3>
+            <ul>
+                <li>Tabelas gerenciadas e externas no Unity Catalog: diferenças, operações básicas (criar, alterar, excluir) e conversão entre elas.</li>
+                <li>Controle de acesso com <code>GRANT</code>, <code>REVOKE</code> e <code>DENY</code> para usuários, grupos e service principals, nos níveis certos da hierarquia de segurança.</li>
+                <li>Mascaramento de colunas e segurança em nível de linha, conforme o grupo do usuário.</li>
+                <li>Políticas ABAC do Unity Catalog para filtrar linhas e mascarar colunas sensíveis de forma centralizada.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Onde pesa mais:</strong> Transformação e Modelagem (22%) e Ingestão e Carga (21%) somam 43% da prova. Com Lakeflow Jobs (16%) e Governança (15%), chegam a mais de 70%.</p>
+            </div>
+        </section>
+
+        <!-- ========================= ACADEMY ========================= -->
+        <section id="academy">
+            <h2>Treinamentos da Databricks Academy</h2>
+            <p>Para me preparar, fiz 9 treinamentos na Databricks Academy. Cada um tem uma página própria com o que aprendi, na ordem em que os fiz.</p>
+
+            <div class="card-grid">
+                <a class="info-card" href="databricks-academy-databricks-fundamentals.html">
+                    <span class="tag tag-core">1</span>
+                    <h4>Databricks Fundamentals</h4>
+                    <p>Visão geral da plataforma Databricks e do lakehouse.</p>
+                    <span class="card-link">Ver o que aprendi &rarr;</span>
+                </a>
+                <a class="info-card" href="databricks-academy-accreditation.html">
+                    <span class="tag tag-generic">2</span>
+                    <h4>Accreditation</h4>
+                    <p>Acreditação em fundamentos da plataforma Databricks.</p>
+                    <span class="card-link">Ver o que aprendi &rarr;</span>
+                </a>
+                <a class="info-card" href="databricks-academy-get-started-data-engineering.html">
+                    <span class="tag tag-support">3</span>
+                    <h4>Get Started with Databricks for Data Engineering</h4>
+                    <p>Primeiros passos em engenharia de dados na plataforma.</p>
+                    <span class="card-link">Ver o que aprendi &rarr;</span>
+                </a>
+                <a class="info-card" href="databricks-academy-python-data-science-engineering.html">
+                    <span class="tag tag-core">4</span>
+                    <h4>Introduction to Python for Data Science and Data Engineering</h4>
+                    <p>Python aplicado a dados, base para PySpark e pipelines.</p>
+                    <span class="card-link">Ver o que aprendi &rarr;</span>
+                </a>
+                <a class="info-card" href="databricks-academy-lakeflow-connect.html">
+                    <span class="tag tag-generic">5</span>
+                    <h4>Data Ingestion with Lakeflow Connect</h4>
+                    <p>Ingestão de dados de diferentes fontes com o Lakeflow Connect.</p>
+                    <span class="card-link">Ver o que aprendi &rarr;</span>
+                </a>
+                <a class="info-card" href="databricks-academy-lakeflow-spark-declarative-pipelines.html">
+                    <span class="tag tag-support">6</span>
+                    <h4>Build Data Pipelines with Lakeflow Spark Declarative Pipelines</h4>
+                    <p>Construção de pipelines declarativos de dados.</p>
+                    <span class="card-link">Ver o que aprendi &rarr;</span>
+                </a>
+                <a class="info-card" href="databricks-academy-lakeflow-jobs.html">
+                    <span class="tag tag-core">7</span>
+                    <h4>Deploy Workloads with Lakeflow Jobs</h4>
+                    <p>Orquestração e implantação de cargas de trabalho com Lakeflow Jobs.</p>
+                    <span class="card-link">Ver o que aprendi &rarr;</span>
+                </a>
+                <a class="info-card" href="databricks-academy-data-governance.html">
+                    <span class="tag tag-generic">8</span>
+                    <h4>Get Started with Data Governance on Databricks</h4>
+                    <p>Fundamentos de governança de dados na plataforma.</p>
+                    <span class="card-link">Ver o que aprendi &rarr;</span>
+                </a>
+                <a class="info-card" href="databricks-academy-unity-catalog-interoperability.html">
+                    <span class="tag tag-support">9</span>
+                    <h4>Data Interoperability with Unity Catalog</h4>
+                    <p>Interoperabilidade de dados com o Unity Catalog.</p>
+                    <span class="card-link">Ver o que aprendi &rarr;</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- ========================= REFERÊNCIAS ========================= -->
+        <section id="referencias">
+            <h2>Para aprofundar</h2>
+            <ul class="references">
+                <li>DATABRICKS. <em>Databricks Certified Data Engineer Associate: Exam Guide</em>, atualizado em 6 de agosto de 2026. databricks.com/learn/certification/data-engineer-associate</li>
+                <li>DATABRICKS. <em>Documentação oficial da plataforma Databricks</em>. docs.databricks.com</li>
+            </ul>
+        </section>
+    </main>
+</body>
+</html>
