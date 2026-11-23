@@ -4,13 +4,258 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="O que aprendi no treinamento Accreditation da Databricks Academy.">
+    <meta name="description" content="Quiz interativo com 20 perguntas sobre os conceitos do treinamento Databricks Fundamentals: os quatro Cs, o lakehouse, a plataforma, a governança e o Genie.">
     <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style-banco.css">
     <link rel="stylesheet" href="style-ddd.css">
-    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
-    <title>Accreditation</title>
+    <title>Accreditation: Quiz Databricks Fundamentals</title>
+    <style>
+        .quiz {
+            --ok: #3ecf8e;
+            --ok-bg: rgba(62, 207, 142, .12);
+            --bad: #ff6b81;
+            --bad-bg: rgba(255, 107, 129, .12);
+            margin: 2rem 0 4rem;
+        }
+
+        .quiz-intro {
+            text-align: center;
+            padding: 3.2rem 2rem;
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .quiz-intro h2 {
+            border: 0;
+            padding: 0;
+            margin-bottom: 1rem;
+        }
+
+        .quiz-intro h2::after { display: none; }
+
+        .quiz-intro ul {
+            display: inline-block;
+            text-align: left;
+            margin: 1.2rem 0 2rem;
+            padding-left: 2rem;
+            font-size: 1.4rem;
+        }
+
+        .quiz-btn {
+            display: inline-block;
+            padding: 1.1rem 2.8rem;
+            border: 0;
+            border-radius: 999px;
+            background: var(--gradient-brand);
+            color: #fff;
+            font-family: inherit;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .2s var(--ease), box-shadow .2s var(--ease), opacity .2s var(--ease);
+        }
+
+        .quiz-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -10px var(--color-blue); }
+        .quiz-btn:focus-visible, .quiz-opt:focus-visible { outline: 3px solid var(--color-azul); outline-offset: 3px; }
+
+        .quiz-btn.ghost {
+            background: transparent;
+            border: 1px solid var(--border-soft);
+            color: var(--color-white);
+        }
+
+        .quiz-btn.ghost:hover { border-color: var(--color-blue-light); box-shadow: none; }
+
+        .quiz-card {
+            padding: 2.4rem;
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .quiz-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--color-white-dim);
+        }
+
+        .quiz-bar {
+            height: .8rem;
+            border-radius: 999px;
+            background: var(--surface-2);
+            overflow: hidden;
+            margin-bottom: 2.4rem;
+        }
+
+        .quiz-bar span {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: 999px;
+            background: var(--gradient-brand);
+            transition: width .4s var(--ease);
+        }
+
+        .quiz-q {
+            margin: 0 0 2rem;
+            color: var(--color-white);
+            font-size: 2rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .quiz-opts {
+            display: grid;
+            gap: 1.1rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .quiz-opt {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.4rem;
+            width: 100%;
+            padding: 1.4rem 1.6rem;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+            background: var(--surface-2);
+            color: var(--color-white);
+            font-family: inherit;
+            font-size: 1.5rem;
+            text-align: left;
+            cursor: pointer;
+            transition: border-color .2s var(--ease), background .2s var(--ease), transform .2s var(--ease);
+        }
+
+        .quiz-opt:hover:not(:disabled) { border-color: var(--color-blue-light); transform: translateX(3px); }
+        .quiz-opt:disabled { cursor: default; }
+
+        .quiz-key {
+            flex: none;
+            display: grid;
+            place-items: center;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--color-blue-light);
+        }
+
+        .quiz-opt.correct { border-color: var(--ok); background: var(--ok-bg); }
+        .quiz-opt.correct .quiz-key { background: var(--ok); border-color: var(--ok); color: #04130c; }
+        .quiz-opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+        .quiz-opt.wrong .quiz-key { background: var(--bad); border-color: var(--bad); color: #1a0409; }
+        .quiz-opt.dim { opacity: .55; }
+
+        .quiz-feedback {
+            display: none;
+            margin-top: 2rem;
+            padding: 1.6rem 1.8rem;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--color-blue-light);
+            background: var(--surface-2);
+            font-size: 1.4rem;
+        }
+
+        .quiz-feedback.show { display: block; animation: quizIn .3s var(--ease); }
+        .quiz-feedback.ok { border-left-color: var(--ok); }
+        .quiz-feedback.bad { border-left-color: var(--bad); }
+        .quiz-feedback strong { display: block; margin-bottom: .4rem; color: var(--color-white); font-size: 1.5rem; }
+
+        .quiz-next { margin-top: 2rem; text-align: right; }
+        .quiz-next .quiz-btn[hidden] { display: none; }
+
+        .quiz-result { text-align: center; }
+
+        .quiz-ring {
+            position: relative;
+            width: 16rem;
+            height: 16rem;
+            margin: 1rem auto 2rem;
+        }
+
+        .quiz-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .quiz-ring circle { fill: none; stroke-width: 10; }
+        .quiz-ring .track { stroke: var(--surface-2); }
+        .quiz-ring .value { stroke: url(#quizGrad); stroke-linecap: round; transition: stroke-dashoffset 1s var(--ease); }
+
+        .quiz-ring .score {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-content: center;
+            color: var(--color-white);
+            font-size: 3.6rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .quiz-ring .score small { display: block; margin-top: .6rem; font-size: 1.3rem; font-weight: 500; color: var(--color-white-dim); }
+
+        .quiz-result h2 { border: 0; padding: 0; margin-bottom: .8rem; }
+        .quiz-result h2::after { display: none; }
+
+        .quiz-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.2rem; margin: 2rem 0; }
+
+        .quiz-review { margin-top: 3rem; text-align: left; }
+        .quiz-review h3 { margin-bottom: 1.4rem; }
+
+        .quiz-review-item {
+            margin-bottom: 1.4rem;
+            padding: 1.6rem 1.8rem;
+            border-radius: var(--radius-sm);
+            background: var(--surface-2);
+            border-left: 4px solid var(--bad);
+            font-size: 1.4rem;
+        }
+
+        .quiz-review-item p { margin: 0 0 .6rem; }
+        .quiz-review-item .q { color: var(--color-white); font-weight: 600; }
+        .quiz-review-item .mine { color: var(--bad); }
+        .quiz-review-item .right { color: var(--ok); }
+
+        .quiz-perfect {
+            padding: 1.6rem;
+            border-radius: var(--radius-sm);
+            background: var(--ok-bg);
+            border: 1px solid var(--ok);
+            color: var(--color-white);
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        .quiz-best { margin-top: 1.4rem; font-size: 1.3rem; }
+
+        @keyframes quizIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: none; }
+        }
+
+        @media (max-width: 600px) {
+            .quiz-card { padding: 1.6rem; }
+            .quiz-q { font-size: 1.7rem; }
+            .quiz-opt { font-size: 1.4rem; padding: 1.2rem; }
+            .quiz-next { text-align: center; }
+            .quiz-next .quiz-btn { width: 100%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .quiz *, .quiz *::before { transition: none !important; animation: none !important; }
+        }
+    </style>
 </head>
 <body>
     <a class="back-link" href="databricks-data-engineer-associate.html#academy">&larr; Voltar à certificação</a>
@@ -18,14 +263,367 @@
     <header>
         <h1>Accreditation</h1>
         <p>Databricks Academy · Treinamento 2 de 9</p>
-        <span>Em desenvolvimento</span>
+        <span>Quiz</span>
     </header>
 
     <main>
-        <section id="resumo">
-            <h2>O que aprendi</h2>
-            <p>Conteúdo em preparação.</p>
-        </section>
+        <div class="quiz" id="quiz" aria-live="polite">
+            <div class="quiz-intro" id="quizIntro">
+                <h2>Teste o que aprendeu no Databricks Fundamentals</h2>
+                <p>Este quiz tem 20 perguntas de múltipla escolha sobre os conceitos dos sete vídeos do treinamento. As perguntas são minhas, escritas a partir do que estudei, e não são as da acreditação oficial.</p>
+                <ul>
+                    <li>Uma pergunta por vez, com a explicação logo após cada resposta</li>
+                    <li>Ao final, a pontuação e a revisão do que você errou</li>
+                    <li>As alternativas mudam de ordem a cada tentativa</li>
+                    <li>Você pode usar as teclas 1 a 4 para responder e Enter para avançar</li>
+                </ul>
+                <div><button class="quiz-btn" id="quizStart" type="button">Começar o quiz</button></div>
+                <p class="quiz-best" id="quizBest" hidden></p>
+            </div>
+
+            <div class="quiz-card" id="quizCard" hidden>
+                <div class="quiz-top">
+                    <span id="quizCount">Pergunta 1 de 20</span>
+                    <span id="quizScoreLive">0 acertos</span>
+                </div>
+                <div class="quiz-bar" role="progressbar" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" id="quizBar"><span></span></div>
+                <h2 class="quiz-q" id="quizQuestion" style="border:0;padding:0;"></h2>
+                <ul class="quiz-opts" id="quizOptions"></ul>
+                <div class="quiz-feedback" id="quizFeedback" role="status"></div>
+                <div class="quiz-next"><button class="quiz-btn" id="quizNext" type="button" hidden>Próxima pergunta</button></div>
+            </div>
+
+            <div class="quiz-card quiz-result" id="quizResult" hidden>
+                <div class="quiz-ring">
+                    <svg viewBox="0 0 120 120" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="quizGrad" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0" stop-color="#8A2BE2"/>
+                                <stop offset="1" stop-color="#e0388f"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="track" cx="60" cy="60" r="52"/>
+                        <circle class="value" id="quizRing" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+                    </svg>
+                    <div class="score"><span id="quizScoreText">0/20</span><small id="quizPercent">0%</small></div>
+                </div>
+                <h2 id="quizVerdict"></h2>
+                <p id="quizVerdictText"></p>
+                <div class="quiz-actions">
+                    <button class="quiz-btn" id="quizRetry" type="button">Refazer o quiz</button>
+                    <a class="quiz-btn ghost" href="databricks-academy-databricks-fundamentals.html">Rever os vídeos</a>
+                </div>
+                <div class="quiz-review" id="quizReview"></div>
+            </div>
+        </div>
     </main>
+
+    <script>
+        (function () {
+            var QUESTIONS = [
+                {
+                    q: "Quais são os quatro pontos que toda organização precisa acertar para ter sucesso com dados e IA, segundo o treinamento?",
+                    o: ["Context, control, cost e choice", "Cloud, code, cluster e catalog", "Collect, clean, compute e consume", "Speed, scale, security e support"],
+                    a: 0,
+                    e: "São os quatro Cs: contexto, controle, custo e escolha. Funcionam como um placar para avaliar se uma organização está pronta para dados e IA."
+                },
+                {
+                    q: "O que o \"context\" significa nos quatro Cs?",
+                    o: ["Quanto a IA entende o seu negócio, a partir dos dados que consegue ver e interpretar", "Quantas nuvens a empresa consegue usar ao mesmo tempo", "Quanto a empresa gasta com ferramentas de IA", "Quem tem permissão para abrir cada tabela"],
+                    a: 0,
+                    e: "Uma IA só é tão inteligente quanto os dados que ela consegue ver e interpretar sobre a empresa, os clientes, os produtos e o histórico."
+                },
+                {
+                    q: "Por que o \"control\" ganha uma importância nova quando agentes de IA entram em cena?",
+                    o: ["Porque agentes também agem sobre dados sensíveis, e é preciso decidir o que eles podem tocar e registrar o que fizeram", "Porque agentes dispensam qualquer controle de acesso", "Porque agentes só funcionam com dados públicos", "Porque o controle passa a ser responsabilidade apenas de cada usuário"],
+                    a: 0,
+                    e: "Quando agentes podem agir sobre informações sensíveis, são necessários guardrails, controles de acesso, um registro de quem fez o quê e a possibilidade de revisar e aprovar antes de algo acontecer."
+                },
+                {
+                    q: "Qual é o risco que o \"choice\" procura evitar?",
+                    o: ["O vendor lock-in, ficar preso às ferramentas de um único fornecedor", "O excesso de opções de cores nos dashboards", "A falta de dados para treinar modelos", "O uso de SQL em vez de Python"],
+                    a: 0,
+                    e: "Choice é manter as opções abertas: poder usar diferentes nuvens, modelos de IA e ferramentas conforme as necessidades evoluem. O lock-in freia a inovação."
+                },
+                {
+                    q: "Qual é a origem da Databricks?",
+                    o: ["Foi fundada em 2013 por pesquisadores de Berkeley que criaram o Apache Spark, o Delta Lake e o MLflow", "Nasceu como uma divisão de uma fabricante de bancos de dados relacionais", "Foi criada em 2020, junto com o conceito de data warehouse", "Surgiu de um projeto interno de uma empresa de varejo"],
+                    a: 0,
+                    e: "A origem open source importa porque molda até hoje a forma como a empresa pensa em abertura e escolha."
+                },
+                {
+                    q: "Qual é uma limitação clássica do data warehouse?",
+                    o: ["Lida mal com imagens, áudio, vídeo e texto livre, e costuma usar formatos proprietários que geram lock-in", "Não consegue responder consultas SQL", "Armazena qualquer tipo de dado, mas a consulta é muito lenta", "Não tem noção de tabelas"],
+                    a: 0,
+                    e: "O warehouse funciona bem com dados estruturados e tabulares, mas sofre com o resto. Também é caro para escalar e costuma guardar dados em formatos fechados."
+                },
+                {
+                    q: "Por que um data lake sem disciplina pode virar um \"data swamp\"?",
+                    o: ["Porque não tem noção nativa de tabelas e permissões, e vira um monte de dados em que ninguém acha nem confia", "Porque só aceita dados estruturados", "Porque é sempre mais caro que um warehouse", "Porque não consegue guardar arquivos grandes"],
+                    a: 0,
+                    e: "O lake guarda qualquer tipo de dado por pouco custo, mas sem governança e organização o resultado é uma pilha de dados que ninguém consegue usar com segurança."
+                },
+                {
+                    q: "O que deu errado quando as empresas usaram um warehouse e um lake lado a lado?",
+                    o: ["Dois modelos de segurança difíceis de manter iguais, cópias de dados entre os sistemas e silos desconectados", "Os dois sistemas se recusavam a rodar na mesma nuvem", "O custo total caiu, mas o desempenho piorou", "Os dados ficavam sempre desatualizados no warehouse e perfeitos no lake"],
+                    a: 0,
+                    e: "As permissões precisavam ser mantidas duas vezes e raramente batiam, e ninguém sabia qual cópia estava atual. O resultado foram silos, segurança incompatível e custo total crescente."
+                },
+                {
+                    q: "Como o lakehouse é definido no treinamento?",
+                    o: ["Um só sistema que parte de um data lake e acrescenta tabelas confiáveis, transações, desempenho e governança", "Dois sistemas ligados por um conector, um para cada tipo de dado", "Um warehouse com um disco maior para arquivos", "Uma ferramenta apenas para ciência de dados"],
+                    a: 0,
+                    e: "É o melhor dos dois mundos construído como um único sistema, sobre padrões abertos, com uma só abordagem de segurança e governança em qualquer nuvem."
+                },
+                {
+                    q: "Qual é a ordem das três fases da transformação com IA descritas no vídeo sobre o impacto no mundo real?",
+                    o: ["Produtividade, processos e reinvenção", "Reinvenção, processos e produtividade", "Processos, custo e escala", "Experimento, piloto e produção"],
+                    a: 0,
+                    e: "Primeiro dar colegas de IA às pessoas, depois automatizar processos em departamentos e, só então, reinventar o negócio com dados que só a empresa tem. A terceira fase só é alcançável quando as duas primeiras são reais."
+                },
+                {
+                    q: "O que diferenciou as empresas dos casos de sucesso apresentados?",
+                    o: ["A fundação por baixo, ou seja, os quatro Cs, e não o acesso a um modelo de IA melhor", "O acesso exclusivo a um modelo de IA que os concorrentes não tinham", "O uso de um chatbot, em vez de agentes", "Ter começado pela terceira fase, a reinvenção"],
+                    a: 0,
+                    e: "Hoje todos têm acesso a bons modelos. O que transforma um experimento de IA em uma capacidade de IA é ter contexto, controle, custo e escolha resolvidos."
+                },
+                {
+                    q: "Qual é o papel do Lakeflow na plataforma?",
+                    o: ["Ingestão de dados, ETL e streaming, com muitos conectores para os sistemas da empresa", "Rodar o SQL de relatórios e BI", "Atender as leituras e gravações rápidas de aplicações", "Governar o acesso aos dados"],
+                    a: 0,
+                    e: "O Lakeflow cuida da entrada dos dados. A análise fica com o Lakehouse engine, as transações com o Lakebase e a governança com o Unity Catalog."
+                },
+                {
+                    q: "Para que serve o Lakebase?",
+                    o: ["Para as transações de aplicações, com leitura e gravação rápidas de registros individuais", "Para ingerir dados de fontes externas", "Para criar dashboards de BI", "Para guardar modelos de IA"],
+                    a: 0,
+                    e: "É um banco de dados operacional que fica na mesma fundação governada do resto, então a aplicação e as análises usam os mesmos dados, sem cópias entre eles."
+                },
+                {
+                    q: "Por que Lakeflow, Lakehouse engine e Lakebase trabalham sobre uma única cópia dos dados?",
+                    o: ["Porque um agente faz loops, testa várias ideias ao mesmo tempo e grava resultados, e assim nada é copiado e tudo fica sincronizado", "Porque a Databricks não oferece armazenamento próprio", "Porque cada produto só consegue ler um tipo de arquivo", "Porque isso diminui a quantidade de usuários necessários"],
+                    a: 0,
+                    e: "Um agente não age como um analista que faz uma pergunta e segue em frente. Trabalhar sobre uma só cópia evita duplicação e inconsistência."
+                },
+                {
+                    q: "O que o Unity Catalog governa, segundo o treinamento?",
+                    o: ["Todos os ativos conectados aos dados: tabelas, arquivos, modelos, agentes e as ferramentas que eles usam", "Apenas as tabelas estruturadas", "Apenas os usuários e as senhas", "Somente os dados que estão fora da Databricks"],
+                    a: 0,
+                    e: "A ideia é que tudo o que está conectado precisa ser governado. Se um agente pode ler os dados, ele fica sob a mesma governança dos próprios dados."
+                },
+                {
+                    q: "Para que serve o Unity AI Gateway?",
+                    o: ["Para controlar os gastos com IA: ver quanto se gasta, definir orçamentos por pessoa ou equipe e aplicar regras de segurança e conformidade", "Para ingerir dados de novas fontes", "Para criar notebooks", "Para converter dados em formatos proprietários"],
+                    a: 0,
+                    e: "Toda requisição a um modelo passa por um único ponto de entrada, em vez de torcer para que cada ferramenta separada faça a coisa certa."
+                },
+                {
+                    q: "O que faz o Genie Ontology?",
+                    o: ["Constrói e mantém o entendimento do que o seu negócio significa, a partir de definições já escritas e do uso no dia a dia", "Executa jobs agendados durante a noite", "Converte código Python em SQL", "Hospeda as aplicações da empresa"],
+                    a: 0,
+                    e: "É a camada de contexto: ensina a IA o que o time chama de \"cliente ativo\" ou qual relatório as pessoas realmente confiam, já checando quem pode ver o quê."
+                },
+                {
+                    q: "O que diferencia o Genie de uma ferramenta de chat genérica?",
+                    o: ["Ele está conectado aos dados reais e consulta fontes autoritativas, mostrando as fontes e os passos, em vez de adivinhar", "Ele responde sem acessar nenhum dado", "Ele só funciona para engenheiros de dados", "Ele usa sempre o mesmo modelo, sem governança"],
+                    a: 0,
+                    e: "O Genie usa as definições da organização e permite ver o trabalho feito, o que o torna um colega de IA que conhece o negócio."
+                },
+                {
+                    q: "Qual é a função da aba de lineage de uma tabela no catálogo?",
+                    o: ["Mostrar de onde o dado veio e o que depende dele, para saber o que quebraria se a tabela mudasse", "Listar as pessoas que já consultaram a tabela", "Definir os horários de execução dos jobs", "Mostrar o custo mensal da tabela"],
+                    a: 0,
+                    e: "O lineage também pode ser visto em um grafo. É assim que se descobre o impacto de uma mudança antes de fazê-la."
+                },
+                {
+                    q: "O que a federation permite fazer?",
+                    o: ["Descobrir, consultar e governar dados que vivem em outras plataformas, sem movê-los antes", "Copiar todos os dados para a Databricks antes de usá-los", "Dividir uma tabela em várias nuvens", "Ocultar colunas sensíveis automaticamente"],
+                    a: 0,
+                    e: "Assim a governança cobre todo o patrimônio de dados, e não só a parte que está dentro da Databricks."
+                }
+            ];
+
+            var LETTERS = ["A", "B", "C", "D"];
+            var STORE = "dbx-quiz-best";
+            var $ = function (id) { return document.getElementById(id); };
+            var intro = $("quizIntro"), card = $("quizCard"), result = $("quizResult");
+            var order, index, score, answered, missed, current;
+
+            function shuffle(arr) {
+                var a = arr.slice();
+                for (var i = a.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var t = a[i]; a[i] = a[j]; a[j] = t;
+                }
+                return a;
+            }
+
+            function getBest() {
+                try { var v = parseInt(localStorage.getItem(STORE), 10); return isNaN(v) ? null : v; } catch (e) { return null; }
+            }
+
+            function setBest(v) {
+                try { localStorage.setItem(STORE, String(v)); } catch (e) {}
+            }
+
+            function showBest() {
+                var b = getBest(), el = $("quizBest");
+                if (b === null) { el.hidden = true; return; }
+                el.hidden = false;
+                el.textContent = "Seu melhor resultado neste navegador: " + b + " de " + QUESTIONS.length;
+            }
+
+            function start() {
+                order = shuffle(QUESTIONS);
+                index = 0; score = 0; missed = [];
+                intro.hidden = true; result.hidden = true; card.hidden = false;
+                card.scrollIntoView({ behavior: "smooth", block: "start" });
+                render();
+            }
+
+            function render() {
+                answered = false;
+                var item = order[index];
+                var opts = shuffle(item.o.map(function (text, i) { return { text: text, right: i === item.a }; }));
+                current = { item: item, opts: opts };
+
+                $("quizCount").textContent = "Pergunta " + (index + 1) + " de " + order.length;
+                $("quizScoreLive").textContent = score + (score === 1 ? " acerto" : " acertos");
+                var bar = $("quizBar");
+                bar.setAttribute("aria-valuenow", String(index));
+                bar.firstElementChild.style.width = (index / order.length * 100) + "%";
+                $("quizQuestion").textContent = item.q;
+
+                var list = $("quizOptions");
+                list.innerHTML = "";
+                opts.forEach(function (opt, i) {
+                    var li = document.createElement("li");
+                    var btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "quiz-opt";
+                    btn.innerHTML = '<span class="quiz-key">' + LETTERS[i] + '</span><span></span>';
+                    btn.lastChild.textContent = opt.text;
+                    btn.addEventListener("click", function () { choose(i); });
+                    li.appendChild(btn);
+                    list.appendChild(li);
+                });
+
+                var fb = $("quizFeedback");
+                fb.className = "quiz-feedback";
+                fb.innerHTML = "";
+                $("quizNext").hidden = true;
+                $("quizNext").textContent = index === order.length - 1 ? "Ver o resultado" : "Próxima pergunta";
+            }
+
+            function choose(i) {
+                if (answered) return;
+                answered = true;
+                var buttons = $("quizOptions").querySelectorAll(".quiz-opt");
+                var opt = current.opts[i];
+                buttons.forEach(function (b, k) {
+                    b.disabled = true;
+                    if (current.opts[k].right) b.classList.add("correct");
+                    else if (k === i) b.classList.add("wrong");
+                    else b.classList.add("dim");
+                });
+
+                var fb = $("quizFeedback");
+                var title = document.createElement("strong");
+                var body = document.createElement("span");
+                body.textContent = current.item.e;
+                if (opt.right) {
+                    score++;
+                    fb.classList.add("ok");
+                    title.textContent = "Correto!";
+                } else {
+                    fb.classList.add("bad");
+                    title.textContent = "Não foi dessa vez.";
+                    var right = current.opts.filter(function (o) { return o.right; })[0].text;
+                    missed.push({ q: current.item.q, mine: opt.text, right: right, e: current.item.e });
+                }
+                fb.appendChild(title);
+                fb.appendChild(body);
+                fb.classList.add("show");
+
+                $("quizScoreLive").textContent = score + (score === 1 ? " acerto" : " acertos");
+                $("quizBar").firstElementChild.style.width = ((index + 1) / order.length * 100) + "%";
+                var next = $("quizNext");
+                next.hidden = false;
+                next.focus({ preventScroll: true });
+            }
+
+            function next() {
+                if (!answered) return;
+                index++;
+                if (index < order.length) { render(); card.scrollIntoView({ behavior: "smooth", block: "start" }); }
+                else finish();
+            }
+
+            function finish() {
+                card.hidden = true; result.hidden = false;
+                var total = order.length;
+                var pct = Math.round(score / total * 100);
+                $("quizScoreText").textContent = score + "/" + total;
+                $("quizPercent").textContent = pct + "%";
+
+                var circ = 326.7, ring = $("quizRing");
+                ring.style.strokeDashoffset = circ;
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () { ring.style.strokeDashoffset = circ * (1 - score / total); });
+                });
+
+                var v, t;
+                if (pct === 100) { v = "Perfeito!"; t = "Você acertou todas as perguntas. Os conceitos do Fundamentals estão firmes."; }
+                else if (pct >= 80) { v = "Muito bem!"; t = "Você domina a maior parte dos conceitos. Dê uma olhada nas que errou para fechar as lacunas."; }
+                else if (pct >= 60) { v = "Bom caminho"; t = "Os conceitos principais estão ali, mas vale rever alguns vídeos e tentar de novo."; }
+                else { v = "Vale revisar"; t = "Sem problema: revise os vídeos, veja as explicações abaixo e refaça o quiz."; }
+                $("quizVerdict").textContent = v;
+                $("quizVerdictText").textContent = t;
+
+                var best = getBest();
+                if (best === null || score > best) setBest(score);
+
+                var box = $("quizReview");
+                box.innerHTML = "";
+                if (!missed.length) {
+                    var ok = document.createElement("div");
+                    ok.className = "quiz-perfect";
+                    ok.textContent = "Nenhum erro para revisar.";
+                    box.appendChild(ok);
+                } else {
+                    var h = document.createElement("h3");
+                    h.textContent = "Para revisar (" + missed.length + ")";
+                    box.appendChild(h);
+                    missed.forEach(function (m) {
+                        var d = document.createElement("div");
+                        d.className = "quiz-review-item";
+                        var p1 = document.createElement("p"); p1.className = "q"; p1.textContent = m.q;
+                        var p2 = document.createElement("p"); p2.className = "mine"; p2.textContent = "Sua resposta: " + m.mine;
+                        var p3 = document.createElement("p"); p3.className = "right"; p3.textContent = "Resposta certa: " + m.right;
+                        var p4 = document.createElement("p"); p4.textContent = m.e;
+                        d.appendChild(p1); d.appendChild(p2); d.appendChild(p3); d.appendChild(p4);
+                        box.appendChild(d);
+                    });
+                }
+                result.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+
+            $("quizStart").addEventListener("click", start);
+            $("quizRetry").addEventListener("click", start);
+            $("quizNext").addEventListener("click", next);
+
+            document.addEventListener("keydown", function (e) {
+                if (card.hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+                if (!answered && e.key >= "1" && e.key <= "4") {
+                    var i = parseInt(e.key, 10) - 1;
+                    if (i < current.opts.length) { e.preventDefault(); choose(i); }
+                } else if (answered && e.key === "Enter" && document.activeElement !== $("quizNext")) {
+                    e.preventDefault(); next();
+                }
+            });
+
+            showBest();
+        })();
+    </script>
 </body>
 </html>

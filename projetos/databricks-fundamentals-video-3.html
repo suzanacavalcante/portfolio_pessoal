@@ -23,7 +23,143 @@
 
     <main>
         <section id="video-3">
-            <p>Conteúdo em preparação.</p>
+            <p class="lead">Este vídeo é um passeio pela plataforma Databricks, montada uma camada de cada vez sobre a fundação do lakehouse, nomeando cada peça à medida que ela aparece. Em vez de um catálogo de produtos para decorar, a ideia é entender o que cada parte faz e como ela se chama.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 412" role="img" aria-label="Camadas da plataforma Databricks, de baixo para cima: armazenamento aberto, dados, governança, contexto, trabalho e aplicações">
+                    <g font-size="13" font-weight="700">
+                        <rect x="15" y="10" width="690" height="56" rx="12" fill="#1b1b29" stroke="#e0388f" stroke-width="2"/>
+                        <text x="360" y="34" text-anchor="middle">Databricks Apps</text>
+                        <text x="360" y="53" text-anchor="middle" font-size="11" class="muted">Lakewatch (segurança) · Customer Lake (marketing) · Marketplace</text>
+
+                        <rect x="15" y="76" width="335" height="56" rx="12" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="182" y="100" text-anchor="middle">Genie</text>
+                        <text x="182" y="119" text-anchor="middle" font-size="11" class="muted">para todas as pessoas</text>
+                        <rect x="370" y="76" width="335" height="56" rx="12" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="537" y="100" text-anchor="middle">Agent Bricks</text>
+                        <text x="537" y="119" text-anchor="middle" font-size="11" class="muted">para construir agentes sob medida</text>
+
+                        <rect x="15" y="142" width="690" height="40" rx="12" fill="#201a33" stroke="#a768f0" stroke-width="2" stroke-dasharray="6 4"/>
+                        <text x="360" y="167" text-anchor="middle" font-size="12">Omnigent · motor aberto por baixo do Genie e do Agent Bricks</text>
+
+                        <rect x="15" y="192" width="690" height="50" rx="12" fill="#1b1b29" stroke="#6495ED" stroke-width="2"/>
+                        <text x="360" y="215" text-anchor="middle">Genie Ontology</text>
+                        <text x="360" y="233" text-anchor="middle" font-size="11" class="muted">contexto: ensina à IA o que o seu negócio significa</text>
+
+                        <rect x="15" y="252" width="690" height="50" rx="12" fill="#1b1b29" stroke="#6495ED" stroke-width="2"/>
+                        <text x="360" y="275" text-anchor="middle">Unity Catalog · Unity AI Gateway</text>
+                        <text x="360" y="293" text-anchor="middle" font-size="11" class="muted">governança: controle e custo de todos os ativos de dados e IA</text>
+
+                        <rect x="15" y="312" width="220" height="50" rx="12" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="125" y="334" text-anchor="middle">Lakeflow</text>
+                        <text x="125" y="351" text-anchor="middle" font-size="11" class="muted">ingestão, ETL e streaming</text>
+                        <rect x="250" y="312" width="220" height="50" rx="12" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="360" y="334" text-anchor="middle">Lakehouse engine</text>
+                        <text x="360" y="351" text-anchor="middle" font-size="11" class="muted">SQL, relatórios e BI</text>
+                        <rect x="485" y="312" width="220" height="50" rx="12" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="595" y="334" text-anchor="middle">Lakebase</text>
+                        <text x="595" y="351" text-anchor="middle" font-size="11" class="muted">transações de aplicações</text>
+
+                        <rect x="15" y="372" width="690" height="34" rx="12" fill="#201a33" stroke="#b6b6c3" stroke-width="2"/>
+                        <text x="360" y="394" text-anchor="middle" font-size="12">Armazenamento aberto, na sua nuvem, em formatos que você controla</text>
+                    </g>
+                </svg>
+                <figcaption>As camadas da plataforma, do armazenamento (embaixo) às aplicações (em cima)</figcaption>
+            </div>
+
+            <h3>1. Armazenamento aberto</h3>
+            <p>Tudo começa pela camada de armazenamento, da qual todo o resto depende. Os dados, estruturados ou não, ficam em <strong>formatos abertos</strong> no armazenamento da sua própria nuvem. Como o formato é aberto, os dados são seus e qualquer engine e qualquer modelo de IA consegue lê-los diretamente, sem uma etapa que converta tudo para algo que só um fornecedor abre.</p>
+            <p>É o primeiro dos quatro Cs na prática: <strong>choice</strong>. É nessa camada que o vendor lock-in acontece ou não.</p>
+
+            <h3>2. Camada de dados: três produtos</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Entrada</span>
+                    <h4>Lakeflow</h4>
+                    <p>Cuida da ingestão de dados, do ETL e do streaming, com mais de cem conectores para os sistemas que as empresas já usam.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Análise</span>
+                    <h4>Lakehouse engine</h4>
+                    <p>Roda o SQL para relatórios e business intelligence. O nome ecoa a arquitetura vista no vídeo anterior.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Transações</span>
+                    <h4>Lakebase</h4>
+                    <p>Atende as leituras e gravações rápidas de que uma aplicação precisa.</p>
+                </div>
+            </div>
+            <p>Por que três coisas separadas? Porque um agente não funciona como um analista humano, que faz uma pergunta e segue em frente. Um agente fica em loop, testa várias ideias ao mesmo tempo e grava resultados de volta. Por isso Lakeflow, Lakehouse e Lakebase trabalham todos sobre <strong>uma única cópia dos dados</strong> no data lake, sem copiar nada e com tudo sincronizado.</p>
+
+            <h3>3. Governança: Unity Catalog e Unity AI Gateway</h3>
+            <p>Acima fica a governança, onde vivem <strong>control</strong> e <strong>cost</strong>, e a palavra importante é <em>unificada</em>. O <strong>Unity Catalog</strong> governa tudo, não só tabelas: arquivos, modelos, agentes de IA e as ferramentas que esses agentes podem usar, em um só lugar, com:</p>
+            <ul>
+                <li>controle de acesso;</li>
+                <li>descoberta;</li>
+                <li>lineage, para ver de onde o dado veio e o que depende dele;</li>
+                <li>monitoramento de qualidade.</li>
+            </ul>
+            <p>Como a IA tem um custo que os dados sozinhos nunca tiveram, existe uma peça companheira, o <strong>Unity AI Gateway</strong>, que cuida dos gastos com IA: define orçamentos por pessoa ou equipe, mostra exatamente para onde vai o dinheiro e aplica as regras de segurança e conformidade em um só lugar, em vez de torcer para que cada ferramenta separada faça a coisa certa.</p>
+
+            <h3>4. Contexto: Genie Ontology</h3>
+            <p>Esta é a camada que resolve algo específico da IA e que as pessoas costumam ignorar. É o <strong>context</strong>, o primeiro dos quatro Cs. Um modelo de IA pode ser brilhante e ainda assim inútil dentro da empresa, porque não sabe o que o seu time chama de "cliente ativo" nem qual relatório as pessoas realmente confiam.</p>
+            <p>O <strong>Genie Ontology</strong> constrói e mantém continuamente esse entendimento. Ele usa as definições que o negócio já escreveu e aprende com a forma como a organização trabalha no dia a dia. Quando um agente precisa responder uma pergunta, o contexto já está lá e já foi checado contra quem pode ver o quê. O resultado são respostas mais rápidas, mais baratas e realmente corretas.</p>
+
+            <h3>5. Camada de trabalho: Genie e Agent Bricks</h3>
+            <p>É a parte que os funcionários vão realmente tocar.</p>
+            <div class="two-cols">
+                <div class="info-card">
+                    <span class="tag tag-support">Para todas as pessoas</span>
+                    <h4>Genie</h4>
+                    <p>O colega de trabalho com IA que entende de dados. A diferença para uma ferramenta de chat genérica é que o Genie está conectado aos seus dados reais e consulta fontes autoritativas, em vez de adivinhar com base no que aprendeu no treinamento.</p>
+                    <ul>
+                        <li><strong>Genie Code:</strong> criar pipelines de dados e relatórios só descrevendo o que se quer.</li>
+                        <li><strong>Genie agents:</strong> transformar uma conversa útil em um agente salvo e agendado, que publica nas ferramentas que o time já usa.</li>
+                        <li>Construir dashboards e pequenas aplicações sobre dados governados, sem um longo ciclo de desenvolvimento.</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-core">Para times de software</span>
+                    <h4>Agent Bricks</h4>
+                    <p>A plataforma de desenvolvimento para quem constrói agentes personalizados. O tema é a abertura: usar qualquer modelo e qualquer framework, com as peças corporativas já embutidas em vez de montadas à mão.</p>
+                    <ul>
+                        <li>ambientes seguros para executar código;</li>
+                        <li>memória, para o agente lembrar entre sessões;</li>
+                        <li>busca;</li>
+                        <li>avaliação e monitoramento, para saber se o agente se comporta como deveria.</li>
+                    </ul>
+                </div>
+            </div>
+            <p>Por baixo dos dois está o <strong>Omnigent</strong>, um motor aberto que permite que ferramentas e modelos diferentes trabalhem juntos, em vez de prender a pessoa ao kit de um único fornecedor.</p>
+
+            <h3>6. Aplicações: Databricks Apps</h3>
+            <p>No topo, os agentes se expandem para áreas inteiras do negócio, e parte disso já vem pronta. São os Databricks Apps, e o vídeo cita dois:</p>
+            <ul>
+                <li><strong>Lakewatch:</strong> aplicação de segurança, que usa agentes para caçar e triar ameaças.</li>
+                <li><strong>Customer Lake:</strong> aplicação de marketing, que monta um retrato real de cada cliente e personaliza em uma escala que humanos não conseguiriam manualmente.</li>
+            </ul>
+            <p>Há também um <strong>marketplace</strong> onde é possível encontrar, instalar e executar aplicações como essas, todas permanecendo governadas dentro do seu próprio workspace.</p>
+
+            <h3>A plataforma em uma visão</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Camada</th><th>O que tem</th><th>Quando entra</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Armazenamento</td><td>Formatos abertos, na sua nuvem</td><td>Choice</td></tr>
+                        <tr><td>Dados</td><td>Lakeflow, Lakehouse engine e Lakebase</td><td>Ingestão, análise e transações</td></tr>
+                        <tr><td>Governança</td><td>Unity Catalog e Unity AI Gateway</td><td>Control e cost</td></tr>
+                        <tr><td>Contexto</td><td>Genie Ontology</td><td>Context</td></tr>
+                        <tr><td>Trabalho</td><td>Genie e Agent Bricks, sobre o Omnigent</td><td>Uso por todas as pessoas e por times de software</td></tr>
+                        <tr><td>Aplicações</td><td>Databricks Apps, como Lakewatch e Customer Lake</td><td>Agentes em áreas inteiras do negócio</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> cada camada é útil sozinha, e juntas são o motivo de a plataforma inteira se sustentar. Mapeando para os quatro Cs: armazenamento aberto é choice, governança é control e cost, e o Genie Ontology é context.</p>
+            </div>
         </section>
 
         <nav class="page-nav">

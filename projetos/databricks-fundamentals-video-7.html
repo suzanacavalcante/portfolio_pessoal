@@ -23,7 +23,104 @@
 
     <main>
         <section id="video-7">
-            <p>Conteúdo em preparação.</p>
+            <p class="lead">Nos vídeos anteriores, a plataforma foi apenas descrita: uma fundação aberta para os dados, um lugar para governar tudo e uma IA que entende o negócio. Isso são afirmações, e afirmações são fáceis. Este vídeo mostra a coisa real, em duas visões: o que a maioria das pessoas da empresa vê e o lugar onde o trabalho por trás acontece.</p>
+
+            <div class="two-cols">
+                <div class="info-card">
+                    <span class="tag tag-support">Visão 1</span>
+                    <h4>Genie One</h4>
+                    <p>A porta de entrada de quem precisa de respostas, não de infraestrutura. Sem clusters, sem código, nada para configurar.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-core">Visão 2</span>
+                    <h4>Workspace do Lakehouse</h4>
+                    <p>O lado dos profissionais de dados, onde o trabalho é feito: catálogo, notebooks, jobs e pipelines, Lakebase e Databricks Apps.</p>
+                </div>
+            </div>
+
+            <h3>Visão 1: Genie One</h3>
+            <p>Alguém de finanças, operações ou marketing entra e vê o que a organização publicou para essa pessoa: os relatórios em que confia, as aplicações que os times construíram e um lugar para fazer perguntas em linguagem natural. Não há opção de SQL nem nada a configurar: é só uma porta de entrada.</p>
+
+            <h4>Agentes Genie</h4>
+            <p>Na demonstração, o agente Genie de vendas do varejo parece um chatbot comum. A pergunta foi: <em>qual loja teve a maior receita total?</em> O que mudou é o que volta:</p>
+            <ul>
+                <li>Perguntar ao Genie é como perguntar a um colega, e a resposta não é um palpite.</li>
+                <li>Ele consulta os <strong>dados governados</strong> a que a pessoa tem acesso e responde, com as fontes e os passos exatos de como chegou lá.</li>
+                <li>Dá para <strong>ver o trabalho</strong>. Se a organização definiu um termo, como "cliente ativo", o Genie usa essa definição, e não algo inventado ou adivinhado, como faria um chatbot genérico.</li>
+            </ul>
+            <p>Essa é a diferença entre uma IA de inteligência geral e um colega de IA que conhece o seu negócio.</p>
+            <p>A conversa continua com novas perguntas, como <em>qual é a receita por região?</em> Ele consulta os dados, passa pelo processo de pensar e confirmar a resposta e mostra o resultado. Como a pergunta pede uma interpretação gráfica, devolve também um gráfico.</p>
+
+            <h4>Apps e dashboards</h4>
+            <ul>
+                <li><strong>Apps:</strong> coisas que os times constroem uns para os outros. Na demonstração, um explorador de vendas do varejo, no qual dá para escolher regiões, categorias e o período.</li>
+                <li><strong>Dashboards:</strong> relatórios consultados com frequência, como receita por região ou por categoria. Formatos diferentes, mesmas ideias.</li>
+            </ul>
+            <p>Os dois são construídos sobre os dados de vendas da empresa, dados governados e gerenciados no Unity Catalog. Ninguém exportou nada para uma planilha para isso funcionar.</p>
+
+            <h3>Visão 2: o workspace do Lakehouse</h3>
+            <p>Não é preciso saber fazer nada disso, e talvez só reconhecer quando alguém falar. Para chegar lá, basta clicar no topo e ir para o Lakehouse.</p>
+
+            <h4>Catalog</h4>
+            <p>Começa pelo catálogo, porque todo o resto depende dele. É a resposta para <em>onde estão os nossos dados e quem pode vê-los</em>, organizado de um jeito familiar: o catálogo guarda <strong>schemas</strong>, e os schemas guardam <strong>tabelas</strong>.</p>
+            <p>Ao abrir uma tabela, a visão geral mostra:</p>
+            <ul>
+                <li>descrição, lista de colunas, comentários e tags, e até column masking;</li>
+                <li>políticas de qualidade e o local onde se adicionam coisas como row filters;</li>
+                <li>insights sobre a tabela.</li>
+            </ul>
+            <p>Duas abas merecem atenção:</p>
+            <ul>
+                <li><strong>Lineage:</strong> mostra de onde o dado veio e o que depende dele, inclusive em um grafo. Se alguém perguntar se pode alterar a tabela, é assim que se descobre o que quebraria.</li>
+                <li><strong>Permissions:</strong> é onde a governança deixa de ser um slide de apresentação e vira uma configuração que realmente se faz.</li>
+            </ul>
+            <p>E não são só tabelas. Os schemas podem ter volumes, modelos, funções, agentes de IA e as ferramentas que eles podem usar, tudo governado em um só lugar. Quando se fala em governança unificada, é isso que essa tela significa.</p>
+
+            <h4>Workspace e notebooks</h4>
+            <p>No workspace, criam-se e gerenciam-se notebooks, Git folders e outros ativos. O <strong>notebook</strong> é onde os profissionais de dados geralmente trabalham, e mistura explicação escrita, documentação, código e o resultado da execução desse código.</p>
+            <p>A pergunta, o trabalho e até a resposta ficam juntos no mesmo lugar, e por isso os times de dados gostam deles: alguém pode voltar seis meses depois e entender não só qual foi a resposta, mas como se chegou a ela.</p>
+            <p>De lá também se acessa o <strong>Genie Code</strong>, o colega de IA que ajuda a escrever e depurar o código diretamente no notebook.</p>
+
+            <h4>Jobs e pipelines</h4>
+            <p>A maior parte do trabalho em uma plataforma como esta não é alguém sentado clicando em executar: acontece em um agendamento, sem supervisão, geralmente à noite. É aí que ficam os <strong>jobs</strong>.</p>
+            <ul>
+                <li>Ao abrir um job, vê-se a execução e o resultado dela.</li>
+                <li>No resumo, o campo <em>Trigger</em> mostra <em>Scheduled</em>, e há um agendamento para rodar automaticamente em um horário. Define-se uma vez e segue rodando.</li>
+            </ul>
+            <p>Isso importa mais do que antes, porque é onde os agentes de IA se conectam. Um agente que percebe um problema às duas da manhã e propõe uma correção faz isso sobre essa mesma maquinaria: <strong>o mesmo encanamento, agora com algo mais inteligente por cima</strong>.</p>
+
+            <h4>Lakebase</h4>
+            <p>Tudo o que foi visto até aqui é feito para análise ou para grandes perguntas sobre muitos dados. Mas a aplicação mostrada antes precisa de outra coisa: ler e gravar registros individuais instantaneamente, como qualquer aplicação faz quando alguém clica em um botão. Para isso existe o <strong>Lakebase</strong>.</p>
+            <p>É um banco de dados do tipo operacional, e o importante é onde ele fica: na mesma fundação governada do resto. Assim, a aplicação que o time constrói e as análises que o time executa trabalham sobre os mesmos dados, sob as mesmas regras, sem nada ser copiado entre eles. Parece pouco, mas costuma ser algo que dá errado em todo lugar.</p>
+
+            <h4>Databricks Apps</h4>
+            <p>É onde se encontra a aplicação de antes. Ela aparece como ativa e pode ser aberta pela página. Ao entrar nela, vê-se como foi implantada, a pasta de origem e o status, e é possível adicionar uma imagem de capa para identificá-la entre as demais. É aqui que o desenvolvedor constrói, implanta e gerencia os apps que rodam sobre os dados.</p>
+            <p>Pelo topo, volta-se ao Genie One, a porta de entrada de todas as necessidades de dados e IA.</p>
+
+            <h3>Uma plataforma, várias portas</h3>
+            <p>Os profissionais constroem aqui, sobre dados governados, e todas as outras pessoas consomem sem precisar saber como se faz. Tudo está sobre uma única fundação aberta, governada em um só lugar, seja você quem constrói ou quem faz as perguntas.</p>
+
+            <h3>Os quatro Cs, de volta</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>C</th><th>Como aparece na plataforma</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Context</td><td>A IA lê os seus dados reais, com as suas definições reais</td></tr>
+                        <tr><td>Control</td><td>Tudo está governado em um só catálogo</td></tr>
+                        <tr><td>Cost</td><td>É possível ver e limitar quanto a IA gasta</td></tr>
+                        <tr><td>Choice</td><td>Os dados ficam em formatos abertos que você controla</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Para praticar</h3>
+            <p>A melhor forma de entender tudo isso é abrir a plataforma. Para isso existe o <strong>Databricks Free Edition</strong>, que oferece praticamente todo o Databricks, de graça e sem prazo de expiração, para explorar na prática todos os casos de uso de dados e IA. É um ambiente real, o mesmo que aparece na demonstração.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o Genie One é a porta simples para quem consome, e o workspace do Lakehouse é onde os profissionais constroem, sempre sobre a mesma base governada. Para fixar, vale abrir o Free Edition e construir algo pequeno.</p>
+            </div>
         </section>
 
         <nav class="page-nav">
