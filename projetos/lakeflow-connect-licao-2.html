@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Data Ingestion from Cloud Storage do treinamento Data Ingestion with Lakeflow Connect: CTAS, COPY INTO e Auto Loader.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Data Ingestion from Cloud Storage</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-connect.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Data Ingestion from Cloud Storage</h1>
+        <p>Data Ingestion with Lakeflow Connect · Lição</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-2">
+            <p class="lead">Esta lição mostra como arquivos brutos em armazenamento de objetos na nuvem viram <strong>tabelas Delta</strong>, o que habilita a gestão e as análises avançadas no Lakehouse. Ela apresenta três métodos de ingestão, o <strong>CTAS</strong>, o <strong><code>COPY INTO</code></strong> e o <strong>Auto Loader</strong>, e compara quando usar cada um.</p>
+
+            <p>Estas anotações partem de um resumo da lição, não do material original. Os trechos de código são exemplos escritos por mim para ilustrar os métodos, com caminhos e nomes genéricos, e não foram executados.</p>
+
+            <h3>Objetivos</h3>
+            <ol>
+                <li>Demonstrar a ingestão de dados do armazenamento em nuvem para tabelas Delta com <code>CREATE TABLE AS</code>, <code>COPY INTO</code> e Auto Loader, inclusive capturando metadados do arquivo de entrada em tabelas Bronze.</li>
+                <li>Explicar como as colunas <em>rescued</em> são usadas na ingestão para tratar registros malformados.</li>
+            </ol>
+
+            <h3>O padrão de ingestão</h3>
+            <p>A ingestão é peça central do Lakehouse moderno, porque permite aproveitar os grandes volumes de dados guardados na nuvem. O fluxo é:</p>
+            <p><strong>arquivos</strong> (CSV, JSON, Parquet etc.) → <strong>método de ingestão</strong> (CTAS, <code>COPY INTO</code> ou Auto Loader) → <strong>tabela Delta</strong>.</p>
+
+            <h3>Método 1: CREATE TABLE AS (CTAS), em batch</h3>
+            <p>Cria, por padrão, uma tabela Delta a partir de arquivos no armazenamento. O padrão de uso é <code>CREATE TABLE nova_tabela AS SELECT * FROM read_files(...)</code>, e a <code>read_files()</code> lê os arquivos de um local e devolve os dados em forma tabular.</p>
+            <ul>
+                <li>Formatos suportados: JSON, CSV, XML, TEXT, BINARYFILE, PARQUET, AVRO e ORC.</li>
+                <li>Detecta o formato e infere um <strong>schema unificado</strong> entre os arquivos, e aceita opções específicas de cada formato.</li>
+                <li>Também pode ser usada em tabelas streaming, para ingerir arquivos de forma incremental via Auto Loader.</li>
+            </ul>
+
+            <div class="code-container">
+                <pre><code>CREATE TABLE nova_tabela AS
+SELECT * FROM read_files(
+    'caminho_do_volume/origem',
+    format =&gt; 'csv',
+    header =&gt; true
+);</code></pre>
+            </div>
+
+            <h3>Método 2: COPY INTO</h3>
+            <p>Faz uma <strong>carga em massa</strong> de arquivos do armazenamento para uma tabela Delta. No exemplo da lição, a tabela de destino está vazia, e o <code>FROM</code> aponta para os CSVs. É ideal quando o local recebe arquivos continuamente: é uma operação <strong>repetível e idempotente</strong>, pensada para a ingestão batch incremental.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Ponto-chave</th><th>O que é</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Idempotente</td><td>Ignora os arquivos já carregados, e só os novos entram</td></tr>
+                        <tr><td>Formatos</td><td>Parquet, JSON, XML e outros</td></tr>
+                        <tr><td><code>FROM</code></td><td>O caminho onde os novos arquivos chegam</td></tr>
+                        <tr><td><code>FORMAT_OPTIONS()</code></td><td>Como interpretar os arquivos de origem, e depende do formato</td></tr>
+                        <tr><td><code>COPY_OPTIONS()</code></td><td>O comportamento da operação em si, como a evolução de schema (<code>mergeSchema</code>) e o reprocessamento forçado (<code>force</code>)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-container">
+                <pre><code>COPY INTO minha_tabela
+FROM 'caminho_do_volume/origem'
+FILEFORMAT = CSV
+FORMAT_OPTIONS ('header' = 'true')
+COPY_OPTIONS ('mergeSchema' = 'true');</code></pre>
+            </div>
+
+            <h3>Método 3: Auto Loader</h3>
+            <p>É a ingestão incremental, em batch ou streaming: processa os novos arquivos conforme eles chegam, sem configuração complexa, detectando e carregando automaticamente em tabelas Delta. Funciona em Python e em SQL (via Declarative Pipelines), escala para <strong>bilhões de arquivos</strong> e se apoia no Spark Structured Streaming.</p>
+
+            <h4>Em Python</h4>
+            <ul>
+                <li>O <code>.readStream</code> com o formato <code>cloudFiles</code> habilita o Auto Loader.</li>
+                <li>Define-se o formato do arquivo (por exemplo, JSON) e o <code>cloudFiles.schemaLocation</code>, que acompanha a inferência e a evolução do schema.</li>
+                <li>O <code>.load()</code> aponta para o caminho, por exemplo em <code>/Volumes</code>, do Unity Catalog.</li>
+                <li>Na escrita, o <code>.writeStream</code> usa um local de <strong>checkpoint</strong> (estado e progresso) e um <strong>trigger</strong> (por exemplo, a cada 5 segundos).</li>
+                <li>O <code>.toTable()</code> grava na tabela Delta, no formato <code>catálogo.schema.tabela</code>.</li>
+            </ul>
+
+            <div class="code-container">
+                <pre><code class="language-python">(spark.readStream
+    .format("cloudFiles")
+    .option("cloudFiles.format", "json")
+    .option("cloudFiles.schemaLocation", "caminho_do_schema")
+    .load("/Volumes/catalogo/schema/volume/origem")
+    .writeStream
+    .option("checkpointLocation", "caminho_do_checkpoint")
+    .trigger(processingTime="5 seconds")
+    .toTable("catalogo.schema.minha_tabela"))</code></pre>
+            </div>
+
+            <h4>Em Databricks SQL</h4>
+            <p>A recomendação é usar <strong>tabelas streaming</strong>, em vez do <code>COPY INTO</code>. Uma streaming table é registrada no Unity Catalog, com suporte extra a processamento incremental. Ao criá-la, <strong>um pipeline é gerado automaticamente</strong>, e ela serve para cargas incrementais do Kafka e do armazenamento de objetos.</p>
+            <p>A recomendação geral para ingerir do armazenamento em nuvem é o <strong>Auto Loader com o Spark Declarative Pipelines</strong>, que carregam de forma incremental e idempotente conjuntos de dados que crescem continuamente. Essas tabelas usam pipelines serverless, então o workspace precisa suportar serverless, ou você pode montar os seus próprios pipelines. Para usar o Auto Loader em SQL, usa-se a <code>read_files</code> com a palavra-chave <code>STREAM</code> na cláusula <code>FROM</code>.</p>
+
+            <div class="code-container">
+                <pre><code>CREATE OR REFRESH STREAMING TABLE minha_streaming_table AS
+SELECT * FROM STREAM read_files(
+    'caminho_do_volume/origem',
+    format =&gt; 'json'
+);</code></pre>
+            </div>
+
+            <h3>Comparativo dos três métodos</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>CTAS e spark.read</th><th>COPY INTO</th><th>Auto Loader</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Tipo de ingestão</td><td>Batch</td><td>Batch incremental</td><td>Incremental (batch ou streaming)</td></tr>
+                        <tr><td>Casos de uso</td><td>Conjuntos menores</td><td>Milhares de arquivos</td><td>Milhões ou mais de arquivos por hora, e backfills com bilhões</td></tr>
+                        <tr><td>Sintaxe</td><td>Python (<code>spark.read</code>) e SQL (CTAS)</td><td>SQL</td><td>Python (<code>spark.readStream</code>), SQL com Declarative Pipelines e streaming tables no Databricks SQL</td></tr>
+                        <tr><td>Idempotência</td><td>Não</td><td>Sim</td><td>Sim</td></tr>
+                        <tr><td>Evolução de schema</td><td>Manual ou inferida na leitura</td><td>Suportada via opções</td><td>Detecta e evolui automaticamente, inclusive com novas colunas</td></tr>
+                        <tr><td>Latência</td><td>Alta</td><td>Moderada (agendada)</td><td>Baixa ou alta, conforme a configuração</td></tr>
+                        <tr><td>Facilidade</td><td>Simples</td><td>Simples, baseada em SQL</td><td>Intermediária a avançada</td></tr>
+                        <tr><td>Resumo</td><td>Ideal para ingestão pontual ou ad hoc, e pode ser agendada para reler tudo</td><td>Simples e repetível para a ingestão incremental, ótima para jobs e pipelines agendados</td><td>O melhor para quase tempo real ou ingestão incremental, com muita automação e escalabilidade</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o CTAS com <code>read_files()</code> é a ingestão batch para conjuntos menores e tarefas ad hoc. O <code>COPY INTO</code> é batch incremental, idempotente e repetível, pula os arquivos já carregados e dá controle fino com as opções de formato e de cópia. O Auto Loader é o método mais escalável: baseado em Structured Streaming, funciona em Python e em SQL (Declarative Pipelines), processa bilhões de arquivos e trata a evolução de schema automaticamente. A próxima etapa é a prática com esses métodos para carregar dados do armazenamento em tabelas Delta.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="lakeflow-connect-licao-1.html">&larr; Data Engineering in Databricks</a>
+            <a href="lakeflow-connect-licao-3.html">Appending Metadata Columns &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

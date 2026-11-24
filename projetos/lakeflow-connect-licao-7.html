@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Additional Features and Ingesting into Existing UC Tables do treinamento Data Ingestion with Lakeflow Connect: Lakehouse Federation, Zerobus, Delta Sharing, Marketplace e MERGE INTO.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Additional Features and MERGE INTO</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-connect.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Additional Features and Ingesting into Existing UC Tables</h1>
+        <p>Data Ingestion with Lakeflow Connect · Lição</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-7">
+            <p class="lead">Esta lição tem duas partes. Na primeira, ela apresenta recursos adicionais do Databricks que ampliam a integração, o compartilhamento e a colaboração no Lakehouse: <strong>Lakehouse Federation, Zerobus, Delta Sharing e Databricks Marketplace</strong>. Na segunda, apresenta o <strong><code>MERGE INTO</code></strong>, que simplifica a ingestão em tabelas Delta já existentes, aplicando atualizações, inserções e exclusões em uma única operação atômica.</p>
+
+            <p>Estas anotações partem de um resumo da lição, não do material original. O exemplo de <code>MERGE INTO</code> é meu, montado a partir do exemplo do resumo, e não foi executado. Os e-mails e os ids que aparecem são ilustrativos.</p>
+
+            <h3>Objetivos</h3>
+            <ol>
+                <li>Descrever recursos adicionais do Databricks que ampliam a integração, o compartilhamento e a colaboração.</li>
+                <li>Identificar componentes-chave do Databricks Marketplace e explorar ativos de dados compartilhados.</li>
+                <li>Explicar o propósito do <code>MERGE INTO</code> para aplicar updates, inserts e deletes em tabelas Delta existentes.</li>
+                <li>Descrever as cláusulas do <code>MERGE INTO</code>: updates e deletes nas linhas que casam, e inserts nas linhas que não casam.</li>
+                <li>Escrever uma instrução <code>MERGE INTO</code> para mesclar dados de uma fonte em uma tabela Delta de destino.</li>
+            </ol>
+
+            <h3>Recursos fora do foco do curso</h3>
+            <p>O curso foca nos conectores gerenciados do Lakeflow Connect, mas existem outros recursos de ingestão que podem ser úteis conforme a arquitetura evolui.</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Federation</span>
+                    <h4>Lakehouse Federation</h4>
+                    <p>Consulta fontes externas <strong>sem mover os dados</strong> (MySQL, PostgreSQL, SQL Server, Snowflake, Redshift, Synapse e BigQuery, no diagrama). Serve para relatórios ad hoc, provas de conceito, a fase exploratória de novos pipelines e o apoio a cargas durante uma migração incremental.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Zerobus</span>
+                    <h4>Zerobus</h4>
+                    <p>Indicado como "coming soon" na lição. É uma API do Lakeflow Connect para escrever dados de eventos direto no lakehouse, com vazão de 100 MB/s e latência quase em tempo real (menos de 5 segundos), passando por um buffer até o Unity Catalog. Simplifica a ingestão de IoT, clickstreams, telemetria e logs de aplicação.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Sharing</span>
+                    <h4>Delta Sharing</h4>
+                    <p>Compartilha dados com segurança entre plataformas, nuvens e regiões, inclusive com consumidores que não usam Databricks, como Power BI, Spark, pandas e Tableau.</p>
+                </div>
+            </div>
+
+            <h3>Databricks Marketplace</h3>
+            <p>O Marketplace é um mercado aberto para dados, analytics e IA, baseado no padrão open source <strong>Delta Sharing</strong>. É uma troca aberta de produtos de dados: datasets, notebooks, dashboards, modelos de ML e aceleradores de solução. Tabelas e arquivos de dados também aparecem no diagrama da lição.</p>
+
+            <p>Começar é rápido, em três passos:</p>
+            <ol>
+                <li><strong>Abrir o Marketplace:</strong> no workspace, pela barra lateral esquerda. Ele está disponível por padrão para todos os usuários.</li>
+                <li><strong>Buscar ativos:</strong> pela busca (por nome, categoria ou provedor), filtrando por "Free" para achar datasets sem custo. A dica é começar pelos ativos fornecidos pelo próprio Databricks, que são bem documentados e prontos para uso. As abas <em>Tables</em>, <em>Files</em> e <em>Notebooks</em> separam os tipos de ativo.</li>
+                <li><strong>Acesso instantâneo:</strong> selecionar o ativo e clicar em "Get instant access". Ele é adicionado automaticamente ao Unity Catalog, e o acesso é imediato, sem fluxo de aprovação para ativos gratuitos. Dá para consultar com SQL, notebooks ou dashboards, e os dados ficam atualizados via Delta Sharing, <strong>sem cópia</strong>.</li>
+            </ol>
+
+            <div class="callout">
+                <p><strong>Ligação com o curso:</strong> foi assim que o catálogo <code>dbacademy_ecommerce</code>, que serve de fonte nas demos, chegou ao workspace: ele foi criado a partir do Marketplace.</p>
+            </div>
+
+            <h3>MERGE INTO: updates, inserts e deletes em tabelas Delta</h3>
+            <p>O <code>MERGE INTO</code> aplica updates, inserts e deletes de uma tabela fonte em uma tabela Delta existente, tudo em <strong>uma única operação atômica</strong>. Ele tem suporte à imposição ou à evolução de schema e faz ações diferentes conforme a linha case ou não entre a fonte e o destino:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Situação</th><th>Ação</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Linhas que casam (<em>matched</em>)</td><td><code>UPDATE</code> ou <code>DELETE</code></td></tr>
+                        <tr><td>Linhas sem correspondência no destino (<em>not matched by target</em>)</td><td><code>INSERT</code></td></tr>
+                        <tr><td>Linhas sem correspondência na fonte (<em>not matched by source</em>)</td><td><code>UPDATE</code> ou <code>DELETE</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Por isso ele é ideal para dimensões que mudam lentamente (SCD), cargas incrementais e cenários de change data capture (CDC).</p>
+
+            <h4>O exemplo</h4>
+            <p>A <code>target_table</code> tem os usuários <strong>peter</strong>, <strong>zebi</strong> e <strong>matt</strong>, todos com status "current". A <code>source_table</code> tem três linhas com mudanças:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Usuário na fonte</th><th>Status</th><th>O que deve acontecer no destino</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>peter</td><td><code>delete</code></td><td>É removido</td></tr>
+                        <tr><td>zebi</td><td><code>update</code></td><td>Tem o e-mail atualizado para zebi@other.com</td></tr>
+                        <tr><td>samarth</td><td><code>new</code></td><td>É inserido como nova linha</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>O matt não está na fonte, então permanece inalterado.</p>
+
+            <h4>A sintaxe, passo a passo</h4>
+            <ol>
+                <li><strong>Destino e fonte:</strong> <code>MERGE INTO target_table target USING source_table source</code>. Os aliases <code>target</code> e <code>source</code> são usados depois.</li>
+                <li><strong>Condição de junção:</strong> <code>ON target.id = source.id</code>, normalmente por uma chave única, como o <code>id</code>.</li>
+                <li><strong><code>WHEN MATCHED</code> com update:</strong> <code>WHEN MATCHED AND source.status = 'update' THEN UPDATE SET ...</code> atualiza o destino com os novos valores da fonte (no exemplo, o e-mail e o status).</li>
+                <li><strong><code>WHEN MATCHED</code> com delete:</strong> <code>WHEN MATCHED AND source.status = 'delete' THEN DELETE</code> remove do destino a linha que existe nas duas tabelas quando a fonte indica a exclusão.</li>
+                <li><strong><code>WHEN NOT MATCHED</code>:</strong> a linha existe na fonte, mas não no destino, e o <code>INSERT (...) VALUES (...)</code> insere uma nova linha com os valores da fonte.</li>
+            </ol>
+
+            <div class="code-container">
+                <pre><code>MERGE INTO target_table target
+USING source_table source
+ON target.id = source.id
+WHEN MATCHED AND source.status = 'update' THEN
+    UPDATE SET target.email = source.email, target.status = source.status
+WHEN MATCHED AND source.status = 'delete' THEN
+    DELETE
+WHEN NOT MATCHED THEN
+    INSERT (id, users, email, status)
+    VALUES (source.id, source.users, source.email, source.status);</code></pre>
+            </div>
+
+            <p>O resultado é um único comando que atualiza as linhas com status <code>update</code>, exclui as com <code>delete</code> e insere as novas: o peter some, o zebi tem o e-mail atualizado e o samarth é inserido. O padrão serve para cargas incrementais, CDC ou SCD tipo 1.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o Databricks amplia a integração e a colaboração com o Lakehouse Federation (consultar sem mover), o Zerobus (eventos direto no lakehouse), o Delta Sharing e o Marketplace (descobrir, acessar e trocar dados e ativos de IA com segurança, sem cópias desnecessárias). O <code>MERGE INTO</code> faz updates, inserts e deletes atômicos em tabelas Delta existentes, e apoia padrões incrementais como SCD, CDC e a sincronização de dados.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="lakeflow-connect-licao-6.html">&larr; Enterprise Data Overview</a>
+            <a href="databricks-academy-lakeflow-connect.html">Voltar ao treinamento &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

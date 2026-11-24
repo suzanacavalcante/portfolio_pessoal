@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Working with the Rescued Data Column do treinamento Data Ingestion with Lakeflow Connect: a coluna _rescued_data.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Working with the Rescued Data Column</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-connect.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Working with the Rescued Data Column</h1>
+        <p>Data Ingestion with Lakeflow Connect · Lição</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-4">
+            <p class="lead">Esta lição mostra como a coluna de dados resgatados, a <code>_rescued_data</code>, captura como JSON os campos que não batem com o schema ou que não podem ser interpretados durante a ingestão. Assim, os valores fora do padrão ficam preservados nas tabelas do Lakehouse, em vez de serem descartados.</p>
+
+            <p>Estas anotações partem de um resumo da lição, não do material original. O exemplo de consulta é meu, com nomes genéricos, e não foi executado.</p>
+
+            <h3>Objetivos</h3>
+            <ol>
+                <li>Explicar o propósito da coluna <code>_rescued_data</code> e como ela preserva dados não conformes.</li>
+                <li>Descrever como as incompatibilidades de schema são tratadas com <code>read_files()</code>, <code>spark.read</code> ou Auto Loader.</li>
+                <li>Interpretar os valores resgatados, guardados como strings em formato JSON.</li>
+            </ol>
+
+            <h3>Resgatando linhas malformadas na ingestão</h3>
+            <p>Em algumas ingestões, os dados de entrada não correspondem ao schema da tabela. Nesses casos, a <code>read_files()</code>, o <code>spark.read</code> e o Auto Loader fornecem uma coluna de dados resgatados quando o dado bruto não bate com o schema.</p>
+            <p>O diagrama da lição mostra os arquivos (CSV, JSON, Parquet etc.) passando pelo método de ingestão até a tabela Bronze. O CTAS e o Auto Loader aparecem em destaque, e o <code>COPY INTO</code> aparece desabilitado, ou seja, não é um dos métodos que fornecem essa coluna. Na tabela Bronze, a <code>_rescued_data</code> traz, nas linhas problemáticas, um JSON com a coluna, o valor e o <code>_file_path</code>. Nas linhas sem problema, o valor é <code>null</code>.</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">1</span>
+                    <h4>Resgatada, não descartada</h4>
+                    <p>As colunas que não batem com o schema são resgatadas.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">2</span>
+                    <h4>Guardada como JSON</h4>
+                    <p>Os valores incompatíveis ficam como strings JSON na <code>_rescued_data</code>.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">3</span>
+                    <h4>Sem perda silenciosa</h4>
+                    <p>Todos os dados de entrada são preservados. A linha sem incompatibilidade tem <code>_rescued_data</code> igual a <code>null</code>.</p>
+                </div>
+            </div>
+
+            <h3>Exemplo passo a passo</h3>
+            <ol>
+                <li><strong>Arquivos:</strong> há arquivos brutos (CSV, TXT, JSON etc.) no armazenamento em nuvem.</li>
+                <li><strong>Colunas:</strong> os arquivos têm as colunas <code>users</code> e <code>cost</code>.</li>
+                <li><strong>Tipos esperados:</strong> na ingestão, <code>users</code> deve ser <code>STRING</code> e <code>cost</code> deve ser <code>BIGINT</code>.</li>
+                <li><strong>"Peter" e "$100":</strong> na primeira linha, "Peter" entra corretamente em <code>users</code>, mas o <code>cost</code> vale a string "$100", que não corresponde ao <code>BIGINT</code>. O valor não entra em <code>cost</code>, que fica <code>null</code>, e é capturado na <code>_rescued_data</code> como string JSON.</li>
+                <li><strong>"zebi" e "300":</strong> na segunda linha, os dois valores são válidos, então a linha entra normalmente e a <code>_rescued_data</code> fica <code>null</code>.</li>
+            </ol>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th><code>users</code></th><th><code>cost</code></th><th><code>_rescued_data</code></th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Peter</td><td><code>null</code></td><td><code>{"cost": "$100", "_file_path": "&lt;caminho&gt;"}</code></td></tr>
+                        <tr><td>zebi</td><td>300</td><td><code>null</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Depois da ingestão, dá para localizar as linhas problemáticas e olhar o que foi resgatado:</p>
+
+            <div class="code-container">
+                <pre><code>SELECT *
+FROM minha_tabela_bronze
+WHERE _rescued_data IS NOT NULL;</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> quando a entrada não bate com o schema esperado, os valores incompatíveis são capturados na <code>_rescued_data</code> como strings JSON, e não descartados. A coluna está disponível com a <code>read_files()</code>, o <code>spark.read</code> e o Auto Loader, e os valores que batem com o schema entram normalmente, com <code>_rescued_data</code> igual a <code>null</code>. O recurso evita a perda silenciosa de dados e permite inspecionar e tratar as incompatibilidades depois da ingestão. A próxima etapa é a prática com essa coluna.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="lakeflow-connect-licao-3.html">&larr; Appending Metadata Columns</a>
+            <a href="lakeflow-connect-licao-5.html">Semi-Structured Data: JSON &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

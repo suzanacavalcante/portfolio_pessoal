@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Ingesting Semi-Structured Data: JSON do treinamento Data Ingestion with Lakeflow Connect: STRING, STRUCT e VARIANT.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Ingesting Semi-Structured Data: JSON</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-connect.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Ingesting Semi-Structured Data: JSON</h1>
+        <p>Data Ingestion with Lakeflow Connect · Lição</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-5">
+            <p class="lead">Esta lição mostra como a ingestão de dados semiestruturados, como o JSON, permite interpretar e transformar entradas complexas e aninhadas em <strong>tabelas Delta estruturadas</strong>, prontas para análises avançadas no Lakehouse. Ela compara três abordagens para colunas JSON, <strong>STRING, STRUCT e VARIANT</strong>, e ensina a derivar e aplicar um schema com <code>schema_of_json</code> e <code>from_json</code>.</p>
+
+            <p>Estas anotações partem de um resumo da lição, não do material original. Os trechos de código são exemplos meus, montados a partir do exemplo do "John Doe" do resumo, e não foram executados.</p>
+
+            <h3>Objetivos</h3>
+            <ol>
+                <li>Descrever a estrutura de dados JSON: objetos, chaves, valores, objetos aninhados e arrays.</li>
+                <li>Explicar três abordagens para colunas JSON: os tipos STRING, STRUCT e VARIANT.</li>
+                <li>Mapear os tipos JSON para os tipos SQL do Databricks e definir schemas STRUCT para JSON aninhado.</li>
+                <li>Usar <code>schema_of_json</code> e <code>from_json</code> para derivar e aplicar schemas ao converter strings JSON em colunas STRUCT.</li>
+                <li>Descrever o tipo VARIANT e os benefícios dele para dados semiestruturados.</li>
+            </ol>
+
+            <h3>Visão geral do JSON</h3>
+            <p>Entender o formato importa porque ele afeta como os dados são interpretados e transformados na ingestão. São três termos:</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Objetos</span>
+                    <h4>Entre chaves</h4>
+                    <p>Os dados JSON são feitos de objetos, normalmente entre chaves <code>{}</code>.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Chaves</span>
+                    <h4>Pares chave-valor</h4>
+                    <p>A chave é sempre uma string entre aspas e tem um valor associado.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Valores</span>
+                    <h4>Vários tipos</h4>
+                    <p>String, número, booleano, array, objeto ou <code>null</code>. Os objetos podem ser planos ou aninhados, e entender isso ajuda no parsing e na transformação.</p>
+                </div>
+            </div>
+
+            <h3>Colunas em formato JSON</h3>
+            <p>Depois da ingestão, é comum que uma ou mais colunas da tabela tenham strings JSON como valores. Isso acontece quando o JSON não foi totalmente interpretado na ingestão, ou quando ele está embutido em outro campo, como uma mensagem de log. O exemplo da lição usa uma <code>json_column</code> com registros como este:</p>
+
+            <div class="code-container">
+                <pre><code>{
+  "name": "John Doe",
+  "age": 35,
+  "address": { "city": "Anytown", "state": "CA" },
+  "children": [ { "name": "...", "age": 0 } ]
+}</code></pre>
+            </div>
+
+            <p>Dá para extrair e manipular essas strings com SQL ou com operações de DataFrame, achatando ou acessando os campos aninhados como colunas normais.</p>
+
+            <h3>Três abordagens para a coluna JSON</h3>
+
+            <h4>Abordagem 1: STRING</h4>
+            <ul>
+                <li>O JSON fica guardado como uma simples STRING, com qualquer conteúdo e sem restrições (texto bruto).</li>
+                <li>É menos performática do que as abordagens tipadas.</li>
+                <li>Os subcampos são acessados com a sintaxe de dois-pontos.</li>
+            </ul>
+
+            <div class="code-container">
+                <pre><code>SELECT
+    json_column:name         AS nome,   -- John Doe
+    json_column:address:city AS cidade  -- Anytown
+FROM minha_tabela;</code></pre>
+            </div>
+
+            <h4>Abordagem 2: STRUCT</h4>
+            <p>O JSON é interpretado em um tipo STRUCT com <strong>schema definido</strong>, que impõe uma estrutura e tipos consistentes. É mais eficiente para consultas do que a string JSON. O mapeamento entre os tipos:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tipo JSON</th><th>Tipo SQL do Databricks</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>String</td><td><code>STRING</code></td></tr>
+                        <tr><td>Number</td><td><code>INT</code>, <code>FLOAT</code> ou <code>DOUBLE</code></td></tr>
+                        <tr><td>Boolean</td><td><code>BOOLEAN</code></td></tr>
+                        <tr><td>Object</td><td><code>STRUCT&lt;&gt;</code></td></tr>
+                        <tr><td>Array</td><td><code>ARRAY&lt;&gt;</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Abordagem 3: VARIANT</h4>
+            <ul>
+                <li>É o tipo mais novo para trabalhar com JSON no Databricks, em public preview desde o segundo trimestre de 2025. A lição pede para acompanhar o lançamento GA.</li>
+                <li>Armazena qualquer tipo de dado, inclusive JSON, e é ideal para dados semiestruturados.</li>
+                <li>É altamente flexível, sem schema prévio, e se adapta a diferentes formas de dados.</li>
+                <li>Tem desempenho melhor do que o STRING e o STRUCT.</li>
+            </ul>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>STRING</th><th>STRUCT</th><th>VARIANT</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Estrutura</td><td>Texto bruto, sem restrições</td><td>Schema definido, com tipos consistentes</td><td>Flexível, sem schema prévio</td></tr>
+                        <tr><td>Desempenho</td><td>O menor</td><td>Mais eficiente que a string</td><td>O melhor</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Convertendo uma string JSON em STRUCT</h3>
+            <p>No exemplo do "John Doe", o schema é montado assim:</p>
+            <ol>
+                <li>Define-se o schema da string JSON, como um tipo STRUCT.</li>
+                <li>As chaves <code>name</code> e <code>age</code> são <code>STRING</code> e <code>INT</code>.</li>
+                <li>A chave <code>address</code> é um STRUCT com as chaves <code>city</code> e <code>state</code>.</li>
+                <li>A chave <code>children</code> é um <code>ARRAY</code> de STRUCTs, cada um com <code>name</code> (<code>STRING</code>) e <code>age</code> (<code>INT</code>).</li>
+            </ol>
+
+            <div class="code-container">
+                <pre><code>STRUCT&lt;
+    name: STRING,
+    age: INT,
+    address: STRUCT&lt;city: STRING, state: STRING&gt;,
+    children: ARRAY&lt;STRUCT&lt;name: STRING, age: INT&gt;&gt;
+&gt;</code></pre>
+            </div>
+
+            <h3>Dois passos: schema_of_json e from_json</h3>
+
+            <h4>Passo 1: derivar o schema</h4>
+            <p>Em vez de escrever o schema à mão, a função embutida <code>schema_of_json</code> o deriva de uma string JSON de exemplo e devolve a estrutura acima.</p>
+
+            <div class="code-container">
+                <pre><code>SELECT schema_of_json('{"name":"John Doe","age":35,"address":{"city":"Anytown","state":"CA"},"children":[{"name":"Ana","age":8}]}');</code></pre>
+            </div>
+
+            <h4>Passo 2: interpretar a coluna</h4>
+            <p>Com o schema em mãos, o <code>from_json</code> recebe a string JSON e o schema e devolve uma coluna STRUCT com os dados interpretados.</p>
+
+            <div class="code-container">
+                <pre><code>SELECT
+    from_json(
+        json_column,
+        'name STRING, age INT, address STRUCT&lt;city: STRING, state: STRING&gt;, children ARRAY&lt;STRUCT&lt;name: STRING, age: INT&gt;&gt;'
+    ) AS struct_column
+FROM minha_tabela;</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o JSON tem objetos entre chaves com pares chave-valor, e os valores podem ser strings, números, booleanos, arrays ou objetos aninhados. Há três abordagens: STRING (simples, mas a menos performática), STRUCT (schema definido e mais eficiente nas consultas) e VARIANT (a mais nova, flexível e com o melhor desempenho). Converter JSON em STRUCT exige mapear os tipos JSON para os tipos SQL, e o <code>schema_of_json</code> deriva o schema de uma amostra, que o <code>from_json</code> aplica à coluna. A próxima etapa é a prática, interpretando e transformando colunas em formato JSON.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="lakeflow-connect-licao-4.html">&larr; Rescued Data Column</a>
+            <a href="lakeflow-connect-licao-6.html">Enterprise Data Overview &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

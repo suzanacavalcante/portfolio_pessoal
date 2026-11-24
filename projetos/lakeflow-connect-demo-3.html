@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Ingesting JSON Files with Databricks do treinamento Data Ingestion with Lakeflow Connect: string achatada, STRUCT e VARIANT.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Ingesting JSON Files with Databricks</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-connect.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Ingesting JSON Files with Databricks</h1>
+        <p>Data Ingestion with Lakeflow Connect · Demo 3</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-3">
+            <p class="lead">Esta demo, de cerca de 17 minutos, ingere JSON bruto no Unity Catalog com CTAS e compara <strong>três formas de trabalhar com colunas JSON</strong>: a string achatada (<em>flatten</em>), o tipo <strong>STRUCT</strong> e o tipo <strong>VARIANT</strong>. O ponto de partida são eventos de um tópico Kafka, que chegam codificados.</p>
+
+            <p>Estas anotações partem de um resumo da demo com marcação de tempo, não da transcrição. Os comandos abaixo são exemplos escritos por mim a partir desse resumo, com caminhos genéricos, e não foram executados. Os valores do JSON de exemplo são inventados por mim, só para mostrar a forma.</p>
+
+            <h3>Setup e dados de origem</h3>
+            <p>O ambiente é o das demos anteriores: compute serverless e o script de configuração, com o catálogo <code>labuser</code> e o schema <code>data_ingestion</code> como padrão. A origem são os dados <code>events-kafka</code> do catálogo <code>dbacademy_ecommerce</code> (do Marketplace), com <strong>11 arquivos</strong>.</p>
+
+            <h3>Do dado bruto ao dado decodificado</h3>
+            <p>Lido como <strong>texto</strong>, o dado mostra o formato cru de um tópico Kafka: <code>key</code> e <code>value</code>, ambos codificados em <strong>base64</strong>, além de <code>offset</code>, <code>partition</code>, <code>timestamp</code> e <code>topic</code>. Quando lidos como JSON, os dados são interpretados, mas continuam codificados.</p>
+
+            <ol>
+                <li>Salva-se o dado bruto em uma tabela <strong>bronze</strong>, a <code>kafka_events_bronze_raw</code>, sem nenhuma transformação.</li>
+                <li>Decodifica-se: o <code>unbase64(...)</code> converte para binário, e o <code>CAST(... AS STRING)</code> produz a string JSON legível. O resultado vai para a <code>kafka_events_bronze_decoded</code>.</li>
+            </ol>
+
+            <div class="code-container">
+                <pre><code>CREATE TABLE kafka_events_bronze_raw AS
+SELECT * FROM read_files('caminho_do_volume/events-kafka', format =&gt; 'json');
+
+CREATE TABLE kafka_events_bronze_decoded AS
+SELECT
+    offset,
+    CAST(unbase64(key) AS STRING)   AS key,
+    CAST(unbase64(value) AS STRING) AS value
+FROM kafka_events_bronze_raw;</code></pre>
+            </div>
+
+            <p>O <code>offset</code> é um inteiro, mas o <code>value</code> inteiro fica como <strong>uma única string</strong>. A partir daí, há três caminhos.</p>
+
+            <p>O JSON da amostra tem <code>device</code> (string), <code>geo</code> (objeto com <code>city</code> e <code>state</code>), <code>items</code> (um <strong>array de objetos</strong>), <code>traffic_source</code>, <code>user_first_touch_timestamp</code> e <code>user_id</code>.</p>
+
+            <h3>Opção 1: achatar colunas de string JSON</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Prós</span>
+                    <h4>Simples e flexível</h4>
+                    <p>É fácil de implementar e muito flexível: sem schema, o JSON vira texto simples.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Contras</span>
+                    <h4>Pouco eficiente</h4>
+                    <p>É difícil processar dados complexos, e sem schema pode haver problemas de integridade. Consultar exige código adicional.</p>
+                </div>
+            </div>
+
+            <p>Os campos simples (<code>device</code> e <code>traffic_source</code>) são extraídos com <code>get_json_object</code>. Já o <code>geo</code> e o <code>items</code> continuam como strings JSON, e para ler dentro deles é preciso decodificar de novo.</p>
+
+            <div class="code-container">
+                <pre><code>SELECT
+    get_json_object(value, '$.device')         AS device,
+    get_json_object(value, '$.traffic_source') AS traffic_source,
+    get_json_object(value, '$.geo')            AS geo,    -- ainda é uma string JSON
+    get_json_object(value, '$.items')          AS items   -- ainda é uma string JSON
+FROM kafka_events_bronze_decoded;</code></pre>
+            </div>
+
+            <h3>Opção 2: tipo STRUCT</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Prós</span>
+                    <h4>Schema e desempenho</h4>
+                    <p>O schema definido garante a integridade dos dados, e o desempenho é melhor.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Contras</span>
+                    <h4>Schema fixo</h4>
+                    <p>O schema é fixado desde o início. Se a estrutura do JSON mudar, como a ordem, fica complicado lidar, e a flexibilidade é menor.</p>
+                </div>
+            </div>
+
+            <p>Define-se o schema do JSON e aplica-se à coluna de string com o <code>from_json</code>. O schema pode ser escrito à mão ou obtido com o <code>schema_of_json</code>, a partir de um valor de exemplo. Na tabela <code>kafka_events_bronze_struct</code>, a coluna <code>value</code> passa a ser uma estrutura, e não mais uma string.</p>
+
+            <div class="code-container">
+                <pre><code>CREATE TABLE kafka_events_bronze_struct AS
+SELECT
+    offset,
+    from_json(
+        value,
+        schema_of_json('{"device":"iOS","geo":{"city":"Nova York","state":"NY"},"items":[{"item_id":"X1"}],"traffic_source":"email","user_first_touch_timestamp":1,"user_id":"U1"}')
+    ) AS value
+FROM kafka_events_bronze_decoded;</code></pre>
+            </div>
+
+            <p>Com a estrutura, as consultas são diretas: <code>value.device</code>, os campos aninhados como <code>value.geo.city</code> (no exemplo do curso, Nova York) e o <code>size(value.items)</code>, que conta os elementos do array de STRUCT.</p>
+
+            <div class="code-container">
+                <pre><code>SELECT
+    value.device,
+    value.geo.city,
+    size(value.items) AS qtd_itens
+FROM kafka_events_bronze_struct;</code></pre>
+            </div>
+
+            <h4>explode e explode_outer</h4>
+            <p>O <code>explode</code> transforma cada item do array em uma linha, <strong>um item por linha, repetindo a chave</strong>. Por padrão, arrays nulos ou vazios <strong>não geram linha</strong>. O <code>explode_outer</code> gera uma linha com <code>null</code> nesses casos. O resultado da demo foi salvo na tabela <code>bronze_exploded_array</code>.</p>
+
+            <div class="code-container">
+                <pre><code>CREATE TABLE bronze_exploded_array AS
+SELECT offset, explode(value.items) AS item
+FROM kafka_events_bronze_struct;
+
+-- explode_outer mantém a linha com null quando o array é nulo ou vazio</code></pre>
+            </div>
+
+            <h3>Opção 3: tipo VARIANT</h3>
+            <p>O VARIANT é um formato novo, <strong>aberto, flexível e de bom desempenho</strong> para strings JSON. Exige o <strong>Databricks Runtime 15.4 ou superior</strong> e, no serverless, uma versão maior que 1.</p>
+            <p>O <code>parse_json(string_json)</code> devolve um valor <code>VARIANT</code>, e a tabela <code>kafka_events_bronze_variant</code> é criada a partir da tabela decodificada. O acesso é fácil: o <code>:</code> acessa os campos, e o <code>::tipo</code> converte para um tipo, como o <code>::string</code>. Sem o cast, o resultado continua sendo <code>VARIANT</code>.</p>
+
+            <div class="code-container">
+                <pre><code>CREATE TABLE kafka_events_bronze_variant AS
+SELECT offset, parse_json(value) AS value
+FROM kafka_events_bronze_decoded;
+
+SELECT
+    value:device,                  -- continua VARIANT
+    value:device::string AS device -- convertido para string
+FROM kafka_events_bronze_variant;</code></pre>
+            </div>
+
+            <h3>Comparação das três opções</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Método</th><th>Schema</th><th>Flexibilidade</th><th>Desempenho e consulta</th><th>Quando usar</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>String achatada</td><td>Nenhum</td><td>Alta</td><td>Baixo, difícil de consultar</td><td>Ingestão simples, sem processar</td></tr>
+                        <tr><td>STRUCT</td><td>Definido na ingestão</td><td>Baixa (estrutura fixa)</td><td>Bom</td><td>JSON com estrutura estável</td></tr>
+                        <tr><td>VARIANT</td><td>Flexível</td><td>Alta</td><td>Bom</td><td>JSON semiestruturado que muda</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> os dados do Kafka chegam em base64, e o caminho é gravar o dado bruto em uma tabela bronze e decodificar com <code>unbase64</code> e <code>CAST</code>. A string achatada é simples, mas difícil de consultar. O STRUCT dá schema e desempenho, e o <code>explode</code> abre os arrays, mas a estrutura fica fixa. O VARIANT, com <code>parse_json</code>, o <code>:</code> e o <code>::tipo</code>, une flexibilidade e bom desempenho. A demo recomenda ler a documentação sobre o VARIANT para saber mais.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="lakeflow-connect-demo-2.html">&larr; CREATE TABLE AS e COPY INTO</a>
+            <a href="databricks-academy-lakeflow-connect.html">Voltar ao treinamento &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

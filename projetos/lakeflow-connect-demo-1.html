@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Exploring the Lab Environment do treinamento Data Ingestion with Lakeflow Connect.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Exploring the Lab Environment</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-connect.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Exploring the Lab Environment</h1>
+        <p>Data Ingestion with Lakeflow Connect · Demo 1</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-1">
+            <p class="lead">Esta demo, de cerca de 6 minutos, não ingere nada ainda. Ela mostra todos os objetos de dados do Unity Catalog e os recursos que serão usados nas demos seguintes: o catálogo e o schema do aluno, o volume com arquivos CSV, JSON e XML, uma tabela e o catálogo compartilhado que serve de fonte dos dados.</p>
+
+            <p>Estas anotações partem de um resumo da demo com marcação de tempo, não da transcrição. Os comandos SQL abaixo são exemplos escritos por mim a partir desse resumo, com nomes genéricos no lugar dos objetos do curso, e não foram executados.</p>
+
+            <h3>Setup</h3>
+            <p>Primeiro, conecta-se a um compute <strong>serverless</strong> (a versão mais recente) e roda-se o <strong>script de configuração da sala de aula</strong>. Ele faz quatro coisas:</p>
+            <ul>
+                <li>define o <strong>catálogo padrão</strong> como o catálogo <code>labuser...</code>, que é diferente para cada aluno;</li>
+                <li>define o schema <code>data_ingestion</code> como schema padrão;</li>
+                <li>cria um <strong>volume</strong> com <strong>três diretórios</strong>;</li>
+                <li>cria uma <strong>tabela do Unity Catalog</strong>.</li>
+            </ul>
+
+            <h3>Explorando pelo Catalog Explorer</h3>
+            <p>Pelo ícone de catálogo no painel esquerdo, o catálogo do aluno tem <strong>três schemas</strong>:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Schema</th><th>O que é</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>data_ingestion</code></td><td>O schema de trabalho do curso</td></tr>
+                        <tr><td><code>default</code></td><td>Criado automaticamente em todo catálogo novo</td></tr>
+                        <tr><td><code>information_schema</code></td><td>Também criado automaticamente, e guarda metadados</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Dentro de <code>data_ingestion</code> há uma tabela, recém-criada, e, em Volumes, a pasta <strong><code>landing</code></strong>, com três subpastas de arquivos: <strong>CSV, JSON e XML</strong>. Elas serão usadas nas próximas demos.</p>
+
+            <div class="callout">
+                <p><strong>Catálogo compartilhado:</strong> o <code>dbacademy_ecommerce</code> foi criado a partir do <strong>Marketplace</strong> e é a <strong>fonte</strong> dos dados que serão carregados para os volumes do aluno.</p>
+            </div>
+
+            <h3>Definindo catálogo e schema com SQL</h3>
+            <p>Os mesmos efeitos do script podem ser obtidos por comandos SQL. Usa-se <code>IDENTIFIER(...)</code> para referenciar uma variável como nome de catálogo. O schema tem o mesmo nome para todos os usuários (<code>data_ingestion</code>), e o <code>current_catalog()</code> e o <code>current_schema()</code> confirmam o resultado: o catálogo <code>labuser&lt;número&gt;</code> e o <code>data_ingestion</code>.</p>
+
+            <div class="code-container">
+                <pre><code>USE CATALOG meu_catalogo;
+USE SCHEMA data_ingestion;
+
+SELECT current_catalog(), current_schema();</code></pre>
+            </div>
+
+            <h3>Inspecionando objetos por comando</h3>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Comando</th><th>O que mostra</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>SHOW SCHEMAS</code></td><td>Os três schemas do catálogo padrão</td></tr>
+                        <tr><td><code>DESCRIBE SCHEMA EXTENDED</code></td><td>Nome do catálogo, namespace, proprietário e propriedades, como se a otimização preditiva está habilitada</td></tr>
+                        <tr><td>Propriedades da tabela</td><td>As colunas (<code>id</code> e <code>name</code>) com seus tipos de dados, estatísticas e detalhes, como a localização, o tipo (gerenciada ou externa) e a otimização preditiva</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-container">
+                <pre><code>SHOW SCHEMAS;
+
+DESCRIBE SCHEMA EXTENDED data_ingestion;
+
+DESCRIBE TABLE EXTENDED minha_tabela;</code></pre>
+            </div>
+
+            <h3>Volumes</h3>
+            <p>Os volumes servem para guardar <strong>dados e arquivos</strong> no Unity Catalog, e deles se criam tabelas depois. Também podem armazenar funções e modelos de ML.</p>
+
+            <p>No volume de origem, do <code>dbacademy_ecommerce</code>, há pastas como <code>delta</code> e <strong><code>raw</code></strong>. Dentro de <code>raw</code> ficam <code>sales_historical</code> e <strong><code>user_historical</code></strong>. A pasta <code>user_historical</code> tem:</p>
+            <ul>
+                <li><strong>quatro arquivos <code>part</code> em Parquet</strong>;</li>
+                <li><strong>três arquivos de metadados</strong>, cujos nomes começam com <code>_</code>.</li>
+            </ul>
+            <p>A listagem mostra a data de modificação e o tamanho de cada arquivo. O <code>DESCRIBE VOLUME</code> mostra as propriedades do volume, como o tipo (gerenciado) e o tipo de securable.</p>
+
+            <div class="code-container">
+                <pre><code>DESCRIBE VOLUME meu_volume;</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o script de setup deixa pronto o catálogo do aluno com o schema <code>data_ingestion</code>, um volume <code>landing</code> com arquivos CSV, JSON e XML e uma tabela. Os dados de origem vêm do catálogo compartilhado <code>dbacademy_ecommerce</code>, do Marketplace, e os arquivos de exemplo ficam em Parquet no volume de origem. Dá para explorar tudo pelo Catalog Explorer ou por SQL (<code>SHOW SCHEMAS</code>, <code>DESCRIBE SCHEMA EXTENDED</code> e <code>DESCRIBE VOLUME</code>). Na próxima demo, os dados serão ingeridos, com mais técnicas de ingestão.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="databricks-academy-lakeflow-connect.html">&larr; Voltar ao treinamento</a>
+            <a href="lakeflow-connect-demo-2.html">CREATE TABLE AS e COPY INTO &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

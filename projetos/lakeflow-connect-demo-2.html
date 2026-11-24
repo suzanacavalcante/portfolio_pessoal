@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Data Ingestion with CREATE TABLE AS and COPY INTO do treinamento Data Ingestion with Lakeflow Connect.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>CREATE TABLE AS e COPY INTO</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-connect.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Data Ingestion with CREATE TABLE AS and COPY INTO</h1>
+        <p>Data Ingestion with Lakeflow Connect · Demo 2</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-2">
+            <p class="lead">Esta demo, de cerca de 11 minutos, ingere dados de duas formas: o <strong>CTAS</strong> (<code>CREATE TABLE AS</code>) com a função <code>read_files</code>, e o <strong><code>COPY INTO</code></strong>, para ingestão incremental. No caminho, ela compara tabelas gerenciadas e externas e mostra como o <code>COPY INTO</code> lida com mudanças de schema.</p>
+
+            <p>Estas anotações partem de um resumo da demo com marcação de tempo, não da transcrição. Os comandos abaixo são exemplos escritos por mim a partir desse resumo, com nomes genéricos no lugar dos caminhos e das tabelas do curso, e não foram executados.</p>
+
+            <h3>Setup e dados de origem</h3>
+            <p>O ambiente é o da demo anterior: compute serverless e o script de configuração, que define o catálogo <code>labuser</code> e o schema <code>data_ingestion</code> como padrão. Confirma-se o catálogo e o schema atuais.</p>
+            <p>A origem é o caminho <code>dbacademy_ecommerce</code> → <code>raw</code> → <code>user_historical</code>, com <strong>quatro arquivos Parquet</strong> e alguns de metadados. As colunas são <code>user_id</code>, <code>user_first_touch_timestamp</code> e <code>email</code>.</p>
+            <p>Dá para consultar o arquivo direto, com <code>SELECT * FROM formato.`caminho_absoluto`</code>, mas isso só <strong>lê</strong> os dados e não os ingere.</p>
+
+            <div class="code-container">
+                <pre><code>SELECT * FROM parquet.`caminho_do_volume/user_historical`;</code></pre>
+            </div>
+
+            <h3>A função read_files</h3>
+            <p>A <code>read_files</code> dá mais controle do que a consulta direta. As principais opções, vistas na documentação:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Opção</th><th>Para quê</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>format</code></td><td>O tipo do arquivo, como Parquet, text ou XML</td></tr>
+                        <tr><td><code>schema</code></td><td>Definir o schema explicitamente. O Unity Catalog também detecta o schema automaticamente</td></tr>
+                        <tr><td><code>inferColumnTypes</code></td><td>Se os tipos das colunas devem ser inferidos</td></tr>
+                        <tr><td><code>partitionColumns</code></td><td>As colunas de partição</td></tr>
+                        <tr><td><code>schemaHints</code></td><td>Declarar agora colunas que podem chegar no futuro. Enquanto não há dados, o valor vem como <code>null</code>, e quando os dados chegam, entram na tabela</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Método 1: CTAS</h3>
+            <p>A <code>read_files(caminho, format =&gt; ...)</code> devolve os dados mais a coluna <strong><code>_rescued_data</code></strong>, incluída por padrão para capturar o que não casa com o schema inferido.</p>
+            <p>Como o catálogo e o schema padrão já estão definidos, basta o nome da tabela. Para reexecutar, faz-se antes um <code>DROP TABLE IF EXISTS</code>.</p>
+
+            <div class="code-container">
+                <pre><code>DROP TABLE IF EXISTS usuarios_ctas;
+
+CREATE TABLE usuarios_ctas AS
+SELECT * FROM read_files(
+    'caminho_do_volume/user_historical',
+    format =&gt; 'parquet'
+);
+
+DESCRIBE EXTENDED usuarios_ctas;</code></pre>
+            </div>
+
+            <p>O <code>DESCRIBE EXTENDED</code> mostra as <strong>quatro colunas</strong> (as três da origem mais a <code>_rescued_data</code>), as estatísticas do Delta e os detalhes da tabela: tipo, otimização preditiva, proprietário, provedor e localização.</p>
+
+            <h3>Tabelas gerenciadas e externas</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>Gerenciada</th><th>Externa</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Onde ficam</td><td>Metadados e dados no Databricks, com armazenamento totalmente gerenciado</td><td>Só os metadados ficam no Databricks</td></tr>
+                        <tr><td>É o padrão?</td><td><strong>Sim</strong></td><td>Não</td></tr>
+                        <tr><td><code>DROP TABLE</code></td><td>Apaga os dados</td><td><strong>Não apaga os dados</strong></td></tr>
+                        <tr><td>Quando usar</td><td>É a recomendada, e recebe o que há de mais recente na plataforma</td><td>Quando há uma diretriz da empresa sobre onde guardar dados, para compartilhar entre plataformas ou para usar dados já existentes</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>O equivalente em Python</h3>
+            <p>O <code>spark.read.format(...).load(caminho)</code> carrega os dados em um DataFrame, e o <code>.write</code> grava a tabela no modo <strong>overwrite</strong>, que sobrescreve se a tabela já existir. O resultado é o mesmo do SQL.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">df = spark.read.format("parquet").load("caminho_do_volume/user_historical")
+
+df.write.mode("overwrite").saveAsTable("usuarios_python")</code></pre>
+            </div>
+
+            <h3>Método 2: COPY INTO</h3>
+            <p>O <code>COPY INTO</code> carrega dados <strong>incrementalmente</strong> da origem para uma tabela do Unity Catalog. Ele é <strong>repetível e idempotente</strong>: rodar de novo o mesmo comando não copia os mesmos dados outra vez.</p>
+
+            <h4>Exemplo 1: incompatibilidade de schema</h4>
+            <p>A tabela de destino não tem a coluna <code>email</code>, que existe na origem. O <code>COPY INTO</code> devolve um erro de schema incompatível. A correção é o <code>COPY_OPTIONS ('mergeSchema' = 'true')</code>: o schema é mesclado, uma nova coluna é criada e as linhas são inseridas. O resultado mostra as linhas afetadas, inseridas e ignoradas.</p>
+
+            <div class="code-container">
+                <pre><code>-- destino sem a coluna email (os tipos aqui são só ilustrativos)
+CREATE TABLE IF NOT EXISTS usuarios_copy (
+    user_id STRING,
+    user_first_touch_timestamp BIGINT
+);
+
+COPY INTO usuarios_copy
+FROM 'caminho_do_volume/user_historical'
+FILEFORMAT = PARQUET
+COPY_OPTIONS ('mergeSchema' = 'true');</code></pre>
+            </div>
+
+            <h4>Exemplo 2: evolução de schema preventiva</h4>
+            <p>Aqui não se informa schema nenhum, apenas o formato e o <code>mergeSchema = true</code>, em uma tabela com outro nome.</p>
+
+            <div class="code-container">
+                <pre><code>CREATE TABLE IF NOT EXISTS usuarios_copy_2;
+
+COPY INTO usuarios_copy_2
+FROM 'caminho_do_volume/user_historical'
+FILEFORMAT = PARQUET
+COPY_OPTIONS ('mergeSchema' = 'true');</code></pre>
+            </div>
+
+            <h4>Idempotência</h4>
+            <p>Rodar o <code>COPY INTO</code> de novo na tabela que já existe devolve que <strong>nenhum arquivo foi afetado ou inserido</strong>, porque os arquivos já tinham sido carregados.</p>
+
+            <h3>Os dois métodos lado a lado</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>CTAS com read_files</th><th>COPY INTO</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>O que faz</td><td>Cria a tabela a partir do resultado de uma consulta</td><td>Carrega dados de forma incremental em uma tabela</td></tr>
+                        <tr><td>Reexecução</td><td>Precisa de um <code>DROP TABLE IF EXISTS</code> antes</td><td>É idempotente: não copia os mesmos dados de novo</td></tr>
+                        <tr><td>Mudança de schema</td><td>Vem do que foi inferido, com a coluna <code>_rescued_data</code></td><td>Erro de schema incompatível, resolvido com <code>mergeSchema</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> uma consulta direta ao arquivo só lê, e a <code>read_files</code> permite controlar o formato, o schema e as dicas de colunas. O CTAS cria a tabela com os dados mais a coluna <code>_rescued_data</code>, e o equivalente em Python usa <code>read</code> e <code>write</code> com overwrite. Tabelas gerenciadas são o padrão e apagam os dados no <code>DROP TABLE</code>, e as externas guardam só os metadados. O <code>COPY INTO</code> é incremental e idempotente, e o <code>mergeSchema</code> resolve a diferença de schema entre a origem e o destino.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="lakeflow-connect-demo-1.html">&larr; Exploring the Lab Environment</a>
+            <a href="lakeflow-connect-demo-3.html">Ingesting JSON Files &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

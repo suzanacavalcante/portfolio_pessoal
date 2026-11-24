@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Data Engineering in Databricks do treinamento Data Ingestion with Lakeflow Connect: o Lakeflow Connect, os métodos de ingestão, o Delta Lake e a arquitetura Medallion.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Data Engineering in Databricks</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-connect.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Data Engineering in Databricks</h1>
+        <p>Data Ingestion with Lakeflow Connect · Lição</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-1">
+            <p class="lead">Esta lição apresenta os fundamentos de engenharia de dados no Databricks, com foco em como o <strong>Lakeflow Connect</strong> unifica a ingestão de várias fontes na Data Intelligence Platform. Ela cobre os métodos de ingestão (batch, batch incremental e streaming) e revisa o Delta Lake e a arquitetura Medallion.</p>
+
+            <p>Estas anotações partem de um resumo da lição, não do material original. Os trechos de código são exemplos escritos por mim para ilustrar os métodos, com caminhos genéricos, e não foram executados.</p>
+
+            <h3>Objetivos</h3>
+            <ol>
+                <li>Descrever o propósito e os benefícios do Lakeflow Connect para ingestão escalável.</li>
+                <li>Identificar os tipos de conectores, os padrão e os gerenciados.</li>
+                <li>Explicar as técnicas de ingestão: batch, batch incremental e streaming.</li>
+                <li>Escolher o método de ingestão adequado ao dado e ao caso de uso.</li>
+                <li>Revisar os benefícios das tabelas do Unity Catalog e da arquitetura Medallion.</li>
+            </ol>
+
+            <h3>Engenharia de dados no Databricks</h3>
+            <p>A plataforma é vista em camadas: o <strong>armazenamento otimizado</strong> (Delta Lake, Parquet e Iceberg), a <strong>governança unificada</strong> (Unity Catalog) e, acima, o motor de processamento (Apache Spark e Structured Streaming). O curso foca na ingestão para essa plataforma.</p>
+
+            <p>O <strong>Lakeflow</strong> é um conjunto unificado para ingestão, transformação e orquestração:</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Ingestão</span>
+                    <h4>Lakeflow Connect</h4>
+                    <p>Conectores eficientes para aplicações corporativas, bancos de dados, armazenamento em nuvem, barramentos de mensagens e arquivos locais.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Transformação</span>
+                    <h4>Spark Declarative Pipelines</h4>
+                    <p>Framework para pipelines batch e streaming, em SQL e Python.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Orquestração</span>
+                    <h4>Lakeflow Jobs</h4>
+                    <p>Automação e orquestração de cargas com várias tarefas.</p>
+                </div>
+            </div>
+
+            <h3>O que é o Lakeflow Connect</h3>
+            <p>Ele simplifica a ingestão com conectores simples e eficientes para arquivos, nuvem, bancos, aplicações corporativas e streaming, dentro de uma plataforma gerenciada.</p>
+
+            <h4>O desafio da ingestão tradicional</h4>
+            <p>As empresas costumam montar uma colcha de retalhos: arquivos on-premises, sistemas legados, armazenamento em nuvem, bancos, aplicações SaaS e streams de eventos, cada um com uma ferramenta própria (de terceiros ou soluções internas). O resultado é mais carga operacional, governança inconsistente e observabilidade fragmentada.</p>
+
+            <h4>A ingestão unificada</h4>
+            <p>Os pipelines são construídos inteiramente dentro do Databricks, com configuração e manutenção simples, orquestração, observabilidade e governança unificadas.</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">1</span>
+                    <h4>Gerenciada e eficiente</h4>
+                    <p>Menor custo e retorno mais rápido.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">2</span>
+                    <h4>Self-service</h4>
+                    <p>Interfaces para todo profissional, com dados democratizados e inovação mais rápida.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">3</span>
+                    <h4>Governança unificada</h4>
+                    <p>Observabilidade e governança que mantêm pipelines e tabelas seguros e saudáveis.</p>
+                </div>
+            </div>
+
+            <h3>Os três tipos de conector</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Categoria</th><th>O que faz</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Upload Files</strong></td><td>Envia arquivos locais, coloca um arquivo em um volume ou cria uma tabela a partir de um arquivo local</td></tr>
+                        <tr><td><strong>Standard Connectors</strong></td><td>Fontes como o armazenamento de objetos em nuvem e o Kafka. Os métodos são batch, batch incremental e streaming</td></tr>
+                        <tr><td><strong>Managed Connectors</strong></td><td>Ingestão de aplicações SaaS e bancos de dados, com leituras e escritas incrementais eficientes. É mais rápido, escalável e econômico</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Métodos de ingestão (conectores padrão)</h3>
+
+            <h4>Batch</h4>
+            <p>Todos os dados são <strong>reingeridos a cada execução</strong> do pipeline, carregados em lotes de linhas. É indicado para grandes volumes históricos que não precisam de tempo real, costuma ser mais simples de implementar e é comum em pipelines agendados.</p>
+
+            <h4>Batch incremental</h4>
+            <p>Ingere (anexa) <strong>apenas os dados novos</strong>, pulando automaticamente os registros já carregados. É mais rápido e mais econômico. O Databricks suporta o batch tradicional e o incremental. Técnicas comuns:</p>
+            <ul>
+                <li><code>COPY INTO</code>, em SQL;</li>
+                <li><code>spark.readStream</code> com o Auto Loader e um trigger temporizado, em Python;</li>
+                <li><code>CREATE OR REFRESH STREAMING TABLE</code>, nos Declarative Pipelines.</li>
+            </ul>
+
+            <div class="code-container">
+                <pre><code>-- COPY INTO: carrega só os arquivos que ainda não foram carregados
+COPY INTO minha_tabela
+FROM 'caminho_do_volume/origem'
+FILEFORMAT = JSON;
+
+-- Streaming table nos Declarative Pipelines
+CREATE OR REFRESH STREAMING TABLE bronze_eventos AS
+SELECT * FROM STREAM read_files('caminho_do_volume/origem', format =&gt; 'json');</code></pre>
+            </div>
+
+            <div class="code-container">
+                <pre><code class="language-python"># Auto Loader como batch incremental: processa o que há de novo e encerra
+(spark.readStream
+    .format("cloudFiles")
+    .option("cloudFiles.format", "json")
+    .load("caminho_do_volume/origem")
+    .writeStream
+    .option("checkpointLocation", "caminho_do_checkpoint")
+    .trigger(availableNow=True)
+    .toTable("bronze_eventos"))</code></pre>
+            </div>
+
+            <h4>Streaming</h4>
+            <p>A carga é <strong>contínua</strong>, conforme os dados são gerados, e eles ficam consultáveis em quase tempo real. O micro-batch processa pequenos lotes em intervalos curtos, de segundos ou minutos, equilibrando latência e eficiência. As técnicas são o <code>spark.readStream</code> (Auto Loader com trigger contínuo) e os Declarative Pipelines em modo de trigger contínuo. É ideal para fontes como Apache Kafka, Amazon Kinesis, Google Pub/Sub e Apache Pulsar.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>Batch</th><th>Batch incremental</th><th>Streaming</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>O que ingere</td><td>Todos os registros, a cada execução</td><td>Só os novos</td><td>Contínuo, conforme chegam</td></tr>
+                        <tr><td>Latência</td><td>Agendada</td><td>Agendada</td><td>Quase tempo real</td></tr>
+                        <tr><td>Bom para</td><td>Grandes volumes históricos, sem tempo real</td><td>Cargas recorrentes mais rápidas e econômicas</td><td>Fontes de eventos, como Kafka e Kinesis</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Revisão do Delta Lake</h3>
+            <p>O Delta Lake entrega uma gestão de dados aberta, confiável e escalável para o Lakehouse: camadas Bronze, Silver e Gold, transações ACID, <em>time travel</em>, imposição de schema e suporte a batch e a streaming. Na ingestão, o objetivo é trazer arquivos de fontes externas, como o armazenamento de objetos, como <strong>tabelas do Unity Catalog</strong> no Delta Lake. Ele é um protocolo open source para ler e escrever arquivos no armazenamento em nuvem (AWS, Azure e GCP).</p>
+            <p>O Delta guarda os dados como <strong>arquivos Parquet</strong> mais um <strong>log de transações</strong> (<code>_delta_log</code>). Isso habilita:</p>
+            <ul>
+                <li>transações ACID;</li>
+                <li>operações DML (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code> e <code>MERGE</code>);</li>
+                <li>time travel;</li>
+                <li>evolução e imposição de schema.</li>
+            </ul>
+
+            <h3>Arquitetura Medallion</h3>
+            <p>Cada camada refina a qualidade e a usabilidade dos dados, da ingestão até os consumidores, tudo sobre o Delta Lake.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 150" role="img" aria-label="Fluxo da arquitetura Medallion: ingestão em batch e streaming, camadas Bronze, Silver e Gold, e os consumidores BI, ML e IA e analytics em streaming">
+                    <defs>
+                        <marker id="md1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <g stroke="#b6b6c3" stroke-width="1.5" fill="none" marker-end="url(#md1)">
+                        <line x1="150" y1="60" x2="178" y2="60"/>
+                        <line x1="322" y1="60" x2="350" y2="60"/>
+                        <line x1="494" y1="60" x2="522" y2="60"/>
+                    </g>
+                    <g font-size="13" font-weight="700">
+                        <rect x="10" y="30" width="140" height="60" rx="12" fill="#1b1b29" stroke="#b6b6c3" stroke-width="2"/>
+                        <text x="80" y="55" text-anchor="middle">Ingestão</text>
+                        <text x="80" y="73" text-anchor="middle" font-size="11" class="muted">batch e streaming</text>
+
+                        <rect x="180" y="30" width="142" height="60" rx="12" fill="#201a33" stroke="#e0388f" stroke-width="2"/>
+                        <text x="251" y="55" text-anchor="middle">Bronze</text>
+                        <text x="251" y="73" text-anchor="middle" font-size="11" class="muted">dados brutos</text>
+
+                        <rect x="352" y="30" width="142" height="60" rx="12" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="423" y="55" text-anchor="middle">Silver</text>
+                        <text x="423" y="73" text-anchor="middle" font-size="11" class="muted">dados limpos</text>
+
+                        <rect x="524" y="30" width="142" height="60" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="595" y="55" text-anchor="middle">Gold</text>
+                        <text x="595" y="73" text-anchor="middle" font-size="11" class="muted">agregações de negócio</text>
+
+                        <text x="595" y="118" text-anchor="middle" font-size="11" class="muted">Consumidores: BI e relatórios · ML e IA · analytics em streaming</text>
+                        <text x="338" y="140" text-anchor="middle" font-size="11" class="muted">Tudo sobre o Delta Lake</text>
+                    </g>
+                </svg>
+                <figcaption>O fluxo Medallion. O diagrama é meu, a partir do resumo da lição</figcaption>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o Lakeflow Connect é a camada de ingestão da plataforma e substitui a colcha de retalhos de ferramentas por uma solução unificada e gerenciada. Há três tipos de conector (Upload Files, Standard e Managed) e três métodos de ingestão: batch (todos os registros), batch incremental (só os novos) e streaming (contínuo, em quase tempo real). O Delta Lake, com Parquet e log de transações, traz ACID, time travel, DML e imposição de schema, e a arquitetura Medallion (Bronze, Silver e Gold) melhora a qualidade dos dados em etapas. A próxima seção do curso começa a prática com o Lakeflow Connect.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="databricks-academy-lakeflow-connect.html">&larr; Voltar ao treinamento</a>
+            <a href="lakeflow-connect-licao-2.html">Data Ingestion from Cloud Storage &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

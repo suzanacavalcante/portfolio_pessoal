@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Ingesting Enterprise Data Overview do treinamento Data Ingestion with Lakeflow Connect: Managed Connectors e Partner Connect.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Ingesting Enterprise Data Overview</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-connect.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Ingesting Enterprise Data Overview</h1>
+        <p>Data Ingestion with Lakeflow Connect · Lição</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-6">
+            <p class="lead">Até aqui, a ingestão veio do armazenamento de objetos. Esta lição trata dos <strong>dados corporativos</strong>: como os <strong>Managed Connectors</strong> do Lakeflow Connect e o <strong>Partner Connect</strong> simplificam a ingestão de bancos de dados e aplicações no Lakehouse, com opções flexíveis, totalmente gerenciadas e apoiadas por parceiros.</p>
+
+            <p>Estas anotações partem de um resumo da lição, não do material original. Os diagramas são meus, desenhados a partir da descrição das arquiteturas.</p>
+
+            <h3>Objetivos</h3>
+            <ol>
+                <li>Explicar a necessidade de conectores gerenciados para ingerir dados de bancos corporativos e aplicações SaaS, além do armazenamento de objetos em nuvem.</li>
+                <li>Descrever os benefícios dos Managed Connectors: configuração simplificada, configuração via UI e infraestrutura totalmente gerenciada.</li>
+                <li>Comparar as arquiteturas de ingestão de SaaS e de bancos de dados usadas pelos Managed Connectors.</li>
+                <li>Descrever o Partner Connect como alternativa para as fontes sem conector gerenciado nativo.</li>
+            </ol>
+
+            <h3>A pergunta que abre a lição</h3>
+            <p>Com o <code>CREATE TABLE</code>, o <code>COPY INTO</code> e o Auto Loader, a ingestão atende o armazenamento em nuvem. Mas e os <strong>bancos de dados</strong> e as <strong>aplicações corporativas</strong>? No diagrama da lição, as fontes (armazenamento em nuvem, bancos e aplicações) alimentam a Data Intelligence Platform, que serve casos de uso como SQL e BI, IA e ML, aplicações em tempo real e compartilhamento de dados. As três técnicas anteriores cobrem só a primeira fonte, e as outras duas ficam com um ponto de interrogação.</p>
+
+            <h3>Managed Connectors do Lakeflow Connect</h3>
+            <p>É o primeiro método para dados corporativos. São conectores nativos do Databricks que simplificam a ingestão de uma grande variedade de bancos e aplicações, com uma experiência low-code e totalmente gerenciada. Eles reduzem a configuração manual e o código de integração personalizado.</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">1</span>
+                    <h4>Ampla variedade</h4>
+                    <p>Simplificam a ingestão de muitos bancos e aplicações.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">2</span>
+                    <h4>UI ou API</h4>
+                    <p>Uma interface fácil de usar, ou a API, no estilo "point and click".</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">3</span>
+                    <h4>Totalmente gerenciados</h4>
+                    <p>O Databricks cuida da infraestrutura, com menos configuração manual e código customizado.</p>
+                </div>
+            </div>
+
+            <p>Dá para ingerir de fontes como <strong>Workday, Salesforce, PostgreSQL e SQL Server</strong>, e o diagrama da lição mostra ainda Dynamics 365, Google Analytics, Oracle NetSuite, ServiceNow e SharePoint.</p>
+
+            <div class="callout">
+                <p><strong>Estado de lançamento:</strong> os conectores gerenciados estão em estados variados, alguns em public preview e outros em GA. A lição recomenda conferir a documentação oficial para os detalhes atuais.</p>
+            </div>
+
+            <h3>Ingestão de aplicações SaaS</h3>
+            <p>A arquitetura parte de fontes externas <strong>publicamente acessíveis</strong>, como APIs ou endpoints OLAP, e grava em <strong>Streaming Delta Tables</strong>, usando pipelines declarativos serverless configuráveis pela UI ou pela API. Os conectores fazem leituras e escritas incrementais eficientes, o que deixa a ingestão mais rápida, escalável e econômica, com os dados atualizados para consumo.</p>
+            <ol>
+                <li>Um job do Lakeflow Serverless Declarative Pipelines <strong>coleta as credenciais</strong> do Unity Catalog.</li>
+                <li>O job <strong>acessa</strong> a fonte publicamente acessível, como uma API ou uma porta OLAP aberta.</li>
+                <li>O serviço transforma os dados e os armazena em uma <strong>Streaming Delta Table</strong>.</li>
+            </ol>
+
+            <h3>Ingestão de bancos de dados</h3>
+            <p>É parecida com a de SaaS, e o destino continua sendo as Streaming Delta Tables, mas parte de bancos externos em vez de APIs públicas. Aqui entra um <strong>Ingestion Gateway</strong>, em compute clássico.</p>
+            <ol>
+                <li>O job de Declarative Pipelines em compute clássico (o Ingestion Gateway) <strong>coleta as credenciais</strong> do Unity Catalog.</li>
+                <li>Com elas, <strong>conecta e coleta os dados</strong> das fontes, que podem ser um banco tradicional on-premises ou em nuvem.</li>
+                <li>O <strong>estado mais recente e os dados de staging são salvos</strong> em um volume do Unity Catalog.</li>
+                <li>Um job de Serverless Declarative Pipelines <strong>processa os dados coletados</strong> e grava nas Streaming Delta Tables.</li>
+            </ol>
+            <p>A configuração é feita pela WebUI, pela API ou pela CLI.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 230" role="img" aria-label="Comparação das arquiteturas de ingestão: SaaS, com fonte pública, pipeline serverless e Streaming Delta Table, e bancos de dados, com um Ingestion Gateway e um volume de staging antes do pipeline serverless">
+                    <defs>
+                        <marker id="mc1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <g stroke="#b6b6c3" stroke-width="1.5" fill="none" marker-end="url(#mc1)">
+                        <line x1="170" y1="62" x2="196" y2="62"/>
+                        <line x1="366" y1="62" x2="392" y2="62"/>
+                        <line x1="140" y1="172" x2="152" y2="172"/>
+                        <line x1="282" y1="172" x2="294" y2="172"/>
+                        <line x1="424" y1="172" x2="436" y2="172"/>
+                        <line x1="566" y1="172" x2="578" y2="172"/>
+                    </g>
+                    <g font-size="13" font-weight="700">
+                        <text x="10" y="18" font-size="12" class="muted">SaaS</text>
+
+                        <rect x="10" y="30" width="160" height="64" rx="12" fill="#1b1b29" stroke="#b6b6c3" stroke-width="2"/>
+                        <text x="90" y="58" text-anchor="middle">Fonte SaaS</text>
+                        <text x="90" y="76" text-anchor="middle" font-size="11" class="muted">API ou endpoint OLAP</text>
+
+                        <rect x="198" y="30" width="168" height="64" rx="12" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="282" y="55" text-anchor="middle">Serverless Pipelines</text>
+                        <text x="282" y="73" text-anchor="middle" font-size="11" class="muted">credenciais do Unity Catalog</text>
+
+                        <rect x="394" y="30" width="168" height="64" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="478" y="55" text-anchor="middle">Streaming</text>
+                        <text x="478" y="73" text-anchor="middle">Delta Table</text>
+
+                        <text x="10" y="128" font-size="12" class="muted">Bancos de dados</text>
+
+                        <rect x="10" y="140" width="130" height="64" rx="12" fill="#1b1b29" stroke="#b6b6c3" stroke-width="2"/>
+                        <text x="75" y="168" text-anchor="middle">Banco</text>
+                        <text x="75" y="186" text-anchor="middle" font-size="11" class="muted">on-premises ou nuvem</text>
+
+                        <rect x="154" y="140" width="128" height="64" rx="12" fill="#201a33" stroke="#e0388f" stroke-width="2"/>
+                        <text x="218" y="165" text-anchor="middle">Ingestion Gateway</text>
+                        <text x="218" y="183" text-anchor="middle" font-size="11" class="muted">compute clássico</text>
+
+                        <rect x="296" y="140" width="128" height="64" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="360" y="165" text-anchor="middle">Volume do UC</text>
+                        <text x="360" y="183" text-anchor="middle" font-size="11" class="muted">staging e estado</text>
+
+                        <rect x="438" y="140" width="128" height="64" rx="12" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="502" y="165" text-anchor="middle">Serverless</text>
+                        <text x="502" y="183" text-anchor="middle">Pipelines</text>
+
+                        <rect x="580" y="140" width="130" height="64" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="645" y="165" text-anchor="middle">Streaming</text>
+                        <text x="645" y="183" text-anchor="middle">Delta Table</text>
+                    </g>
+                </svg>
+                <figcaption>As duas arquiteturas dos Managed Connectors. O diagrama é meu, a partir da descrição da lição</figcaption>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>SaaS</th><th>Bancos de dados</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Fonte</td><td>Pública, como API ou endpoint OLAP</td><td>Banco tradicional, on-premises ou em nuvem</td></tr>
+                        <tr><td>Compute</td><td>Só o serverless de Declarative Pipelines</td><td>Um Ingestion Gateway em compute clássico, mais o pipeline serverless</td></tr>
+                        <tr><td>Staging e estado</td><td>Não aparece no fluxo</td><td>Em um volume do Unity Catalog</td></tr>
+                        <tr><td>Destino</td><td colspan="2">Streaming Delta Tables</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Partner Connect</h3>
+            <p>É a alternativa quando <strong>não há conector gerenciado</strong> para a sua fonte específica.</p>
+            <ul>
+                <li><strong>Como funciona:</strong> o Partner Connect permite criar contas de teste com parceiros de tecnologia selecionados e conectar o workspace às soluções deles pela UI do Databricks. Assim você testa as soluções com os seus dados no Lakehouse e depois avalia e adota as que atendem melhor ao negócio.</li>
+                <li><strong>Ecossistema:</strong> os parceiros de ingestão continuam vitais, com uma ampla gama de conectores de funcionalidade profunda, mantidos por equipes experientes. Os exemplos do diagrama são Informatica, Qlik, Rivery, Alteryx, Prophecy e Fivetran, que conectam bancos on-premises e em nuvem, arquivos e aplicações corporativas à plataforma.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> os Managed Connectors simplificam a ingestão de bancos e de SaaS com uma experiência totalmente gerenciada, pela UI ou pela API. Na arquitetura de SaaS, um job serverless de Declarative Pipelines coleta as credenciais do Unity Catalog, acessa a fonte pública e grava em Streaming Delta Tables. Na de bancos, um Ingestion Gateway em compute clássico conecta aos bancos privados, com staging e estado em volumes do Unity Catalog, antes de o pipeline serverless gravar nas Streaming Delta Tables. O Partner Connect é a alternativa quando não há conector nativo. A próxima etapa é a prática com os Managed Connectors.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="lakeflow-connect-licao-5.html">&larr; Semi-Structured Data: JSON</a>
+            <a href="lakeflow-connect-licao-7.html">Additional Features e MERGE INTO &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>
