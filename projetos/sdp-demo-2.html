@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Developing a Simple Pipeline do treinamento Build Data Pipelines with Lakeflow Spark Declarative Pipelines: streaming tables, materialized view, dry run e execução incremental.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Developing a Simple Pipeline</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-spark-declarative-pipelines.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Developing a Simple Pipeline</h1>
+        <p>Build Data Pipelines with Lakeflow Spark Declarative Pipelines · Demo 2</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-2">
+            <p class="lead">Esta demo, de cerca de 20 minutos, migra o ETL tradicional de <code>orders</code> para um pipeline SDP. Ela usa <strong>streaming tables</strong>, em SQL, nas camadas bronze e silver, e uma <strong>materialized view</strong> na gold. Depois, configura o pipeline com uma variável <code>source</code> e o executa, mostrando a ingestão incremental, o dry run e o full table refresh.</p>
+
+            <p>Estas anotações partem de um resumo cronometrado da demo, não da transcrição. O código é um exemplo escrito por mim a partir desse resumo, com nomes genéricos (só o <code>orders_bronze_demo</code> aparece no resumo), e não foi executado.</p>
+
+            <h3>Preparação e criação do pipeline</h3>
+            <p>O ponto de partida é um notebook em serverless v5, com o classroom setup e uma célula que fornece o valor (o caminho do volume) a copiar para a configuração do pipeline. Para criar o pipeline:</p>
+            <ol>
+                <li>No menu Jobs &amp; Pipelines (em uma nova aba), cria-se um novo <strong>ETL pipeline</strong>.</li>
+                <li>Renomeia-se para "05-Developing a Simple Pipeline", e a pasta raiz do pipeline também é renomeada.</li>
+                <li>Seleciona-se o catálogo e o schema padrão (<code>sdp_1_bronze</code>).</li>
+                <li>Renomeia-se a pasta de transformações para <code>orders</code> e o arquivo para <code>orders_pipeline.sql</code>. Pode-se ter quantos notebooks, arquivos Python ou queries forem necessários.</li>
+            </ol>
+
+            <h3>Pipeline settings</h3>
+            <p>O painel lateral reúne:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Configuração</th><th>O que é</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>ID, tipo, nome, modo, criador, owner</td><td>Os dados de identificação do pipeline</td></tr>
+                        <tr><td><strong>Run as</strong></td><td>Quem executa. A boa prática é uma service account dedicada</td></tr>
+                        <tr><td><strong>Code assets</strong></td><td>A pasta raiz e o código-fonte. Tudo o que está em <code>orders</code> será executado</td></tr>
+                        <tr><td>Catálogo e schema padrão</td><td>Onde ficam as tabelas sem o namespace completo</td></tr>
+                        <tr><td>Compute</td><td>Serverless por padrão</td></tr>
+                        <tr><td>Environment</td><td>Um <code>requirements.txt</code> ou uma lista de bibliotecas com versões</td></tr>
+                        <tr><td><strong>Configuration</strong></td><td>Pares chave-valor. Aqui, a chave <code>source</code> com o caminho completo do volume (<code>/Volumes/&lt;catálogo&gt;/sdp_1_bronze/source</code>)</td></tr>
+                        <tr><td>Tags, usage, notificações e advanced</td><td>Tags (descobribilidade), usage (budget policy), notificações e as configurações avançadas (canal current ou preview e event logs)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>O código</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Bronze</span>
+                    <h4>Streaming table</h4>
+                    <p>Um <code>CREATE OR REFRESH STREAMING TABLE</code>, que é uma tabela Delta com capacidade de streaming. Lê com a <code>read_files</code> no caminho <code>${source}/orders</code>, com a palavra-chave <code>STREAM</code>, e inclui metadados.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Silver</span>
+                    <h4>Streaming table</h4>
+                    <p>Também streaming, com transformações leves (escolher colunas, rotular e fazer cast). Lê do <code>orders_bronze</code> com o <code>STREAM</code> no <code>FROM</code>.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Gold</span>
+                    <h4>Materialized view</h4>
+                    <p>Agrega por data, com o <code>total_daily_orders</code>.</p>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <pre><code>CREATE OR REFRESH STREAMING TABLE sdp_1_bronze.orders_bronze_demo AS
+SELECT
+    *,
+    current_timestamp() AS processing_time,
+    _metadata.file_name AS source_file
+FROM STREAM read_files('${source}/orders', format =&gt; 'json');
+
+CREATE OR REFRESH STREAMING TABLE orders_silver_demo AS
+SELECT
+    order_id,
+    CAST(order_timestamp AS TIMESTAMP) AS order_timestamp,
+    customer_id,
+    notifications
+FROM STREAM(orders_bronze_demo);
+
+CREATE OR REFRESH MATERIALIZED VIEW orders_by_date AS
+SELECT date(order_timestamp) AS order_date, count(*) AS total_daily_orders
+FROM orders_silver_demo
+GROUP BY date(order_timestamp);</code></pre>
+            </div>
+
+            <ul>
+                <li>O nome qualificado (<code>sdp_1_bronze.orders_bronze_demo</code>) define onde a tabela vai. Sem qualificar, ela vai para o catálogo e o schema padrão.</li>
+                <li>A variável <code>${source}</code> é substituída em tempo de execução pelo valor da configuração.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Atenção:</strong> esquecer o <code>STREAM</code> pode deixar os dados desatualizados.</p>
+            </div>
+
+            <h3>Dry run e execução</h3>
+            <p>O <strong>Dry Run</strong>, no dropdown do botão azul, valida o código, os catálogos e os schemas <strong>sem criar nem atualizar tabelas</strong> e sem fluir dados. Ele mostra o preview dos datasets (o bronze, o silver e a MV <code>orders_by_date</code>) e a linhagem.</p>
+            <p>Por padrão, o SDP roda com <strong>processamento incremental</strong>. O volume tem um único JSON, com 174 registros. Ao rodar o pipeline (<strong>Run pipeline</strong>), o pipeline graph mostra o fluxo: o bronze leva cerca de 15 segundos (174 registros), o silver cerca de 3 segundos (174 registros), e a MV mostra seus registros de saída.</p>
+
+            <p>As abas de saída reúnem tudo em um só lugar:</p>
+            <ul>
+                <li><strong>Tables:</strong> duração, registros de saída e expectations;</li>
+                <li><strong>Performance:</strong> os statements SQL, as linhas e os bytes lidos e escritos, e o query profile ao clicar;</li>
+                <li>a navegação pelo graph para ver os dados de cada tabela.</li>
+            </ul>
+
+            <h3>Execução incremental</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Execução</th><th>O que aconteceu</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1ª</td><td>Carga inicial de 174 registros no bronze e no silver</td></tr>
+                        <tr><td>2ª, sem novos arquivos</td><td>O Auto Loader garante a idempotência por arquivo, então as streaming tables têm 0 registros de saída. A MV é atualizada (saída de 7)</td></tr>
+                        <tr><td>3ª, com um novo arquivo</td><td>Uma célula do notebook adiciona JSONs à pasta <code>orders</code>, agora com 2 arquivos. O Auto Loader acrescenta cerca de 25 registros ao bronze, e o silver processa os novos. A MV usa o <strong>refresh incremental</strong>, só com os novos dados, e não com o silver inteiro, por estar em serverless. O bronze totaliza <strong>199</strong> (174 + 25), e a MV ganha um novo agregado, a data de 1º de janeiro de 2022, com o rótulo "incremental"</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Full table refresh</h3>
+            <p>É o modo que <strong>trunca todas as tabelas</strong> do pipeline e reprocessa tudo do zero. Na demo, ele reprocessa cerca de 199 registros, lendo os dois arquivos.</p>
+
+            <div class="callout">
+                <p><strong>Cuidado em produção:</strong> em desenvolvimento, o full refresh é aceitável. Em produção, ele apaga os dados já processados e pode causar perda de dados.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> a migração do ETL tradicional para o SDP troca o <code>CREATE OR REPLACE TABLE</code> por <code>CREATE OR REFRESH STREAMING TABLE</code> no bronze e no silver, com o <code>STREAM</code> na leitura, e por uma materialized view na gold. A variável <code>source</code> vem da configuração do pipeline. O dry run valida sem mexer nos dados, a execução é incremental por padrão, e o Auto Loader evita reprocessar arquivos já lidos. A MV também é atualizada de forma incremental no serverless. O full table refresh apaga e reprocessa tudo, e pede cuidado em produção.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="sdp-demo-1.html">&larr; Course Setup and Creating a Pipeline</a>
+            <a href="sdp-demo-3.html">Adding Data Quality Expectations &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

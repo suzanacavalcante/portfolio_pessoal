@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Course Setup and Creating a Pipeline do treinamento Build Data Pipelines with Lakeflow Spark Declarative Pipelines.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Course Setup and Creating a Pipeline</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-spark-declarative-pipelines.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Course Setup and Creating a Pipeline</h1>
+        <p>Build Data Pipelines with Lakeflow Spark Declarative Pipelines · Demo 1</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-1">
+            <p class="lead">Esta demo, de cerca de 17 minutos, percorre o workspace e os recursos do curso e constrói um <strong>pipeline ETL tradicional</strong> como linha de base. Isso serve para mostrar os limites dessa abordagem e introduzir os <strong>Spark Declarative Pipelines (SDP)</strong>, antes de criar o primeiro pipeline e conhecer a interface do editor.</p>
+
+            <p>Estas anotações partem de um resumo cronometrado da demo, não da transcrição. Os trechos de código são exemplos escritos por mim a partir desse resumo, com caminhos genéricos, e não foram executados. O diagrama do editor também é meu.</p>
+
+            <h3>Preparação do ambiente</h3>
+            <ul>
+                <li>Conecta-se o notebook a um compute <strong>serverless, versão 5</strong>.</li>
+                <li>A célula de <em>classroom setup</em> cria os catálogos, schemas, volumes e arquivos usados no curso e imprime as variáveis.</li>
+                <li>No Catalog Explorer aparecem os schemas <strong>bronze, silver e gold</strong> (por exemplo, <code>sdp_1_bronze</code>). Dentro do bronze há um volume <code>source</code>, com JSONs de <strong>customers, orders e status</strong>.</li>
+                <li>Duas variáveis de caminho, uma registrada em Python e outra em SQL, apontam para o mesmo volume <code>source</code>.</li>
+            </ul>
+
+            <h3>Explorando os dados</h3>
+            <p>Com o <code>spark.sql(...)</code> e um <code>SELECT * FROM json</code> usando o caminho do volume, lê-se o <code>orders</code>: cerca de <strong>174 registros</strong>, com <code>customer_id</code>, <code>notifications</code>, <code>order_id</code> e <code>order_timestamp</code>.</p>
+
+            <h3>O pipeline ETL tradicional</h3>
+            <p>Um script com <code>CREATE OR REPLACE TABLE</code> constrói as três camadas:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Objeto</th><th>O que faz</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>orders_bronze</code></td><td>Usa a <code>read_files</code> sobre o caminho do volume e traz todas as colunas, mais metadados de tempo de processamento e do arquivo de origem</td></tr>
+                        <tr><td><code>orders_silver</code></td><td>Lê do bronze, seleciona colunas, faz cast e adiciona um rótulo</td></tr>
+                        <tr><td><code>orders_by_date</code> (view)</td><td>Agrega o <code>total_daily_orders</code>, agrupando por data</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-container">
+                <pre><code>CREATE OR REPLACE TABLE orders_bronze AS
+SELECT
+    *,
+    current_timestamp()      AS processing_time,
+    _metadata.file_name      AS source_file
+FROM read_files('caminho_do_volume/orders', format =&gt; 'json');
+
+CREATE OR REPLACE TABLE orders_silver AS
+SELECT
+    order_id,
+    CAST(order_timestamp AS TIMESTAMP) AS order_timestamp,
+    customer_id,
+    notifications
+    -- a demo também adiciona uma coluna de rótulo
+FROM orders_bronze;
+
+CREATE OR REPLACE VIEW orders_by_date AS
+SELECT date(order_timestamp) AS order_date, count(*) AS total_daily_orders
+FROM orders_silver
+GROUP BY date(order_timestamp);</code></pre>
+            </div>
+
+            <p>Na verificação, o bronze traz a <code>_rescued_data</code> e as duas colunas extras. O silver tem <code>order_id</code>, <code>order_timestamp</code> (como timestamp), <code>customer_id</code> e <code>notifications</code>. A view mostra as contagens por data. O código funciona, <strong>mas não escala bem</strong>.</p>
+
+            <h3>Os problemas do ETL tradicional</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>#</th><th>Problema</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td><td><strong>O bronze relê tudo</strong> a cada execução (leitura estática completa): o custo cresce com o total de arquivos, e não com os dados novos</td></tr>
+                        <tr><td>2</td><td><strong>O silver reprocessa todas as linhas</strong> do bronze, sempre</td></tr>
+                        <tr><td>3</td><td><strong>As views reexecutam</strong> a cada chamada, por serem uma consulta salva, o que lentifica os dashboards</td></tr>
+                        <tr><td>4</td><td><strong>A qualidade de dados</strong> exige código extra (WHERE, CASE, asserts) fora do pipeline, e é fácil de esquecer</td></tr>
+                        <tr><td>5</td><td><strong>O monitoramento</strong> existe só no nível do job (sucesso ou falha), e não do dado: quantos registros, duplicatas, falhas de parse</td></tr>
+                        <tr><td>6</td><td><strong>Não há UI</strong> para explorar e corrigir: sem linhagem, preview ou visão do fluxo, e às vezes é preciso reexecutar tudo</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>"Dá para usar Structured Streaming?"</h3>
+            <p>O Structured Streaming resolve o reprocessamento, mas exige reescrever com mais código e mais operação:</p>
+            <ul>
+                <li>gerenciar os <strong>checkpoints</strong>, com um caminho persistente por stream;</li>
+                <li>fazer upserts, que não são simples: é preciso o <code>foreachBatch</code>, uma view temporária e um MERGE manual;</li>
+                <li>configurar o <strong>trigger</strong> e o <strong>schema location</strong> do Auto Loader;</li>
+                <li>controlar o ciclo de vida: start, stop e await.</li>
+            </ul>
+            <p>Os erros geram falhas silenciosas ou streams que nunca terminam. E, ainda assim, não há restrições de qualidade, UI nem linhagem.</p>
+
+            <h3>O que os SDP oferecem</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Ingestão</span>
+                    <h4>Ingestão eficiente</h4>
+                    <p>Batch, streaming e CDC, sobre o Apache Spark.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Transformação</span>
+                    <h4>Transformação inteligente</h4>
+                    <p>Uma abstração sobre o Structured Streaming: poucas linhas de código, e o framework escolhe a estratégia de execução (batch ou streaming) e otimiza custo e desempenho sem ajuste manual.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Operação</span>
+                    <h4>Operações automatizadas</h4>
+                    <p>Gestão de dependências, escala, recuperação e aplicação de qualidade, sem infraestrutura para gerenciar.</p>
+                </div>
+            </div>
+
+            <p>Ao converter o batch, o resultado é o processamento <strong>incremental</strong>, a qualidade de dados, a infraestrutura gerenciada e a visibilidade completa do pipeline. Não há <code>foreachBatch</code>, checkpoints nem trigger manual.</p>
+
+            <h3>Como criar um pipeline</h3>
+            <ol>
+                <li><strong>Pelo workspace:</strong> no menu de ações da pasta, Create → <strong>ETL pipeline</strong>, que cria um pipeline vazio.</li>
+                <li><strong>Pelo menu Jobs &amp; Pipelines</strong> (ou pelo botão azul), com três opções: <em>Ingestion pipeline</em> (os conectores gerenciados do Lakeflow), <em>ETL pipeline</em> (os Spark Declarative Pipelines) e <em>Lakeflow Jobs</em>.</li>
+            </ol>
+
+            <h3>O editor de pipelines</h3>
+            <p>O editor atende quatro preocupações de quem trabalha com engenharia de dados:</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 270" role="img" aria-label="Layout do editor de pipelines: à esquerda o nome e os arquivos, no centro a área de código, embaixo a saída com tabelas, performance e pipeline graph, e em cima a operação com catálogo, schema, settings, agendamento, share, compute e execução">
+                    <rect x="10" y="10" width="700" height="250" rx="14" fill="#1b1b29" stroke="#b6b6c3" stroke-width="2"/>
+                    <g font-size="13" font-weight="700">
+                        <rect x="22" y="22" width="676" height="44" rx="10" fill="#201a33" stroke="#e0388f" stroke-width="2"/>
+                        <text x="360" y="42" text-anchor="middle">4 · Operação</text>
+                        <text x="360" y="58" text-anchor="middle" font-size="11" class="muted">catálogo e schema padrão · settings · agendamento · share · compute · executar</text>
+
+                        <rect x="22" y="78" width="170" height="170" rx="10" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="107" y="150" text-anchor="middle">1 · Nome e arquivos</text>
+                        <text x="107" y="168" text-anchor="middle" font-size="11" class="muted">root folder do pipeline</text>
+
+                        <rect x="204" y="78" width="494" height="90" rx="10" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="451" y="118" text-anchor="middle">2 · Código</text>
+                        <text x="451" y="136" text-anchor="middle" font-size="11" class="muted">funciona como um notebook ou arquivo comum</text>
+
+                        <rect x="204" y="178" width="494" height="70" rx="10" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="451" y="207" text-anchor="middle">3 · Saída e detalhes</text>
+                        <text x="451" y="225" text-anchor="middle" font-size="11" class="muted">tabelas de saída · performance · pipeline graph (a linhagem)</text>
+                    </g>
+                </svg>
+                <figcaption>As quatro áreas do editor de pipelines. O diagrama é meu, a partir da descrição</figcaption>
+            </div>
+
+            <ol>
+                <li><strong>Nome e arquivos:</strong> sempre há uma <em>root folder</em> associada ao pipeline, com um toggle para focar só nela ou ver todos os arquivos do workspace.</li>
+                <li><strong>Código:</strong> uma área que se comporta como um notebook ou arquivo comum.</li>
+                <li><strong>Saída e detalhes:</strong> a aba inferior, com as tabelas de saída, a performance e o <strong>pipeline graph</strong>, a representação visual das tabelas e das dependências, que é a linhagem.</li>
+                <li><strong>Operação</strong> (o "operational corner"):
+                    <ul>
+                        <li>o catálogo e o schema <strong>padrão</strong>, para as tabelas sem o namespace de três níveis;</li>
+                        <li>o acesso às <strong>settings</strong>, que é assunto da próxima demo;</li>
+                        <li>o <strong>agendamento</strong>, que na prática cria um Lakeflow Job com uma única task apontando para o pipeline;</li>
+                        <li>o <strong>share</strong> para colegas;</li>
+                        <li>o <strong>compute</strong>, com o serverless sugerido por padrão;</li>
+                        <li>o botão azul de execução.</li>
+                    </ul>
+                </li>
+            </ol>
+            <p>Uma dica: ajuste o layout ao que está fazendo, fechando os painéis de arquivos ao codar e ocultando o workspace ao ver os resultados.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o ETL tradicional em bronze, silver e gold funciona, mas relê e reprocessa tudo, reexecuta as views, deixa a qualidade fora do pipeline e não tem monitoramento do dado nem UI. O Structured Streaming resolve o reprocessamento, mas traz checkpoints, triggers e ciclo de vida para gerenciar. Os SDP respondem a isso com ingestão eficiente, transformação inteligente e operações automatizadas, dando processamento incremental, qualidade, infraestrutura gerenciada e visibilidade. Um pipeline se cria como <em>ETL pipeline</em>, e o editor reúne os arquivos, o código, a saída com o pipeline graph e a operação.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="databricks-academy-lakeflow-spark-declarative-pipelines.html">&larr; Voltar ao treinamento</a>
+            <a href="sdp-demo-2.html">Developing a Simple Pipeline &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

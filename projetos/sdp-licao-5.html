@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Change Data Capture (CDC) Overview do treinamento Build Data Pipelines with Lakeflow Spark Declarative Pipelines: SCD Type 1, SCD Type 2 e o AUTO CDC INTO.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Change Data Capture (CDC) Overview</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-spark-declarative-pipelines.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Change Data Capture (CDC) Overview</h1>
+        <p>Build Data Pipelines with Lakeflow Spark Declarative Pipelines · Lição 5</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-5">
+            <p class="lead">Esta lição apresenta o <strong>Change Data Capture (CDC)</strong> e os dois tipos principais de Slowly Changing Dimensions, o <strong>SCD Type 1</strong> (sobrescreve) e o <strong>SCD Type 2</strong> (guarda o histórico). Também apresenta o <strong>AUTO CDC INTO</strong> e o fluxo Customers que completa o pipeline. A prática é a <a href="sdp-demo-5.html">Demo 5</a>.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição, não da lição inteira. Algumas partes não foram abertas, e isso está indicado no fim da página.</p>
+
+            <h3>O que é Change Data Capture</h3>
+            <p>É uma técnica para <strong>rastrear e capturar as mudanças</strong> de uma fonte de dados (banco, lakehouse ou data warehouse) e <strong>aplicá-las a uma tabela de destino</strong>, como o Lakehouse, mantendo-a com o estado mais recente da origem. A origem traz <strong>INSERTs, UPDATEs e DELETEs</strong>, e a tabela de mudanças precisa ser uma <strong>streaming table</strong>.</p>
+            <p>O CDC é categorizado em tipos de <strong>Slowly Changing Dimensions (SCD)</strong>, que dizem como o <strong>histórico</strong> das mudanças é tratado. Os principais são o Type 1 e o Type 2.</p>
+
+            <h3>SCD Type 1: sobrescrever</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Evento</th><th>O que acontece</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Update</strong></td><td>O registro anterior é <strong>sobrescrito</strong>, pela chave, com o novo valor</td></tr>
+                        <tr><td><strong>Delete</strong></td><td>O registro deletado pela chave é <strong>removido</strong></td></tr>
+                        <tr><td><strong>Insert</strong></td><td>Não há rastreamento de chaves ou linhas antigas. Só o dado atual é mantido</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Exemplo passo a passo</h4>
+            <p>A tabela alvo <code>customers</code> tem dois clientes. A tabela de origem <code>updates</code> traz as mudanças, e a chave é o <code>CustomerID</code>, com o <code>ProcessDate</code> como coluna de sequência.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Cliente</th><th>Antes (alvo)</th><th>Mudanças na origem</th><th>Depois (Type 1)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1 · Peter</td><td>1 Blue Rd. (5/1/2025)</td><td>UPDATE: 99 Sunny St. (5/15) e UPDATE: 123 Main St. (5/20)</td><td>123 Main St. (5/20/2025), o mais recente</td></tr>
+                        <tr><td>2 · Samarth</td><td>22 Front St (5/1/2025)</td><td>DELETE (5/20)</td><td><strong>Removido</strong></td></tr>
+                        <tr><td>3 · Kostas</td><td>não existia</td><td>INSERT: 100 Athens Dr. (5/20)</td><td><strong>Adicionado</strong>: 100 Athens Dr. (5/20/2025)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>A tabela alvo fica com as últimas informações de cada cliente, <strong>sem versões históricas</strong>.</p>
+
+            <h3>SCD Type 2: histórico</h3>
+            <ul>
+                <li><strong>Update e insert:</strong> o registro antigo é <strong>preservado</strong>, com uma coluna adicional que indica o seu período de validade (data de início, de fim ou uma flag de atual). Uma <strong>nova linha</strong> entra com a informação atualizada.</li>
+                <li><strong>Delete:</strong> o registro marcado como deletado é mantido, e uma coluna indica que ele está <strong>inativo</strong>.</li>
+                <li><strong>Quando usar:</strong> quando o histórico importa e é preciso rastrear como os atributos mudam ao longo do tempo (por exemplo, o endereço ou o status de um cliente).</li>
+            </ul>
+
+            <p>O Type 2 acrescenta duas colunas de metadados à tabela alvo: <code>__START_AT</code> (quando a linha ficou ativa) e <code>__END_AT</code> (quando ficou inativa, se for o caso). Um <code>__END_AT</code> <strong>nulo</strong> quer dizer que a linha está ativa agora.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Cliente</th><th>Endereço</th><th>__START_AT</th><th>__END_AT</th><th>Situação</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Peter</td><td>123 Main St.</td><td>5/20/2025</td><td>nulo</td><td>Ativa</td></tr>
+                        <tr><td>Peter</td><td>1 Blue Rd.</td><td>5/1/2025</td><td>5/20/2025</td><td>Inativa (histórico)</td></tr>
+                        <tr><td>Samarth</td><td>22 Front St</td><td>5/1/2025</td><td>5/20/2025</td><td>Inativa (conta excluída)</td></tr>
+                        <tr><td>Kostas</td><td>100 Athens Dr.</td><td>5/20/2025</td><td>nulo</td><td>Ativa</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Comparando com o Type 1:</strong> no mesmo exemplo, o Type 1 termina com 2 linhas (Peter e Kostas), e o Type 2 com 4. A diferença é que o Type 2 guarda o endereço antigo do Peter e o registro do Samarth, que o Type 1 apaga.</p>
+            </div>
+
+            <h3>AUTO CDC INTO</h3>
+            <p>Esta parte do resumo só aponta para a documentação: as <strong>AUTO CDC APIs</strong> simplificam o change data capture no SDP. Antes elas se chamavam <strong>APPLY CHANGES</strong>, com a mesma sintaxe. A explicação de cada cláusula (<code>KEYS</code>, <code>APPLY AS DELETE WHEN</code>, <code>SEQUENCE BY</code>, <code>COLUMNS</code> e <code>STORED AS</code>) está na <a href="sdp-demo-5.html">Demo 5</a>.</p>
+
+            <h3>O fluxo Customers no pipeline</h3>
+            <ol>
+                <li><strong>Ingerir</strong> os JSONs de clientes do cloud storage para a streaming table <code>customers_bronze</code>.</li>
+                <li>Criar a <code>customers_bronze_clean</code>, uma streaming table limpa, que filtra e formata os updates, inserts e deletes incrementais do bronze.</li>
+                <li>Usar o <strong>AUTO CDC INTO</strong> para a silver de clientes, com o <code>STORED AS SCD TYPE 1</code>, que sobrescreve as mudanças (updates, inserts e deletes).</li>
+            </ol>
+            <p>O fluxo final combina a lógica de CDC com a arquitetura medalhão, para manter os clientes atualizados, <strong>sem histórico</strong>. Isso é importante para as análises a jusante, para o compliance e para a personalização.</p>
+
+            <h3>Conclusão</h3>
+            <ol>
+                <li>O <strong>CDC</strong> rastreia e captura inserts, updates e deletes do sistema de origem e os aplica a uma tabela alvo, mantendo o Lakehouse em sincronia.</li>
+                <li>O <strong>SCD Type 1</strong> sobrescreve o destino com os valores mais recentes e não retém histórico. É a abordagem mais simples e eficiente quando só os dados atuais importam.</li>
+                <li>O <strong>SCD Type 2</strong> preserva cada versão histórica, com <code>__START_AT</code> e <code>__END_AT</code>. As linhas ativas têm o <code>__END_AT</code> nulo, e as inativas e deletadas carregam uma data. Isso permite a análise histórica completa.</li>
+                <li>O <strong>AUTO CDC INTO</strong> é o mecanismo declarativo embutido do Lakeflow. Ele substitui a lógica complexa de batch do <code>MERGE INTO</code> por uma sintaxe concisa e legível, em que cada cláusula tem um papel distinto.</li>
+                <li>O <strong>fluxo Customers</strong> completa a arquitetura e produz uma silver de clientes atual e pronta para produção.</li>
+            </ol>
+
+            <div class="callout">
+                <p><strong>O que não li:</strong> o início da lista de objetivos e da introdução (que ficaram acima do trecho que li), as notas "Saiba mais" e os links de documentação. A tabela comparativa e o parágrafo "Comparando com o Type 1" são meus, montados a partir dos exemplos do resumo.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o CDC aplica à tabela destino os inserts, updates e deletes de uma origem. O <strong>Type 1</strong> sobrescreve e apaga, e mantém só o estado atual. O <strong>Type 2</strong> mantém o histórico, com <code>__START_AT</code> e <code>__END_AT</code> (nulo quer dizer ativa). O <code>AUTO CDC INTO</code>, que antes se chamava <code>APPLY CHANGES</code>, faz isso de forma declarativa, no lugar do <code>MERGE INTO</code> em batch.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="sdp-licao-4.html">&larr; Streaming Joins and Deploying Pipelines</a>
+            <a href="sdp-demo-1.html">Course Setup and Creating a Pipeline &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

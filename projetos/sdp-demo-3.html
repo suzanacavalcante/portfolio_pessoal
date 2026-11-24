@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Adding Data Quality Expectations do treinamento Build Data Pipelines with Lakeflow Spark Declarative Pipelines: expectations warn, drop e fail na camada silver.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Adding Data Quality Expectations</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-spark-declarative-pipelines.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Adding Data Quality Expectations</h1>
+        <p>Build Data Pipelines with Lakeflow Spark Declarative Pipelines · Demo 3</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-3">
+            <p class="lead">Esta demo, de cerca de 9 minutos, estende o pipeline de <code>orders</code> com <strong>expectations</strong>, que são restrições de qualidade de dados. A camada silver ganha três delas, uma para cada ação possível: avisar (<em>warn</em>), descartar o registro (<em>drop</em>) e falhar a atualização (<em>fail</em>).</p>
+
+            <p>Estas anotações partem de um resumo cronometrado da demo, não da transcrição. O código é uma reconstrução minha a partir desse resumo e não foi executado.</p>
+
+            <h3>Preparação e criação do pipeline por código</h3>
+            <p>O ponto de partida é um notebook em serverless v5. O classroom setup fornece recursos, variáveis e funções, e uma célula obtém o caminho do volume com os JSONs de <code>orders</code>.</p>
+            <p>Desta vez o pipeline não é criado pela UI. Uma célula chama a função <code>create_declarative_pipeline</code>, fornecida pelo setup, que usa a <strong>API</strong> para criar o objeto do pipeline. Isso é útil ao promover um pipeline entre ambientes. O pipeline "07-Adding Data Quality Expectations" nasce com pasta raiz, catálogo e schema padrão e os code assets na pasta <code>orders</code>.</p>
+
+            <h3>Explorando o pipeline</h3>
+            <p>Ao abrir o pipeline em Jobs &amp; Pipelines, a primeira tela é a <strong>página de monitoramento</strong>, com o DAG, os detalhes, as tabelas e a performance. Para ver o código, uso o <strong>Edit pipeline</strong> ou o "Open in editor" no source code.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Item</th><th>O que é</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Pasta <code>explorations</code></td><td>Um notebook de exemplo, vazio, com o ícone de "corrente quebrada". Isso quer dizer que ele <strong>não entra</strong> na execução do pipeline: é para exploração</td></tr>
+                        <tr><td>Pasta <code>orders</code></td><td>Pasta e arquivo com o ícone de pipeline, que <strong>entram</strong> na execução. Esses arquivos não se executam individualmente</td></tr>
+                        <tr><td>Arquivo Python excluído</td><td>O <code>orders_pipeline_python.py</code>, também com a corrente quebrada, tem a mesma implementação em Python, para comparar as linguagens. Fica excluído porque dois arquivos com o mesmo código gerariam conflito</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>As expectations</h3>
+            <p>O bronze não mudou. Na silver, logo depois do <code>CREATE OR REFRESH STREAMING TABLE</code>, entram as constraints. Cada uma tem um nome customizado, a palavra <code>EXPECT</code> e uma avaliação booleana:</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Warn</span>
+                    <h4>valid_notification</h4>
+                    <p>A coluna <code>notifications</code> só pode ter os valores Y e X. Sem ação definida, o padrão é <strong>warn</strong>: só registra a violação, e o registro segue para a tabela.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Drop</span>
+                    <h4>valid_date</h4>
+                    <p>O <code>order_timestamp</code> tem de ser posterior a 26/12/2021, com <code>ON VIOLATION DROP ROW</code>, que descarta o registro.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Fail</span>
+                    <h4>valid_id</h4>
+                    <p>O <code>customer_id</code> não pode ser nulo, com <code>ON VIOLATION FAIL UPDATE</code>, que faz a atualização falhar.</p>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <pre><code>CREATE OR REFRESH STREAMING TABLE orders_silver_demo (
+    CONSTRAINT valid_notification EXPECT (notifications IN ('Y', 'X')),
+    CONSTRAINT valid_date EXPECT (order_timestamp &gt; '2021-12-26') ON VIOLATION DROP ROW,
+    CONSTRAINT valid_id EXPECT (customer_id IS NOT NULL) ON VIOLATION FAIL UPDATE
+) AS
+SELECT
+    order_id,
+    CAST(order_timestamp AS TIMESTAMP) AS order_timestamp,
+    customer_id,
+    notifications
+FROM STREAM(orders_bronze_demo);</code></pre>
+            </div>
+
+            <p>O conteúdo da tabela continua o mesmo, e a materialized view também. O que muda é o que acontece com os registros que violam as regras.</p>
+
+            <div class="callout">
+                <p><strong>Observação:</strong> os dados têm o valor "N" em <code>notifications</code>. O exemplo foi ajustado de propósito para que a expectation <code>valid_notification</code> disparasse o aviso.</p>
+            </div>
+
+            <h3>Resultados</h3>
+            <p>Ao executar o pipeline, o bronze fica com 174 registros e a silver cai para <strong>148</strong>. O graph ganha dois ícones novos:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Ícone</th><th>Significado</th><th>Nesta execução</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Quadrado</td><td>Registros descartados</td><td>26, pela <code>valid_date</code></td></tr>
+                        <tr><td>Triângulo</td><td>Registros com aviso</td><td>Os que violam a <code>valid_notification</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <ul>
+                <li>O pipeline terminou sem erro, então nenhum <code>customer_id</code> era nulo.</li>
+                <li>O painel lateral, ao clicar na tabela, mostra 148 registros escritos (85%) e 26 descartados (14,9%), e um toggle para ver todas as expectations. Ali se confirma que não há cliente nulo.</li>
+                <li>Na aba <strong>Tables</strong>, a coluna de expectations mostra "1 met, 2 unmet", e clicar abre o mesmo painel.</li>
+                <li>Na <code>orders_silver_demo</code>, as notificações têm os valores Y e O, porque a regra foi alterada para X. Os registros com "N" violam a expectation.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Ponto a conferir:</strong> o resumo diz que a regra aceita Y e X, e depois que as notificações da tabela têm Y e O "porque a regra foi alterada para X". Não ficou claro para mim qual valor a tabela realmente tem, então no código acima usei Y e X, como na descrição da regra. Vale conferir no vídeo.</p>
+            </div>
+
+            <h3>Os três níveis</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Ação</th><th>Sintaxe</th><th>Efeito</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Warn</strong></td><td>só o <code>EXPECT</code> (padrão)</td><td>Registra a violação e mantém o registro</td></tr>
+                        <tr><td><strong>Drop</strong></td><td><code>ON VIOLATION DROP ROW</code></td><td>Descarta o registro que viola</td></tr>
+                        <tr><td><strong>Fail</strong></td><td><code>ON VIOLATION FAIL UPDATE</code></td><td>Interrompe o pipeline, e exige intervenção manual</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>As expectations servem para campos obrigatórios, faixas válidas e regras de negócio, para remover registros ruins e proteger datasets críticos, e para monitorar a qualidade e as tendências ao longo do tempo.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> uma expectation é uma constraint com nome, <code>EXPECT</code> e uma condição booleana, escrita logo depois do <code>CREATE OR REFRESH STREAMING TABLE</code>. Sem ação, ela só avisa (warn). Com <code>DROP ROW</code>, descarta o registro. Com <code>FAIL UPDATE</code>, derruba a atualização. As métricas aparecem no graph (quadrado para descartados, triângulo para avisos) e na aba Tables. Arquivos de exploração, com a corrente quebrada, não entram na execução do pipeline.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="sdp-demo-2.html">&larr; Developing a Simple Pipeline</a>
+            <a href="sdp-demo-4.html">Deploying a Pipeline to Production &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Streaming Joins and Deploying Pipelines to Production do treinamento Build Data Pipelines with Lakeflow Spark Declarative Pipelines: tipos de join, agendamento, notificações e event log.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Streaming Joins and Deploying Pipelines to Production</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-spark-declarative-pipelines.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Streaming Joins and Deploying Pipelines to Production</h1>
+        <p>Build Data Pipelines with Lakeflow Spark Declarative Pipelines · Lição 4</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-4">
+            <p class="lead">Esta lição tem dois objetivos: <strong>analisar os tipos de join</strong> em pipelines, para escolher a abordagem certa, e <strong>implantar um pipeline em produção</strong>, modificando o modo, o agendamento, as notificações por e-mail e o monitoramento. A prática é a <a href="sdp-demo-4.html">Demo 4</a>.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição, não da lição inteira. Algumas partes não foram abertas, e isso está indicado no fim da página.</p>
+
+            <h3>Os três padrões de streaming join</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Stream-Snapshot</span>
+                    <h4>Streaming + tabela estática</h4>
+                    <p>Os dados novos da streaming table são unidos <strong>incrementalmente</strong> a uma tabela de lookup estática, gerando outra streaming table.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">MV Join</span>
+                    <h4>Streaming + streaming, via MV</h4>
+                    <p>Duas streaming tables unidas em uma materialized view, que pega <strong>todas as linhas</strong> das duas e junta a cada execução.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Stream-Stream</span>
+                    <h4>Dois streams ao vivo (avançado)</h4>
+                    <p>Join incremental: só os <strong>dados novos</strong> das duas tabelas entram, e os dados passados não são usados.</p>
+                </div>
+            </div>
+
+            <h4>Stream-Snapshot Join</h4>
+            <p>Conforme chegam dados novos à streaming table, eles são unidos em tempo real à tabela de referência estática. O detalhe-chave é que, ao anexar dados à streaming table de origem, <strong>só as linhas novas</strong> são juntadas com a <strong>tabela de lookup inteira</strong>. A streaming table cresce por append, e a estática é lida por completo a cada lote.</p>
+
+            <h4>Join de streaming tables com uma materialized view</h4>
+            <p>Quando novos dados são anexados às duas streaming tables, a MV detecta as mudanças e <strong>recalcula de forma eficiente todos os dados</strong> das streaming tables, juntando as linhas de novo a cada atualização. É o que a Demo 4 faz com a <code>full_order_info_gold</code>.</p>
+
+            <h4>Stream-Stream Joins</h4>
+            <p>Unem de forma incremental os dados novos de duas streaming tables, conforme chegam. Servem para detectar relações entre eventos próximos no tempo (por exemplo, clickstream e impressões de anúncios em tempo real). Envolvem <strong>janelas (windowing)</strong>, <strong>watermarking</strong> e outros conceitos avançados, por isso ficam <strong>fora do escopo</strong> do curso. O material recomenda a documentação adicional da Databricks.</p>
+
+            <h3>Comparação</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tipo</th><th>Fontes</th><th>Saída</th><th>Dados processados</th><th>No escopo?</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Stream-Snapshot</td><td>Streaming + estática</td><td>Streaming table</td><td>Somente linhas novas</td><td>Sim</td></tr>
+                        <tr><td>MV Join</td><td>Streaming + streaming</td><td>Materialized view</td><td>Todas as linhas a cada execução</td><td>Sim</td></tr>
+                        <tr><td>Stream-Stream</td><td>Streaming + streaming</td><td>Streaming table</td><td>Somente linhas novas (com janelas)</td><td>Só o avançado</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>O pipeline completo do curso</h3>
+            <p>Os JSONs de <strong>Orders</strong> e <strong>Status</strong> ficam no cloud storage, e o fluxo é:</p>
+            <ul>
+                <li><code>orders_bronze</code> &rarr; <code>orders_silver</code> &rarr; <code>gold_orders_by_date</code> (MV, uma agregação);</li>
+                <li><code>status_bronze</code> &rarr; <code>status_silver</code>;</li>
+                <li>o join de <code>orders_silver</code> e <code>status_silver</code> gera a MV <code>full_order_info_gold</code>;</li>
+                <li>dela saem duas MVs filtradas: <code>cancelled_orders</code> e <code>delivered_orders</code>.</li>
+            </ul>
+
+            <h3>Agendamento, notificações e monitoramento</h3>
+            <p>Para operacionalizar o pipeline em produção, de forma confiável, automatizada e monitorada, são três pontos:</p>
+            <ol>
+                <li><strong>Agendar</strong>, com um intervalo definido (a cada 15 minutos, por hora, diário ou contínuo);</li>
+                <li><strong>Notificar por e-mail</strong> os sucessos, as falhas e os inícios;</li>
+                <li><strong>Monitorar com o Event Log</strong>: o status de execução, a contagem de linhas, os erros, os warnings e as métricas de desempenho.</li>
+            </ol>
+
+            <h4>Modo Triggered</h4>
+            <div class="table-wrap">
+                <table>
+                    <tbody>
+                        <tr><td><strong>Ideal para</strong></td><td>Workloads em batch</td></tr>
+                        <tr><td><strong>Como funciona</strong></td><td>Pode ser acionado manualmente ou em uma agenda recorrente</td></tr>
+                        <tr><td><strong>O que acontece</strong></td><td>Atualiza as tabelas selecionadas com os dados <strong>disponíveis no início da execução</strong> e depois <strong>para</strong></td></tr>
+                        <tr><td><strong>Melhor para</strong></td><td>Processamento batch ou pipelines que não precisam rodar o tempo todo (custo-eficiente)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Notificações por e-mail</h4>
+            <p>Fazem parte do agendamento. O formulário mostra a agenda (por exemplo, a cada dia), o fuso horário, a otimização de performance e a seção <em>Notifications</em>, com as caixas Start, Success e Failure. Qualquer combinação dos três eventos serve:</p>
+            <ul>
+                <li><strong>Pipeline Starts:</strong> alerta ao iniciar, útil para acompanhar os tempos;</li>
+                <li><strong>Pipeline Succeeds:</strong> a confirmação de que terminou com sucesso, com a confiança de dados frescos;</li>
+                <li><strong>Pipeline Fails:</strong> o alerta imediato de falhas, para uma resposta rápida e menos defasagem.</li>
+            </ul>
+
+            <h3>Monitoramento com o Event Log</h3>
+            <p>O event log captura quatro tipos de informação:</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tipo</th><th>O que registra</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Audit Logs</strong></td><td>Quem fez o quê e quando</td></tr>
+                        <tr><td><strong>Data Quality Checks</strong></td><td>Os resultados das expectations: contagens de aprovados e reprovados e os detalhes</td></tr>
+                        <tr><td><strong>Pipeline Progress</strong></td><td>O status e o progresso de cada execução: linhas processadas, estágios e o estado atual</td></tr>
+                        <tr><td><strong>Data Lineage</strong></td><td>Como os dados fluem e se transformam, da ingestão ao bronze, ao silver e ao gold</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Consultando o event log</h4>
+            <p>O recomendado é <strong>publicar no metastore</strong>, como uma tabela do Unity Catalog, nas configurações avançadas (catálogo, schema e nome da tabela). O <strong>comportamento padrão</strong> é uma tabela UC <strong>oculta</strong> no catálogo e schema padrão do pipeline. Depois de publicada, ela se consulta como qualquer tabela UC, para relatórios, dashboards e análises:</p>
+            <div class="code-container">
+                <pre><code>SELECT * FROM &lt;catalog&gt;.&lt;schema&gt;.&lt;event_log_table_name&gt;;</code></pre>
+            </div>
+
+            <h3>Conclusão</h3>
+            <ul>
+                <li>Os streaming joins têm padrões distintos: o stream-snapshot (enriquecimento por lookup), o join de streaming tables por MV e o stream-stream (janelas e watermark).</li>
+                <li>A escolha depende de as fontes serem estáticas ou streaming e de o fluxo exigir enriquecimento ou sincronização.</li>
+                <li>A implantação em produção se apoia em agendamento, notificações, monitoramento e event logs, para pipelines confiáveis e observáveis, com audit logs, resultados de qualidade, progresso e linhagem.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que não li:</strong> a aba Continuous Mode (do modo do pipeline), as notas "Saiba mais" e os links de documentação. Então não tenho aqui o que o modo contínuo faz. O resumo também fala em "quatro tarefas" de operacionalização, mas o cartão mostra três, e por isso listei três.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o stream-snapshot junta as linhas novas com a tabela estática inteira e gera uma streaming table. A MV join relê tudo a cada execução. O stream-stream é avançado e está fora do escopo. Em produção, o modo Triggered roda no início, atualiza e para, com agenda e e-mails de início, sucesso e falha. O event log guarda auditoria, qualidade, progresso e linhagem, e o melhor é publicá-lo como uma tabela do Unity Catalog.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="sdp-licao-3.html">&larr; Ensure Data Quality with Expectations</a>
+            <a href="sdp-licao-5.html">Change Data Capture (CDC) Overview &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Deploying a Pipeline to Production do treinamento Build Data Pipelines with Lakeflow Spark Declarative Pipelines: join de orders e status, configurações operacionais e event log.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Deploying a Pipeline to Production</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-spark-declarative-pipelines.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Deploying a Pipeline to Production</h1>
+        <p>Build Data Pipelines with Lakeflow Spark Declarative Pipelines · Demo 4</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-4">
+            <p class="lead">Esta demo, de cerca de 20 minutos, estende o pipeline com o <strong>status</strong> dos pedidos, que passa pelas camadas bronze, silver e gold. Uma <strong>materialized view</strong> junta orders e status. Na parte operacional, revisa o <strong>modo do pipeline</strong>, as notificações e o <strong>event log</strong>, que pode ser configurado e consultado.</p>
+
+            <p>Estas anotações partem de um resumo cronometrado da demo, não da transcrição. O código é uma reconstrução minha a partir desse resumo e não foi executado.</p>
+
+            <h3>Os dados e o join</h3>
+            <p>Os orders já são conhecidos (<code>customer_id</code>, <code>notifications</code>, <code>order_id</code>, <code>order_timestamp</code> e <code>_rescued_data</code>). O <code>order_id</code> serve de chave para o join com o <strong>status</strong>, que está em outra pasta do volume <code>source</code>. Para um mesmo <code>order_id</code> há vários status ao longo do tempo. O caso ideal é: pedido feito, preparado, em espera e entregue.</p>
+            <p>A célula de teste usa duas CTEs (orders e status) e um <strong>INNER JOIN</strong> por <code>order_id</code>, trazendo <code>order_id</code>, <code>order_timestamp</code> e <code>order_status</code>.</p>
+
+            <h3>O DAG alvo</h3>
+            <div class="diagram">
+                <svg viewBox="0 0 760 270" role="img" aria-label="DAG do pipeline: orders e status em bronze e silver, join na full_order_info_gold e duas views filtradas">
+                    <defs>
+                        <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="40" width="120" height="44" rx="6"/>
+                        <rect x="165" y="40" width="120" height="44" rx="6"/>
+                        <rect x="320" y="10" width="150" height="44" rx="6"/>
+                        <rect x="10" y="150" width="120" height="44" rx="6"/>
+                        <rect x="165" y="150" width="120" height="44" rx="6"/>
+                        <rect x="320" y="95" width="170" height="44" rx="6"/>
+                        <rect x="560" y="55" width="180" height="44" rx="6"/>
+                        <rect x="560" y="145" width="180" height="44" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="70" y="66">orders_bronze</text>
+                        <text x="225" y="66">orders_silver</text>
+                        <text x="395" y="36">gold_orders_by_date</text>
+                        <text x="70" y="176">status_bronze</text>
+                        <text x="225" y="176">status_silver</text>
+                        <text x="405" y="121">full_order_info_gold</text>
+                        <text x="650" y="81">canceled_orders_gold</text>
+                        <text x="650" y="171">delivered_orders_gold</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar4)">
+                        <path d="M130,62 L163,62"/>
+                        <path d="M285,55 L318,38"/>
+                        <path d="M130,172 L163,172"/>
+                        <path d="M285,70 L318,108"/>
+                        <path d="M285,165 L318,128"/>
+                        <path d="M490,108 L558,82"/>
+                        <path d="M490,126 L558,162"/>
+                    </g>
+                    <text x="380" y="240" fill="currentColor" font-size="12" text-anchor="middle" class="muted">Bronze e silver são streaming tables. As golds são materialized views.</text>
+                </svg>
+            </div>
+
+            <h3>Criação do pipeline por código</h3>
+            <p>A função <code>create_declarative_pipeline</code>, do setup, configura o nome ("10-Deploying a Pipeline to Production"), a pasta raiz, o catálogo e o schema padrão e os code assets. Agora há duas pastas, <strong>orders</strong> e <strong>status</strong>. O pipeline abre na página de monitoramento e depois no editor.</p>
+
+            <h3>O código de status</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Objeto</th><th>O que faz</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>status_bronze</strong> (streaming table)</td><td>Lê a pasta <code>status</code> do volume, com metadados. Ganha um <strong>comment</strong>, que reforça a busca no Unity Catalog, e <strong>table properties</strong>, aqui para explicitar a camada (normalmente se usam propriedades ou tags)</td></tr>
+                        <tr><td><strong>status_silver</strong> (streaming table)</td><td>Duas expectations, <code>valid_timestamp</code> (com <code>ON VIOLATION DROP ROW</code>) e <code>valid_order_status</code> (só valores permitidos). Seleciona <code>order_id</code>, <code>order_status</code> e <code>status_timestamp</code></td></tr>
+                        <tr><td><strong>full_order_info_gold</strong> (MV)</td><td>O join de status e orders por <code>order_id</code></td></tr>
+                        <tr><td><strong>canceled_orders_gold</strong> (MV)</td><td>Filtra o status cancelado e traz uma coluna extra, com os dias até o cancelamento</td></tr>
+                        <tr><td><strong>delivered_orders_gold</strong> (MV)</td><td>Filtra o status entregue</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-container">
+                <pre><code>CREATE OR REFRESH STREAMING TABLE status_bronze
+COMMENT 'Status brutos dos pedidos, vindos do volume'
+TBLPROPERTIES (
+    'layer' = 'bronze',
+    'pipeline.reset_allowed' = 'false'
+)
+AS
+SELECT *, current_timestamp() AS processing_time, _metadata.file_name AS source_file
+FROM STREAM read_files('${source}/status', format =&gt; 'json');
+
+CREATE OR REFRESH STREAMING TABLE status_silver (
+    CONSTRAINT valid_timestamp EXPECT (status_timestamp &gt; '2021-12-25') ON VIOLATION DROP ROW,
+    CONSTRAINT valid_order_status EXPECT (order_status IN ('on the way', 'canceled', 'return canceled', 'delivered', 'return processed', 'placed', 'preparing'))
+) AS
+SELECT order_id, order_status, status_timestamp
+FROM STREAM(status_bronze);
+
+CREATE OR REFRESH MATERIALIZED VIEW full_order_info_gold AS
+SELECT o.order_id, o.order_timestamp, s.order_status, s.status_timestamp
+FROM status_silver s
+INNER JOIN orders_silver o ON s.order_id = o.order_id;</code></pre>
+            </div>
+
+            <p>O ponto que mais chama a atenção é a propriedade <code>pipeline.reset_allowed = false</code>. Ela <strong>protege a tabela de ser truncada</strong> em um full table refresh, o que evita perder os dados já processados.</p>
+
+            <div class="callout">
+                <p><strong>Sobre o código acima:</strong> o resumo só nomeia os objetos e as regras. A lista de valores permitidos de status, o nome da propriedade <code>layer</code>, o alias <code>status_timestamp</code> e os textos dos comentários são meus. A condição do <code>valid_timestamp</code> aparece no resumo como "<code>order_timestamp</code> > 25/12/2021", mas usei <code>status_timestamp</code>, porque a silver de status não seleciona o <code>order_timestamp</code>. Vale conferir no vídeo.</p>
+            </div>
+
+            <h3>Configurações operacionais</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Configuração</th><th>O que é</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Run now with different settings</strong></td><td>Opções de refresh de tabelas, o <em>performance optimized</em> (no serverless, otimiza a inicialização e o desempenho) e a <strong>automatic recovery</strong></td></tr>
+                        <tr><td>Automatic recovery</td><td>Desativada por padrão: em desenvolvimento, o cluster é reaproveitado por alguns minutos para iterar. Em <strong>produção</strong>, deve ser habilitada, para que os retries sejam gerenciados</td></tr>
+                        <tr><td><strong>Pipeline mode</strong></td><td><em>Triggered</em> (padrão): acionado pela UI, pela CLI, pela API ou pelos Databricks Asset (Automation) Bundles</td></tr>
+                        <tr><td><strong>Run as</strong></td><td>Um service principal com permissões nos catálogos e schemas</td></tr>
+                        <tr><td><strong>Notificações</strong></td><td>E-mail em caso de sucesso, falha e <strong>falha fatal</strong>. A fatal está ligada à recuperação automática e ocorre depois de várias tentativas. Captura falhas em cada salto (volume, bronze, silver e gold). Para mais canais (PagerDuty, Slack e outros), usa-se o Lakeflow Jobs</td></tr>
+                        <tr><td><strong>Event log</strong> (Advanced settings)</td><td>Tudo (modificações e execuções) é registrado automaticamente em uma tabela oculta, no catálogo e schema padrão. Dá para nomear a tabela, o catálogo e o schema, ou usar a função SQL <code>event_log</code> com o ID do pipeline</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Execução</h3>
+            <p>O run usa o <code>sdp_1_bronze</code> como padrão, e o grafo mostra orders e status. São dois arquivos separados, e o serviço gerencia a ordem das dependências sozinho:</p>
+            <ol>
+                <li>os bronzes de orders e de status rodam em <strong>paralelo</strong>;</li>
+                <li>depois, os silvers;</li>
+                <li>a MV <code>full_order_info_gold</code> espera as duas silvers;</li>
+                <li>por fim, as MVs de entregues e de canceladas.</li>
+            </ol>
+            <p>Em seguida, uma célula do notebook adiciona mais JSONs, e uma nova execução mostra a ingestão <strong>incremental</strong> em todas as tabelas.</p>
+
+            <h3>Consultando o event log</h3>
+            <p>A consulta à tabela do event log (<code>event_log_demo10</code>) mostra as ações, as execuções e as modificações. Ele serve para <strong>auditoria, checagem de qualidade, progresso e linhagem</strong>. As colunas são: id, sequência, origem (informações do compute), timestamp, mensagem, nível, <code>event_type</code> e <code>details</code> (uma string JSON).</p>
+
+            <ul>
+                <li>O <code>event_type</code> varia (<code>update_progress</code>, <code>user_action</code>, <code>create_update</code>, <code>user_code_context</code>, <code>runtime_details</code>, <code>data_life_cycle</code> e outros), e o conteúdo vai em <code>details</code>.</li>
+                <li>O <strong>flattening</strong> usa o operador <code>:</code> para extrair atributos do JSON (<code>flow_progress</code>, <code>user_action</code>). Nem todo tipo traz dados, então vale consultar a documentação.</li>
+                <li>Uma view temporária (<code>dq_source_vw</code>) converte o <code>details</code> com <code>from_json</code>, informando o schema, e usa o <code>explode</code> para listar as expectations (<code>flow_progress</code> &rarr; <code>data_quality</code> &rarr; <code>expectations</code>). Depois agrega, por dataset e expectation, os <code>passing_records</code> e os <code>warning_records</code>.</li>
+            </ul>
+
+            <div class="code-container">
+                <pre><code>-- esboço meu: o schema do from_json é só ilustrativo
+CREATE OR REPLACE TEMP VIEW dq_source_vw AS
+SELECT
+    explode(from_json(
+        details:flow_progress.data_quality.expectations,
+        'array&lt;struct&lt;name:string, dataset:string, passed_records:bigint, failed_records:bigint&gt;&gt;'
+    )) AS row_expectations
+FROM event_log_demo10
+WHERE event_type = 'flow_progress';</code></pre>
+            </div>
+
+            <p>O ganho é a <strong>observabilidade sem depender da UI</strong>. Dá para montar um Lakeflow Job com duas tasks: a primeira roda o pipeline SDP, e a segunda é um notebook que extrai esses insights e decide se a execução foi bem-sucedida.</p>
+
+            <div class="callout">
+                <p><strong>Ponto a conferir:</strong> o resumo fala em <code>passing_records</code> e <code>warning_records</code> na agregação, mas não diz de onde vêm esses campos. No esboço acima usei nomes que conheço do JSON do event log (<code>passed_records</code> e <code>failed_records</code>), então os nomes exatos da demo podem ser outros.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o SDP resolve a ordem das dependências sozinho, e os fluxos independentes rodam em paralelo. A propriedade <code>pipeline.reset_allowed = false</code> protege uma tabela do full table refresh. Em produção: automatic recovery habilitada, <em>Run as</em> com service principal, notificações por e-mail (e Lakeflow Jobs para outros canais) e modo Triggered. O event log registra tudo em uma tabela, e o campo <code>details</code> é um JSON que se explora com o operador <code>:</code>, com <code>from_json</code> e com <code>explode</code>.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="sdp-demo-3.html">&larr; Adding Data Quality Expectations</a>
+            <a href="sdp-demo-5.html">Change Data Capture with AUTO CDC &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

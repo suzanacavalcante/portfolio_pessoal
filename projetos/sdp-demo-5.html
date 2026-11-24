@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Change Data Capture with AUTO CDC with SCD Type 1 do treinamento Build Data Pipelines with Lakeflow Spark Declarative Pipelines.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Change Data Capture with AUTO CDC with SCD Type 1</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-spark-declarative-pipelines.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Change Data Capture with AUTO CDC with SCD Type 1</h1>
+        <p>Build Data Pipelines with Lakeflow Spark Declarative Pipelines · Demo 5</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-5">
+            <p class="lead">Esta demo, de cerca de 18 minutos, completa o pipeline com os <strong>customers</strong>. Os JSONs entram no bronze, passam por uma segunda tabela bronze com expectations e chegam a uma silver que é a "ground truth" dos clientes. O que leva os dados até ela é o <strong>AUTO CDC INTO</strong> com <strong>SCD Type 1</strong>, que sobrescreve os dados.</p>
+
+            <p>Estas anotações partem de um resumo cronometrado da demo, não da transcrição. O código é uma reconstrução minha a partir desse resumo e não foi executado.</p>
+
+            <h3>Preparação e dados</h3>
+            <p>O ponto de partida é um notebook em serverless v5, com o classroom setup (o mesmo catálogo, os schemas bronze, silver e gold e o volume <code>source</code>), agora com a pasta <strong>customers</strong>. As colunas dos JSONs são <code>address</code>, <code>city</code>, <code>customer_id</code>, <code>email</code>, <code>name</code>, <code>operation</code>, <code>state</code>, <code>timestamp</code>, <code>zip_code</code> e <code>_rescued_data</code>.</p>
+            <p>A coluna <strong>operation</strong> (às vezes chamada de status, então vale confirmar o nome com o time) diz o que fazer com cada registro: <strong>INSERT, UPDATE ou DELETE</strong>. Ela é essencial em CDC.</p>
+            <p>O pipeline "12 – Change Data Capture with AUTO CDC" é criado pela <code>create_declarative_pipeline</code>, que é uma função do classroom setup e não do framework (o código está na pasta <code>includes</code>). As fontes são as pastas customers, orders e status.</p>
+
+            <h3>O código de customers</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Bronze</span>
+                    <h4>customers_bronze_raw</h4>
+                    <p>Streaming table com comment e table properties (a alternativa são as tags). Usa <code>pipelines.reset_allowed</code> para impedir o truncamento em um full refresh, e lê a pasta customers com <code>read_files</code> e <code>STREAM</code>, com metadados.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Bronze</span>
+                    <h4>customers_bronze_clean</h4>
+                    <p>Lê do raw (é permitido ter várias tabelas por camada) e prepara os dados <strong>antes do CDC</strong>, com cinco expectations. O código é só um <code>SELECT *</code> com o timestamp de leitura.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Silver</span>
+                    <h4>scd_type1_customer_silver</h4>
+                    <p>Streaming table sem schema declarado, porque o AUTO CDC cuida disso. Só tem um comment.</p>
+                </div>
+            </div>
+
+            <h3>As expectations do customers_bronze_clean</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Expectation</th><th>Regra</th><th>Ação e motivo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>valid_id</code></td><td><code>customer_id</code> não nulo</td><td><strong>FAIL UPDATE</strong>. Sem o ID não dá para decidir entre inserir e atualizar, então falha tudo</td></tr>
+                        <tr><td><code>valid_operation</code></td><td><code>operation</code> não nula</td><td><strong>DROP ROW</strong>. Sem a operação não se sabe o que fazer</td></tr>
+                        <tr><td><code>valid_name</code> e <code>valid_address</code></td><td>Não nulos <strong>ou</strong> <code>operation = 'DELETE'</code></td><td>Num delete, os demais campos não importam</td></tr>
+                        <tr><td><code>valid_email</code></td><td>Formato válido, com <code>rlike</code> (regex), <strong>ou</strong> <code>operation = 'DELETE'</code></td><td><strong>DROP ROW</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-container">
+                <pre><code>CREATE OR REFRESH STREAMING TABLE customers_bronze_clean (
+    CONSTRAINT valid_id EXPECT (customer_id IS NOT NULL) ON VIOLATION FAIL UPDATE,
+    CONSTRAINT valid_operation EXPECT (operation IS NOT NULL) ON VIOLATION DROP ROW,
+    CONSTRAINT valid_name EXPECT (name IS NOT NULL OR operation = 'DELETE'),
+    CONSTRAINT valid_address EXPECT (address IS NOT NULL OR operation = 'DELETE'),
+    CONSTRAINT valid_email EXPECT (
+        rlike(email, '^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$')
+        OR operation = 'DELETE'
+    ) ON VIOLATION DROP ROW
+)
+AS
+SELECT *, current_timestamp() AS processing_time
+FROM STREAM(customers_bronze_raw);</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>Dica do instrutor:</strong> o padrão de <strong>quarantine</strong> é uma tabela secundária que captura os registros descartados, para não perder dados. Ele foi citado, mas não demonstrado.</p>
+            </div>
+
+            <h3>AUTO CDC INTO</h3>
+            <p>Um <strong>flow</strong> é o "elo" entre uma origem e um destino. Neste pipeline há três: volume para bronze, bronze para clean, e clean para silver. A sintaxe do <code>AUTO CDC INTO</code> é parecida com a do <code>MERGE INTO</code>. A diferença é que o MERGE INTO tem estilo batch (compara toda a origem com o destino a cada execução) e não é ideal para streaming, enquanto o AUTO CDC é feito para streaming. Conhecer o MERGE ajuda a entender o AUTO CDC.</p>
+
+            <div class="code-container">
+                <pre><code>CREATE OR REFRESH STREAMING TABLE scd_type1_customer_silver
+COMMENT 'Clientes, com a versão mais recente de cada um';
+
+CREATE FLOW customers_flow AS
+AUTO CDC INTO scd_type1_customer_silver
+FROM STREAM customers_bronze_clean
+KEYS (customer_id)
+APPLY AS DELETE WHEN operation = 'DELETE'
+SEQUENCE BY timestamp
+COLUMNS * EXCEPT (timestamp, _rescued_data, operation)
+STORED AS SCD TYPE 1;</code></pre>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Elemento</th><th>O que faz</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Tabela alvo e origem</td><td>O alvo é a silver, e a origem é <code>FROM STREAM customers_bronze_clean</code></td></tr>
+                        <tr><td><strong>KEYS</strong></td><td>A chave de comparação (<code>customer_id</code>). Pode haver várias. Se a chave existe, atualiza. Se não existe, insere</td></tr>
+                        <tr><td><strong>APPLY AS DELETE WHEN</strong></td><td>Opcional. Define quando o registro é um delete. Sem isso, só há update</td></tr>
+                        <tr><td><strong>SEQUENCE BY</strong></td><td>A coluna que ordena as múltiplas mudanças, para ficar com a mais recente. É o aspecto de tempo do streaming</td></tr>
+                        <tr><td><strong>COLUMNS * EXCEPT</strong></td><td>Tira <code>timestamp</code>, <code>_rescued_data</code> e <code>operation</code>. A silver é a "ground truth" e só tem colunas de negócio</td></tr>
+                        <tr><td><strong>STORED AS SCD TYPE 1</strong></td><td>Sobrescreve os dados. O Type 2 mantém o histórico</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Sobre o código acima:</strong> o resumo descreve os elementos, mas não traz o texto do código. O nome do flow, o regex do e-mail, os comentários e o <code>SEQUENCE BY timestamp</code> (uso a coluna <code>timestamp</code> porque ela é a que o <code>EXCEPT</code> remove) são meus. A forma exata de declarar o flow (com ou sem o <code>CREATE FLOW</code>) pode ser diferente na demo.</p>
+            </div>
+
+            <h3>Primeira execução</h3>
+            <p>O grafo mostra orders, status e customers. A <code>scd_type1_customer_silver</code> mostra <strong>939 upserted records</strong> e 0 deletados, e a consulta confirma <strong>939 registros</strong>. Antes da segunda carga, os dois clientes acompanhados são a Sandy Adams (com endereço em "Jacqueline Mountains") e o Stephen Green.</p>
+
+            <h3>Segunda carga</h3>
+            <p>Um segundo JSON (<code>01.json</code>) é adicionado nas pastas orders, status e customers. O de customers tem cerca de <strong>23 registros</strong>, com deletes e inserts. A Sandy Adams ganha um novo endereço, e o Stephen Green será deletado.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Execução</th><th>Resultado</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1ª (baseline)</td><td>939 upserts, 0 deletes, <strong>939</strong> registros na silver</td></tr>
+                        <tr><td>2ª (novo arquivo)</td><td>Ingestão incremental. 23 registros passam do bronze ao <code>customers_bronze_clean</code> (cinco expectations) e vão ao AUTO CDC: <strong>22 upserts e 1 delete</strong> (Stephen Green). A silver fica com <strong>948</strong> registros</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Na consulta final, a Sandy Adams aparece com o endereço atualizado (sobrescrito, que é a característica do Type 1), e o Stephen Green não aparece mais.</p>
+
+            <div class="callout">
+                <p><strong>Ponto a conferir:</strong> o resumo diz que o arquivo tem "muitos DELETEs", mas conta só 1 delete (22 upserts e 1 delete somam os 23). Pelas contas, 948 = 939 &minus; 1 + inserts, então seriam cerca de 10 inserts entre os 22 upserts, e o resto seriam updates. É uma dedução minha. Vale conferir no vídeo.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o CDC aplica à tabela destino as mudanças (INSERT, UPDATE e DELETE) de uma origem. No SDP isso é o <code>AUTO CDC INTO</code>, o equivalente em streaming do <code>MERGE INTO</code>. Ele precisa de <code>KEYS</code>, de um <code>SEQUENCE BY</code> para ordenar e do <code>STORED AS SCD TYPE 1</code> (sobrescreve) ou Type 2 (guarda o histórico). Antes do CDC, convém limpar a origem com expectations, como a <code>valid_id</code> com FAIL UPDATE, e descartar o que não dá para processar.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="sdp-demo-4.html">&larr; Deploying a Pipeline to Production</a>
+            <a href="databricks-academy-lakeflow-spark-declarative-pipelines.html">Voltar ao treinamento &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

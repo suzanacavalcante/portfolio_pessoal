@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Simplified Pipeline Development and Common Pipeline Settings do treinamento Build Data Pipelines with Lakeflow Spark Declarative Pipelines: o editor multi-arquivo e as configurações do pipeline.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Simplified Pipeline Development and Common Pipeline Settings</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-spark-declarative-pipelines.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Simplified Pipeline Development and Common Pipeline Settings</h1>
+        <p>Build Data Pipelines with Lakeflow Spark Declarative Pipelines · Lição 2</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-2">
+            <p class="lead">Esta lição trata de duas coisas: o <strong>editor multi-arquivo</strong>, que simplifica o desenvolvimento de pipelines, e as <strong>configurações mais comuns</strong> de um pipeline (compute, code assets e configuration). O objetivo é saber identificar e configurar essas opções e desenvolver um pipeline funcional com o novo editor e com SQL.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição, não da lição inteira. Algumas partes não foram abertas, e isso está indicado no fim da página.</p>
+
+            <h3>O editor multi-arquivo</h3>
+            <p>Em vez de um único arquivo grande, o pipeline é organizado como um <strong>conjunto de arquivos</strong>, visíveis no navegador de assets. Edita-se o código e configuram-se os componentes em um só lugar. Segundo o anúncio (Data + AI Summit 2025), o código pode ser escrito em arquivos <strong>.sql ou .py</strong> (o recomendado) ou em notebooks. O editor traz recursos para:</p>
+            <ul>
+                <li>construir pipelines robustos e agilizar o fluxo de desenvolvimento;</li>
+                <li>depurar com ferramentas integradas;</li>
+                <li>validar <strong>sem execuções completas</strong> (é o dry run da Demo 2).</li>
+            </ul>
+
+            <h4>As áreas da interface</h4>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Área</th><th>Para que serve</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Pipeline Asset Browser</strong></td><td>Navegar facilmente pelos arquivos do pipeline</td></tr>
+                        <tr><td>Editor</td><td>O arquivo aberto</td></tr>
+                        <tr><td>Botão de execução</td><td>Roda o pipeline</td></tr>
+                        <tr><td>Grafo do pipeline (DAG)</td><td>Mostra os datasets e as dependências</td></tr>
+                        <tr><td>Tabela de resultados e performance</td><td>Tabelas, tipo, duração, expectations, drops e flows</td></tr>
+                        <tr><td>Painel de settings</td><td>As configurações do pipeline</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>As configurações do pipeline</h3>
+            <p>No editor, o ícone de <strong>engrenagem</strong> abre o popup <em>Pipeline settings</em>, sem sair do ambiente. As três configurações mais comuns são:</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">1</span>
+                    <h4>Compute</h4>
+                    <p>Os recursos e o ambiente de execução.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">2</span>
+                    <h4>Code Assets</h4>
+                    <p>Os arquivos e módulos de código do pipeline.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">3</span>
+                    <h4>Configuration</h4>
+                    <p>Os parâmetros do pipeline.</p>
+                </div>
+            </div>
+
+            <h4>Compute</h4>
+            <p>Há as abas Serverless e Classic (Fixed Size). A <strong>serverless é a recomendada</strong>:</p>
+            <ul>
+                <li>custo e desempenho otimizados, e foco no código, sem gerenciar infraestrutura;</li>
+                <li><strong>refresh incremental de materialized views</strong>, e um otimizador baseado em custo, para transformações de MVs rápidas e eficientes;</li>
+                <li><strong>Serverless Performance Optimized</strong>: uma opção para Lakeflow Jobs sensíveis ao tempo, para melhorar a responsividade.</li>
+            </ul>
+
+            <h4>Code Assets</h4>
+            <p>Gerenciam os arquivos e módulos de código. Em <em>Configure paths</em>:</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Campo</th><th>O que faz</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Pipeline Root Folder</strong></td><td>Inclui automaticamente os arquivos relevantes da pasta do projeto, salvo especificação contrária. Pode ser uma <strong>pasta Git</strong>, para controle de versão e colaboração. Segundo o formulário, é anexada ao <code>sys.path</code> do Python, para importar módulos e pacotes dessa pasta</td></tr>
+                        <tr><td><strong>Source Code</strong></td><td>Define quais subpastas ou arquivos entram no pipeline (scripts Python, arquivos SQL, notebooks e outros). São processados quando o pipeline roda</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Configuration</h4>
+            <p>É um mapa de <strong>pares chave-valor</strong> para parametrizar o código. Os motivos para usar:</p>
+            <ol>
+                <li>melhora a legibilidade e a manutenção, ao centralizar os valores-chave;</li>
+                <li>permite reutilizar os parâmetros em vários arquivos, sem hardcode;</li>
+                <li>deixa o pipeline flexível e fácil de atualizar, sem mexer em vários pontos do código.</li>
+            </ol>
+            <p>Um exemplo é o parâmetro <code>source</code>, que aponta para o caminho de um volume. No SQL se usa <code>${source}</code>, substituído em tempo de execução:</p>
+            <div class="code-container">
+                <pre><code>CREATE STREAMING TABLE bronze
+SELECT *
+FROM STREAM read_files("${source}/orders", format =&gt; 'JSON');</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>Sobre o código acima:</strong> ele é o do resumo, copiado como está. Como exemplo, ele omite o <code>AS</code> e o <code>OR REFRESH</code> que usamos nas demos, então não o tomo como o formato exato da sintaxe.</p>
+            </div>
+
+            <h3>O painel completo</h3>
+            <p>O painel de settings reúne:</p>
+            <ol>
+                <li><strong>Pipeline settings:</strong> o ID, o tipo (ETL pipeline), o nome, o criador e o <em>Run as</em>;</li>
+                <li><strong>Code assets:</strong> a root folder, o source code e o <em>Configure paths</em>;</li>
+                <li><strong>Default location for data assets:</strong> o catálogo e o schema padrão;</li>
+                <li><strong>Compute:</strong> serverless;</li>
+                <li><strong>Configuration:</strong> por exemplo, <code>source</code> com o caminho do volume;</li>
+                <li><strong>Tags:</strong> o <em>Add tags</em>.</li>
+            </ol>
+            <p>Abaixo ainda há o <strong>Budget</strong>, a política de orçamento serverless. É o mesmo painel que vimos na Demo 2.</p>
+
+            <h3>Conclusão</h3>
+            <ol>
+                <li>Streaming tables, materialized views e views atendem a padrões de processamento diferentes, da ingestão incremental às agregações atualizadas e às consultas sob demanda.</li>
+                <li>A sintaxe SQL declarativa dá um jeito consistente de criar datasets, e o Databricks gerencia as dependências pelo Declarative Pipeline Graph.</li>
+                <li>O editor multi-arquivo reúne assets, edição modular, visualização do DAG, prévias de dados, informações de execução e ferramentas de validação.</li>
+                <li>As configurações permitem personalizar o compute, os code assets, os parâmetros e as opções adicionais, para facilitar a gestão, o reuso e a escala.</li>
+            </ol>
+
+            <div class="callout">
+                <p><strong>O que não li:</strong> a explicação de cada número da imagem interativa da interface (só abri a do Pipeline Asset Browser, e a tabela acima das outras áreas é a minha descrição a partir do resumo), a aba Classic do compute, os links de documentação e as notas "Saiba mais". Nada disso está nestas anotações.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o editor multi-arquivo organiza o pipeline em arquivos (.sql ou .py) e valida sem rodar tudo. As três configurações comuns são o Compute (serverless é o recomendado, com refresh incremental de MVs), o Code Assets (a root folder e o source code) e a Configuration (pares chave-valor, usados com <code>${chave}</code> no SQL para evitar hardcode).</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="sdp-licao-1.html">&larr; Course Project and Dataset Types Overview</a>
+            <a href="sdp-licao-3.html">Ensure Data Quality with Expectations &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

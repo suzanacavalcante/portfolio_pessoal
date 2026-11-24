@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Ensure Data Quality with Expectations do treinamento Build Data Pipelines with Lakeflow Spark Declarative Pipelines: a sintaxe CONSTRAINT e as ações WARN, DROP e FAIL.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Ensure Data Quality with Expectations</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-spark-declarative-pipelines.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Ensure Data Quality with Expectations</h1>
+        <p>Build Data Pipelines with Lakeflow Spark Declarative Pipelines · Lição 3</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-3">
+            <p class="lead">Esta lição explica o que são as <strong>expectations</strong>, regras de qualidade de dados aplicadas durante o ETL, como escrevê-las com a sintaxe <code>CONSTRAINT</code> e quando usar cada uma das três ações de violação: <strong>WARN, DROP e FAIL</strong>.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição, não da lição inteira. Algumas partes não foram abertas, e isso está indicado no fim da página. A prática desta lição é a <a href="sdp-demo-3.html">Demo 3</a>.</p>
+
+            <h3>O que são expectations</h3>
+            <p>São regras de <strong>qualidade de dados</strong> que validam os dados <strong>linha a linha</strong> durante o ETL. A sintaxe geral é:</p>
+            <div class="code-container">
+                <pre><code>CONSTRAINT constraint_name
+EXPECT (column_condition)
+[ON VIOLATION action]</code></pre>
+            </div>
+
+            <h3>As três ações de violação</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Ação</th><th>Sintaxe</th><th>O que acontece com a linha inválida</th><th>Quando usar</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>WARN</strong></td><td>só o <code>EXPECT</code> (padrão)</td><td>É <strong>mantida</strong> e gravada no destino. Os logs trazem as contagens de registros válidos e inválidos e outras métricas</td><td>Monitoramento não crítico, sem interromper o pipeline</td></tr>
+                        <tr><td><strong>DROP</strong></td><td><code>ON VIOLATION DROP ROW</code></td><td>É <strong>removida</strong> da saída, com a contagem registrada, e o pipeline continua</td><td>Quando os dados ruins devem ser excluídos, mas o pipeline segue</td></tr>
+                        <tr><td><strong>FAIL</strong></td><td><code>ON VIOLATION FAIL UPDATE</code></td><td>O <strong>fluxo específico é interrompido</strong>, e é preciso intervir manualmente</td><td>Problemas críticos, que precisam ser resolvidos antes do processamento a jusante</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>O WARN é o comportamento padrão quando nenhuma ação é especificada. Um exemplo é <code>CONSTRAINT valid_notification EXPECT (notifications IN ('Y','N'))</code>.</p>
+
+            <h3>Exemplo completo em SQL</h3>
+            <p>A tabela <code>orders_silver</code> recebe um bloco de constraints, com uma de cada ação:</p>
+            <div class="code-container">
+                <pre><code>CREATE OR REFRESH STREAMING TABLE 2_silver_db.orders_silver
+(
+  CONSTRAINT valid_notifications EXPECT (notifications IN ('Y','N')),
+  CONSTRAINT valid_date EXPECT (order_timestamp &gt; "2021-01-01") ON VIOLATION FAIL UPDATE,
+  CONSTRAINT valid_id EXPECT (customer_id IS NOT NULL) ON VIOLATION DROP ROW
+)
+AS
+SELECT order_id, timestamp(order_timestamp) AS order_timestamp,
+       customer_id, notifications
+FROM STREAM 1_bronze_db.orders_bronze;</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>Diferença para a Demo 3:</strong> aqui a <code>valid_date</code> é FAIL e a <code>valid_id</code> é DROP, e a data de corte é 2021-01-01. Na demo, era o contrário (a <code>valid_date</code> com DROP e a <code>valid_id</code> com FAIL, com corte em 26/12/2021). O que importa é a sintaxe, e as ações são escolhidas conforme a gravidade de cada regra.</p>
+            </div>
+
+            <h3>Como as expectations funcionam no pipeline</h3>
+            <p>Cada linha de dados passa pelas expectations:</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 230" role="img" aria-label="Fluxo de uma linha pelas expectations: se passa, é mantida; se falha, WARN mantém, DROP descarta e FAIL interrompe">
+                    <defs>
+                        <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="88" width="110" height="44" rx="6"/>
+                        <rect x="180" y="88" width="130" height="44" rx="6"/>
+                        <rect x="400" y="10" width="200" height="44" rx="6"/>
+                        <rect x="400" y="88" width="200" height="44" rx="6"/>
+                        <rect x="400" y="166" width="200" height="44" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="65" y="114">Linha de dados</text>
+                        <text x="245" y="114">Expectations</text>
+                        <text x="500" y="36">Passa: mantida, segue</text>
+                        <text x="500" y="108">Falha + WARN: mantida,</text>
+                        <text x="500" y="123">violação registrada</text>
+                        <text x="500" y="182">Falha + DROP: descartada</text>
+                        <text x="500" y="198">(e FAIL interrompe o fluxo)</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar3)">
+                        <path d="M120,110 L178,110"/>
+                        <path d="M310,100 L398,36"/>
+                        <path d="M310,110 L398,110"/>
+                        <path d="M310,120 L398,188"/>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="callout">
+                <p><strong>Importante (a partir do Q2 2025):</strong> as materialized views que usam expectations são <strong>sempre totalmente atualizadas</strong> (full refresh) a cada execução do pipeline, e não de forma incremental.</p>
+            </div>
+
+            <h3>Conclusão</h3>
+            <ol>
+                <li>Expectations são regras de qualidade definidas com <code>CONSTRAINT ... EXPECT (...)</code> no SQL do pipeline, validando linha a linha durante o ETL.</li>
+                <li><strong>WARN</strong> (padrão) registra as violações e ainda grava as linhas inválidas.</li>
+                <li><strong>DROP</strong> remove as linhas inválidas da saída e registra a contagem.</li>
+                <li><strong>FAIL</strong> interrompe o fluxo específico quando há violação, e exige intervenção manual.</li>
+                <li><strong>Várias constraints</strong> podem coexistir na mesma tabela, avaliadas de forma independente, o que dá um controle granular de qualidade por coluna.</li>
+            </ol>
+            <p>O próximo passo é a demonstração prática, que executa pipelines com constraints, observa as métricas no painel de execução e mostra como as violações aparecem na UI.</p>
+
+            <div class="callout">
+                <p><strong>O que não li:</strong> as abas DROP e FAIL da seção das ações (a descrição delas vem da conclusão e do exemplo), os passos 2 a 4 do exemplo em SQL e a nota "Saiba mais". Nada disso está nestas anotações, e a coluna "Quando usar" da tabela vem das conclusões da lição.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> uma expectation é um <code>CONSTRAINT nome EXPECT (condição)</code> com uma ação opcional. Sem ação, é WARN: registra e mantém. <code>DROP ROW</code> descarta a linha, e <code>FAIL UPDATE</code> interrompe o fluxo. Dá para ter várias constraints na mesma tabela, e MVs com expectations sofrem full refresh a cada execução.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="sdp-licao-2.html">&larr; Simplified Pipeline Development</a>
+            <a href="sdp-licao-4.html">Streaming Joins and Deploying Pipelines &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

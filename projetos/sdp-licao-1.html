@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Course Project and Dataset Types Overview do treinamento Build Data Pipelines with Lakeflow Spark Declarative Pipelines: streaming tables, materialized views e views.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Course Project and Dataset Types Overview</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-spark-declarative-pipelines.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Course Project and Dataset Types Overview</h1>
+        <p>Build Data Pipelines with Lakeflow Spark Declarative Pipelines · Lição 1</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-1">
+            <p class="lead">Esta lição apresenta o projeto prático do curso, um pipeline com três fluxos sobre JSONs em cloud storage, e os <strong>três tipos de dataset</strong> do Spark Declarative Pipelines (SDP): streaming tables, materialized views e views.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição, não da lição inteira. Algumas abas e passos não foram abertos, e isso está indicado no fim da página.</p>
+
+            <h3>O projeto do curso</h3>
+            <p>Ao longo do curso se constrói um projeto com SDP a partir de arquivos JSON em cloud storage (no mundo real, o Lakeflow suporta muitos outros formatos). São três fluxos em um único pipeline. O primeiro, o <strong>Orders Flow</strong>, é assim:</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 120" role="img" aria-label="Orders Flow: JSON, orders_bronze, orders_silver e gold_orders_by_date">
+                    <defs>
+                        <marker id="ar1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="30" width="110" height="44" rx="6"/>
+                        <rect x="190" y="30" width="140" height="44" rx="6"/>
+                        <rect x="400" y="30" width="140" height="44" rx="6"/>
+                        <rect x="610" y="30" width="140" height="44" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="65" y="56">JSON (orders)</text>
+                        <text x="260" y="56">orders_bronze</text>
+                        <text x="470" y="56">orders_silver</text>
+                        <text x="680" y="49">gold_orders</text>
+                        <text x="680" y="64">_by_date</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar1)">
+                        <path d="M120,52 L188,52"/>
+                        <path d="M330,52 L398,52"/>
+                        <path d="M540,52 L608,52"/>
+                    </g>
+                    <g fill="currentColor" font-size="11" text-anchor="middle" class="muted">
+                        <text x="260" y="98">streaming table</text>
+                        <text x="470" y="98">streaming table</text>
+                        <text x="680" y="98">materialized view</text>
+                    </g>
+                </svg>
+            </div>
+
+            <p>Os fluxos dos Steps 2 e 3 (as outras abas) não foram abertos por mim. Pelos vídeos, correspondem a status e a customers.</p>
+
+            <h3>Os três tipos de dataset</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">ST</span>
+                    <h4>Streaming tables</h4>
+                    <p>Suportam processamento streaming e incremental, <strong>processando apenas os dados novos</strong>.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">MV</span>
+                    <h4>Materialized views</h4>
+                    <p>Processam os registros necessários para dar resultados corretos sobre o <strong>estado atual dos dados</strong>. Servem para transformações, agregações, pré-cálculo de consultas lentas e cálculos frequentes.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">View</span>
+                    <h4>Views</h4>
+                    <p>Uma tabela virtual <strong>sem dados físicos</strong>, baseada na consulta do pipeline. Há dois tipos: Temporary View e View.</p>
+                </div>
+            </div>
+
+            <h3>Streaming table</h3>
+            <p>Processa só os dados novos, conforme chegam, em vez de reprocessar tudo a cada execução. O ganho é eficiência e menor custo. Os pontos principais:</p>
+            <ol>
+                <li><strong>Processamento incremental</strong>, em batch ou em streaming, com processamento <em>exactly-once</em> de arquivos.</li>
+                <li><strong>Atualizações eficientes:</strong> a cada refresh, os dados novos da origem são <strong>anexados</strong> (append).</li>
+                <li>O comando SQL é o <code>CREATE OR REFRESH STREAMING TABLE</code>.</li>
+                <li>A leitura é <code>FROM STREAM read_files()</code>, que habilita a leitura incremental com checkpoint.</li>
+                <li>A integração é com o <strong>Auto Loader</strong>, que rastreia os arquivos novos de forma confiável.</li>
+                <li><strong>Sem leituras duplicadas:</strong> cada arquivo é lido uma única vez.</li>
+            </ol>
+
+            <h4>Bronze: orders_bronze</h4>
+            <p>Os passos são o <code>CREATE OR REFRESH STREAMING TABLE</code>, a cláusula SELECT e a fonte streaming (o FROM). A consulta usa o catálogo padrão.</p>
+            <div class="code-container">
+                <pre><code>CREATE OR REFRESH STREAMING TABLE 1_bronze_db.orders_bronze AS
+SELECT *, current_timestamp() AS processing_time,
+       _metadata.file_name AS source_file
+FROM STREAM read_files("{{ source_path }}/orders", format =&gt; 'JSON');</code></pre>
+            </div>
+
+            <h4>Silver: orders_silver</h4>
+            <p>Lê do <code>orders_bronze</code> com o <code>FROM STREAM</code>.</p>
+            <div class="code-container">
+                <pre><code>CREATE OR REFRESH STREAMING TABLE 2_silver_db.orders_silver AS
+SELECT order_id, timestamp(order_timestamp) AS order_timestamp,
+       customer_id, notifications
+FROM STREAM 1_bronze_db.orders_bronze;</code></pre>
+            </div>
+
+            <h3>Materialized view</h3>
+            <p>Mantém resultados corretos com base no estado atual das streaming tables. Os pontos principais:</p>
+            <ol>
+                <li><strong>Recálculo dinâmico:</strong> a cada atualização, a consulta é recalculada para refletir as mudanças a montante.</li>
+                <li><strong>Manutenção dirigida pelo pipeline:</strong> ela é criada e atualizada automaticamente.</li>
+                <li>O comando é o <code>CREATE OR REFRESH MATERIALIZED VIEW</code>.</li>
+                <li><strong>Posicionamento flexível:</strong> pode ser usada em qualquer ponto do pipeline, não só no gold.</li>
+                <li><strong>Refresh incremental</strong> quando aplicável, evitando a reconstrução total (suportado em serverless).</li>
+                <li><strong>Otimização baseada em custo:</strong> um otimizador decide entre o refresh incremental e a recomputação completa.</li>
+            </ol>
+
+            <h4>Gold: gold_orders_by_date</h4>
+            <div class="code-container">
+                <pre><code>CREATE OR REFRESH MATERIALIZED VIEW 3_gold_db.gold_orders_by_date AS
+SELECT date(order_timestamp) AS order_date, count(*) AS total_daily_orders
+FROM 2_silver_db.orders_silver
+GROUP BY date(order_timestamp);</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>Diferença-chave:</strong> a fonte da MV vem <strong>sem a palavra STREAM</strong>. Ao contrário da streaming table, a MV gerencia seus próprios refreshes com base na origem.</p>
+            </div>
+
+            <h3>Temporary Views e Views</h3>
+            <p>As views são tabelas virtuais, que não armazenam dados físicos.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tipo</th><th>Características</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Temporary View</strong></td><td>Existe só durante a execução do pipeline e <strong>não é registrada</strong> no Unity Catalog. Serve de camada SQL intermediária, para consultas internas</td></tr>
+                        <tr><td><strong>View</strong></td><td>É <strong>registrada</strong> no Unity Catalog e persiste depois da execução</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-container">
+                <pre><code>CREATE TEMPORARY VIEW orders_active AS
+SELECT * FROM 2_silver_db.orders_silver WHERE notifications = 'Y';
+
+CREATE VIEW 3_gold_db.orders_active_view AS
+SELECT * FROM 2_silver_db.orders_silver WHERE notifications = 'Y';</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>Limitações:</strong> o pipeline precisa ser um pipeline Unity Catalog. As views <strong>não podem ter consultas streaming</strong> nem ser a fonte streaming de um pipeline. A sintaxe não tem o <code>OR REFRESH</code>.</p>
+            </div>
+
+            <h3>O que mudou de DLT para SDP</h3>
+            <p>As palavras-chave antigas do Delta Live Tables (DLT) continuam aceitas por compatibilidade, mas pipelines novos devem usar a sintaxe nova.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Antiga (DLT)</th><th>Moderna (SDP)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>CREATE OR REFRESH STREAMING LIVE TABLE</code></td><td><code>CREATE OR REFRESH STREAMING TABLE</code></td></tr>
+                        <tr><td><code>CREATE OR REFRESH LIVE TABLE</code></td><td><code>CREATE OR REFRESH MATERIALIZED VIEW</code></td></tr>
+                        <tr><td><code>CREATE LIVE VIEW</code> e <code>CREATE TEMPORARY LIVE VIEW</code></td><td><code>CREATE VIEW</code> e <code>CREATE TEMPORARY VIEW</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Resolução automática de dependências</h3>
+            <p>O SDP analisa as dependências automaticamente, então <strong>a ordem do código não importa</strong>. Tudo é conectado no <strong>Declarative Pipeline Graph</strong>, que garante o fluxo correto dos dados: o JSON bruto, o bronze (<code>FROM STREAM read_files</code>), o silver (<code>FROM STREAM orders_bronze</code>) e a materialized view (<code>FROM orders_silver</code>).</p>
+
+            <h3>Conclusão</h3>
+            <p>A lição revisou o projeto (uma arquitetura modular para ingerir, transformar, juntar e agregar dados de varejo), o papel de cada tipo de dataset (da ingestão contínua à agregação incremental e execução sob demanda) e a criação por SQL, de forma declarativa e consistente.</p>
+
+            <div class="callout">
+                <p><strong>O que não li:</strong> as abas Step-2 e Step-3 do projeto, os passos 2 e 3 de cada camada de streaming table e os passos 2 a 4 da gold, as notas "Saiba mais" e os últimos itens da conclusão. Nada disso está nestas anotações.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> a <strong>streaming table</strong> processa só os dados novos e usa o <code>FROM STREAM</code>. A <strong>materialized view</strong> recalcula (ou atualiza de forma incremental) sobre o estado atual e lê a origem sem o STREAM. A <strong>view</strong> não guarda dados, e a temporary não vai para o Unity Catalog. Não existe <code>LIVE</code> na sintaxe moderna. E a ordem do código não importa, porque o SDP monta o grafo de dependências sozinho.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="databricks-academy-lakeflow-spark-declarative-pipelines.html">&larr; Voltar ao treinamento</a>
+            <a href="sdp-licao-2.html">Simplified Pipeline Development &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>
