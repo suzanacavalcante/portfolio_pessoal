@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo Errors and Exceptions do treinamento Introduction to Python for Data Science and Data Engineering.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Errors and Exceptions</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-python-data-science-engineering.html">&larr; Voltar ao treinamento de Python</a>
+
+    <header>
+        <h1>Errors and Exceptions</h1>
+        <p>Introduction to Python · Vídeo 6 de 13</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-6">
+            <p class="lead">Todo programa encontra erros, e saber lê-los e tratá-los faz parte de escrever código confiável. Este módulo mostra a diferença entre erros de sintaxe e exceções, como tratar exceções com <code>try</code> e <code>except</code>, tipos específicos e múltiplos de exceção, o uso de <code>else</code> e <code>finally</code> e a instrução <code>assert</code>.</p>
+
+            <p>Os trechos de código abaixo são exemplos escritos por mim com base no que a demonstração descreve, não a cópia do notebook do curso. O ambiente é o mesmo dos módulos anteriores: Serverless Environment Version 5, com o ambiente base em Standard Version 5.</p>
+
+            <h3>Erros de sintaxe</h3>
+            <p>Um erro de sintaxe acontece quando o Python <strong>não consegue ler a estrutura do código</strong>. Ele para antes de avaliar a lógica: o programa nem começa a rodar. O exemplo da demonstração é um <code>if</code> sem os dois-pontos no final.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">idade = 20
+
+if idade &gt;= 18       # falta o ":" no final da linha
+    print("maior de idade")
+# SyntaxError: expected ':'</code></pre>
+            </div>
+
+            <p>O Genie Code pode sugerir a correção. Algumas dicas para achar erros de sintaxe:</p>
+            <ul>
+                <li>conferir os dois-pontos depois de <code>if</code>, <code>for</code> e <code>while</code>;</li>
+                <li>procurar parênteses e colchetes desbalanceados;</li>
+                <li>ver se há palavras-chave no lugar errado.</li>
+            </ul>
+
+            <h3>Exceções</h3>
+            <p>Uma exceção é diferente: o código é <strong>gramaticalmente válido</strong>, mas <strong>falha durante a execução</strong>. O exemplo clássico é dividir por zero. Nesse caso, o Python cria um objeto de exceção (<em>raise</em>) e interrompe o fluxo, a menos que algo o capture.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(1 / 0)
+# ZeroDivisionError: division by zero</code></pre>
+            </div>
+
+            <h3>Tipos comuns de exceção</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Exceção</th><th>Quando acontece</th><th>Exemplo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>ZeroDivisionError</code></td><td>Divisão por zero</td><td><code>1 / 0</code></td></tr>
+                        <tr><td><code>NameError</code></td><td>Uso de um nome que não foi definido</td><td><code>print(undefined_variable)</code></td></tr>
+                        <tr><td><code>TypeError</code></td><td>Operação com o tipo errado</td><td><code>"a" + 1</code></td></tr>
+                        <tr><td><code>ValueError</code></td><td>Tipo certo, mas valor inválido</td><td><code>int("abc")</code></td></tr>
+                        <tr><td><code>IndexError</code></td><td>Posição que não existe em uma lista</td><td><code>[1, 2, 3][10]</code></td></tr>
+                        <tr><td><code>KeyError</code></td><td>Chave que não existe em um dicionário</td><td><code>{"a": 1}["b"]</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>try e except</h3>
+            <p>Com <code>try</code>, o Python tenta executar um bloco. Se der uma exceção, ele executa o bloco do <code>except</code> em vez de deixar o programa falhar.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">try:
+    resultado = 1 / 0
+except ZeroDivisionError:
+    print("Não é possível dividir por zero")
+
+print("O programa continua")   # o código depois do except segue normalmente</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>Mau hábito:</strong> um <code>except</code> vazio captura <strong>qualquer</strong> exceção. É amplo demais: esconde erros que ninguém previu e dificulta achar a causa. O melhor é nomear a exceção esperada.</p>
+            </div>
+
+            <h3>Exceção específica e múltiplas</h3>
+            <p>Usar <code>except ZeroDivisionError:</code> trata só esse tipo. Uma exceção que não está na lista, como um <code>NameError</code>, ainda derruba o programa. Para tratar várias exceções no mesmo bloco, passa-se uma <strong>tupla</strong>:</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">try:
+    print(undefined_variable)
+except (ZeroDivisionError, NameError):
+    print("Divisão por zero ou nome não definido")</code></pre>
+            </div>
+
+            <h3>Guardando a exceção com as e</h3>
+            <p>Com <code>except ... as e</code>, a exceção fica guardada em uma variável, e dá para imprimi-la para ver a mensagem de erro.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">try:
+    print(undefined_variable)
+except NameError as e:
+    print(e)   # name 'undefined_variable' is not defined</code></pre>
+            </div>
+
+            <p>Dois pontos sobre o comportamento:</p>
+            <ul>
+                <li>O Python trata <strong>uma exceção por vez</strong>. Quando dá erro, as linhas seguintes <strong>dentro do <code>try</code></strong> não rodam.</li>
+                <li>O código <strong>depois</strong> do <code>except</code> continua normalmente.</li>
+            </ul>
+
+            <div class="code-container">
+                <pre><code class="language-python">try:
+    print("antes do erro")
+    1 / 0
+    print("esta linha nunca roda")
+except ZeroDivisionError as e:
+    print("erro tratado:", e)
+
+print("depois do try/except")</code></pre>
+            </div>
+
+            <h3>else: o ramo de sucesso</h3>
+            <p>O bloco <code>else</code> roda <strong>só se o <code>try</code> terminar sem exceção</strong>. É o ramo de sucesso, como na divisão 10 / 2.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">try:
+    resultado = 10 / 2
+except ZeroDivisionError:
+    print("Divisão por zero")
+else:
+    print("Deu certo:", resultado)   # Deu certo: 5.0</code></pre>
+            </div>
+
+            <h3>finally: roda sempre</h3>
+            <p>O bloco <code>finally</code> roda <strong>sempre</strong>, com ou sem exceção. É o lugar para a limpeza: fechar arquivos, liberar conexões de banco de dados e encerrar requisições de rede.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">try:
+    resultado = 10 / 0
+except ZeroDivisionError:
+    print("Divisão por zero")
+else:
+    print("Deu certo:", resultado)
+finally:
+    print("Limpeza: este bloco roda de qualquer jeito")</code></pre>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Bloco</th><th>Quando roda</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>try</code></td><td>Sempre começa por aqui, até a primeira exceção</td></tr>
+                        <tr><td><code>except</code></td><td>Só se acontecer a exceção listada</td></tr>
+                        <tr><td><code>else</code></td><td>Só se o <code>try</code> terminar sem exceção</td></tr>
+                        <tr><td><code>finally</code></td><td>Sempre, com ou sem exceção</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>assert</h3>
+            <p>A instrução <code>assert</code> verifica uma condição. A sintaxe é <code>assert condição, "mensagem opcional"</code>:</p>
+            <ul>
+                <li>Se a condição for <strong>verdadeira</strong>, nada acontece.</li>
+                <li>Se for <strong>falsa</strong>, gera um <code>AssertionError</code>, com a mensagem, se houver.</li>
+            </ul>
+
+            <div class="code-container">
+                <pre><code class="language-python">idade = 20
+assert idade &gt;= 18, "A idade deve ser de pelo menos 18"   # passa em silêncio
+
+idade = 15
+assert idade &gt;= 18, "A idade deve ser de pelo menos 18"
+# AssertionError: A idade deve ser de pelo menos 18</code></pre>
+            </div>
+
+            <p>Serve para <strong>checar os seus próprios pressupostos</strong>, em desenvolvimento e em testes. Não substitui o <code>try</code>/<code>except</code>, que trata falhas esperadas durante a execução.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> erro de sintaxe impede o programa de rodar, e exceção acontece durante a execução. O <code>try</code>/<code>except</code> captura exceções, de preferência nomeando o tipo esperado, e <code>as e</code> guarda a mensagem. O <code>else</code> é o ramo de sucesso, o <code>finally</code> roda sempre e serve para limpeza, e o <code>assert</code> confere pressupostos durante o desenvolvimento. O próximo módulo trata de programação orientada a objetos e classes.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="python-ds-de-video-5.html">&larr; Loops</a>
+            <a href="python-ds-de-video-7.html">Classes &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

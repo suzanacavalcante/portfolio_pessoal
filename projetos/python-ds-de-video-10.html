@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo Advanced Pandas do treinamento Introduction to Python for Data Science and Data Engineering.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Advanced Pandas</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-python-data-science-engineering.html">&larr; Voltar ao treinamento de Python</a>
+
+    <header>
+        <h1>Advanced Pandas</h1>
+        <p>Introduction to Python · Vídeo 10 de 13</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-10">
+            <p class="lead">Este é o módulo mais longo do treinamento, com cerca de 42 minutos, e mostra o fluxo de trabalho completo com um dataset real no Pandas: ler um CSV, inspecionar, converter e formatar datas, renomear colunas, filtrar linhas, agregar e agrupar, ordenar, tratar valores ausentes e gravar o resultado de volta em CSV.</p>
+
+            <p>Os trechos de código abaixo são exemplos escritos por mim com base no resumo da demonstração, não a cópia do notebook do curso. Em vez do dataset do curso, usei um DataFrame pequeno e inventado, no estilo do dataset de imóveis do Airbnb de San Francisco, para os exemplos poderem ser executados por quem ler. Os números do dataset real (7.150 linhas, 106 colunas e outros) aparecem no texto, como foram citados na demonstração.</p>
+
+            <h3>Setup e dados</h3>
+            <ul>
+                <li><strong>Ambiente:</strong> Serverless Environment Version 5, com o ambiente base em Standard Version 5.</li>
+                <li><strong>Configuração da sala de aula:</strong> uma célula roda o script de setup, que leva uns 5 minutos. Ele cria o objeto auxiliar <code>DA</code>, com o catálogo <code>dbacademy</code> e um schema único por usuário (<code>labuser...</code>).</li>
+                <li><strong>Datasets:</strong> dois CSVs ficam em <code>volumes/&lt;catalog&gt;/&lt;schema&gt;/datasets</code>: o <code>sf_airbnb</code>, usado na demonstração, e o <code>ca_housing</code>, usado no laboratório.</li>
+                <li><strong>Catalog Explorer:</strong> mostra o caminho dbacademy, schema labuser e tabela, com descrição gerada por IA, tipos de coluna e uma amostra dos dados (Sample data).</li>
+            </ul>
+
+            <p>Para os exemplos abaixo, este é o DataFrame de exemplo:</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">import pandas as pd
+
+df = pd.DataFrame({
+    "neighbourhood": ["Mission", "Mission", "SoMa", "SoMa", "Nob Hill"],
+    "host_is_superhost": ["t", "f", "t", "f", "t"],
+    "bedrooms": [1, 0, 2, 3, 1],
+    "number_of_reviews": [200, 10, 150, 0, 40],
+    "first_review": ["2015-03-01", "2016-07-15", "2014-11-30", "2017-01-20", "2013-05-09"],
+    "security_deposit": ["$100.00", None, "$250.00", None, "$80.00"],
+    "notes": ["quiet", None, None, "near BART", None],
+})</code></pre>
+            </div>
+
+            <h3>Lendo e inspecionando dados</h3>
+            <p>Na prática, os dados vêm de arquivos (CSV, Parquet, Excel, JSON), e o Pandas tem uma função <code>read_*</code> para cada formato. Para um CSV, usa-se <code>pd.read_csv(caminho)</code>, com o caminho montado com uma f-string a partir do catálogo e do schema do usuário.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">caminho = f"/Volumes/{DA.catalog_name}/{DA.schema_name}/datasets/airbnb/..."
+df = pd.read_csv(caminho)
+
+df.head()      # as 5 primeiras linhas (o padrão); df.head(10) mostra 10
+df.tail(3)     # as 3 últimas linhas</code></pre>
+            </div>
+            <p>O dataset do curso tem <strong>7.150 linhas e 106 colunas</strong>, com strings e valores <code>NaN</code>.</p>
+
+            <h3>Colunas e tipos</h3>
+            <p>O <code>df.columns</code> mostra só parte dos nomes quando há muitas colunas. Para ver todos, <code>list(df.columns)</code>. O <code>df.dtypes</code> mostra os tipos: <code>object</code> (texto ou misto), <code>int64</code>, <code>float64</code>, <code>bool</code> e <code>datetime64</code>.</p>
+            <p>Um problema comum em CSV: as datas, como <code>first_review</code> e <code>last_review</code>, chegam como <code>object</code>, ou seja, texto. Assim não dá para ordenar cronologicamente, calcular diferenças de tempo nem extrair ano ou mês.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(df["first_review"].dtype)   # object: ainda é texto</code></pre>
+            </div>
+
+            <h3>Datas</h3>
+            <p>A conversão é feita com <code>pd.to_datetime</code>, que gera uma coluna <code>datetime64</code>. Para exibir a data em outro formato, o acessor <code>.dt.strftime</code> usa códigos: <code>%m</code> é o mês, <code>%d</code> o dia e <code>%Y</code> o ano com 4 dígitos. Os separadores são literais.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">df["first_review"] = pd.to_datetime(df["first_review"])
+print(df["first_review"].dtype)   # datetime64[ns]
+
+formatada = df["first_review"].dt.strftime("%m-%d-%Y")
+print(formatada.tolist())   # ['03-01-2015', '07-15-2016', '11-30-2014', '01-20-2017', '05-09-2013']</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>Atenção:</strong> o <code>strftime</code> devolve <strong>texto</strong> (<code>object</code>). Para fazer contas com datas, mantenha a coluna <code>datetime64</code> original e use a formatada só para exibir.</p>
+            </div>
+
+            <h3>Renomeando colunas</h3>
+            <p>O <code>rename</code> recebe um dicionário de nomes antigos para novos. Só as colunas citadas mudam, e o resultado precisa ser <strong>reatribuído</strong>, senão o original fica intacto. O exemplo da demonstração troca <code>neighbourhood</code> por <code>neighborhood</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">df = df.rename(columns={"neighbourhood": "neighborhood"})
+print(df.columns.tolist()[0])   # neighborhood</code></pre>
+            </div>
+
+            <h3>Filtrando linhas</h3>
+            <p>Uma <strong>máscara booleana</strong> mantém só as linhas em que a condição é <code>True</code>. Os índices das linhas descartadas somem do resultado, e o <code>!=</code> inverte o filtro.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">superhosts = df[df["host_is_superhost"] == "t"]       # linhas 0, 2 e 4
+nao_superhosts = df[df["host_is_superhost"] != "t"]   # linhas 1 e 3</code></pre>
+            </div>
+
+            <p>Para <strong>várias condições</strong>, os operadores <code>and</code>, <code>or</code> e <code>not</code> do Python não servem, porque só funcionam com um único booleano. Usam-se os operadores bitwise, com <strong>cada condição entre parênteses</strong>:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Operador</th><th>Significa</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>&amp;</code></td><td>and (e)</td></tr>
+                        <tr><td><code>|</code></td><td>or (ou)</td></tr>
+                        <tr><td><code>~</code></td><td>not (não)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-container">
+                <pre><code class="language-python">df[(df["host_is_superhost"] == "t") &amp; (df["number_of_reviews"] &gt;= 150)]   # linhas 0 e 2
+df[(df["bedrooms"] == 0) | (df["bedrooms"] &gt;= 3)]                          # linhas 1 e 3
+df[~(df["host_is_superhost"] == "t")]                                       # linhas 1 e 3</code></pre>
+            </div>
+
+            <h3>Agregações e describe</h3>
+            <p>Funções como <code>mean</code>, <code>min</code>, <code>max</code>, <code>count</code> e <code>std</code> reduzem uma coluna a um único valor. Na demonstração, <code>number_of_reviews</code> tem média de 43,5, mínimo 0 e máximo 677. Em Python puro seria preciso fazer <code>sum / count</code> à mão. O Pandas <strong>ignora o <code>NaN</code></strong> por padrão.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">reviews = df["number_of_reviews"]
+print(reviews.mean())    # 80.0
+print(reviews.min())     # 0
+print(reviews.max())     # 200
+print(reviews.count())   # 5
+print(round(reviews.std(), 2))   # 89.72</code></pre>
+            </div>
+
+            <p>O <code>describe()</code> resume uma coluna numérica de uma vez: <code>count</code>, <code>mean</code>, <code>std</code>, <code>min</code>, os quartis (25%, 50% e 75%, sendo o 50% a <strong>mediana</strong>) e <code>max</code>. O <code>.round(2)</code> reduz as casas decimais.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(df[["bedrooms", "number_of_reviews"]].describe().round(2))
+#        bedrooms  number_of_reviews
+# count      5.00               5.00
+# mean       1.40              80.00
+# std        1.14              89.72
+# min        0.00               0.00
+# 25%        1.00              10.00
+# 50%        1.00              40.00
+# 75%        2.00             150.00
+# max        3.00             200.00</code></pre>
+            </div>
+
+            <h3>groupby</h3>
+            <p>O <code>groupby</code> segue o padrão <strong>split, apply, combine</strong>: divide os dados em grupos, aplica uma função em cada um e combina os resultados. Sozinho, <code>df.groupby("neighborhood")</code> só cria um objeto, sem agregar nada. É a agregação que devolve o resultado.</p>
+            <p>A coluna agrupada vira o <strong>índice</strong>. O <code>reset_index()</code> a devolve como coluna comum e restaura o índice inteiro, o que é útil antes de exportar ou transformar.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">media = df.groupby("neighborhood")["bedrooms"].mean()
+print(media)
+# neighborhood
+# Mission     0.5
+# Nob Hill    1.0
+# SoMa        2.5
+
+print(media.reset_index())
+#   neighborhood  bedrooms
+# 0      Mission       0.5
+# 1     Nob Hill       1.0
+# 2         SoMa       2.5</code></pre>
+            </div>
+
+            <h3>Ordenando</h3>
+            <p>O <code>sort_values</code> ordena de forma ascendente por padrão, e o <code>ascending=False</code> ordena do maior para o menor. Na demonstração, <code>bedrooms = 0</code> pode indicar estúdios, e o máximo do dataset é 14 quartos.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">df.sort_values("bedrooms")                    # do menor para o maior
+df.sort_values("bedrooms", ascending=False)   # do maior para o menor</code></pre>
+            </div>
+
+            <h3>Valores ausentes</h3>
+            <p>No Pandas, o <code>NaN</code> indica ausência. Há três estratégias: identificar, descartar ou preencher.</p>
+
+            <h4>Identificar</h4>
+            <div class="code-container">
+                <pre><code class="language-python">print(df[["security_deposit", "notes"]].isna().sum())
+# security_deposit    2
+# notes               3</code></pre>
+            </div>
+            <p>No dataset do curso, o resultado aproximado foi de cerca de 1.500 ausentes em <code>security_deposit</code> e 2.744 em <code>notes</code>.</p>
+
+            <h4>Descartar</h4>
+            <p>O <code>dropna()</code> remove as linhas que têm <strong>qualquer</strong> <code>NaN</code>. Na demonstração, sobraram 3.623 linhas. É a "opção nuclear", aceitável quando os ausentes são poucos (menos de 5%) e aleatórios.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">sem_ausentes = df.dropna()
+print(len(sem_ausentes))   # 1: só a linha 0 não tem nenhum NaN</code></pre>
+            </div>
+
+            <h4>Preencher</h4>
+            <p>O <code>fillna</code> troca os ausentes por um valor. Para colunas numéricas, em geral a média, a mediana ou 0. Para categóricas, a moda ou um rótulo como "missing". Sem <code>inplace</code>, ele devolve um novo DataFrame.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">preenchido = df.fillna({"security_deposit": "$0.00", "notes": "missing"})
+print(preenchido[["security_deposit", "notes"]].isna().sum())   # 0 e 0</code></pre>
+            </div>
+
+            <h3>Salvando e relendo CSV</h3>
+            <p>O <code>to_csv</code> grava o DataFrame. Com <code>index=False</code>, o índice não vira uma coluna extra no arquivo.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">df.to_csv("/caminho/para/saida.csv", index=False)
+
+relido = pd.read_csv("/caminho/para/saida.csv")
+print(relido["first_review"].dtype)   # object: a data voltou como texto</code></pre>
+            </div>
+
+            <ul>
+                <li>O volume de origem é <strong>somente leitura</strong>, então a demonstração grava em um caminho temporário. Em um fluxo real, grave no seu volume ou no armazenamento em nuvem.</li>
+                <li>Ao reler, as colunas de data voltam como string, e é preciso aplicar o <code>pd.to_datetime</code> de novo. A precisão numérica também pode ser arredondada.</li>
+                <li>O CSV continua sendo o formato universal de intercâmbio, mas em produção vale considerar outros formatos.</li>
+            </ul>
+
+            <h3>O fluxo completo</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Etapa</th><th>Como</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1. Ler</td><td><code>pd.read_csv</code></td></tr>
+                        <tr><td>2. Inspecionar</td><td><code>head</code>, <code>tail</code>, <code>columns</code>, <code>dtypes</code></td></tr>
+                        <tr><td>3. Converter datas</td><td><code>pd.to_datetime</code> e <code>.dt.strftime</code></td></tr>
+                        <tr><td>4. Renomear</td><td><code>rename(columns=...)</code></td></tr>
+                        <tr><td>5. Filtrar</td><td>Máscara booleana com <code>&amp;</code>, <code>|</code> e <code>~</code></td></tr>
+                        <tr><td>6. Agregar e agrupar</td><td><code>mean</code>, <code>describe</code>, <code>groupby</code></td></tr>
+                        <tr><td>7. Ordenar</td><td><code>sort_values</code></td></tr>
+                        <tr><td>8. Tratar ausentes</td><td><code>isna</code>, <code>dropna</code>, <code>fillna</code></td></tr>
+                        <tr><td>9. Salvar</td><td><code>to_csv(index=False)</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> as datas precisam ser convertidas, porque chegam como texto. Os filtros com várias condições usam <code>&amp;</code>, <code>|</code> e <code>~</code> com parênteses, e <code>groupby</code> é split, apply, combine. Ausentes se identificam, descartam ou preenchem, e a maioria das operações devolve um novo objeto que precisa ser atribuído. O <code>to_csv</code> pede <code>index=False</code>, e as datas voltam como texto ao reler. O próximo módulo trata de visualização de dados com o dataset do Airbnb.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="python-ds-de-video-9.html">&larr; Pandas Overview</a>
+            <a href="python-ds-de-video-11.html">Data Visualization &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

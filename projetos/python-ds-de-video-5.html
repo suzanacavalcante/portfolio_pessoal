@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo Loops do treinamento Introduction to Python for Data Science and Data Engineering.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Loops</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-python-data-science-engineering.html">&larr; Voltar ao treinamento de Python</a>
+
+    <header>
+        <h1>Loops</h1>
+        <p>Introduction to Python · Vídeo 5 de 13</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-5">
+            <p class="lead">Os laços (loops) automatizam a repetição de código e são um mecanismo fundamental de fluxo de controle. Este módulo cobre o laço <code>for</code>, a função <code>range</code>, filtrar e transformar listas com laços e com compreensões de lista, controlar a execução com <code>break</code> e <code>continue</code>, os laços <code>while</code> e os laços aninhados.</p>
+
+            <p>Os trechos de código abaixo são exemplos escritos por mim com base no que a demonstração descreve, não a cópia do notebook do curso. O ambiente é o mesmo dos módulos anteriores: Serverless Environment Version 5, com o ambiente base em Standard Version 5.</p>
+
+            <h3>O laço for</h3>
+            <p>Um laço faz o Python repetir o mesmo bloco de código para vários valores, sem precisar copiar e colar a mesma linha várias vezes. O <code>for</code> percorre uma sequência, ou <strong>iterável</strong>: uma lista, uma tupla ou um dicionário, como visto no módulo anterior.</p>
+            <p>A estrutura é <code>for</code>, um nome de variável que você escolhe, <code>in</code>, o iterável e dois-pontos. O bloco indentado é executado <strong>uma vez para cada item</strong>, e a cada iteração a variável recebe o próximo item da sequência, a partir do início.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">for number in [0, 1, 2]:
+    print(number)
+# 0
+# 1
+# 2</code></pre>
+            </div>
+
+            <h3>A função range</h3>
+            <p>Às vezes não há uma lista para percorrer, e a ideia é só repetir um bloco um certo número de vezes. A função <code>range</code> gera uma sequência de números para o laço. O detalhe mais importante para quem está começando: <strong>o valor de parada é exclusivo</strong>. Um <code>range(0, 4)</code> percorre 0, 1, 2 e 3.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">for number in range(0, 10):
+    print(number)    # imprime de 0 a 9
+
+for _ in range(0, 10):
+    print("hello")   # imprime hello 10 vezes</code></pre>
+            </div>
+
+            <h3>Filtrando e transformando com laços</h3>
+            <p>O mesmo padrão serve para construir novas listas, e dois usos são muito comuns:</p>
+            <ul>
+                <li><strong>Filtrar:</strong> manter apenas os valores que atendem a uma condição, com um <code>if</code>.</li>
+                <li><strong>Transformar:</strong> criar valores novos a partir dos originais.</li>
+            </ul>
+            <p>No exemplo, uma lista de 1 a 10 é percorrida, e só os valores maiores que 4 vão para uma nova lista, que começa vazia. Repare na indentação: 4 espaços sob o <code>for</code>, e mais 4 sob o <code>if</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+final_list = []
+
+for number in numbers:
+    if number &gt; 4:
+        final_list.append(number)
+
+print(final_list)   # [5, 6, 7, 8, 9, 10]</code></pre>
+            </div>
+
+            <h3>Compreensões de lista</h3>
+            <p>O Python oferece um atalho para esse tipo de lógica: a <strong>compreensão de lista</strong> (list comprehension), que junta a expressão de saída, o laço e a condição em uma única linha. Os colchetes indicam que o resultado é uma lista. A leitura é: "<em>elemento</em> para cada <em>elemento</em> na lista, se a condição for verdadeira".</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">final_list_shortcut = [element for element in numbers if element &gt; 4]
+print(final_list_shortcut)   # [5, 6, 7, 8, 9, 10]: igual ao laço acima</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>Cuidado:</strong> o nome da variável precisa ser o mesmo na expressão de saída e no laço. Se for diferente, o Python gera um <code>NameError</code>. Por exemplo, <code>[item for element in numbers if element &gt; 4]</code> falha, porque <code>item</code> não existe.</p>
+            </div>
+
+            <p>A compreensão também aplica uma <strong>transformação</strong> a cada elemento. Dá para combinar com o filtro ou tirar a condição para transformar todos:</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">doubled_list = [element * 2 for element in numbers if element &gt; 4]
+print(doubled_list)   # [10, 12, 14, 16, 18, 20]
+
+doubled_all = [element * 2 for element in numbers]
+print(doubled_all)    # [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]</code></pre>
+            </div>
+
+            <h3>break e continue</h3>
+            <p>Nem sempre um laço deve ir do início ao fim. Duas palavras-chave alteram o comportamento:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Palavra-chave</th><th>O que faz</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>break</code></td><td>Sai do laço imediatamente. Quando o Python chega nele, interrompe o laço e passa para a primeira linha depois dele, e não há mais nenhuma iteração</td></tr>
+                        <tr><td><code>continue</code></td><td>Não encerra o laço: ignora o restante da iteração atual e passa direto para a próxima</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-container">
+                <pre><code class="language-python">for element in numbers:
+    if element == 4:
+        break
+    print(element)
+# 1, 2, 3: ao chegar no 4, o laço termina
+
+for element in numbers:
+    if element == 4:
+        continue
+    print(element)
+# 1, 2, 3, 5, 6, 7, 8, 9, 10: só o 4 é pulado</code></pre>
+            </div>
+
+            <h3>O laço while</h3>
+            <p>O <code>while</code> é outra forma de repetir código. Em vez de percorrer uma sequência, ele continua em execução <strong>enquanto uma condição booleana for verdadeira</strong>. Por isso é preciso cuidado para <strong>atualizar a variável da condição</strong>: se esquecer, a condição fica verdadeira para sempre e o resultado é um <strong>laço infinito</strong>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">count = 10
+
+while count &gt; 0:
+    print(count)
+    count -= 1
+# imprime de 10 a 1; quando count chega a 0, o laço termina</code></pre>
+            </div>
+
+            <p>Sem a linha <code>count -= 1</code>, o <code>count</code> nunca muda e o código imprime 10 sem parar. Para cancelar um laço infinito no notebook, dá para clicar no botão de interromper a execução ou usar o menu <strong>Run</strong> e escolher interromper.</p>
+
+            <h3>Laços aninhados</h3>
+            <p>Um laço aninhado é um laço dentro de outro. A cada vez que o laço externo avança uma vez, o laço interno <strong>percorre novamente todas as suas iterações</strong>. Com poucas linhas, o total de iterações pode ficar muito grande.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">for a in range(10):
+    for b in range(10):
+        for c in range(10):
+            print(str(a) + str(b) + str(c))
+# de 000 até 999: 10 x 10 x 10 = 1000 iterações</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o <code>for</code> percorre sequências um elemento por vez, e o <code>range</code> cria sequências numéricas para laços de contagem, com a parada exclusiva. Laços comuns e compreensões de lista filtram e transformam dados. O <code>break</code> interrompe o laço por completo, e o <code>continue</code> ignora só a iteração atual. O <code>while</code> roda até a condição virar falsa, e os laços aninhados multiplicam o trabalho feito por um pequeno bloco de código. O próximo módulo trata de erros e exceções.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="python-ds-de-video-4.html">&larr; Collection Types and Methods</a>
+            <a href="python-ds-de-video-6.html">Errors and Exceptions &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

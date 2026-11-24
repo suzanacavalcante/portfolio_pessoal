@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo Scaling Pandas with Spark do treinamento Introduction to Python for Data Science and Data Engineering.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Scaling Pandas with Spark</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-python-data-science-engineering.html">&larr; Voltar ao treinamento de Python</a>
+
+    <header>
+        <h1>Scaling Pandas with Spark</h1>
+        <p>Introduction to Python · Vídeo 12 de 13</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-12">
+            <p class="lead">O Pandas é ótimo, mas roda em uma única máquina. Este módulo mostra como levar a sintaxe do Pandas à escala do Spark com a <strong>Pandas API on Spark</strong>: como ela se relaciona com o Pandas e o PySpark, três formas de ler o mesmo CSV, os tipos de índice, as conversões entre os tipos de DataFrame e as operações comuns (<code>value_counts</code>, gráficos e SQL).</p>
+
+            <p>Os trechos de código abaixo são exemplos escritos por mim com base no resumo da demonstração, não a cópia do notebook do curso. Eles dependem de um ambiente Spark, como o do Databricks, e não foram executados fora dele. O ambiente é o de sempre: Serverless Environment Version 5, com o ambiente base em Standard Version 5, e a tabela disponível é a <code>sf_airbnb</code>.</p>
+
+            <h3>Pandas, DataFrame Spark e Pandas API on Spark</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>Pandas</th><th>DataFrame Spark</th><th>Pandas API on Spark</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Execução</td><td>Uma máquina</td><td>Distribuída</td><td>Distribuída</td></tr>
+                        <tr><td>Avaliação</td><td>Imediata (eager)</td><td>Preguiçosa (lazy)</td><td>Sintaxe Pandas sobre o Spark</td></tr>
+                        <tr><td>Mutabilidade</td><td>Mutável</td><td>Imutável</td><td>—</td></tr>
+                        <tr><td>Ordem das linhas</td><td>Mantida</td><td>Não mantida</td><td>Índice gerado</td></tr>
+                        <tr><td>Escala</td><td>Bom em dados pequenos</td><td>Milhões de linhas ou mais</td><td>O melhor dos dois mundos, mas mais lento que o Spark nativo</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>O internal frame</h3>
+            <p>O <strong>internal frame</strong> é um objeto interno que faz a ponte entre a interface estilo Pandas e o DataFrame Spark que fica por baixo. Ele guarda o DataFrame Spark e metadados, como o mapeamento dos nomes de colunas e do índice.</p>
+            <p>Cada operação cria um novo internal frame, e esse passo extra gera uma <strong>sobrecarga</strong> em relação ao Spark nativo. Em casos muito sensíveis a desempenho, quem faz engenharia de dados pode preferir o Spark SQL nativo. Na maioria dos casos, o ganho de produtividade compensa.</p>
+
+            <h3>Lendo o mesmo CSV de três formas</h3>
+
+            <h4>1. PySpark</h4>
+            <div class="code-container">
+                <pre><code class="language-python">spark_df = spark.read.csv(
+    caminho,
+    header=True,        # a primeira linha são os nomes das colunas
+    inferSchema=True,   # detecta os tipos
+    multiline=True,     # campos com quebra de linha, como descrições de anúncios
+    escape='"',         # campos entre aspas que contêm vírgulas
+)
+display(spark_df)</code></pre>
+            </div>
+
+            <h4>2. Pandas</h4>
+            <p>Todo o dataset fica na memória de <strong>uma única máquina</strong>. Com 7 mil linhas tudo bem, mas com 7 milhões ou 700 milhões o código pode falhar por falta de memória.</p>
+            <div class="code-container">
+                <pre><code class="language-python">import pandas as pd
+
+pdf = pd.read_csv(caminho)</code></pre>
+            </div>
+
+            <h4>3. Pandas API on Spark</h4>
+            <p>O resultado é um DataFrame <strong>distribuído</strong>, com índice gerado automaticamente. Quem já sabe Pandas só precisa trocar <code>pd</code> por <code>ps</code>.</p>
+            <div class="code-container">
+                <pre><code class="language-python">import pyspark.pandas as ps
+
+psdf = ps.read_csv(caminho)</code></pre>
+            </div>
+
+            <h3>Tipos de índice</h3>
+            <p>Em um sistema distribuído não há acordo automático sobre qual linha recebe qual índice, e gerar um índice sequencial exige <strong>coordenar todas as partições</strong>, o que é caro. Por isso existem três opções:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tipo</th><th>Quando usar</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>sequence</code></td><td>Dados pequenos ou cluster de nó único</td></tr>
+                        <tr><td><code>distributed</code></td><td>Dados grandes ou clusters com vários nós</td></tr>
+                        <tr><td><code>distributed-sequence</code></td><td>Melhor compatibilidade, com algum custo de desempenho. É o padrão recomendado para a maioria dos casos e o mais seguro ao migrar código Pandas existente</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>A configuração é global para a sessão:</p>
+            <div class="code-container">
+                <pre><code class="language-python">ps.set_option("compute.default_index_type", "distributed-sequence")</code></pre>
+            </div>
+
+            <h3>Convertendo entre os tipos de DataFrame</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>De</th><th>Para</th><th>Como</th><th>Observação</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Spark</td><td>Pandas API</td><td><code>ps.DataFrame(spark_df)</code> ou <code>spark_df.pandas_api()</code></td><td>Não copia os dados, só adiciona a interface Pandas. O resultado não tem coluna de índice</td></tr>
+                        <tr><td>Pandas API</td><td>Spark</td><td><code>psdf.to_spark()</code></td><td>Útil para gravar em tabela Delta ou passar a pipelines de ML do Spark. O índice some</td></tr>
+                        <tr><td>Pandas API</td><td>Pandas</td><td><code>psdf.to_pandas()</code></td><td>Junta tudo em uma máquina</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-container">
+                <pre><code class="language-python">psdf = spark_df.pandas_api()    # Spark -&gt; Pandas API
+spark_de_volta = psdf.to_spark()  # Pandas API -&gt; Spark
+pdf = psdf.to_pandas()          # Pandas API -&gt; Pandas</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>Cuidado com o <code>to_pandas()</code>:</strong> ele junta todos os dados em uma única máquina. Só use depois de filtrar ou agregar para um tamanho gerenciável, senão pode travar com milhões de linhas.</p>
+            </div>
+
+            <p>A Pandas API pode gerar avisos (<code>UserWarning</code>) sobre diferenças de comportamento em relação ao Pandas. Na demonstração eles foram suprimidos, mas no trabalho real vale ler.</p>
+
+            <h3>Operações comuns</h3>
+
+            <h4>value_counts</h4>
+            <p>No Spark nativo são três passos: agrupar, contar e ordenar de forma decrescente. Na Pandas API é uma única chamada.</p>
+            <div class="code-container">
+                <pre><code class="language-python">from pyspark.sql import functions as F
+
+# Spark nativo: groupBy, count e orderBy descendente
+spark_df.groupBy("property_type").count().orderBy(F.desc("count"))
+
+# Pandas API on Spark
+psdf["property_type"].value_counts()</code></pre>
+            </div>
+
+            <h4>Gráficos</h4>
+            <p>O <code>hist</code> e o <code>boxplot</code> funcionam como no Pandas, e a execução é otimizada para cada tipo de gráfico. Os gráficos de barras usam por padrão só as <strong>primeiras 1.000 linhas</strong>, e isso pode ser ajustado.</p>
+            <div class="code-container">
+                <pre><code class="language-python">ps.set_option("plotting.max_rows", 5000)</code></pre>
+            </div>
+
+            <h4>SQL</h4>
+            <p>Dá para misturar transformações estilo Pandas com SQL, conforme for mais claro em cada passo.</p>
+            <div class="code-container">
+                <pre><code class="language-python">ps.sql("SELECT DISTINCT property_type FROM {df}", df=psdf)</code></pre>
+            </div>
+
+            <h3>Recursos adicionais</h3>
+            <ul>
+                <li>Lê diretamente de <strong>tabelas Delta</strong> e de diretórios com vários arquivos.</li>
+                <li>O <code>.apply</code> tem um atalho: com menos de 1.000 linhas, usa Pandas puro internamente. Ele exige <strong>anotar o tipo de retorno</strong> da função, como nas UDFs do Spark.</li>
+                <li>Planos de execução (<code>explain</code>) e cache de DataFrames também existem, com uma sintaxe menos intuitiva que a do Spark nativo.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> a Pandas API on Spark leva a sintaxe do Pandas à escala do Spark, ao custo de alguma sobrecarga. O mesmo dataset pode ser lido com as três abordagens, e o tipo de índice afeta desempenho e exatidão (o <code>distributed-sequence</code> é o mais seguro). Dá para converter entre PySpark e Pandas API, e <code>value_counts</code>, gráficos e SQL funcionam com sintaxe parecida com a do Pandas. O próximo módulo trata dos conceitos fundamentais de cloud computing e de como o Databricks opera na nuvem.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="python-ds-de-video-11.html">&larr; Data Visualization</a>
+            <a href="python-ds-de-video-13.html">Cloud Computing &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo Collection Types and Methods do treinamento Introduction to Python for Data Science and Data Engineering.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Collection Types and Methods</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-python-data-science-engineering.html">&larr; Voltar ao treinamento de Python</a>
+
+    <header>
+        <h1>Collection Types and Methods</h1>
+        <p>Introduction to Python · Vídeo 4 de 13</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-4">
+            <p class="lead">Até aqui os módulos trataram de valores únicos: inteiros, floats, strings e booleanos. Este módulo mostra como agrupar vários valores com os tipos de coleção do Python: <strong>listas</strong>, <strong>dicionários</strong> e <strong>tuplas</strong>. Antes disso, duas ideias de base: objetos e métodos.</p>
+
+            <p>Os trechos de código abaixo são exemplos escritos por mim com base no que a demonstração descreve, não a cópia do notebook do curso. O ambiente é o mesmo dos módulos anteriores: Serverless Environment Version 5, com o ambiente base em Standard Version 5.</p>
+
+            <h3>Objetos e métodos</h3>
+            <p>No Python, <strong>todo valor é um objeto</strong>. O número 1 é um objeto inteiro, e o texto "Hello" é um objeto string. Isso importa porque <strong>o tipo do objeto determina o que se pode fazer com ele</strong>: uma string faz coisas de string, uma lista faz coisas de lista. É também por isso que o Python não deixa somar uma string com um inteiro sem converter antes.</p>
+            <p>Um <strong>método</strong> é uma função que pertence a um tipo de objeto. Em vez de chamá-lo sozinho, como <code>print</code> ou <code>help</code>, ele é chamado no próprio objeto com a <strong>notação de ponto</strong>: o objeto, o ponto, o método e, às vezes, argumentos entre parênteses.</p>
+
+            <h4>Métodos de string</h4>
+            <div class="code-container">
+                <pre><code class="language-python">greeting = "hello"
+print(greeting.upper())   # HELLO
+print(greeting)           # hello: o original não mudou</code></pre>
+            </div>
+            <p>O <code>upper</code> não alterou a string original: ele <strong>criou e devolveu uma nova string</strong>. Isso leva a uma distinção importante:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tipo de método</th><th>O que faz</th><th>Exemplo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Non-in-place</td><td>Devolve um novo objeto e deixa o original intacto</td><td><code>greeting.upper()</code></td></tr>
+                        <tr><td>In-place</td><td>Altera diretamente o objeto em que é chamado</td><td><code>lista.append(x)</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Manter essa distinção ajuda a entender por que algumas chamadas de método precisam de reatribuição e outras não.</p>
+
+            <h4>Descobrindo os métodos de um objeto</h4>
+            <p>Como saber quais métodos um objeto tem? No Databricks, ao digitar o nome do objeto seguido de um ponto, aparece a lista de métodos disponíveis. Com Tab, o método é preenchido automaticamente. Não é só conveniência, é uma ferramenta de aprendizado: dá para explorar de forma interativa em vez de memorizar tudo antes. E o <code>help</code> explica cada método.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">help(greeting.capitalize)       # documentação do método
+print(greeting.capitalize())    # Hello</code></pre>
+            </div>
+
+            <h3>Listas</h3>
+            <p>Uma lista é uma das formas mais comuns de guardar vários valores juntos. É criada com <strong>colchetes</strong> e é <strong>ordenada</strong>: o Python lembra a posição de cada item, e essa ordem importa para o índice e o fatiamento. Também é flexível, e pode misturar strings, booleanos, inteiros e floats.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">breakfast_list = ["pancakes", "eggs", "waffles"]
+print(breakfast_list)         # ['pancakes', 'eggs', 'waffles']
+print(type(breakfast_list))   # &lt;class 'list'&gt;</code></pre>
+            </div>
+
+            <h4>Adicionando itens: append e o operador +</h4>
+            <p>O método <code>append</code> adiciona um item <strong>ao final</strong> da lista, e altera a lista original (in-place). Já o operador <code>+</code> <strong>concatena</strong> duas listas e cria uma nova lista combinada.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">breakfast_list.append("yogurt")
+print(breakfast_list)   # ['pancakes', 'eggs', 'waffles', 'yogurt']
+
+print(["pancakes", "eggs"] + ["waffles", "yogurt"])
+# ['pancakes', 'eggs', 'waffles', 'yogurt']</code></pre>
+            </div>
+
+            <p>Para somar um item a uma lista existente, ele precisa estar dentro de outra lista. O <code>+=</code> é um atalho para somar e reatribuir à própria variável. Para quem está começando, vale ler como "adicione isto e guarde o resultado aqui".</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">breakfast_list = ["pancakes", "eggs", "waffles"]
+
+breakfast_list = breakfast_list + ["yogurt"]   # forma completa
+# breakfast_list += ["yogurt"]                 # atalho, mesmo resultado</code></pre>
+            </div>
+
+            <h4>Tamanho com len</h4>
+            <p>A função <code>len</code>, vista com strings, também conta os itens de uma lista, o que é prático quando ela é longa demais para olhar item por item.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(len(breakfast_list))   # 4</code></pre>
+            </div>
+
+            <h4>Indexação</h4>
+            <p>As listas usam indexação <strong>baseada em 0</strong>: o primeiro item é o índice 0. Números negativos contam a partir do fim: <code>-1</code> é o último item, e <code>-2</code> é o penúltimo.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(breakfast_list[0])    # pancakes
+print(breakfast_list[-1])   # yogurt
+print(breakfast_list[-2])   # waffles</code></pre>
+            </div>
+
+            <h4>Fatiamento (slicing)</h4>
+            <p>O fatiamento pega um intervalo de itens. A sintaxe é <code>lista[início:fim:passo]</code>: o <strong>início</strong> é a posição inicial, o <strong>fim</strong> é a posição de parada (e esse item <strong>não entra</strong>) e o <strong>passo</strong> diz de quantos em quantos itens pular.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(breakfast_list[0:2])     # ['pancakes', 'eggs']: o índice 2 fica de fora
+print(breakfast_list[0:4:2])   # ['pancakes', 'waffles']: pula um sim, outro não
+print(breakfast_list[::2])     # ['pancakes', 'waffles']: início e fim em branco
+
+print(breakfast_list[:2])      # ['pancakes', 'eggs']: do começo até o índice 2
+print(breakfast_list[1:])      # ['eggs', 'waffles', 'yogurt']: do índice 1 até o fim
+
+print(breakfast_list[::-1])    # lista invertida</code></pre>
+            </div>
+            <p>Partes do slice podem ficar em branco. E um passo de <code>-1</code> inverte a lista, o que é diferente de pegar só o último item.</p>
+
+            <h4>Substituindo itens e o operador in</h4>
+            <p>Como a lista é modificável, um item pode ser trocado por <strong>reatribuição</strong> a um índice. E o operador <code>in</code> faz uma pergunta de sim ou não: o item está na lista?</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(breakfast_list)           # ['pancakes', 'eggs', 'waffles', 'yogurt']
+breakfast_list[0] = "sausage"
+print(breakfast_list)           # ['sausage', 'eggs', 'waffles', 'yogurt']
+
+print("waffles" in breakfast_list)   # True</code></pre>
+            </div>
+
+            <h3>Dicionários</h3>
+            <p>Um dicionário guarda dados como pares <strong>chave-valor</strong> (key-value), em vez de uma sequência ordenada. É útil quando cada valor tem um rótulo: em vez de lembrar em que posição o item está, recupera-se pelo nome. A sintaxe usa <strong>chaves</strong>, com <code>chave: valor</code> separados por vírgula.</p>
+            <p>Cada chave aponta para exatamente um valor, por isso <strong>as chaves precisam ser únicas</strong>: se a mesma chave aparecesse duas vezes, o Python não saberia qual valor deveria prevalecer.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">breakfast = {"pancakes": 1, "eggs": 2, "waffles": 3}
+
+rates = {"GBP": 0.79, "JPY": 149.50, "EUR": 0.93}   # o dicionário do módulo anterior</code></pre>
+            </div>
+
+            <h4>Métodos de dicionário</h4>
+            <ul>
+                <li><code>get</code>: devolve o valor associado a uma chave. A notação de colchetes faz o mesmo.</li>
+                <li><code>keys</code>: mostra todas as chaves.</li>
+                <li><code>items</code>: mostra cada par chave-valor. Esses dois métodos ficam especialmente úteis no próximo módulo, para percorrer dicionários com loops.</li>
+            </ul>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(breakfast.get("waffles"))   # 3
+print(breakfast["waffles"])       # 3: o mesmo, com colchetes
+
+print(breakfast.keys())    # dict_keys(['pancakes', 'eggs', 'waffles'])
+print(breakfast.items())   # dict_items([('pancakes', 1), ('eggs', 2), ('waffles', 3)])</code></pre>
+            </div>
+
+            <h4>Atualizando um dicionário</h4>
+            <p>Atribuir a uma chave que <strong>já existe</strong> sobrescreve o valor. Atribuir a uma chave que <strong>não existe</strong> cria um novo par.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(breakfast)                # {'pancakes': 1, 'eggs': 2, 'waffles': 3}
+breakfast["waffles"] += 1       # a chave existe: o valor é sobrescrito (4)
+breakfast["yogurt"] = 1         # a chave não existe: um novo par é criado
+print(breakfast)                # {'pancakes': 1, 'eggs': 2, 'waffles': 4, 'yogurt': 1}</code></pre>
+            </div>
+
+            <p>O operador <code>in</code> também funciona com dicionários, e verifica se uma <strong>chave</strong> existe:</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print("bacon" in breakfast.keys())   # False
+print("bacon" in breakfast)           # False: o mesmo, sem chamar keys()</code></pre>
+            </div>
+
+            <h3>Tuplas</h3>
+            <p>Uma tupla é parecida com uma lista, pois guarda uma <strong>sequência ordenada</strong> de itens. A grande diferença é que as tuplas são <strong>imutáveis</strong>: depois de criadas, o conteúdo não pode ser alterado. Elas são definidas com <strong>parênteses</strong>. Índice, fatiamento e o operador <code>in</code> funcionam como nas listas.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">breakfast = ("pancakes", "eggs", "waffles")
+
+print(breakfast[0])           # pancakes
+print(breakfast[1:3])         # ('eggs', 'waffles')
+print("pancakes" in breakfast)   # True
+
+# breakfast[0] = "sausage"    # TypeError: tuplas não aceitam atribuição</code></pre>
+            </div>
+
+            <h3>Comparando as três coleções</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>Lista</th><th>Dicionário</th><th>Tupla</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Sintaxe</td><td><code>[ ]</code></td><td><code>{ }</code> com <code>chave: valor</code></td><td><code>( )</code></td></tr>
+                        <tr><td>Como guarda</td><td>Sequência ordenada</td><td>Pares chave-valor</td><td>Sequência ordenada</td></tr>
+                        <tr><td>Acesso</td><td>Por índice, de 0</td><td>Pela chave</td><td>Por índice, de 0</td></tr>
+                        <tr><td>Modificável?</td><td>Sim</td><td>Sim</td><td>Não, é imutável</td></tr>
+                        <tr><td>Uso típico</td><td>Sequências que mudam</td><td>Dados rotulados</td><td>Dados que ficam fixos</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> todo valor é um objeto, e os métodos são comportamentos anexados a ele pela notação de ponto. Métodos non-in-place devolvem um novo objeto, e os in-place alteram o original. Listas guardam sequências ordenadas e modificáveis, dicionários guardam dados rotulados em pares chave-valor, e tuplas guardam dados ordenados que permanecem fixos. Saber o tipo do objeto ajuda a prever quais métodos e formas de acesso existem. O próximo módulo trata dos loops.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="python-ds-de-video-3.html">&larr; Functions</a>
+            <a href="python-ds-de-video-5.html">Loops &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

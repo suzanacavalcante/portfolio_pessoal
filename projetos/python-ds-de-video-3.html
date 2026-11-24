@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo Functions do treinamento Introduction to Python for Data Science and Data Engineering.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Functions</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-python-data-science-engineering.html">&larr; Voltar ao treinamento de Python</a>
+
+    <header>
+        <h1>Functions</h1>
+        <p>Introduction to Python · Vídeo 3 de 13</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-3">
+            <p class="lead">Funções são um dos blocos de construção mais importantes do Python: permitem definir uma lógica reutilizável, manter o código organizado e evitar repetição. Este módulo cobre como definir e chamar funções, passar argumentos, usar valores padrão e <code>return</code>, documentar com type hints, comentários e docstrings, entender o escopo das variáveis, usar funções integradas e escrever funções lambda.</p>
+
+            <p>Os trechos de código abaixo são exemplos escritos por mim com base no que a demonstração descreve, não a cópia do notebook do curso. O ambiente é o mesmo dos módulos anteriores: Serverless Environment Version 5, com o ambiente base em Standard Version 5.</p>
+
+            <h3>Definindo e chamando funções</h3>
+            <p>Uma função é um bloco de código nomeado que pode ser chamado sempre que necessário. A sintaxe começa com a palavra-chave <code>def</code>, seguida do <strong>nome</strong> da função (que deve descrever o que ela faz), dos <strong>parâmetros</strong> entre parênteses e de dois-pontos. Abaixo vem o <strong>corpo</strong> da função, indentado. O <code>print</code> que já usamos é uma função integrada.</p>
+            <p>O primeiro exemplo converte uma quantia fixa de 10 dólares para euros, com taxa de 0,93. Ela não tem parâmetros, ou seja, faz um trabalho exato com uma entrada exata, o que serve para focar na estrutura.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">def ten_dollars_to_euros():
+    print(10 * 0.93)</code></pre>
+            </div>
+
+            <p>Executar essa célula guarda a definição na memória, mas <strong>nada é impresso</strong>: definir uma função não é o mesmo que chamá-la. A chamada usa o nome da função seguido de parênteses:</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">ten_dollars_to_euros()   # 9.3</code></pre>
+            </div>
+
+            <p>Ao encontrar uma chamada, o Python salta para o corpo da função, executa o código ali e depois volta para a linha imediatamente após a chamada. Por isso, uma chamada entre dois <code>print</code> aparece exatamente entre os dois na saída.</p>
+
+            <h3>Parâmetros e argumentos</h3>
+            <p>A primeira função só converte US$ 10. Em código real, a função precisa trabalhar com muitas entradas, e isso se faz com <strong>parâmetros</strong>.</p>
+            <ul>
+                <li><strong>Parâmetro:</strong> o nome da variável escrito na definição da função, um espaço reservado.</li>
+                <li><strong>Argumento:</strong> o valor real passado quando a função é chamada.</li>
+            </ul>
+
+            <div class="code-container">
+                <pre><code class="language-python">def dollars_to_euros(dollar_amount):
+    print(dollar_amount * 0.93)
+
+dollars_to_euros(5)    # 4.65
+dollars_to_euros(10)   # 9.3
+dollars_to_euros(20)   # 18.6</code></pre>
+            </div>
+            <p>A lógica é escrita uma vez e usada com dados diferentes, que é o motivo de as funções serem úteis.</p>
+
+            <h3>Vários parâmetros</h3>
+            <p>Um segundo parâmetro, <code>conversion_rate</code>, permite variar também a taxa. Ao chamar a função, é preciso dar um valor para <strong>cada</strong> parâmetro, separados por vírgula. Omitir um argumento gera um <code>TypeError</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">def dollars_to_euros_with_rate(dollar_amount, conversion_rate):
+    print(dollar_amount * conversion_rate)
+
+dollars_to_euros_with_rate(10, 0.93)   # 9.3
+dollars_to_euros_with_rate(5, 1)       # 5
+# dollars_to_euros_with_rate(5)        # TypeError: falta o argumento conversion_rate</code></pre>
+            </div>
+
+            <h3>Argumentos posicionais e nomeados</h3>
+            <p>Até aqui a posição decidia tudo: o primeiro argumento vai para o primeiro parâmetro, o segundo para o segundo. É a <strong>invocação posicional</strong>. O Python também permite nomear o parâmetro ao passar o valor, a <strong>invocação nomeada</strong>, e aí a ordem deixa de importar, porque fica claro qual valor pertence a qual parâmetro.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">dollars_to_euros_with_rate(10, conversion_rate=0.93)    # 9.3
+dollars_to_euros_with_rate(conversion_rate=0.93, dollar_amount=10)   # ordem livre
+
+# dollars_to_euros_with_rate(10, dollar_amount=0.93)
+# TypeError: dollar_amount recebeu dois valores</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>Regra:</strong> argumentos posicionais vêm primeiro, e os nomeados depois. Depois que se começa a nomear, o Python não tenta mais adivinhar pela posição. Para lembrar: começar amplo, com a posição, e ficar mais específico, com os nomes. O argumento posicional sempre tem prioridade, e dar dois valores ao mesmo parâmetro é erro.</p>
+            </div>
+
+            <h3>Valores padrão</h3>
+            <p>Um parâmetro pode ter um <strong>valor padrão</strong>, o que torna o argumento opcional. Na função abaixo, a taxa padrão é 0,93. Quem quiser pode sobrescrevê-la. Os parâmetros com padrão devem sempre vir <strong>depois</strong> dos obrigatórios na assinatura.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">def dollar_to_euro_with_default(dollar_amount, conversion_rate=0.93):
+    print(dollar_amount * conversion_rate)
+
+dollar_to_euro_with_default(10)        # usa 0.93 e imprime 9.3
+dollar_to_euro_with_default(10, 0.5)   # sobrescreve o padrão e imprime 5.0</code></pre>
+            </div>
+
+            <h3>print contra return</h3>
+            <p>Esta é uma das distinções mais importantes das funções do Python: <strong>imprimir um valor não é o mesmo que retorná-lo</strong>. O <code>print</code> exibe algo na tela, mas não devolve o valor ao restante do programa. O Python só guarda o resultado de uma chamada se a função o retornar explicitamente. Sem <code>return</code>, o resultado é <code>None</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">def dollar_to_euro_with_default(dollar_amount, conversion_rate=0.93):
+    print(dollar_amount * conversion_rate)
+
+a = dollar_to_euro_with_default(10)   # imprime 9.3 na chamada
+print(a)                              # None: a função exibiu, mas não retornou</code></pre>
+            </div>
+
+            <p>Com a palavra-chave <code>return</code>, o Python sai da função imediatamente e devolve o valor ao chamador.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">def dollar_to_euro_with_default(dollar_amount, conversion_rate=0.93):
+    return dollar_amount * conversion_rate
+
+a = dollar_to_euro_with_default(10)
+print(a)   # 9.3: agora é um valor reutilizável</code></pre>
+            </div>
+
+            <p>O valor retornado pode ser guardado em uma variável, passado para outra função, comparado em um <code>if</code> ou usado em uma expressão maior. Se a ideia é só exibir algo, <code>print</code> basta. Se o restante do programa vai trabalhar com o resultado, é preciso <code>return</code>.</p>
+
+            <h3>Type hints, comentários e docstrings</h3>
+            <p>Depois que as funções funcionam, o passo seguinte é torná-las fáceis de entender para as pessoas.</p>
+
+            <h4>Type hints</h4>
+            <p>Anotam os tipos que a função espera e devolve. Na demonstração, <code>dollar_amount</code> e <code>conversion_rate</code> são <code>float</code>, e o retorno também. Isso <strong>não faz o Python bloquear</strong> um tipo diferente: com um inteiro, a função continua funcionando. Com uma string, dá erro, mas porque a multiplicação falha, e não por causa da anotação.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">def dollar_to_euro_with_default(dollar_amount: float, conversion_rate: float = 0.93) -&gt; float:
+    return dollar_amount * conversion_rate
+
+dollar_to_euro_with_default(10)     # funciona, mesmo com int
+# dollar_to_euro_with_default("10") # erro: a multiplicação com a string falha</code></pre>
+            </div>
+
+            <h4>Comentários</h4>
+            <p>Anotações em texto simples, com <code>#</code>. O objetivo é explicar o que acontece ou, principalmente, <strong>por que</strong> algo foi escrito de certa forma. Vale evitar comentar cada linha óbvia e usar os comentários para o seu eu do futuro e para outras pessoas.</p>
+
+            <h4>Docstrings</h4>
+            <p>São mais formais que um comentário: uma string entre aspas triplas no <strong>topo do corpo</strong> da função, que descreve o que ela faz, quais parâmetros espera e o que retorna. Elas ficam guardadas na memória, e a função integrada <code>help</code> as lê, o que ajuda quando se encontra uma função desconhecida.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">def dollar_to_euro_with_default(dollar_amount: float, conversion_rate: float = 0.93) -&gt; float:
+    """Converte um valor em dólares para euros.
+
+    Parâmetros:
+        dollar_amount (float): valor em dólares.
+        conversion_rate (float): taxa de conversão. Padrão: 0.93.
+
+    Retorna:
+        float: o valor em euros.
+    """
+    return dollar_amount * conversion_rate
+
+help(dollar_to_euro_with_default)   # imprime a docstring</code></pre>
+            </div>
+
+            <h4>Genie Code com docstrings</h4>
+            <p>O Genie Code pode criar comentários e docstrings, e também funciona no sentido contrário: dá para usar comentários e docstrings como prompt para ele escrever o código. Na demonstração, a docstring foi colada em uma célula do Genie Code com o pedido "crie uma função com base nesta docstring", e ele devolveu a mesma função, com os parâmetros e o <code>return</code>.</p>
+
+            <h3>Escopo de variáveis</h3>
+            <p>Escopo é <strong>onde uma variável é visível e utilizável</strong>. Uma variável criada dentro de uma função existe só ali. Fora dela, tentar usá-la gera <code>NameError</code>, e isso é bom: o escopo mantém as variáveis contidas, para que uma parte do programa não interfira acidentalmente em outra.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">def minha_funcao():
+    func_variable = 1
+    return func_variable
+
+print(minha_funcao())   # 1
+# print(func_variable)  # NameError: a variável só existe dentro da função</code></pre>
+            </div>
+
+            <h3>Funções integradas</h3>
+            <p>O Python já traz muitas funções prontas, que poupam de reinventar ferramentas comuns. Além de <code>print</code> e <code>help</code>, a demonstração mostra duas:</p>
+            <ul>
+                <li><code>max</code>: devolve o maior de um conjunto de valores.</li>
+                <li><code>len</code> (<em>length</em>): devolve o número de itens de uma sequência.</li>
+            </ul>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(max(1, 2))    # 2
+print(len("abc"))   # 3</code></pre>
+            </div>
+            <p>E é possível chamar <code>help</code> em qualquer função integrada para saber o que ela faz.</p>
+
+            <h3>Funções lambda</h3>
+            <p>Uma lambda é uma <strong>função anônima</strong> e pequena: não tem nome definido com <code>def</code>. Serve para <strong>expressões curtas</strong>, não para lógica longa de várias etapas. Se a função está ficando complexa, <code>def</code> é a melhor escolha.</p>
+            <p>Na sintaxe, a parte antes dos dois-pontos são os parâmetros, e a parte depois é a expressão que o Python avalia e <strong>retorna automaticamente</strong>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">add_ten = lambda a: a + 10
+print(add_ten(5))    # 15
+print(add_ten(22))   # 32</code></pre>
+            </div>
+
+            <p>A lambda pode ser atribuída a uma variável e chamada como uma função comum, inclusive com valor padrão. Funciona e é compacta, mas é menos descritiva e mais difícil de documentar. Para converter dólares em euros, a própria demonstração prefere uma função com <code>def</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">dollars_to_euros_lambda = lambda dollar_amount, conversion_rate=0.93: dollar_amount * conversion_rate
+
+print(dollars_to_euros_lambda(10))        # 9.3
+print(dollars_to_euros_lambda(10, 0.5))   # 5.0</code></pre>
+            </div>
+
+            <h4>O verdadeiro poder: passar a lambda como argumento</h4>
+            <p>As lambdas brilham quando passadas diretamente para outra função. O exemplo ordena taxas de câmbio da menor para a maior com a função integrada <code>sorted</code>. Segundo o <code>help</code>, ela recebe um <strong>iterável</strong>, um objeto que devolve seus itens um de cada vez (listas, dicionários e tuplas, vistos no próximo módulo), e devolve uma nova lista em ordem crescente. A lambda diz por qual critério ordenar.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">rates = {"GBP": 0.79, "JPY": 149.50, "EUR": 0.93}
+
+sorted_rates = sorted(rates, key=lambda moeda: rates[moeda])
+
+for moeda in sorted_rates:
+    print(moeda, rates[moeda])
+# GBP 0.79
+# EUR 0.93
+# JPY 149.5</code></pre>
+            </div>
+            <p>O <code>for</code> usado para percorrer o resultado é o assunto de um módulo mais à frente.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> uma função é um bloco reutilizável. Parâmetros recebem a entrada, e argumentos são os valores reais. Valores padrão tornam entradas opcionais, e <code>return</code> devolve o resultado ao programa, o que <code>print</code> não faz. Type hints, comentários e docstrings deixam as funções mais fáceis de entender. O escopo limita onde as variáveis existem, as funções integradas poupam trabalho, e as lambdas são uma forma compacta de escrever funções curtas. O próximo módulo trata de listas, dicionários e tuplas.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="python-ds-de-video-2.html">&larr; Control Flow</a>
+            <a href="python-ds-de-video-4.html">Collection Types and Methods &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

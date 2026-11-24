@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo Libraries do treinamento Introduction to Python for Data Science and Data Engineering.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Libraries</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-python-data-science-engineering.html">&larr; Voltar ao treinamento de Python</a>
+
+    <header>
+        <h1>Libraries</h1>
+        <p>Introduction to Python · Vídeo 8 de 13</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-8">
+            <p class="lead">Bibliotecas são o que transforma o Python em uma ferramenta de dados: código pronto, escrito por outras pessoas, que se instala e se importa em vez de reescrever. Este módulo mostra como executar outro notebook com <code>%run</code>, o que é o PyPI, a diferença entre instalar e importar, os três padrões de importação, os fundamentos do NumPy e o uso do <code>help()</code>.</p>
+
+            <p>Os trechos de código abaixo são exemplos escritos por mim com base no resumo da demonstração, não a cópia do notebook do curso. O ambiente é o mesmo dos módulos anteriores: Serverless Environment Version 5, com o ambiente base em Standard Version 5.</p>
+
+            <h3>O comando mágico %run</h3>
+            <p>O <code>%run</code> executa outro notebook e traz <strong>todo o estado dele</strong> (funções, classes e variáveis) para o notebook atual. É um jeito de reaproveitar código e configurações.</p>
+            <ul>
+                <li>Deve estar <strong>no topo da célula</strong>, sem nenhum outro código Python na mesma célula.</li>
+                <li>O caminho pode ser <strong>relativo ou absoluto</strong>, e <code>..</code> sobe níveis de pasta.</li>
+            </ul>
+
+            <div class="code-container">
+                <pre><code>%run ../../includes/run_example</code></pre>
+            </div>
+            <p>Na demonstração, o notebook <code>run_example</code> define uma função <code>greet(name)</code> e imprime "Setup complete." ao rodar. Depois do <code>%run</code>, a função já está disponível no notebook atual:</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">greet("Bob")   # funciona, porque o estado do outro notebook foi trazido pelo %run</code></pre>
+            </div>
+
+            <h3>Biblioteca padrão, PyPI e instalar contra importar</h3>
+            <p>A <strong>biblioteca padrão</strong> do Python (como <code>math</code> e <code>datetime</code>) é pequena e de uso geral. Para o resto, existe o <strong>PyPI</strong> (Python Package Index), uma espécie de "app store" de código Python, com centenas de milhares de bibliotecas. Algumas das mais populares:</p>
+            <ul>
+                <li><strong>NumPy:</strong> computação numérica.</li>
+                <li><strong>Pandas:</strong> análise de dados, assunto do próximo módulo.</li>
+                <li><strong>Scikit-learn:</strong> machine learning.</li>
+                <li><strong>Matplotlib:</strong> visualização, em um módulo futuro.</li>
+            </ul>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>Instalar</th><th>Importar</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>O que faz</td><td>Baixa os arquivos da biblioteca</td><td>Torna a biblioteca disponível na sessão atual</td></tr>
+                        <tr><td>Quando</td><td>Uma vez por ambiente</td><td>A cada nova sessão ou notebook</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>O Databricks Runtime já vem com <strong>muitas bibliotecas pré-instaladas</strong>, incluindo o NumPy.</p>
+
+            <h3>%pip install</h3>
+            <p>Para bibliotecas que não vêm no runtime, usa-se o <code>%pip install</code>.</p>
+
+            <div class="code-container">
+                <pre><code>%pip install numpy</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>Atenção:</strong> o <code>%pip</code> <strong>reinicia o interpretador Python</strong>. Por isso ele deve ficar no <strong>topo do notebook</strong>, para não perder os resultados das células anteriores.</p>
+            </div>
+
+            <p>O <code>help(pip)</code> lista os comandos disponíveis, como <code>install</code>, <code>uninstall</code>, <code>freeze</code> e <code>inspect</code>. A opção <code>-h</code> é equivalente a <code>--help</code>.</p>
+
+            <h3>Três padrões de importação</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Padrão</th><th>Exemplo</th><th>Observação</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>import</code></td><td><code>import numpy</code>, depois <code>numpy.sqrt(4)</code></td><td>Notação de ponto, como nos métodos de objetos</td></tr>
+                        <tr><td><code>import ... as</code></td><td><code>import numpy as np</code>, depois <code>np.sqrt(4.0)</code></td><td><code>np</code> é a convenção universal</td></tr>
+                        <tr><td><code>from ... import</code></td><td><code>from numpy import sqrt</code></td><td>Só a função importada fica disponível</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-container">
+                <pre><code class="language-python">import numpy
+print(numpy.sqrt(4))      # 2.0
+
+import numpy as np
+print(np.sqrt(4.0))       # 2.0
+
+from numpy import sqrt
+print(sqrt(16))           # 4.0: sem prefixo, mas só o sqrt foi importado</code></pre>
+            </div>
+            <p>O Python não tem uma raiz quadrada integrada, por isso o <code>sqrt</code> vem do NumPy. Em projetos maiores e em código compartilhado, o import com alias tende a ser mais claro, e a escolha entre os três padrões é um equilíbrio entre concisão e legibilidade.</p>
+
+            <h3>Fundamentos do NumPy</h3>
+            <p>O NumPy é a base da computação numérica no Python. O Pandas é construído sobre ele, e o Scikit-learn usa arrays NumPy como formato principal. Sua estrutura central é o <strong><code>ndarray</code></strong> (N-dimensional array): todos os elementos têm o <strong>mesmo tipo</strong>, e ele é otimizado para operações matemáticas rápidas, ao contrário de uma lista comum do Python.</p>
+
+            <h4>Criando arrays</h4>
+            <div class="code-container">
+                <pre><code class="language-python">import numpy as np
+
+print(np.array([1, 2, 3, 4, 5]))              # 1D
+print(np.array([[1, 2, 3], [4, 5, 6]]))       # 2D: 2 linhas x 3 colunas
+
+print(np.zeros(4))          # [0. 0. 0. 0.]: espaço reservado
+print(np.ones(3))           # [1. 1. 1.]
+print(np.arange(0, 10, 2))  # [0 2 4 6 8]: equivalente ao range</code></pre>
+            </div>
+
+            <h4>O dtype</h4>
+            <p>O array tem um tipo de dado, o <code>dtype</code>. Ele é inferido dos valores (geralmente <code>int64</code> para inteiros e <code>float64</code> para floats), e também pode ser definido explicitamente:</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(np.array([1, 2, 3]).dtype)                    # int64
+print(np.array([1.0, 2.0, 3.0]).dtype)              # float64
+print(np.array([1, 2, 3], dtype=np.float32).dtype)  # float32</code></pre>
+            </div>
+
+            <h4>Indexação e fatiamento</h4>
+            <p>Funcionam como nas listas, e também em arrays 2D:</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">arr = np.array([10, 20, 30, 40, 50])
+
+print(arr[0])      # 10
+print(arr[-1])     # 50
+print(arr[1:4])    # [20 30 40]
+print(arr[::2])    # [10 30 50]
+print(arr[::-1])   # [50 40 30 20 10]
+
+arr2d = np.array([[1, 2, 3], [4, 5, 6]])
+print(arr2d[1, 2])   # 6: linha 1, coluna 2</code></pre>
+            </div>
+
+            <h3>Funções de agregação</h3>
+            <p>Funções como <code>sum</code>, <code>mean</code>, <code>max</code>, <code>min</code> e o desvio padrão (<code>std</code>) operam sobre o array inteiro <strong>em uma única chamada</strong>. Usam código compilado e otimizado, não laços do Python, e por isso são rápidas.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">grades = np.array([7.5, 8.0, 6.5, 9.0, 8.5])
+
+print(grades.sum())    # 39.5
+print(grades.mean())   # 7.9
+print(grades.max())    # 9.0
+print(grades.min())    # 6.5
+print(grades.std())    # desvio padrão</code></pre>
+            </div>
+
+            <h3>help()</h3>
+            <p>Ler documentação é tão importante quanto escrever código. O <code>help(np)</code> mostra a documentação do pacote, e o <code>help(np.sqrt)</code> mostra os parâmetros e o retorno de uma função específica.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">help(np.sqrt)</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o PyPI é o repositório online de pacotes, com centenas de milhares de bibliotecas. O <code>%pip install</code> instala no notebook e deve ficar no topo, porque reinicia o interpretador. Os três padrões de importação (<code>import</code>, <code>import as</code> e <code>from import</code>) trocam concisão por legibilidade. Os arrays NumPy são uma alternativa rápida, de tipo consistente e multidimensional às listas, e o <code>help()</code> dá a documentação na hora. O próximo módulo trata do Pandas, para análise de dados.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="python-ds-de-video-7.html">&larr; Classes</a>
+            <a href="python-ds-de-video-9.html">Pandas Overview &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo Control Flow do treinamento Introduction to Python for Data Science and Data Engineering.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Control Flow</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-python-data-science-engineering.html">&larr; Voltar ao treinamento de Python</a>
+
+    <header>
+        <h1>Control Flow</h1>
+        <p>Introduction to Python · Vídeo 2 de 13</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-2">
+            <p class="lead">Este módulo mostra como o Python decide quais linhas de código executar e quais ignorar. Ao final, é possível descrever o fluxo de controle de um programa, explicar como <code>if</code>, <code>elif</code>, <code>else</code> e <code>pass</code> alteram a ordem de execução, explicar o papel da indentação e combinar operadores booleanos e de comparação em condições expressivas.</p>
+
+            <p>Os trechos de código abaixo são exemplos escritos por mim com base no que a demonstração descreve, não a cópia do notebook do curso. O ambiente é o mesmo do módulo anterior: Serverless Environment Version 5, com o ambiente base em Standard Version 5.</p>
+
+            <h3>if e else: escolhendo um caminho</h3>
+            <p>Por padrão, o Python executa o código <strong>sequencialmente, de cima para baixo</strong>. A instrução <code>if</code> altera esse fluxo: avalia uma expressão booleana e escolhe um de dois caminhos. Se a expressão for <code>True</code>, executa o bloco 1. Se não for, executa o bloco 2, do <code>else</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">if True:
+    print("true")
+else:
+    print("false")     # se fosse "if False:", este bloco é que rodaria</code></pre>
+            </div>
+
+            <p>Um exemplo mais prático da demonstração: uma célula cria um widget de texto no topo do notebook, que pede um número de 1 a 10. Digitando 8, outra célula lê a entrada como inteiro e verifica se ela está entre 1 e 10, imprimindo <code>Valid Input</code> ou <code>Invalid Input</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">numero = 8
+
+if numero &gt;= 1 and numero &lt;= 10:
+    print("Valid Input")
+else:
+    print("Invalid Input")</code></pre>
+            </div>
+
+            <h3>A indentação faz parte da sintaxe</h3>
+            <p>No Python, a indentação não é enfeite: é ela que define <strong>quais linhas pertencem ao bloco</strong> de um <code>if</code> ou <code>else</code>. Com a indentação errada, o código pode se comportar de forma inesperada ou dar um erro de indentação (<code>IndentationError</code>).</p>
+            <ul>
+                <li>O padrão são <strong>4 espaços</strong> para cada nível de indentação.</li>
+                <li>Na maioria dos editores, a tecla Tab insere o espaçamento correto.</li>
+            </ul>
+
+            <h3>Operadores de comparação</h3>
+            <p>As condições usam expressões booleanas. Além dos operadores lógicos <code>and</code>, <code>or</code> e <code>not</code>, existem os operadores de comparação:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Operador</th><th>Significado</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>==</code></td><td>igual a</td></tr>
+                        <tr><td><code>!=</code></td><td>diferente de</td></tr>
+                        <tr><td><code>&lt;</code> e <code>&gt;</code></td><td>menor que e maior que</td></tr>
+                        <tr><td><code>&lt;=</code> e <code>&gt;=</code></td><td>menor ou igual a e maior ou igual a</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Atenção:</strong> o sinal de igual simples (<code>=</code>) é para <strong>atribuir</strong> valor a uma variável. A comparação de igualdade usa o igual duplo (<code>==</code>).</p>
+            </div>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(1 == 1)          # True
+print(1.5 != 2.5)      # True
+print("abc" == "xyz")  # False
+print(True == True)    # True</code></pre>
+            </div>
+
+            <h3>Aninhamento: um if dentro de outro</h3>
+            <p>O código dentro de um bloco <code>if</code> ou <code>else</code> pode ser qualquer Python válido, inclusive outro <code>if</code>. Isso se chama <strong>aninhamento</strong>. O exemplo da demonstração é a decisão de comprar um almoço, com orçamento de US$ 15 e um almoço que custa US$ 20:</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">preco_almoco = 20
+
+if preco_almoco &lt;= 15:
+    print("Vamos comprar")
+else:
+    if preco_almoco &lt; 25:
+        print("Is it really good?")
+    else:
+        print("This better be the best food of all time")</code></pre>
+            </div>
+            <p>Com o preço em 20, a saída é <code>Is it really good?</code>.</p>
+
+            <h3>elif: encadear sem aumentar a indentação</h3>
+            <p>A palavra-chave <code>elif</code> permite encadear várias condições sem criar níveis a mais de indentação. O Python as avalia <strong>de cima para baixo e para na primeira condição verdadeira</strong>. Se nenhuma for verdadeira, executa o <code>else</code>, se houver.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">preco_almoco = 15
+
+if preco_almoco == 10:
+    print("Vamos comprar")
+elif preco_almoco &lt;= 15:
+    print("Vamos comprar mesmo assim")
+elif preco_almoco &lt; 25:
+    print("Is it really good?")
+else:
+    print("This better be the best food of all time")</code></pre>
+            </div>
+            <p>Com o preço em 15, a primeira condição falha e a segunda é verdadeira, então o Python imprime a mensagem de compra e não avalia as demais.</p>
+
+            <h3>pass: o espaço reservado</h3>
+            <p>Às vezes é útil esboçar a estrutura do programa antes de escrever a lógica. A instrução <code>pass</code> é um <strong>espaço reservado que não faz nada</strong> (no-op), mas mantém o código sintaticamente válido. Não gera saída nem erro, e funciona como um marcador de tarefa pendente.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">if preco_almoco &lt;= 15:
+    pass   # a lógica entra aqui depois
+else:
+    pass   # e aqui também</code></pre>
+            </div>
+
+            <h3>Juntando tudo: recomendando uma raça de cachorro</h3>
+            <p>O programa combina <code>if</code>, <code>elif</code>, operadores de comparação e lógica booleana com três entradas: <code>dog_person</code> e <code>cat_person</code> (booleanos) e <code>age</code> (inteiro). Quem tem menos de 18 anos precisa pedir permissão aos pais. Para os demais, a recomendação depende das duas primeiras:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>dog_person</th><th>cat_person</th><th>Saída</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>True</td><td>True</td><td>Golden Retriever, porque se dá bem com gatos</td></tr>
+                        <tr><td>True</td><td>False</td><td>Scottish Deerhound</td></tr>
+                        <tr><td>False</td><td>True</td><td>You're barking up the wrong tree.</td></tr>
+                        <tr><td>False</td><td>False</td><td>Are you sure a pet is right for you?</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Versão aninhada</h4>
+            <div class="code-container">
+                <pre><code class="language-python">dog_person = True
+cat_person = True
+age = 30
+
+if age &lt; 18:
+    print("Ask your parents for permission")
+else:
+    if dog_person and cat_person:
+        print("Golden Retriever")
+    else:
+        if dog_person and not cat_person:
+            print("Scottish Deerhound")
+        else:
+            if cat_person and not dog_person:
+                print("You're barking up the wrong tree.")
+            else:
+                print("Are you sure a pet is right for you?")</code></pre>
+            </div>
+
+            <h4>Versão achatada (flattening)</h4>
+            <p>A mesma lógica pode ser escrita de forma mais concisa trocando a estrutura aninhada por <code>elif</code>. Esse processo se chama <strong>achatamento</strong> (flattening). O código fica bem mais fácil de ler e evita os níveis de indentação que podem se multiplicar quando há muitos <code>if</code> e <code>else</code>. Nos dois casos, a saída é <code>Golden Retriever</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">if age &lt; 18:
+    print("Ask your parents for permission")
+elif dog_person and cat_person:
+    print("Golden Retriever")
+elif dog_person:
+    print("Scottish Deerhound")
+elif cat_person:
+    print("You're barking up the wrong tree.")
+else:
+    print("Are you sure a pet is right for you?")</code></pre>
+            </div>
+
+            <h3>Gerando o código com o Genie Code</h3>
+            <p>O <strong>Genie Code</strong> é o assistente de IA integrado ao Databricks, o mesmo colega de IA visto no treinamento Fundamentals. Ele gera a mesma lógica a partir de um prompt em linguagem natural.</p>
+            <ul>
+                <li>Para acessá-lo, clique no assistente do lado direito, chamado Genie Code.</li>
+                <li>Na parte inferior, selecione <strong>Agent</strong>, não Chat.</li>
+                <li>Também é possível abrir uma célula do Genie Code no notebook: ao adicionar uma célula, as opções são código (Python), texto (markdown) e Genie Code. Cole o prompt e clique em <strong>Generate</strong>.</li>
+                <li>O código gerado pode ser aceito e executado. Na demonstração, ficou muito parecido, se não idêntico, ao escrito à mão, e um segundo prompt gerou a versão achatada com <code>elif</code>.</li>
+            </ul>
+
+            <h4>Boas práticas para prompts</h4>
+            <ul>
+                <li>Descrever o objetivo com clareza.</li>
+                <li>Especificar variáveis, datasets e colunas.</li>
+                <li>Indicar as preferências de saída.</li>
+                <li>Fazer perguntas de acompanhamento.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> <code>if</code> escolhe o caminho a partir de uma expressão booleana, a indentação (4 espaços) define o bloco, <code>elif</code> encadeia condições sem aninhar e para na primeira verdadeira, e <code>pass</code> segura o lugar da lógica que ainda não existe. Os operadores de comparação (<code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>) se combinam com <code>and</code>, <code>or</code> e <code>not</code>. O próximo módulo trata das funções.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="python-ds-de-video-1.html">&larr; Data Type and Variables</a>
+            <a href="python-ds-de-video-3.html">Functions &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

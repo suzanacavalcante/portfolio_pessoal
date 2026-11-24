@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo Cloud Computing do treinamento Introduction to Python for Data Science and Data Engineering.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Cloud Computing</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-python-data-science-engineering.html">&larr; Voltar ao treinamento de Python</a>
+
+    <header>
+        <h1>Cloud Computing</h1>
+        <p>Introduction to Python · Vídeo 13 de 13</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-13">
+            <p class="lead">Este é o último módulo com demonstração do treinamento e responde a uma pergunta que atravessa todos os outros: onde o código realmente roda? Ele compara a computação local, a on-premise e a em nuvem, explica máquinas virtuais e armazenamento em nuvem, mostra como o Databricks se encaixa com o Spark e o Unity Catalog e termina com o controle de versão, com Git e GitHub.</p>
+
+            <p>Os trechos de código abaixo são exemplos escritos por mim com base no resumo da demonstração, não a cópia do notebook do curso. O ambiente é o de sempre: Serverless Environment Version 5, com o ambiente base em Standard Version 5.</p>
+
+            <h3>Onde o código roda: local e on-premise</h3>
+
+            <h4>Local</h4>
+            <p>É o laptop ou o desktop, com Jupyter, VS Code ou scripts na linha de comando. A memória (RAM), o armazenamento e a CPU são <strong>fixos</strong>. Serve bem para CSVs e planilhas com alguns milhares de linhas, mas não para logs, clickstream, telemetria de IoT e transações contínuas.</p>
+
+            <h4>On-premise</h4>
+            <p>A organização compra e opera os próprios servidores em um data center. Há mais poder e controle, e o hardware pode ser dedicado. Em contrapartida, é preciso comprar, instalar, manter, aplicar patches, proteger, monitorar e planejar a capacidade.</p>
+            <ul>
+                <li>Subestimar a capacidade prejudica o desempenho, e superestimar deixa máquinas caras ociosas.</li>
+                <li>Escalar é <strong>lento</strong>: aquisição, rede e implantação levam tempo.</li>
+            </ul>
+
+            <h3>Computação em nuvem</h3>
+            <p>Na nuvem, aluga-se compute e armazenamento de um provedor (AWS, Azure ou Google Cloud): pedem-se recursos quando necessário e liberam-se quando acaba. Há três vantagens:</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">1</span>
+                    <h4>Custo inicial menor</h4>
+                    <p>Não é preciso comprar hardware antes de começar.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">2</span>
+                    <h4>Elasticidade</h4>
+                    <p>Escalar para cima e para baixo conforme a demanda.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">3</span>
+                    <h4>Acessibilidade</h4>
+                    <p>Equipes em locais diferentes usam a mesma plataforma.</p>
+                </div>
+            </div>
+
+            <div class="callout">
+                <p><strong>Atenção:</strong> a nuvem <strong>não é sempre mais barata</strong>. A economia é mais flexível quando a demanda varia.</p>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>Local</th><th>On-premise</th><th>Nuvem</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Quem tem o hardware</td><td>Você, no seu laptop</td><td>A organização, em um data center</td><td>O provedor</td></tr>
+                        <tr><td>Capacidade</td><td>Fixa</td><td>Fixa, e escalar é lento</td><td>Elástica</td></tr>
+                        <tr><td>Bom para</td><td>Dados pequenos</td><td>Controle e hardware dedicado</td><td>Demanda variável e dados grandes</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Máquinas virtuais (VMs)</h3>
+            <p>Uma VM é um computador <strong>definido por software</strong> (CPU, memória, armazenamento e rede), criado sobre um servidor físico maior. Um servidor hospeda várias VMs, isoladas entre si. O provedor pode criar, redimensionar ou desligar VMs sob demanda, o que se chama de <strong>compute elástico</strong>.</p>
+            <p>No Databricks, o seu código <strong>não roda na CPU do seu laptop</strong>: ele orquestra compute em nuvem, muitas vezes em VMs, em seu nome.</p>
+
+            <h3>Armazenamento em nuvem</h3>
+            <p>Na nuvem, <strong>compute e armazenamento são separados</strong>. O armazenamento costuma ser <em>object storage</em>, que guarda CSVs, Parquet, imagens, vídeos, PDFs, logs e artefatos de machine learning, e escala bem.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Provedor</th><th>Object storage</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>AWS</td><td>Amazon S3</td></tr>
+                        <tr><td>Azure</td><td>Azure Data Lake Storage Gen2</td></tr>
+                        <tr><td>Google Cloud</td><td>Google Cloud Storage</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>A ideia-chave: <strong>o compute vem e vai, e os dados ficam</strong>. Sobe-se um ambiente por uma hora, processam-se dados do S3, gravam-se os resultados e desliga-se o compute. O Databricks lê e escreve no object storage e gerencia a camada de compute separadamente.</p>
+
+            <h3>Databricks sobre a nuvem, com o Spark</h3>
+            <p>O Databricks roda <strong>em cima</strong> do provedor de nuvem e não o substitui. Oferece um workspace integrado, com notebooks, pipelines, jobs agendados, treino de modelos de machine learning e dashboards, tudo com governança. Ele abstrai grande parte da complexidade da infraestrutura, e é uma plataforma compartilhada entre engenheiros, analistas, cientistas e usuários de negócio.</p>
+
+            <h4>Apache Spark</h4>
+            <p>O Spark é o <strong>motor de compute distribuído</strong>: divide um dataset grande em <strong>partições</strong>, distribui entre várias máquinas e processa em paralelo. No cluster, há dois papéis:</p>
+            <ul>
+                <li>o <strong>driver</strong> coordena: planeja o job e envia as tarefas;</li>
+                <li>os <strong>workers</strong> processam as partições.</li>
+            </ul>
+            <p>No <strong>serverless compute</strong>, boa parte do gerenciamento de cluster some: você roda o código, e a plataforma provisiona e escala os recursos.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 305" role="img" aria-label="O Unity Catalog governa o driver e os workers do Spark, que leem e gravam no object storage da nuvem">
+                    <defs>
+                        <marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <g stroke="#b6b6c3" stroke-width="1.5" fill="none" marker-end="url(#c1)">
+                        <line x1="360" y1="130" x2="135" y2="168"/>
+                        <line x1="360" y1="130" x2="360" y2="168"/>
+                        <line x1="360" y1="130" x2="585" y2="168"/>
+                        <line x1="135" y1="220" x2="135" y2="252"/>
+                        <line x1="360" y1="220" x2="360" y2="252"/>
+                        <line x1="585" y1="220" x2="585" y2="252"/>
+                    </g>
+                    <g font-size="13" font-weight="700">
+                        <rect x="15" y="10" width="690" height="46" rx="12" fill="#1b1b29" stroke="#e0388f" stroke-width="2"/>
+                        <text x="360" y="32" text-anchor="middle">Unity Catalog</text>
+                        <text x="360" y="48" text-anchor="middle" font-size="11" class="muted">catálogo.schema.objeto · permissões · descoberta</text>
+
+                        <rect x="270" y="80" width="180" height="50" rx="12" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="360" y="103" text-anchor="middle">Driver</text>
+                        <text x="360" y="120" text-anchor="middle" font-size="11" class="muted">planeja e coordena</text>
+
+                        <rect x="45" y="170" width="180" height="50" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="135" y="193" text-anchor="middle">Worker</text>
+                        <text x="135" y="210" text-anchor="middle" font-size="11" class="muted">processa partições</text>
+                        <rect x="270" y="170" width="180" height="50" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="360" y="193" text-anchor="middle">Worker</text>
+                        <text x="360" y="210" text-anchor="middle" font-size="11" class="muted">processa partições</text>
+                        <rect x="495" y="170" width="180" height="50" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="585" y="193" text-anchor="middle">Worker</text>
+                        <text x="585" y="210" text-anchor="middle" font-size="11" class="muted">processa partições</text>
+
+                        <rect x="15" y="254" width="690" height="40" rx="12" fill="#201a33" stroke="#b6b6c3" stroke-width="2"/>
+                        <text x="360" y="279" text-anchor="middle" font-size="12">Object storage na nuvem (S3, ADLS Gen2 ou Google Cloud Storage)</text>
+                    </g>
+                </svg>
+                <figcaption>O compute (driver e workers) vem e vai. Os dados ficam no object storage, e o Unity Catalog governa o acesso</figcaption>
+            </div>
+
+            <h3>Unity Catalog</h3>
+            <p>É a camada de <strong>governança unificada</strong>: o Spark cuida do compute, e o Unity Catalog cuida da organização, das permissões e da descoberta.</p>
+            <p>Os objetos são endereçados por um <strong>namespace de três níveis</strong>: <code>catálogo.schema.objeto</code>, em que o objeto pode ser uma tabela, uma view ou uma função. Um exemplo do curso é <code>dbacademy.labuser....sf_airbnb</code>.</p>
+
+            <p>A exploração pode ser feita com SQL: listar catálogos, listar os schemas de um catálogo e listar as tabelas de um schema.</p>
+
+            <div class="code-container">
+                <pre><code>SHOW CATALOGS;
+
+SHOW SCHEMAS IN samples;
+
+SHOW TABLES IN samples.tpch;</code></pre>
+            </div>
+
+            <p>No exemplo do catálogo <code>samples</code> e do schema <code>tpch</code>, a demonstração lista 9 tabelas, entre elas <code>customer</code>, <code>lineitem</code>, <code>nation</code>, <code>orders</code> e <code>part</code>. A lição é que os dados são <strong>organizados, governados e referenciados por um namespace formal</strong>, o que facilita a colaboração e a segurança em escala.</p>
+
+            <h3>Git e GitHub</h3>
+            <ul>
+                <li><strong>Git</strong> é um sistema de controle de versão: registra as mudanças, permite reverter erros, criar <em>branches</em> e fazer <em>merge</em>.</li>
+                <li><strong>GitHub</strong> é a plataforma hospedada de repositórios Git, com colaboração e revisão por <em>pull requests</em>.</li>
+            </ul>
+            <p>O controle de versão vale para notebooks, scripts, SQL e arquivos de configuração. O Databricks integra provedores Git por meio das <strong>Git folders</strong>.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o código pode rodar localmente, on-premise ou na nuvem, e a nuvem traz custo inicial menor, elasticidade e acessibilidade, nem sempre com menor custo. VMs dão compute elástico, e o object storage guarda os dados separados do compute. O Databricks fica sobre a nuvem, com o Spark (driver e workers) para o compute distribuído, o serverless para tirar o gerenciamento de cluster e o Unity Catalog para a governança. Git e GitHub cuidam do controle de versão. Esta é a última demonstração do curso, e o módulo final traz recursos adicionais.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="python-ds-de-video-12.html">&larr; Scaling Pandas with Spark</a>
+            <a href="databricks-academy-python-data-science-engineering.html">Voltar ao índice &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

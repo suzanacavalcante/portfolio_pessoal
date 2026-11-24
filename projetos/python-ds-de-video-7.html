@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo Classes do treinamento Introduction to Python for Data Science and Data Engineering.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Classes</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-python-data-science-engineering.html">&larr; Voltar ao treinamento de Python</a>
+
+    <header>
+        <h1>Classes</h1>
+        <p>Introduction to Python · Vídeo 7 de 13</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-7">
+            <p class="lead">Este módulo apresenta as classes, a base da programação orientada a objetos no Python. Ao final, é possível definir e instanciar classes, usar atributos de instância, criar métodos, entender o papel do <code>self</code> e distinguir uma função de um método. Também aparece a herança, que permite reaproveitar código entre classes.</p>
+
+            <p>Os trechos de código abaixo são exemplos escritos por mim com base no resumo da demonstração, não a cópia do notebook do curso. O ambiente é o mesmo dos módulos anteriores: Serverless Environment Version 5.</p>
+
+            <h3>O que é uma classe</h3>
+            <p>Uma classe é um <strong>modelo para criar objetos</strong>. Uma boa imagem é a do cortador de biscoitos: ele define o formato, mas não é o biscoito. Os valores que já usamos são instâncias de classes integradas: <code>42</code> é uma instância de <code>int</code>, <code>"hello"</code> de <code>str</code> e <code>[1, 2, 3]</code> de <code>list</code>.</p>
+            <p>A sintaxe é <code>class NomeDaClasse():</code>, com o nome em <strong>Pascal case</strong> (CapWords): cada palavra com inicial maiúscula e sem sublinhados.</p>
+
+            <h3>Instanciação</h3>
+            <p>Uma classe com só um <code>pass</code> cria apenas o modelo, sem comportamento. <strong>Instanciar</strong> é chamar a classe como se fosse uma função, o que cria um objeto. A função <code>type</code> mostra de qual classe ele é, e no notebook a classe aparece como <code>__main__.Dog</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">class Dog:
+    pass
+
+my_dog = Dog()          # instanciação
+print(type(my_dog))     # &lt;class '__main__.Dog'&gt;</code></pre>
+            </div>
+            <p>O padrão de trabalho é: definir a classe, instanciar e usar a instância.</p>
+
+            <h3>Funções são objetos de primeira classe</h3>
+            <p>No Python, funções também são objetos. Atribuir uma função a outra variável <strong>sem parênteses</strong> não a executa: só dá um segundo nome a ela.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">def greet():
+    print("Hello!")
+
+say_hello = greet   # sem parênteses: outro nome para a mesma função
+say_hello()         # Hello!</code></pre>
+            </div>
+            <p>Isso importa porque <strong>métodos são funções guardadas como atributos da classe</strong>.</p>
+
+            <h3>Métodos</h3>
+            <p>Um método é uma função que pertence a uma classe. Ele fica <strong>indentado dentro da classe</strong>, o primeiro parâmetro é sempre <code>self</code>, e é chamado no objeto com a notação de ponto: <code>objeto.metodo(argumentos)</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">class Dog:
+    def bark(self):
+        print("Woof!")
+
+my_dog = Dog()
+my_dog.bark()   # Woof!</code></pre>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>Função</th><th>Método</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Definição</td><td><code>def</code></td><td><code>def</code>, dentro da classe</td></tr>
+                        <tr><td>Primeiro parâmetro</td><td>Qualquer um</td><td><code>self</code></td></tr>
+                        <tr><td>Como é chamado</td><td>Pelo nome: <code>greet()</code></td><td>No objeto: <code>my_dog.bark()</code></td></tr>
+                        <tr><td>A quem pertence</td><td>Ao escopo do módulo</td><td>À classe</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>O papel do self</h3>
+            <ul>
+                <li><strong>Nunca se passa o <code>self</code> explicitamente</strong>: o Python passa o próprio objeto automaticamente.</li>
+                <li>O <code>self</code> <strong>não é uma palavra-chave</strong>, é uma convenção, seguida por todo mundo.</li>
+                <li>Ele representa <strong>a instância que chamou o método</strong>.</li>
+            </ul>
+            <p>Para ver isso, o exemplo da demonstração imprime o mesmo endereço de memória dentro e fora do método:</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">class Dog:
+    def show_self(self):
+        print(id(self))      # endereço do objeto, visto de dentro do método
+
+my_dog = Dog()
+my_dog.show_self()
+print(id(my_dog))            # o mesmo número: self e my_dog são o mesmo objeto</code></pre>
+            </div>
+
+            <h3>Atributos e o __init__</h3>
+            <p>O <code>__init__</code> (chamado de <em>dunder</em>, por causa dos dois sublinhados de cada lado) é o <strong>construtor</strong>: roda automaticamente ao criar a instância. O padrão é receber os argumentos e guardá-los na instância com <code>self.arg = arg</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">class DogWithAttributes:
+    def __init__(self, name, color):
+        print("__init__ executou")
+        self.name = name
+        self.color = color
+
+my_dog = DogWithAttributes("Rex", "brown")   # imprime: __init__ executou</code></pre>
+            </div>
+            <p>O <code>print</code> dentro do construtor confirma que ele roda sozinho, sem ninguém chamá-lo.</p>
+
+            <h3>Acessando atributos</h3>
+            <p>Os atributos são acessados com a notação de ponto <strong>sem parênteses</strong>: <code>my_dog.name</code>. Cada instância tem os <strong>seus próprios valores</strong>. Os métodos leem os atributos pelo <code>self</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">class DogWithAttributes:
+    def __init__(self, name, color):
+        self.name = name
+        self.color = color
+
+    def return_name(self):
+        return self.name
+
+    def return_color(self):
+        return self.color
+
+my_dog = DogWithAttributes("Rex", "brown")
+print(my_dog.name)            # Rex
+print(my_dog.return_color())  # brown</code></pre>
+            </div>
+
+            <h3>Atualizando atributos</h3>
+            <p>Um método pode alterar o estado do objeto. Aqui, <code>update_name</code> guarda um novo nome em <code>self.name</code>. A mudança vale <strong>só para aquela instância</strong>: um segundo cachorro não é afetado.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">class DogWithAttributes:
+    def __init__(self, name, color):
+        self.name = name
+        self.color = color
+
+    def update_name(self, new_name):
+        self.name = new_name
+
+my_dog = DogWithAttributes("Rex", "brown")
+other_dog = DogWithAttributes("Fido", "black")
+
+my_dog.update_name("Ruffles")
+print(my_dog.name)      # Ruffles
+print(other_dog.name)   # Fido: não foi afetado</code></pre>
+            </div>
+
+            <h3>Interação entre instâncias</h3>
+            <p>Um método também pode receber outro objeto como argumento e usar os atributos dele, ao lado dos do próprio <code>self</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">class DogWithAttributes:
+    def __init__(self, name, color):
+        self.name = name
+        self.color = color
+
+    def return_both_names(self, other_dog_object):
+        return f"{self.name} and {other_dog_object.name}"
+
+rex = DogWithAttributes("Rex", "brown")
+ruffles = DogWithAttributes("Ruffles", "black")
+print(rex.return_both_names(ruffles))   # Rex and Ruffles</code></pre>
+            </div>
+
+            <h3>Herança</h3>
+            <p>A herança permite criar uma classe a partir de outra, com a sintaxe <code>class Filha(Pai):</code>. A classe filha também é chamada de <strong>subclasse</strong>, e a classe pai de <strong>superclasse</strong>. A filha pode <strong>reaproveitar</strong>, <strong>sobrescrever</strong> e <strong>estender</strong> o que herda. Para chamar o construtor da pai, usa-se <code>super().__init__()</code>.</p>
+            <p>O exemplo da demonstração tem uma classe <code>Animal</code> com o método <code>speak()</code>, um <code>Dog</code> que herda de <code>Animal</code> (som "woof", uma cor e o método <code>fetch()</code>) e um <code>Cat</code> que herda de <code>Animal</code> (som "meow").</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">class Animal:
+    def __init__(self, name, sound):
+        self.name = name
+        self.sound = sound
+
+    def speak(self):
+        print(f"{self.name} says {self.sound}")
+
+class Dog(Animal):
+    def __init__(self, name, color, sound="woof"):
+        super().__init__(name, sound)   # reaproveita o construtor da pai
+        self.color = color
+
+    def fetch(self):                    # método só do Dog: estende a pai
+        print(f"{self.name} fetches the ball")
+
+class Cat(Animal):
+    def __init__(self, name, sound="meow"):
+        super().__init__(name, sound)
+
+my_dog = Dog("Rex", "brown")
+my_cat = Cat("Mia")
+
+my_dog.speak()   # Rex says woof
+my_cat.speak()   # Mia says meow
+my_dog.fetch()   # Rex fetches the ball
+
+my_dog.sound = "Bark"   # sobrescreve o atributo só nesta instância
+my_dog.speak()          # Rex says Bark</code></pre>
+            </div>
+
+            <p>A vantagem é que a lógica comum fica <strong>em um só lugar</strong>: uma correção na classe pai vale para todas as filhas.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> a classe é o modelo, e o objeto é a instância criada a partir dele. Métodos são funções da classe, e recebem o <code>self</code> automaticamente. O <code>__init__</code> constrói a instância e guarda os atributos, que são acessados com ponto e sem parênteses, e cada instância tem os seus. Na herança, a filha reaproveita, sobrescreve e estende a pai, com o <code>super()</code>. O próximo módulo trata de instalar, importar e usar bibliotecas do Python.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="python-ds-de-video-6.html">&larr; Errors and Exceptions</a>
+            <a href="python-ds-de-video-8.html">Libraries &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

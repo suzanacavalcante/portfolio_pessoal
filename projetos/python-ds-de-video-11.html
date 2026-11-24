@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo Data Visualization do treinamento Introduction to Python for Data Science and Data Engineering.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Data Visualization</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-python-data-science-engineering.html">&larr; Voltar ao treinamento de Python</a>
+
+    <header>
+        <h1>Data Visualization</h1>
+        <p>Introduction to Python · Vídeo 11 de 13</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-11">
+            <p class="lead">Olhar os números nem sempre basta: gráficos mostram formas, grupos e valores fora do padrão que uma tabela esconde. Este módulo apresenta três formas de visualizar dados com o dataset do Airbnb de San Francisco: o <code>display()</code> do Databricks para exploração interativa, a plotagem direto do Pandas (histograma e box plot) e o Seaborn (scatter e regression plot), com o cálculo da correlação de Pearson no SciPy.</p>
+
+            <p>Os trechos de código abaixo são exemplos escritos por mim com base no resumo da demonstração, não a cópia do notebook do curso. Para poderem ser executados por quem ler, eles usam dados sintéticos gerados no próprio código, em vez do dataset do curso. Por isso os valores que você obtiver serão diferentes dos citados na demonstração, e esses aparecem só no texto.</p>
+
+            <h3>Setup</h3>
+            <p>O ambiente é o de sempre: Serverless Environment Version 5, com o ambiente base em Standard Version 5. A célula de configuração carrega os datasets e cria o objeto <code>DA</code>. Depois conferem-se o usuário, o catálogo (<code>dbacademy</code>) e o schema (<code>labuser...</code>), e listam-se as tabelas <code>ca_housing</code> e <code>sf_airbnb</code>. Por fim, importa-se o Pandas e carrega-se o DataFrame do Airbnb.</p>
+
+            <p>Para os exemplos abaixo, os dados sintéticos são estes:</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">import numpy as np
+import pandas as pd
+
+rng = np.random.default_rng(42)
+
+bedrooms = rng.choice([0, 1, 2, 3, 4], size=300, p=[0.1, 0.5, 0.25, 0.1, 0.05])
+bathrooms = np.clip(bedrooms * 0.4 + rng.normal(1, 0.5, size=300), 0.5, None)
+
+df = pd.DataFrame({"bedrooms": bedrooms, "bathrooms": bathrooms.round(1)})</code></pre>
+            </div>
+
+            <h3>display(): visualização interativa</h3>
+            <p>O <code>display(df)</code>, exclusivo do Databricks, gera uma <strong>tabela interativa</strong>: as URLs ficam clicáveis, e os valores ausentes aparecem como <code>null</code>. Dela dá para criar um gráfico sem escrever código:</p>
+            <ol>
+                <li>Clicar no <strong>+</strong> ao lado de "Table" e escolher <strong>Visualization</strong>.</li>
+                <li>O tipo padrão é um gráfico de barras, e há uma opção horizontal.</li>
+                <li>Colocar <code>neighborhood</code> no eixo X e <code>bedrooms</code> no Y, mudando a agregação de soma para <strong>média</strong>. O resultado é a média de quartos por bairro, a maioria entre 1 e 2.</li>
+                <li>Ao clicar em <strong>Save</strong>, o Databricks processa o dataset completo, e não só uma amostra de cerca de 1.000 linhas.</li>
+            </ol>
+            <p>O menu do gráfico permite baixar, remover, duplicar, renomear, editar e adicionar a um dashboard.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">display(df)   # no Databricks: tabela interativa, com o + para criar gráficos</code></pre>
+            </div>
+
+            <h3>Plotagem com Pandas</h3>
+            <p>Plotar em código é <strong>reprodutível, automatizável</strong> e pronto para relatórios. O Pandas usa o Matplotlib por baixo, sem precisar de um import separado, e o visual é mais básico que o do Seaborn.</p>
+
+            <h4>Histograma</h4>
+            <p>O <code>hist()</code> divide os valores em intervalos (<strong>bins</strong>) e conta as observações de cada um. Ajuda a ver agrupamentos, simetria ou assimetria, lacunas e valores fora do padrão (outliers).</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">df["bedrooms"].hist()          # bins padrão
+df["bedrooms"].hist(bins=20)   # visão mais fina</code></pre>
+            </div>
+
+            <ul>
+                <li>No dataset do curso, a distribuição é <strong>assimétrica à direita</strong>: o pico fica em 1 quarto e a cauda segue para a direita. A maioria das listagens é de quartos individuais e estúdios.</li>
+                <li>Há mais de 4.000 listagens de 1 quarto e um pico menor em 2.</li>
+                <li>Em variáveis discretas, os bins se alinham às contagens. <strong>Poucos bins perdem detalhe, e muitos geram ruído.</strong></li>
+            </ul>
+
+            <h4>Box plot</h4>
+            <p>O box plot mostra <strong>cinco números</strong>: mínimo, Q1, mediana, Q3 e máximo.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">df.boxplot(column=["bedrooms", "bathrooms"])</code></pre>
+            </div>
+
+            <ul>
+                <li>A <strong>caixa</strong> vai de Q1 a Q3 (o IQR, os 50% centrais dos dados).</li>
+                <li>Os <strong>whiskers</strong> chegam até 1,5 vez o IQR.</li>
+                <li>Pontos além disso são <strong>outliers</strong>, como as listagens de 5 e 6 quartos do dataset do curso.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Regra prática:</strong> use o <strong>histograma</strong> para ver a forma completa da distribuição de uma variável, e o <strong>box plot</strong> para comparar vários grupos ou variáveis lado a lado.</p>
+            </div>
+
+            <h3>Seaborn</h3>
+            <p>O Seaborn é construído sobre o Matplotlib e produz gráficos mais refinados, com qualidade de publicação. O alias convencional é <code>sns</code>.</p>
+
+            <h4>Scatter plot</h4>
+            <p>Cada ponto é uma listagem, e o gráfico mostra a relação entre duas variáveis.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">import seaborn as sns
+
+sns.scatterplot(data=df, x="bedrooms", y="bathrooms")</code></pre>
+            </div>
+
+            <p>O que se vê no dataset do curso:</p>
+            <ul>
+                <li>uma <strong>tendência positiva</strong>: mais quartos, mais banheiros;</li>
+                <li>pontos em <strong>colunas discretas</strong>, porque o número de quartos é inteiro;</li>
+                <li>bastante dispersão;</li>
+                <li>um outlier com 14 quartos e 14 banheiros.</li>
+            </ul>
+
+            <h4>Regression plot</h4>
+            <p>O <code>regplot</code> acrescenta a <strong>linha de melhor ajuste</strong> e uma faixa sombreada de <strong>intervalo de confiança</strong>. Faixa estreita significa alta confiança, e faixa larga significa incerteza. No exemplo do curso, a faixa se alarga nos extremos, onde há menos dados. A inclinação é claramente positiva, mas ainda falta quantificar a força da relação.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">sns.regplot(data=df, x="bedrooms", y="bathrooms")</code></pre>
+            </div>
+
+            <h3>Correlação de Pearson com o SciPy</h3>
+            <p>O coeficiente <code>r</code> resume <strong>o quanto duas variáveis se movem juntas em linha reta</strong>. Ele vai de -1 (relação negativa perfeita) a +1 (positiva perfeita), e a demonstração traz uma tabela de interpretação, de positivo muito forte a negativo muito forte.</p>
+            <p>O Pearson <strong>não aceita valores nulos</strong>, então se cria antes uma cópia sem eles com <code>dropna()</code>:</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">from scipy import stats
+
+clean_df = df[["bedrooms", "bathrooms"]].dropna()
+r_value, p_value = stats.pearsonr(clean_df["bedrooms"], clean_df["bathrooms"])
+
+print(r_value)   # coeficiente de correlação
+print(p_value)   # significância estatística</code></pre>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Resultado no dataset do curso</th><th>Leitura</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>r</code> ≈ 0,412</td><td>Correlação positiva <strong>moderada</strong></td></tr>
+                        <tr><td><code>p-value</code> minúsculo</td><td>Estatisticamente significativo. Com milhares de listagens, até correlações moderadas são confiáveis</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Ressalva:</strong> o Pearson mede só relações <strong>lineares</strong>. Por isso o número deve sempre vir acompanhado de uma checagem visual, como o <code>regplot</code>.</p>
+            </div>
+
+            <h3>Três abordagens, três usos</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Abordagem</th><th>Para quê</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>display()</code></td><td>Exploração interativa, sem código</td></tr>
+                        <tr><td>Plotagem com Pandas (<code>hist</code> e <code>boxplot</code>)</td><td>Distribuições e outliers</td></tr>
+                        <tr><td>Seaborn (<code>scatterplot</code> e <code>regplot</code>) com Pearson</td><td>Relações entre variáveis</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o <code>display()</code> é o caminho rápido e interativo no Databricks, e o Pandas plota distribuições direto do DataFrame. O Seaborn mostra relações entre variáveis com mais refinamento. O coeficiente de Pearson quantifica o que o gráfico sugere, mas só para relações lineares, e deve vir com a checagem visual. O próximo módulo compara Pandas, PySpark e Pandas API on Spark no dataset do Airbnb.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="python-ds-de-video-10.html">&larr; Advanced Pandas</a>
+            <a href="python-ds-de-video-12.html">Scaling Pandas with Spark &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

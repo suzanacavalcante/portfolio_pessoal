@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo Pandas Overview do treinamento Introduction to Python for Data Science and Data Engineering.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Pandas Overview</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-python-data-science-engineering.html">&larr; Voltar ao treinamento de Python</a>
+
+    <header>
+        <h1>Pandas Overview</h1>
+        <p>Introduction to Python · Vídeo 9 de 13</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-9">
+            <p class="lead">O Pandas é a biblioteca de análise de dados do Python. Este módulo mostra por que ela existe, como criar <strong>DataFrames</strong>, selecionar e trabalhar com <strong>Series</strong>, inspecionar tipos de dados (dtypes) e fazer operações elemento a elemento.</p>
+
+            <p>Os trechos de código abaixo são exemplos escritos por mim com base no resumo da demonstração, não a cópia do notebook do curso. O ambiente é o mesmo dos módulos anteriores: Serverless Environment Version 5, com o ambiente base em Standard Version 5.</p>
+
+            <h3>Por que o Pandas existe</h3>
+            <ul>
+                <li>Listas, dicionários e tuplas são flexíveis, mas <strong>não foram feitos para análise de dados</strong>. Calcular a média de uma coluna em uma lista de listas exige laços.</li>
+                <li>O NumPy é rápido, mas todos os elementos de um array têm <strong>o mesmo tipo</strong>.</li>
+                <li>Dados reais misturam strings, inteiros, floats, datas e booleanos, e o Pandas atende isso. Ele também ajuda em automação, reprodutibilidade, versionamento e integração com pipelines de machine learning.</li>
+            </ul>
+            <p>A importação usa a convenção <code>pd</code>. O Pandas já vem <strong>pré-instalado</strong> no Databricks Runtime, então não precisa de <code>%pip install</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">import pandas as pd</code></pre>
+            </div>
+
+            <h3>DataFrame</h3>
+            <p>As duas estruturas principais são o <strong>DataFrame</strong> e a <strong>Series</strong>. O DataFrame é uma <strong>tabela 2D com colunas nomeadas</strong>, possivelmente de tipos diferentes, como uma planilha manipulada por código.</p>
+            <p>Uma forma de criá-lo é a partir de uma lista de listas, em que cada lista interna é uma <strong>linha</strong>. Sem nomes, as colunas ficam 0, 1, 2. O índice das linhas é automático e começa em 0.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">data = [["Alice", 30, "Engineer"],
+        ["Bob", 30, "Analyst"],
+        ["Carol", 40, "Manager"]]
+
+df = pd.DataFrame(data)
+print(df)
+#        0   1         2
+# 0  Alice  30  Engineer
+# 1    Bob  30   Analyst
+# 2  Carol  40   Manager</code></pre>
+            </div>
+
+            <p>O <code>help(pd.DataFrame)</code> mostra os parâmetros: <code>data</code>, <code>index</code>, <code>columns</code>, <code>dtype</code> e outros. Para nomear as colunas, usa-se o parâmetro <code>columns</code>. O Pandas infere os tipos: <code>name</code> e <code>job</code> viram <code>object</code>, e <code>age</code> vira inteiro.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">df = pd.DataFrame(data, columns=["name", "age", "job"])
+print(df.dtypes)
+# name    object
+# age      int64
+# job     object</code></pre>
+            </div>
+
+            <h3>DataFrame a partir de um array NumPy</h3>
+            <p>É um padrão comum depois de cálculos numéricos no NumPy. A armadilha: arrays NumPy são <strong>homogêneos</strong>. Misturar strings e inteiros converte tudo em string, e todas as colunas viram <code>object</code> em <code>df.dtypes</code>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">import numpy as np
+
+arr = np.array([["Alice", 30], ["Bob", 25]])   # tudo vira string
+df_np = pd.DataFrame(arr, columns=["name", "age"])
+print(df_np.dtypes)
+# name    object
+# age     object   &lt;- a idade deixou de ser número</code></pre>
+            </div>
+
+            <h3>Series</h3>
+            <p>Uma Series é <strong>uma coluna de um DataFrame</strong>: um array 1D com rótulo e índice. Pode ser selecionada por colchetes (<code>df["age"]</code>, a forma preferida) ou por atributo (<code>df.age</code>).</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(df["age"])   # forma preferida
+print(df.age)      # por atributo: mesmo resultado</code></pre>
+            </div>
+
+            <h3>Tipos de dados (dtypes)</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Python</th><th>Pandas</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>string</td><td><code>object</code></td></tr>
+                        <tr><td>int</td><td><code>int64</code></td></tr>
+                        <tr><td>float</td><td><code>float64</code></td></tr>
+                        <tr><td>bool</td><td><code>bool</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Os tipos de todas as colunas aparecem com <code>df.dtypes</code>.</p>
+
+            <h3>Operações vetorizadas</h3>
+            <p>Aplicam-se a <strong>todos os elementos de uma Series de uma vez</strong>, sem laço nem list comprehension. Dá para somar duas Series e misturá-las com valores escalares. Para pegar um único valor por posição, usa-se o índice.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">age = df["age"]
+
+print(age + age)       # 60, 60, 80
+print(age * 3 - 1)     # 89, 89, 119: operação com escalares
+print(df["age"][0])    # 30 (tipo int64)</code></pre>
+            </div>
+
+            <h3>Selecionando subconjuntos</h3>
+            <h4>Várias colunas</h4>
+            <p>Passando uma <strong>lista</strong> de nomes, o resultado é um DataFrame (por isso os colchetes duplos):</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(df[["name", "age"]])</code></pre>
+            </div>
+
+            <h4>iloc: seleção por posição</h4>
+            <p>O <code>iloc</code> (<em>integer location</em>) seleciona por <strong>posição</strong>, no formato <code>df.iloc[linhas, colunas]</code>. É útil em código genérico, que não depende dos nomes das colunas.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Expressão</th><th>O que devolve</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>df.iloc[:, [0, 2]]</code></td><td>Todas as linhas e as colunas 1 e 3 (<code>name</code> e <code>job</code>)</td></tr>
+                        <tr><td><code>df.iloc[[0]]</code></td><td>A primeira linha, como DataFrame</td></tr>
+                        <tr><td><code>df.iloc[0, :]</code></td><td>A primeira linha, como Series</td></tr>
+                        <tr><td><code>df.iloc[0, 0]</code></td><td>A primeira célula</td></tr>
+                        <tr><td><code>df.iloc[:, 0]</code></td><td>A primeira coluna inteira</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Modificações: novo objeto contra in-place</h3>
+            <p>Por padrão, as operações que "modificam" um DataFrame <strong>retornam um novo objeto</strong> e deixam o original intacto. Isso torna os pipelines mais seguros, mas é uma fonte comum de bugs quando se esquece de atribuir o resultado, o mesmo raciocínio dos métodos non-in-place do módulo de coleções.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">df.drop("age", axis=1)                 # mostra o resultado, mas o df não muda
+df_no_age = df.drop("age", axis=1)     # para guardar, atribui-se a uma variável</code></pre>
+            </div>
+
+            <p>O parâmetro <code>axis</code> diz o eixo: <strong>colunas = 1</strong> e <strong>linhas = 0</strong>.</p>
+
+            <p>Com <code>inplace=True</code>, o DataFrame é alterado diretamente, e a mudança é <strong>permanente</strong>. Rodar a célula de novo dá erro, porque a coluna já não existe. Por isso vale usar com cuidado.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">df.drop("age", axis=1, inplace=True)   # altera o df de forma permanente
+# rodar de novo: KeyError, a coluna "age" não existe mais</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o DataFrame é uma tabela com colunas nomeadas, e cada coluna é uma Series. O Pandas infere os dtypes, e arrays NumPy misturados viram <code>object</code>. As operações vetorizadas dispensam laços, e o <code>iloc</code> seleciona por posição. As operações devolvem novos objetos, e as mudanças se mantêm com atribuição ou <code>inplace=True</code>, sem esquecer o papel do <code>axis</code>. O próximo módulo trata de recursos avançados do Pandas com um dataset real.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="python-ds-de-video-8.html">&larr; Libraries</a>
+            <a href="python-ds-de-video-10.html">Advanced Pandas &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

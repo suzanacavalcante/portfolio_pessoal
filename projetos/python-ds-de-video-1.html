@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo Data Type and Variables do treinamento Introduction to Python for Data Science and Data Engineering.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Data Type and Variables</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-python-data-science-engineering.html">&larr; Voltar ao treinamento de Python</a>
+
+    <header>
+        <h1>Data Type and Variables</h1>
+        <p>Introduction to Python · Vídeo 1 de 13</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-1">
+            <p class="lead">Primeiro módulo prático do treinamento: os blocos de construção do Python. Ao final, é possível identificar e usar os quatro tipos de dados principais (inteiros, floats, strings e booleanos), criar e gerenciar variáveis, entender o estado delas entre as células do notebook, seguir as convenções de nomenclatura e controlar a saída com <code>print</code> e f-strings.</p>
+
+            <p>Os trechos de código abaixo são exemplos escritos por mim com base no que a demonstração mostra, não a cópia do notebook do curso.</p>
+
+            <h3>Preparando o ambiente</h3>
+            <p>Antes de rodar qualquer código, é preciso selecionar o compute do notebook:</p>
+            <ul>
+                <li>No canto superior direito, abrir o menu <strong>Serverless</strong> e escolher <strong>Serverless Environment Version 5</strong>, e esperar a conexão.</li>
+                <li>No painel de ambiente à direita, clicar em <strong>Environment</strong> e conferir se o ambiente base está em <strong>Standard Version 5</strong>.</li>
+            </ul>
+
+            <h3>Expressões e comentários</h3>
+            <p>O Python avalia expressões matemáticas diretamente, e uma célula com <code>1 + 1</code> devolve <code>2</code>. O caractere <code>#</code> marca o início de um <strong>comentário</strong>: ele não é executado e serve só para explicar o que o código faz. Se uma linha de texto comum fosse descomentada, daria erro, porque o Python tentaria executá-la como código.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python"># Isto é um comentário: o Python ignora a linha
+1 + 1   # resultado: 2</code></pre>
+            </div>
+
+            <h3>Os quatro tipos de dados principais</h3>
+            <p>Cada tipo representa um tipo de valor e oferece um conjunto de operações. Entender o tipo é essencial, porque as operações disponíveis dependem dele.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tipo</th><th>O que é</th><th>Exemplo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Inteiro (<code>int</code>)</td><td>Número inteiro, sem parte decimal. Pode ser positivo, negativo ou zero</td><td><code>42</code>, <code>-7</code>, <code>0</code></td></tr>
+                        <tr><td>Float (<code>float</code>)</td><td>Número de ponto flutuante, com ponto decimal</td><td><code>3.14</code>, <code>1.</code></td></tr>
+                        <tr><td>String (<code>str</code>)</td><td>Sequência de caracteres entre aspas simples ou duplas</td><td><code>"Hello"</code></td></tr>
+                        <tr><td>Booleano (<code>bool</code>)</td><td>Tipo binário, com só dois valores</td><td><code>True</code>, <code>False</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Inteiros</h4>
+            <p>Aceitam adição, subtração, multiplicação e divisão. O Python segue a precedência matemática padrão: multiplicação primeiro, depois adição e subtração. Por isso <code>2 * 3 + 5 - 1</code> dá <code>10</code>.</p>
+
+            <h4>Floats</h4>
+            <p>Usados quando é preciso precisão fracionária, como em porcentagens, medições e cálculos financeiros. Em caso de dúvida sobre o tipo de um valor, a função <code>type()</code> mostra qual é. Um detalhe: <code>1.</code> é um float, porque o ponto decimal sinaliza ponto flutuante mesmo sem dígitos depois dele.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(1.2 * 2.3 + 5.5)   # 8.26
+print(type(1.2))         # &lt;class 'float'&gt;
+print(type(1.))          # &lt;class 'float'&gt;</code></pre>
+            </div>
+
+            <h4>Precisão: inteiros contra floats</h4>
+            <p>Os inteiros do Python têm <strong>precisão ilimitada</strong>: não há limite superior para o tamanho de um inteiro, ao contrário de linguagens como C e Java, onde ele estoura em um tamanho fixo. Um inteiro de 200 noves, somado a 1, vira um número de 201 dígitos com todos os dígitos corretos.</p>
+            <p>Os floats são diferentes. O Python não consegue representar com exatidão todos os decimais, então arredonda internamente para o valor mais próximo que consegue guardar. Os floats padrão têm cerca de <strong>15 a 17 dígitos</strong> de precisão, o que importa em cálculos financeiros e medições científicas.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">grande = int("9" * 200)       # inteiro de 200 dígitos
+print(grande + 1)             # 1 seguido de 200 zeros (201 dígitos), tudo correto
+
+print(0.99999999999999999 + 0.00000000000000001)   # 1.0, com perda de precisão escondida</code></pre>
+            </div>
+
+            <h4>Strings</h4>
+            <p>Texto com números, letras, pontuação e espaços. Com o operador <code>+</code>, as strings são <strong>concatenadas</strong>, ou seja, unidas, em vez de somadas. O espaço entre elas precisa ser incluído explicitamente. Já somar uma string com um inteiro dá <code>TypeError</code>: é preciso converter o inteiro com <code>str()</code> antes.</p>
+            <p>Para textos com várias linhas, existem as <strong>aspas triplas</strong>, simples ou duplas, que preservam as quebras de linha dentro do bloco, sem precisar de caracteres de escape.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print("Hello" + "123")        # Hello123
+print("Hello" + " " + "123")    # Hello 123
+# print("Hello" + 123)          # TypeError: só é possível concatenar strings
+print("Hello" + str(123))       # Hello123
+
+texto = """Primeira linha
+Segunda linha
+Terceira linha"""
+print(texto)                    # preserva as quebras de linha</code></pre>
+            </div>
+
+            <h4>Booleanos</h4>
+            <p>Base da lógica condicional. Aceitam as operações <code>or</code>, <code>and</code> e <code>not</code>. O Python diferencia maiúsculas de minúsculas, então os valores são escritos com inicial maiúscula: <code>True</code> e <code>False</code>.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Operação</th><th>Quando é verdadeira</th><th>Exemplo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>or</code></td><td>Basta um dos lados ser verdadeiro</td><td><code>True or False</code> dá <code>True</code></td></tr>
+                        <tr><td><code>and</code></td><td>Os dois lados precisam ser verdadeiros</td><td><code>True and False</code> dá <code>False</code></td></tr>
+                        <tr><td><code>not</code></td><td>Inverte o valor</td><td><code>not False</code> dá <code>True</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Variáveis</h3>
+            <p>Uma variável guarda o resultado de uma expressão para ser usada depois, e o valor é atribuído com o sinal de igual. Há regras para os nomes:</p>
+            <ul>
+                <li>começam com uma letra ou um sublinhado, nunca com um número;</li>
+                <li>só podem ter caracteres alfanuméricos e sublinhados;</li>
+                <li>diferenciam maiúsculas de minúsculas, então <code>age</code>, <code>Age</code> e <code>AGE</code> são três variáveis distintas.</li>
+            </ul>
+
+            <h4>O valor é calculado no momento da atribuição</h4>
+            <p>Se <code>a = 3</code>, <code>b = 2</code> e <code>c = a * b</code>, então <code>c</code> vale <code>6</code>. Mudar <code>b</code> depois <strong>não atualiza</strong> o <code>c</code> retroativamente, porque <code>c</code> recebeu o resultado da conta no momento em que ela foi avaliada. Para atualizar, é preciso executar a atribuição de novo.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">a = 3
+b = 2
+c = a * b
+print(c)    # 6
+
+b = 4
+print(c)    # continua 6
+
+c = a * b
+print(c)    # agora 12</code></pre>
+            </div>
+
+            <h4>O estado vive na sessão</h4>
+            <p>As variáveis persistem entre as células de uma mesma sessão: definida em uma célula, a variável pode ser usada em outra. Mas se o compute for desanexado ou a sessão reiniciada, o estado da memória é apagado. O código continua lá, mas é preciso <strong>executar as células de novo</strong> para restaurar os valores. Dá para testar no menu Serverless, com Terminate, reanexando e rodando de novo.</p>
+
+            <h4>Tipagem dinâmica</h4>
+            <p>Uma variável pode guardar qualquer tipo de valor e ser reatribuída a um valor de outro tipo a qualquer momento, o que contrasta com linguagens como C e Java.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">b = "Hello World"
+print(type(b))   # &lt;class 'str'&gt;
+
+b = 10
+print(type(b))   # &lt;class 'int'&gt;</code></pre>
+            </div>
+
+            <h4>Convenções de nomenclatura</h4>
+            <ul>
+                <li>Usar <strong>snake_case</strong>: tudo em minúsculas, com as palavras separadas por sublinhado. Não usar camel case.</li>
+                <li>Usar nomes descritivos, que reflitam o conteúdo. Para distinguir, <code>first_name</code> e <code>last_name</code> em vez de um único <code>name</code> para vários fins.</li>
+                <li>Evitar nomes excessivamente longos, difíceis de digitar toda hora.</li>
+                <li>Não reutilizar o mesmo nome para valores sem relação dentro do mesmo script.</li>
+            </ul>
+
+            <h3>Exibindo valores com print</h3>
+            <p>Nos notebooks do Databricks e do Jupyter, o resultado da <strong>última linha</strong> de uma célula é exibido automaticamente. Para exibir mais de um valor, é preciso usar <code>print</code>, que funciona com qualquer tipo de dado.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">a = 1
+b = 2
+a          # não aparece: não é a última linha
+b          # aparece: é a última linha da célula
+
+print(a)   # 1
+print(b)   # 2
+print(10, "Hello world", True)</code></pre>
+            </div>
+
+            <h4>Formatando com f-strings</h4>
+            <p>Há duas formas de incorporar variáveis em strings. O método <code>format</code> usa chaves como espaços reservados. As <strong>f-strings</strong>, introduzidas no Python 3.6, são mais legíveis e concisas: as variáveis, e até expressões, vão dentro das chaves.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">a = 1
+b = 2
+
+print("A soma de {} e {} é {}".format(a, b, a + b))   # forma mais antiga
+print(f"A soma de {a} e {b} é {a + b}")               # f-string</code></pre>
+            </div>
+
+            <h4>Largura de coluna e casas decimais</h4>
+            <p>Os espaços reservados das f-strings aceitam <strong>largura de coluna</strong>. Por padrão, números são alinhados à direita e strings à esquerda. Com isso dá para montar uma tabela alinhada, e o <code>.2f</code> limita um float a duas casas decimais.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(f"{'City':&lt;15}{'Temperature':&lt;15}{'Humidity':&lt;15}")
+print(f"{'Recife':&lt;15}{30:&lt;15}{78.456:&lt;15.2f}")
+print(f"{'Curitiba':&lt;15}{18:&lt;15}{65.1:&lt;15.2f}")</code></pre>
+            </div>
+
+            <h4>Controlando sep e end</h4>
+            <p>Por padrão, o <code>print</code> separa vários argumentos com um espaço e termina cada chamada com uma nova linha. Dá para trocar isso: <code>sep</code> define a string colocada <strong>entre</strong> os argumentos e <code>end</code> define a string anexada ao <strong>final</strong>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">print(1, 2, 3)                    # 1 2 3
+print(1, 2, 3, sep="--", end=".") # 1--2--3.
+print(1, 2, 3, sep="###", end="end")
+print(1, 2, 3, sep="", end="$")   # 123$
+print(4, 5, 6, sep="\t", end="Done")  # tabulação entre os números</code></pre>
+            </div>
+
+            <h3>Operador ternário</h3>
+            <p>Também chamado de expressão condicional, é uma forma concisa de atribuir um valor a uma variável com base em uma condição.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">is_tasty = True
+food = "Delicious" if is_tasty else "Not Delicious"
+print(food)   # Delicious</code></pre>
+            </div>
+            <p>Se <code>is_tasty</code> fosse <code>False</code>, a variável receberia <code>"Not Delicious"</code>.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> quatro tipos (inteiros, floats, strings e booleanos), variáveis nomeadas em snake_case cujo estado vive dentro da sessão, e saída controlada com <code>print</code> e f-strings. Esses fundamentos são a base de tudo o que vem a seguir. O próximo módulo constrói sobre eles com condicionais e fluxo de controle.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <span></span>
+            <a href="python-ds-de-video-2.html">Control Flow &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>
