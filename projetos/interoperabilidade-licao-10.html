@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Data Interoperability Best Practices do treinamento Data Interoperability with Unity Catalog: a comparação dos casos de uso, os princípios, as armadilhas comuns e o framework de decisão.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Data Interoperability Best Practices</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Data Interoperability Best Practices</h1>
+        <p>Data Interoperability with Unity Catalog · Lição 10</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-10">
+            <p class="lead">Esta lição, do Módulo 6 (Best Practices), reúne os padrões de interoperabilidade vistos no curso e aplica um olhar comparativo, destilando os <strong>princípios</strong>, as <strong>armadilhas</strong> e os <strong>critérios de decisão</strong>.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição. Segundo o resumo, a lição foi lida por completo, incluindo o verso dos três cartões do framework de decisão. O parágrafo introdutório, no topo da página, foi lido só parcialmente.</p>
+
+            <h3>Comparando os casos de uso</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Característica</th><th>Caso 1: Processamento centralizado</th><th>Caso 2: Governança centralizada</th><th>Caso 3: Migração federada</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Local do compute</strong></td><td>Databricks</td><td>Engines externos</td><td>Misto, transicional</td></tr>
+                        <tr><td><strong>Camada de governança</strong></td><td>Unity Catalog</td><td>Unity Catalog</td><td>Catálogos federados, depois o Unity Catalog</td></tr>
+                        <tr><td><strong>Fluxo de dados</strong></td><td>Ingerir, processar e servir</td><td>Leitura e escrita a partir do externo</td><td>Caminho de migração</td></tr>
+                        <tr><td><strong>Caso de uso principal</strong></td><td>Hub de processamento ETL</td><td>Computação distribuída</td><td>Integração de sistemas legados</td></tr>
+                        <tr><td><strong>Arquitetura</strong></td><td>Centralizada</td><td>Desacoplada</td><td>Ponte, híbrida</td></tr>
+                        <tr><td><strong>Ambiente-alvo</strong></td><td>Novo (greenfield)</td><td>Multiplataforma</td><td>Migração de legado</td></tr>
+                        <tr><td><strong>Desempenho</strong></td><td>As otimizações nativas completas da Databricks</td><td>Limitado, depende do engine</td><td>Parcial, só nas tabelas migradas</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Os três casos são as lições <a href="interoperabilidade-licao-6.html">6</a> (processamento centralizado), <a href="interoperabilidade-licao-7.html">7</a> (governança com compute externo) e <a href="interoperabilidade-licao-9.html">9</a> (migração federada).</p>
+
+            <h3>Os princípios-chave</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Governança</span>
+                    <h4>Governança unificada</h4>
+                    <p>O Unity Catalog como <strong>fonte única da verdade</strong> para metadados e controle de acesso. Políticas <strong>consistentes</strong> em todos os ativos, seja qual for o storage ou o local do compute. <strong>Audit logs e lineage</strong> abrangentes entre os sistemas.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Arquitetura</span>
+                    <h4>Desenho de arquitetura</h4>
+                    <p>Escolher o <strong>padrão certo</strong> para a necessidade. Governança e segurança como metas <strong>primordiais</strong> de design. Projetar desde o início para a <strong>flexibilidade e escalabilidade</strong> futuras.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Implementação</span>
+                    <h4>Estratégia de implementação</h4>
+                    <p>Começar por conjuntos de dados de <strong>alto valor e bem compreendidos</strong>, para mostrar ganhos rápidos. Segurança e governança <strong>desde o dia um</strong>. Monitoramento e observabilidade na camada de interoperabilidade.</p>
+                </div>
+            </div>
+
+            <h3>As armadilhas comuns</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Armadilha</th><th>Impacto</th><th>Boa prática</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Governança em silos</strong></td><td>Políticas inconsistentes e brechas de segurança</td><td>O Unity Catalog como motor central de políticas, com credential vending</td></tr>
+                        <tr><td><strong>Cópia excessiva de dados</strong></td><td>Custo de storage maior e dados obsoletos</td><td>Usar as REST APIs para processar no local, quando apropriado</td></tr>
+                        <tr><td><strong>Segurança como reflexão tardia</strong></td><td>Problemas de compliance e vazamentos</td><td>Embutir a segurança na arquitetura desde o início, com controles por coluna e por linha</td></tr>
+                        <tr><td><strong>Má gestão de metadados</strong></td><td>Problemas de descoberta e duplicação</td><td>Garantir a captura e a sincronização abrangentes de metadados entre os sistemas</td></tr>
+                        <tr><td><strong>Negligenciar o monitoramento</strong></td><td>Problemas de desempenho e pontos cegos</td><td>Monitoramento multiplataforma de desempenho e de governança</td></tr>
+                        <tr><td><strong>Ignorar os sistemas legados</strong></td><td>Adoção lenta e resistência dos usuários</td><td>Usar a federação como ponte, enquanto planeja a migração estratégica</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>O erro mais comum:</strong> tratar a governança como uma preocupação pós-implementação. Reajustar as políticas de segurança e os controles de acesso depois é significativamente mais caro e arriscado do que projetá-los desde o começo.</p>
+            </div>
+
+            <h3>O framework de decisão: "Preciso..."</h3>
+            <p>Os cartões interativos da lição, com a necessidade na frente e a abordagem no verso:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Preciso...</th><th>Abordagem</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Centralized Processing:</strong> processar e governar dados centralmente na Databricks e torná-los acessíveis externamente (por exemplo, consultáveis do Snowflake)</td>
+                            <td>A Databricks é o hub: o ETL e o analytics centrais rodam no Unity Catalog, e engines externos, como o Snowflake ou o Trino, leem as tabelas pelo Iceberg REST Catalog, sem copiar dados</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Centralized Governance:</strong> usar compute externo (como o AWS EMR) para modificar dados governados pelo Unity Catalog</td>
+                            <td>O Unity Catalog é o plano de governança, enquanto o compute roda em outro lugar: engines como o EMR ou o Spark standalone leem e escrevem nas tabelas, sob as permissões, o lineage e a auditoria dele</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Federated Migration:</strong> ler dados gerenciados externamente ou migrar de um catálogo externo para o Unity Catalog</td>
+                            <td>A federação cobre a lacuna durante a migração: o Hive Metastore, o Glue ou os data warehouses externos são registrados como foreign catalogs e depois convertidos em tabelas gerenciadas, em um rollout faseado</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Key Takeaways</h3>
+            <ul>
+                <li>Escolha o padrão de interoperabilidade pela <strong>localização do compute, o fluxo de dados e a maturidade organizacional</strong>.</li>
+                <li>A <strong>governança unificada via Unity Catalog</strong> é inegociável nos três padrões.</li>
+                <li>Comece com <strong>datasets de alto valor</strong> e expanda, sem "ferver o oceano".</li>
+                <li>Projete a <strong>segurança, o monitoramento e a gestão de metadados</strong> na arquitetura desde o dia um.</li>
+                <li>Use a <strong>federação como ponte</strong> para os sistemas legados, e não como arquitetura de longo prazo.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Uma nuance:</strong> a última frase dos takeaways diz que a federação é uma ponte, e não uma arquitetura de longo prazo. Na <a href="interoperabilidade-licao-8.html">Lição 8</a>, a catalog federation é a ponte de migração, mas a lakehouse federation (um banco externo, como o PostgreSQL ou o Snowflake) é descrita como uma integração duradoura, em que os dados ficam na fonte. Pelo contexto desta lição (os "sistemas legados"), a frase se refere à catalog federation. A leitura é minha.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> são três casos: processar na Databricks e servir a engines externos, usar compute externo sob a governança do Unity Catalog, e federar para migrar de um catálogo legado. A governança unificada é comum aos três. O erro mais comum é deixá-la para depois. Comece pequeno, com dados de alto valor, e projete segurança, monitoramento e metadados desde o primeiro dia.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="interoperabilidade-licao-9.html">&larr; Migration to UC using a Federated Catalog</a>
+            <a href="interoperabilidade-demo-1.html">Interoperability and Performance Benefits &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

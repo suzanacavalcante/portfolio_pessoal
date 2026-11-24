@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Interoperability and Performance Optimization with Managed Tables in Unity Catalog do treinamento Data Interoperability with Unity Catalog: tipos de tabela, otimizações e a escolha entre Delta, Delta com UniForm e Iceberg gerenciada.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Interoperability and Performance Optimization with Managed Tables</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Interoperability and Performance Optimization with Managed Tables in Unity Catalog</h1>
+        <p>Data Interoperability with Unity Catalog · Lição 4</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-4">
+            <p class="lead">Esta lição, do Módulo 2 (Working with Managed Tables in Unity Catalog), compara os <strong>tipos de tabela</strong> do Unity Catalog, mostra as <strong>otimizações de desempenho</strong> das tabelas gerenciadas e ensina a escolher entre a <strong>Delta gerenciada</strong>, a <strong>Delta com UniForm</strong> e a <strong>Iceberg gerenciada (v3)</strong>.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição. Segundo o resumo, o trecho inicial da página (a introdução antes dos objetivos) não foi lido, a página não trazia exemplos de código e o resto foi lido por completo, incluindo o bloco expansível da seção de recursos. A prática é a <a href="interoperabilidade-demo-1.html">Demo 1</a>.</p>
+
+            <h3>O namespace de três níveis</h3>
+            <p>Todo objeto do Unity Catalog é endereçado por um identificador de três partes: <code>catálogo.schema.tabela</code> (por exemplo, <code>finance_prod.accounting.transactions</code>). Os benefícios são:</p>
+            <ul>
+                <li>melhor organização e descoberta;</li>
+                <li>controle de acesso simplificado, com fronteiras de ownership claras;</li>
+                <li>uma segregação mais limpa em ambientes com várias equipes.</li>
+            </ul>
+
+            <h3>Os recursos de governança</h3>
+            <p>Um conjunto completo de controles atrás de um único modelo de permissões:</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Recurso</th><th>O que faz</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Fine-Grained Access Control</strong></td><td>A segurança por linha filtra os dados sensíveis, e a por coluna mascara os campos</td></tr>
+                        <tr><td><strong>Permissões centralizadas</strong></td><td>Grant e revoke em catálogo, schema ou tabela, com federação de identidade com os IdPs de nuvem (AWS IAM, Azure AD e GCP IAM)</td></tr>
+                        <tr><td><strong>RBAC e ABAC</strong></td><td>O acesso por papel e por atributo</td></tr>
+                        <tr><td><strong>Qualidade de dados</strong></td><td>Aplicação e monitoramento automatizados</td></tr>
+                        <tr><td><strong>Lineage</strong></td><td>O rastreio completo e automático em todos os ativos</td></tr>
+                        <tr><td><strong>Audit logging</strong></td><td>Logs completos, para o compliance</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>São os mesmos conceitos do treinamento anterior: o controle de acesso fino (<a href="data-governance-licao-5.html">Lição 5</a> e <a href="data-governance-demo-4.html">Demo 4</a>) e o lineage (<a href="data-governance-demo-3.html">Demo 3</a>).</p>
+
+            <h3>Os tipos de tabela do Unity Catalog</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tipo</th><th>Descrição</th><th>Formatos</th><th>Melhor para</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Managed</strong></td><td>Armazenamento nativo gerenciado pelo Unity Catalog, com governança completa, desempenho otimizado e otimizações automáticas</td><td>Delta e Iceberg</td><td>A maioria dos casos (o padrão recomendado)</td></tr>
+                        <tr><td><strong>External</strong></td><td>Referencia dados fora do storage gerenciado. O Unity Catalog gerencia os metadados, e os dados permanecem externos</td><td>Delta, Iceberg, Avro, CSV, JSON, ORC, Parquet e Text</td><td>Dados que não podem ser movidos</td></tr>
+                        <tr><td><strong>Foreign</strong></td><td>Federação para tabelas em outros metastores (HMS e Glue). É um caminho de migração de sistemas legados</td><td>Varia pela fonte</td><td>Integração legada e migração</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="callout">
+                <p><strong>Recomendação da lição:</strong> use tabelas gerenciadas como o padrão para novas cargas, pela melhor governança, desempenho e otimização. As foreign são as da <a href="interoperabilidade-demo-5.html">Demo 5</a> (Glue) e das <a href="interoperabilidade-demo-4.html">Demos 4</a> e <a href="interoperabilidade-demo-6.html">6</a>.</p>
+            </div>
+
+            <h3>Os recursos de tabelas gerenciadas</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Ciclo de vida</span>
+                    <h4>Gestão completa</h4>
+                    <p>O Unity Catalog controla os dados e os metadados. Otimização e manutenção automáticas, versionamento e time travel embutidos, e gestão de storage transparente entre clouds.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Formato</span>
+                    <h4>Flexibilidade</h4>
+                    <p>Delta Lake (o formato nativo da Databricks, com ACID) e Apache Iceberg (formato aberto, compatível entre plataformas), com uma camada de governança comum, independente do formato.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Desempenho</span>
+                    <h4>Guiado por IA</h4>
+                    <p>Liquid Clustering e Auto Optimize, planejamento por estatísticas e data skipping, <strong>Predictive Optimization</strong>, VACUUM automático e cache de metadados.</p>
+                </div>
+            </div>
+
+            <h4>Os detalhes das otimizações</h4>
+            <ul>
+                <li>O <strong>Liquid Clustering</strong> agrupa dinamicamente os dados similares, com base nos padrões de consulta observados (o que reduz o I/O).</li>
+                <li>O <strong>planejamento por estatísticas</strong> usa o mínimo, o máximo e a contagem de nulos por coluna, e empurra os predicados até o nível de arquivo.</li>
+                <li>O <strong>Auto Optimize</strong> compacta os arquivos pequenos na escrita.</li>
+                <li>O <strong>data skipping</strong> descarta os blocos irrelevantes.</li>
+                <li>O <strong>Predictive Optimization</strong> ajusta o layout pelo histórico de consultas e estatísticas. A lição cita ganhos de 50% ou mais de economia e consultas até 20 vezes mais rápidas em alguns ambientes, e recomenda consultar a documentação atual.</li>
+                <li>O <strong>VACUUM automático</strong> remove os dados não referenciados por nenhuma versão retida.</li>
+                <li>A otimização do tamanho de arquivo e o <strong>cache de metadados</strong>, que reduz as chamadas ao cloud storage no planejamento.</li>
+            </ul>
+            <p>O Unity Catalog é dono do local dos dados e dos metadados, então um único plano de controle cobre a criação, a otimização e a aposentadoria. E a flexibilidade de formato é uma garantia dele: a governança, o lineage e a auditoria valem igualmente para a Delta e a Iceberg gerenciadas. O efeito do Liquid Clustering aparece nos números da <a href="interoperabilidade-demo-1.html">Demo 1</a>.</p>
+
+            <h3>Escolhendo entre Delta gerenciada e Iceberg gerenciada</h3>
+            <p>As duas têm a governança completa do Unity Catalog e as mesmas otimizações. A escolha costuma ser <strong>quais clientes precisam ler a tabela diretamente</strong>. As duas perguntas do fluxograma da lição (que apareceu como texto Mermaid sem renderizar) são: "clientes Iceberg externos precisam ler?" e "o engine Iceberg é o principal escritor ou leitor?".</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Escolha</th><th>Quando</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Managed Delta</strong> (padrão)</td><td>A Databricks (e as ferramentas que entendem Delta, como o Fabric, o Spark e o Trino) é o leitor principal, sem necessidade de clientes Iceberg externos</td></tr>
+                        <tr><td><strong>Managed Delta + UniForm</strong></td><td>O Delta é o formato primário, mas clientes Iceberg externos também precisam ler</td></tr>
+                        <tr><td><strong>Managed Iceberg (v3)</strong></td><td>Um engine Iceberg externo é o escritor ou o leitor principal, ou a organização padronizou em Iceberg</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>A Demo 1 cria justamente as duas últimas opções, a Delta com UniForm e a Iceberg gerenciada, e mostra que uma Delta comum não aparece no endpoint Iceberg REST.</p>
+
+            <h3>Key Takeaways</h3>
+            <ul>
+                <li>O namespace de três níveis traz organização e controle de acesso.</li>
+                <li>As <strong>tabelas gerenciadas</strong> são o padrão recomendado, com governança total e otimizações automáticas. As <strong>externas</strong> servem aos dados que não podem ser movidos, e as <strong>foreign</strong>, de ponte para sistemas legados.</li>
+                <li>O <strong>Predictive Optimization</strong> dá melhorias de desempenho sem esforço manual.</li>
+                <li>Use <strong>Delta + UniForm</strong> quando a Databricks é o leitor e escritor principal, mas clientes Iceberg externos também leem. Use <strong>Iceberg gerenciada (v3)</strong> quando um engine externo é o escritor ou leitor principal.</li>
+                <li>As propriedades <code>format-version = 3</code> e <code>delta.enableIcebergCompatV3</code> são a porta de entrada do v3.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que não vi:</strong> os objetivos da lição incluem criar as tabelas com UniForm e as Iceberg no format version 3, e identificar as propriedades que controlam os recursos do v3. Mas, segundo o resumo, a página não trazia exemplos de código. Por isso as propriedades <code>format-version</code> e <code>delta.enableIcebergCompatV3</code> aparecem aqui só pelo nome, e não sei como se usam. A parte prática está na Demo 1.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> a tabela gerenciada é o padrão (governança e otimização automática), a externa é para dados que não saem do lugar, e a foreign é uma ponte para metastores legados. Delta e Iceberg gerenciadas têm a mesma governança, e a escolha vem de quem precisa ler. Delta comum quando a Databricks é a leitora, Delta com UniForm quando clientes Iceberg também leem, e Iceberg v3 quando o engine externo é o principal.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="interoperabilidade-licao-3.html">&larr; Interoperability Patterns Overview</a>
+            <a href="interoperabilidade-licao-5.html">External Access to Managed Tables &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

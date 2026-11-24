@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Understanding Data Interoperability do treinamento Data Interoperability with Unity Catalog: por que a interoperabilidade importa, os desafios comuns e o valor de negócio.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Understanding Data Interoperability</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Understanding Data Interoperability</h1>
+        <p>Data Interoperability with Unity Catalog · Lição 1</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-1">
+            <p class="lead">Esta lição, do Módulo 1 (Introduction to Data Interoperability), define a <strong>interoperabilidade de dados</strong> e o seu valor de negócio, mostra os <strong>desafios comuns</strong> e apresenta o argumento de negócio para uma governança unificada entre sistemas. Aponta, em alto nível, o papel dos formatos de tabela abertos e do Unity Catalog.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição. Segundo o resumo, a lição foi lida por completo, incluindo o bloco expansível de detalhes. As demos deste treinamento são a prática do que aqui é a motivação.</p>
+
+            <h3>Por que a interoperabilidade importa</h3>
+            <h4>A evolução das plataformas de dados</h4>
+            <p>As plataformas foram de bancos monolíticos para sistemas distribuídos, com a proliferação de tecnologias especializadas (NoSQL, vector stores e streaming).</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 120" role="img" aria-label="Evolução: monolítico, distribuído e multi-engine">
+                    <defs>
+                        <marker id="ar11" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="25" width="200" height="56" rx="6"/>
+                        <rect x="280" y="25" width="200" height="56" rx="6"/>
+                        <rect x="550" y="25" width="200" height="56" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="110" y="48" font-weight="700">Monolítico</text>
+                        <text x="110" y="66">banco único</text>
+                        <text x="380" y="48" font-weight="700">Distribuído</text>
+                        <text x="380" y="66">sistemas especializados</text>
+                        <text x="650" y="48" font-weight="700">Multi-engine</text>
+                        <text x="650" y="66">cloud e híbrido</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar11)">
+                        <path d="M210,53 L278,53"/>
+                        <path d="M480,53 L548,53"/>
+                    </g>
+                </svg>
+            </div>
+
+            <h4>A realidade do ecossistema moderno</h4>
+            <p>As organizações usam várias tecnologias de dados (operacionais e analíticas), com os dados espalhados entre clouds, data centers on-premises e aplicações SaaS.</p>
+
+            <h4>O imperativo da interoperabilidade</h4>
+            <ul>
+                <li>O valor do dado cresce com a <strong>acessibilidade entre plataformas</strong>, e o negócio exige isso.</li>
+                <li>Os sistemas de <strong>RAG e de IA agêntica</strong> precisam de acesso fluido a todos os dados corporativos.</li>
+                <li>A <strong>duplicação</strong> de dados aumenta o custo, a complexidade e o risco de exposição.</li>
+                <li>A governança inconsistente gera risco de <strong>compliance</strong>.</li>
+            </ul>
+
+            <h3>Os desafios comuns</h3>
+            <p>São quatro barreiras recorrentes:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Barreira</th><th>O que acontece</th><th>Impacto</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Incompatibilidade de formato</strong> (vendor lock-in)</td>
+                            <td>Os formatos de tabela proprietários prendem o dado a uma plataforma, então o mesmo dataset não é consultado por outro motor sem copiar ou converter. Os modelos de metadados diferem entre os engines (estatísticas, layout de partições e histórico de colunas não sobrevivem à troca de formato). As regras de evolução de schema variam: um rename ou alargamento de tipo seguro em um motor pode quebrar os leitores em outro</td>
+                            <td>Silos de dados e menos flexibilidade</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Barreiras de acesso</strong> (atrito de autenticação e API)</td>
+                            <td>Cada sistema tem o seu modelo de autenticação e fluxo de credenciais, e cada integração recomeça com a troca de tokens e o refresh. Os modelos de permissão não se mapeiam entre as plataformas, o que exige tabelas de tradução e grants "best effort", que divergem com o tempo. As APIs e SDKs diferem entre os fornecedores, e o código cliente, os retries e o tratamento de erro são reescritos por destino</td>
+                            <td>Menor produtividade e integração lenta</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fragmentação de governança</strong> (lacunas de política e lineage)</td>
+                            <td>As políticas são definidas separadamente em cada catálogo (uma regra como "PII mascarado para analistas" precisa ser reimplementada em todo lugar). O lineage para na borda de cada sistema, e a análise de impacto ponta a ponta vira uma reconstrução manual. As convenções de classificação e de tags são inconsistentes (a mesma coluna rotulada de três formas), o que quebra as automações</td>
+                            <td>Risco de compliance e lacunas de auditoria</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Complexidade operacional</strong> (ferramentas e habilidades especializadas)</td>
+                            <td>Ferramentas e runtimes separados por plataforma multiplicam os caminhos de upgrade, os patches de segurança e os planos de capacidade. As habilidades espalhadas entre as stacks tornam a contratação mais lenta e os plantões mais pesados. O drift entre ambientes é difícil de detectar quando a configuração está em três consoles</td>
+                            <td>Custo maior e entrega mais lenta</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>O custo da fragmentação:</strong> segundo dados de clientes Databricks citados na lição, as organizações com governança fragmentada relatam um tempo até o insight de <strong>3 a 5 vezes maior</strong> e custos operacionais mais altos que as com estratégias unificadas.</p>
+            </div>
+
+            <h3>Quebrando silos: o valor de negócio</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Tangíveis</span>
+                    <h4>Benefícios tangíveis</h4>
+                    <p>A redução do custo de armazenamento (menos duplicatas, o que ajuda a minimização de dados e o GDPR), o <strong>menor tempo até o insight</strong> (sem movimentação nem transformação desnecessária) e a maior produtividade de engenharia e de analistas.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Estratégicos</span>
+                    <h4>Vantagens estratégicas</h4>
+                    <p>Uma arquitetura de dados à prova de futuro, a adoção mais rápida de novas tecnologias e casos de uso, e estratégias híbridas e multicloud sem atrito.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Privacidade</span>
+                    <h4>Minimização de dados</h4>
+                    <p>Reduzir a duplicação, pela interoperabilidade, apoia diretamente o GDPR e outras regulações de privacidade.</p>
+                </div>
+            </div>
+
+            <h3>Key Takeaways</h3>
+            <ul>
+                <li>A interoperabilidade simplifica as operações com várias tecnologias e clouds.</li>
+                <li>Os bloqueios recorrentes são a incompatibilidade de formato, as barreiras de acesso, a fragmentação de governança e a complexidade operacional.</li>
+                <li>Quebrar os silos reduz o custo de armazenamento, acelera os insights e melhora o compliance.</li>
+                <li>Os <strong>formatos de tabela abertos</strong> e uma <strong>camada unificada de governança</strong> são os blocos de construção, e são introduzidos nas lições 1.2 e 1.3.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Ligação com as demos:</strong> cada barreira tem uma resposta nas demos. O formato aberto (Iceberg e UniForm) está na <a href="interoperabilidade-demo-1.html">Demo 1</a>. O acesso por OAuth e service principal está nas <a href="interoperabilidade-demo-2.html">Demos 2</a> e <a href="interoperabilidade-demo-3.html">3</a>. E a federação (connection e foreign catalog) está nas <a href="interoperabilidade-demo-4.html">Demos 4</a>, <a href="interoperabilidade-demo-5.html">5</a> e <a href="interoperabilidade-demo-6.html">6</a>. A ligação é minha. A governança fragmentada é o assunto do <a href="data-governance-licao-2.html">treinamento anterior</a>.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> a interoperabilidade é poder usar os mesmos dados em vários engines, clouds e ferramentas sem copiá-los. As quatro barreiras são o formato proprietário, as barreiras de acesso, a governança fragmentada e a complexidade operacional. O ganho é menos duplicação (e menos custo e risco), menos tempo até o insight e mais compliance. A resposta, nas próximas lições, são os formatos de tabela abertos e uma camada única de governança, o Unity Catalog.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+            <a href="interoperabilidade-licao-2.html">Introduction to Open Table Formats &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

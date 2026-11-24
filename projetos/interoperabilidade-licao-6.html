@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Centralized Data Processing with External Analytics do treinamento Data Interoperability with Unity Catalog: a Databricks como hub central e engines externos lendo as mesmas tabelas governadas.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Centralized Data Processing with External Analytics</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Centralized Data Processing with External Analytics</h1>
+        <p>Data Interoperability with Unity Catalog · Lição 6</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-6">
+            <p class="lead">Esta lição, do Módulo 3 (casos de uso de interoperabilidade), apresenta o primeiro grande caso de uso: usar a <strong>Databricks como hub central de processamento</strong>, enquanto engines analíticos externos (Snowflake e Trino) leem as <strong>mesmas tabelas governadas</strong> pelo Unity Catalog, por credential vending e pelo Iceberg REST Catalog.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição. Segundo o resumo, a lição foi lida por completo, mas o bloco "Show Sequence Diagram" da seção de implementação abriu sem conteúdo visível, e por isso ele não está resumido. A prática é a <a href="interoperabilidade-demo-2.html">Demo 2</a>, com o Snowflake.</p>
+
+            <h3>O contexto</h3>
+            <p>A Databricks ingere e transforma os dados em um só lugar, e o Unity Catalog governa esses dados para os consumidores nativos e externos. O fluxo do diagrama da lição:</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 210" role="img" aria-label="Fontes de dados, Databricks como hub central, Unity Catalog, e dois consumidores: analytics externo via Iceberg REST e analytics Databricks">
+                    <defs>
+                        <marker id="ar14" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="70" width="150" height="60" rx="6"/>
+                        <rect x="215" y="70" width="170" height="60" rx="6"/>
+                        <rect x="440" y="70" width="140" height="60" rx="6"/>
+                        <rect x="620" y="15" width="130" height="60" rx="6"/>
+                        <rect x="620" y="125" width="130" height="60" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="85" y="93" font-weight="700">Fontes de dados</text>
+                        <text x="85" y="111">CDC, streaming, batch</text>
+                        <text x="300" y="93" font-weight="700">Databricks (hub)</text>
+                        <text x="300" y="111">Lakeflow Jobs e SDP</text>
+                        <text x="510" y="93" font-weight="700">Unity Catalog</text>
+                        <text x="510" y="111">governança</text>
+                        <text x="685" y="38" font-weight="700">Analytics externo</text>
+                        <text x="685" y="56">Snowflake, Trino</text>
+                        <text x="685" y="148" font-weight="700">Analytics Databricks</text>
+                        <text x="685" y="166">SQL, notebooks</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar14)">
+                        <path d="M160,100 L213,100"/>
+                        <path d="M385,100 L438,100"/>
+                        <path d="M580,90 L618,55"/>
+                        <path d="M580,110 L618,150"/>
+                    </g>
+                    <text x="600" y="30" fill="currentColor" font-size="11" text-anchor="end" class="muted">Iceberg REST</text>
+                </svg>
+                <figcaption>O fluxo do caso de uso. O diagrama é meu, a partir do resumo</figcaption>
+            </div>
+
+            <ul>
+                <li>Usar a Databricks como <strong>hub central</strong>, com o Unity Catalog como a fonte da verdade.</li>
+                <li>Permitir que engines externos façam o processamento downstream.</li>
+                <li>Manter a <strong>governança centralizada</strong> ao permitir o acesso externo.</li>
+            </ul>
+
+            <h3>Os benefícios</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Benefício</th><th>Detalhe</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Governança unificada</strong></td><td>Uma fonte única da verdade, com o controle de acesso, a auditoria e o lineage centralizados</td></tr>
+                        <tr><td><strong>Desempenho melhor</strong></td><td>Os recursos de otimização da Databricks (Predictive Optimization e Liquid Clustering)</td></tr>
+                        <tr><td><strong>Flexibilidade operacional</strong></td><td>Processar onde faz mais sentido, com ferramentas especializadas por carga</td></tr>
+                        <tr><td><strong>Arquitetura simplificada</strong></td><td>Menos complexidade ao centralizar os metadados, o que elimina vários catálogos</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>O detalhe de implementação</h3>
+            <p>O fluxo de dados combina a ingestão, a transformação e o consumo externo em uma única sequência, governada ponta a ponta pelo Unity Catalog: da ingestão na fonte até os clientes externos lendo pelo endpoint Iceberg REST.</p>
+
+            <h3>O fluxo de credential vending</h3>
+            <p>Antes de um cliente externo ler uma tabela do Unity Catalog pelo endpoint Iceberg REST, ele troca a sua identidade por uma <strong>credencial de storage curta e restrita ao caminho</strong>, emitida pelo Unity Catalog. O Unity Catalog também grava um registro de auditoria no momento da autorização. Assim, o "quem tocou em quê" é capturado no <strong>plano de controle</strong>, e não no plano de dados. O handshake completo está na <a href="interoperabilidade-licao-5.html">lição External Access to Managed Tables</a>.</p>
+
+            <h3>A implementação de referência: lendo dados do Unity Catalog no Snowflake</h3>
+            <p><strong>Pré-requisito:</strong> um usuário ou service principal com o papel Account Admin habilitado, e um papel igualmente privilegiado no sistema externo.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Lado</th><th>Passos</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Databricks</strong></td>
+                            <td>
+                                <ol>
+                                    <li><strong>Habilitar o External Data Access:</strong> ligar o acesso externo Iceberg REST no nível do metastore.</li>
+                                    <li><strong>Criar as tabelas gerenciadas:</strong> como Iceberg gerenciada ou Delta com UniForm.</li>
+                                    <li><strong>Criar uma service principal,</strong> com um client secret para o engine externo se autenticar.</li>
+                                    <li><strong>Conceder os privilégios:</strong> <code>EXTERNAL USE SCHEMA</code>, <code>SELECT</code> e <code>USE</code> no catálogo e no schema, para a service principal.</li>
+                                </ol>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Snowflake</strong></td>
+                            <td>
+                                <ol>
+                                    <li><strong>Criar a Catalog Integration:</strong> <code>CREATE CATALOG INTEGRATION</code>, com as credenciais da service principal e a URL do endpoint Iceberg REST do Unity Catalog.</li>
+                                    <li><strong>Criar as tabelas Iceberg:</strong> <code>CREATE ICEBERG TABLE</code>, referenciando a catalog integration.</li>
+                                    <li><strong>Consultar nativamente:</strong> o <code>SELECT</code> nas tabelas Iceberg, como em qualquer tabela do Snowflake.</li>
+                                </ol>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p><strong>Outros sistemas:</strong> o mesmo padrão vale para o Trino, o Dremio, o Starburst e outros engines compatíveis com o Iceberg. Cada sistema tem a sua própria sintaxe de catalog integration.</p>
+
+            <div class="callout">
+                <p><strong>Ligação com a Demo 2:</strong> os passos acima são, na ordem, os da <a href="interoperabilidade-demo-2.html">Demo 2</a>: o external data access no metastore, a service principal (<code>Snowflake Integration</code>), os grants (<code>EXTERNAL USE SCHEMA</code>, <code>USE CATALOG</code>, <code>USE SCHEMA</code> e <code>SELECT</code>), a catalog integration e as tabelas Iceberg como referências. A ligação é minha.</p>
+            </div>
+
+            <h3>Key Takeaways</h3>
+            <ul>
+                <li>O processamento centralizado mantém a governança unificada e permite um analytics flexível.</li>
+                <li>O credential vending dá acesso seguro e com tempo limitado a sistemas externos.</li>
+                <li>O Iceberg REST Catalog é o ponto de integração para os engines analíticos externos.</li>
+                <li>A implementação exige service principals com os privilégios corretos no Unity Catalog.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> neste caso de uso, a Databricks processa e o Unity Catalog governa. Os engines externos (Snowflake, Trino e outros) só leem, pelo Iceberg REST, cada um com a sua service principal e com credenciais curtas. Para habilitar: o external data access no metastore, as tabelas gerenciadas (Iceberg ou Delta com UniForm), a service principal com os grants e, no engine externo, a catalog integration e as tabelas Iceberg.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="interoperabilidade-licao-5.html">&larr; External Access to Managed Tables</a>
+            <a href="interoperabilidade-licao-7.html">Governance with External Compute Engines &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

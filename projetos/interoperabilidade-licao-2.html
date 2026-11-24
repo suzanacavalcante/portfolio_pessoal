@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Introduction to Open Table Formats do treinamento Data Interoperability with Unity Catalog: Delta Lake, Apache Iceberg, a anatomia de cada um, o UniForm e o Iceberg v3.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Introduction to Open Table Formats</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Introduction to Open Table Formats</h1>
+        <p>Data Interoperability with Unity Catalog · Lição 2</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-2">
+            <p class="lead">Esta lição (a 1.2 do Módulo 1) olha mais de perto os <strong>formatos de tabela abertos</strong> sob o lakehouse moderno: compara a anatomia e as capacidades do <strong>Delta Lake</strong> e do <strong>Apache Iceberg</strong>, explica como o <strong>UniForm</strong> liga os dois e situa o <strong>Iceberg v3</strong>.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição. Segundo o resumo, a lição foi lida por completo, incluindo os dois blocos expansíveis sobre a anatomia. A prática é a <a href="interoperabilidade-demo-1.html">Demo 1</a>, que usa o UniForm e a tabela Iceberg gerenciada.</p>
+
+            <h3>A evolução dos formatos de tabela</h3>
+            <p>Os formatos abertos vêm de uma longa progressão do armazenamento em arquivos, que ganhou metadados e garantias transacionais para as cargas analíticas:</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 130" role="img" aria-label="Linha do tempo: raw files, colunar, Delta Lake e Iceberg, governança unificada">
+                    <defs>
+                        <marker id="ar12" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="25" width="150" height="62" rx="6"/>
+                        <rect x="200" y="25" width="150" height="62" rx="6"/>
+                        <rect x="390" y="25" width="170" height="62" rx="6"/>
+                        <rect x="600" y="25" width="150" height="62" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="85" y="48" font-weight="700">Raw files</text>
+                        <text x="85" y="66">sem garantias</text>
+                        <text x="85" y="80">schema-on-read</text>
+                        <text x="275" y="48" font-weight="700">Colunar</text>
+                        <text x="275" y="66">Parquet e ORC</text>
+                        <text x="275" y="80">melhor desempenho</text>
+                        <text x="475" y="48" font-weight="700">Delta e Iceberg</text>
+                        <text x="475" y="66">transações ACID</text>
+                        <text x="475" y="80">time travel, multi-engine</text>
+                        <text x="675" y="48" font-weight="700">Governança</text>
+                        <text x="675" y="66">unificada</text>
+                        <text x="675" y="80">Unity Catalog</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar12)">
+                        <path d="M160,56 L198,56"/>
+                        <path d="M350,56 L388,56"/>
+                        <path d="M560,56 L598,56"/>
+                    </g>
+                </svg>
+            </div>
+
+            <h3>Delta e Iceberg: os formatos centrais</h3>
+            <p>Os dois estendem o armazenamento colunar (Parquet ou ORC) com <strong>logs de transação</strong>, para as garantias ACID. São baseados em arquivos, com camadas de gestão de metadados. Suportam a evolução de schema, o time travel e o versionamento, dão leituras consistentes durante escritas concorrentes e são otimizados para batch e streaming.</p>
+
+            <h3>A anatomia de uma tabela gerenciada (Delta)</h3>
+            <p>É um diretório de arquivos <strong>Parquet</strong> com um <strong>log de transações</strong> que registra toda mudança:</p>
+            <div class="code-container">
+                <pre><code>my_delta_table/
+├── _delta_log/            fonte da verdade
+│   ├── 00000000000000000000.json   versão 0: CREATE TABLE
+│   ├── 00000000000000000001.json   versão 1: por exemplo, um INSERT
+│   └── 00000000000000000002.json   versão 2: por exemplo, um UPDATE
+└── part-0000x-....snappy.parquet   arquivos imutáveis</code></pre>
+            </div>
+            <ul>
+                <li>O log de transação é um diretório de commits JSON, que os leitores reexecutam para reconstruir o snapshot atual.</li>
+                <li>Os arquivos Parquet guardam as linhas, e o log apenas os referencia (eles são imutáveis).</li>
+                <li>Cada commit cria uma <strong>versão atômica</strong>, com isolamento de snapshot. É a base do time travel e das escritas concorrentes seguras.</li>
+                <li>As <strong>estatísticas</strong> por arquivo são coletadas na escrita e guardadas no log, o que permite o data skipping sem escanear os dados.</li>
+            </ul>
+
+            <h3>A anatomia de uma tabela Iceberg</h3>
+            <p>É uma estrutura de metadados em camadas, que separa o estado da tabela, as listas de manifests e os arquivos de manifest, para a leitura entre engines:</p>
+            <div class="code-container">
+                <pre><code>my_iceberg_table/
+├── metadata/              fonte da verdade
+│   ├── version-hint.text           aponta a versão atual
+│   ├── v1.metadata.json            estado na versão 1: schema, partition spec, snapshots
+│   ├── v2.metadata.json
+│   ├── snap-xxx.avro               manifest list (um por snapshot)
+│   └── xxx-m0.avro                 manifest file: arquivos de dados + estatísticas
+└── data/                  Parquet imutáveis</code></pre>
+            </div>
+            <ul>
+                <li>Os <strong>metadata files</strong> capturam o estado da tabela em um instante (o schema, a partition spec e o histórico de snapshots).</li>
+                <li>As <strong>manifest lists</strong> enumeram todos os manifest files de um snapshot (o que torna os snapshots baratos).</li>
+                <li>Os <strong>manifest files</strong> rastreiam os arquivos de dados, com estatísticas por arquivo que guiam a poda de partições e de predicados.</li>
+                <li>O <code>version-hint.text</code> indica a última versão de metadata, para achar o snapshot atual sem listar o diretório.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>A diferença em uma frase:</strong> o Delta usa um <strong>log de transação JSON</strong> (uma lista linear de commits), e o Iceberg usa uma <strong>arquitetura em camadas de metadata e manifests</strong>. A explicação em uma frase é minha, a partir do resumo.</p>
+            </div>
+
+            <h3>As capacidades compartilhadas</h3>
+            <p>Apesar de os internos serem diferentes, os dois expõem o mesmo conjunto:</p>
+            <ul>
+                <li><strong>Evolução de schema:</strong> adicionar, renomear e reordenar colunas sem reescrever dados;</li>
+                <li><strong>Time travel:</strong> versões históricas, com isolamento de snapshot;</li>
+                <li><strong>Transações ACID;</strong></li>
+                <li><strong>Tipos de dados complexos:</strong> estruturas aninhadas, arrays e maps;</li>
+                <li><strong>Otimizações de metadados:</strong> planejamento e data skipping baseados em estatísticas;</li>
+                <li><strong>Streaming e batch.</strong></li>
+            </ul>
+
+            <h3>Comparação de otimizações</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Técnica</th><th>Delta Lake</th><th>Apache Iceberg</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Organização dos dados</td><td>Z-Ordering e Liquid Clustering</td><td>Ordenação por posição</td></tr>
+                        <tr><td>Arquivos pequenos</td><td>Comando <code>OPTIMIZE</code></td><td>Procedimento <code>rewrite_data_files</code></td></tr>
+                        <tr><td>Estatísticas</td><td>Min/max, contagem de nulos e stats por coluna</td><td>Idem</td></tr>
+                        <tr><td>Data skipping</td><td>Automático, baseado em estatísticas</td><td>Idem</td></tr>
+                        <tr><td>Limpeza</td><td>Comando <code>VACUUM</code></td><td>Procedimento <code>expire_snapshots</code></td></tr>
+                        <tr><td>Recursos avançados</td><td>Liquid Clustering automático e Deletion Vectors</td><td>Positional delete files e Deletion Vectors (v3)</td></tr>
+                        <tr><td>Particionamento</td><td>Dinâmico, com auto-otimização</td><td>Particionamento oculto, com evolução</td></tr>
+                        <tr><td>Cache</td><td>Delta Cache para metadados</td><td>Cache de metadados e de manifests</td></tr>
+                        <tr><td>Estratégia de compactação</td><td>Auto-optimize e bin-packing</td><td>Bin-packing com sort orders</td></tr>
+                        <tr><td>Pushdown de consulta</td><td>Poda por partição e por estatísticas</td><td>Idem</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>O liquid clustering, que a <a href="interoperabilidade-demo-1.html">Demo 1</a> usa para a poda de 99,96% dos arquivos, está na primeira linha da coluna do Delta.</p>
+
+            <h3>UniForm: ler tabelas gerenciadas do Unity Catalog como Iceberg</h3>
+            <p>O <strong>UniForm</strong> liga o Delta e o Iceberg mantendo <strong>metadados compatíveis com o Iceberg ao lado do log Delta</strong>. Assim, clientes Iceberg externos leem os mesmos arquivos de dados, sem copiar nem converter. O fluxo é: o cliente Iceberg lê como Iceberg, passando pelo UniForm, até a tabela gerenciada do Unity Catalog.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Aspecto</th><th>O que o UniForm dá</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Sem duplicação</strong></td><td>Só os metadados são traduzidos</td></tr>
+                        <tr><td><strong>Transparente</strong></td><td>O Databricks SQL e o Spark consultam os dois formatos sem conversão</td></tr>
+                        <tr><td><strong>Governança preservada</strong></td><td>As políticas existentes se aplicam</td></tr>
+                        <tr><td><strong>Suporte de runtime</strong></td><td>Databricks Runtime 14.3 ou superior</td></tr>
+                        <tr><td><strong>Caminho de migração</strong></td><td>Gradual, entre os formatos</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>É a abordagem recomendada para manter o Delta como formato primário e permitir a leitura por clientes Iceberg.</p>
+
+            <h3>A evolução do formato Iceberg</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Versão</th><th>O que traz</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>v1</td><td>A fundação</td></tr>
+                        <tr><td>v2</td><td>Deletes em nível de linha (positional deletes)</td></tr>
+                        <tr><td><strong>v3</strong></td><td>Deletion vectors, o tipo <strong>VARIANT</strong> e o row lineage. Em Public Preview no Databricks Runtime 17.3 ou superior, e é a versão que a maioria das novas tabelas deve usar</td></tr>
+                        <tr><td>v4</td><td>Em breve, fora do escopo do curso</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Os destaques do v3:</p>
+            <ul>
+                <li><strong>Deletion Vectors:</strong> deletes por linha sem reescrever arquivos (também existem no Delta);</li>
+                <li><strong>VARIANT:</strong> o tipo semiestruturado, para JSON nativo;</li>
+                <li><strong>Row Lineage:</strong> o rastreio automático e obrigatório das mudanças incrementais por linha.</li>
+            </ul>
+            <p>A maioria dos usuários criará tabelas em format-version 3 e se beneficiará sem esforço.</p>
+
+            <div class="callout">
+                <p><strong>Ligação com a Demo 1:</strong> a demo cita o "Iceberg (v3)" nas propriedades da tabela Delta com UniForm, e desabilita os deletion vectors e o row tracking na tabela Iceberg gerenciada, porque o leitor Iceberg do Snowflake não os suporta. Os dois são recursos que esta lição apresenta no v3. A ligação é minha.</p>
+            </div>
+
+            <h3>Key Takeaways</h3>
+            <ul>
+                <li>O Delta e o Iceberg dão ACID, evolução de schema e time travel sobre o armazenamento colunar.</li>
+                <li>O Delta usa um <strong>log de transação JSON</strong>, e o Iceberg usa uma <strong>arquitetura em camadas de metadata e manifests</strong>.</li>
+                <li>Os dois suportam técnicas de otimização equivalentes (clustering, estatísticas, data skipping e limpeza).</li>
+                <li>O <strong>UniForm</strong> permite que tabelas gerenciadas do Unity Catalog sejam lidas por clientes Iceberg sem duplicar dados.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> Delta e Iceberg são formatos abertos, com ACID, evolução de schema e time travel, e a diferença está nos metadados (o <code>_delta_log</code> em JSON, contra o metadata, as manifest lists e os manifest files do Iceberg). Cada um tem as suas ferramentas de manutenção (<code>OPTIMIZE</code> e <code>VACUUM</code> no Delta, <code>rewrite_data_files</code> e <code>expire_snapshots</code> no Iceberg). O UniForm expõe a tabela Delta a leitores Iceberg sem cópia, e o Iceberg v3 traz deletion vectors, VARIANT e row lineage.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="interoperabilidade-licao-1.html">&larr; Understanding Data Interoperability</a>
+            <a href="interoperabilidade-licao-3.html">Interoperability Patterns Overview &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

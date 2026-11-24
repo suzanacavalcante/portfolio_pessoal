@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Processing UC Managed Iceberg Tables with AWS EMR do treinamento Data Interoperability with Unity Catalog: escrever em uma tabela Iceberg gerenciada a partir do Spark no EMR, pelo endpoint Iceberg REST.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Processing UC Managed Iceberg Tables with AWS EMR</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Processing UC Managed Iceberg Tables with AWS EMR</h1>
+        <p>Data Interoperability with Unity Catalog · Demo 3</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-3">
+            <p class="lead">Esta demo, de cerca de 7 minutos, inverte a anterior. Em vez de o Snowflake <strong>ler</strong>, o <strong>AWS EMR (Spark)</strong> <strong>escreve e transforma</strong> uma tabela Iceberg gerenciada pelo Unity Catalog, a <code>store_sales_iceberg</code>, pelo <strong>endpoint Iceberg REST</strong>. Faz um INSERT e um UPDATE, e depois valida no Databricks. As tabelas continuam <strong>governadas pelo Unity Catalog</strong>.</p>
+
+            <p>Estas anotações partem de um resumo da demo, não da transcrição. Segundo o resumo, a única legenda do vídeo está em chinês simplificado, e o resumo foi feito a partir dela. A demo não traz o texto do script, e por isso não escrevi código aqui.</p>
+
+            <h3>Pré-requisitos</h3>
+            <ul>
+                <li>No Databricks: <strong>metastore admin e account admin</strong>.</li>
+                <li>Na AWS: permissão para criar um cluster EMR e IAM roles.</li>
+                <li>A tabela-alvo deve estar em <strong>armazenamento gerenciado pelo cliente</strong>. O storage serverless gerenciado pela Databricks não serve, porque um principal IAM externo não recebe credenciais para ele.</li>
+            </ul>
+
+            <h3>Arquitetura e verificações</h3>
+            <p>O caminho é: a <code>store_sales_iceberg</code>, no S3 do cliente, é exposta pelo endpoint REST do Unity Catalog, e o cluster EMR, com Spark e o runtime Iceberg, acessa pelo endpoint. O job Spark:</p>
+            <ol>
+                <li>autentica por <strong>OAuth</strong>, com um <strong>service principal dedicado do EMR</strong>;</li>
+                <li>recebe as <strong>credenciais S3 distribuídas</strong>;</li>
+                <li>roda o INSERT e o UPDATE, tudo governado pelo Unity Catalog (com lineage e auditoria).</li>
+            </ol>
+            <p>As verificações: a tabela existe, é Iceberg gerenciada e está em storage do cliente (em storage gerenciado pela Databricks o caminho apareceria vazio). Confirma-se também que o <strong>external data access</strong> está habilitado no metastore.</p>
+
+            <h3>Service principal e grants</h3>
+            <p>Cria-se um service principal <strong>dedicado</strong>, o <code>EMR Integration</code>, em vez de reutilizar o do Snowflake, por dois motivos:</p>
+            <ul>
+                <li>mantém a <strong>separação de responsabilidades</strong> (o do Snowflake não precisa do <code>MODIFY</code>);</li>
+                <li>permite <strong>identificar claramente a atividade nos logs de auditoria</strong>, por principal.</li>
+            </ul>
+            <p>O UUID e o secret são guardados em um gerenciador de segredos. O service principal é adicionado ao workspace como usuário e recebe:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Privilégio</th><th>Onde</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>EXTERNAL USE SCHEMA</code></td><td>No catálogo e schema</td></tr>
+                        <tr><td><code>USE CATALOG</code> e <code>USE SCHEMA</code></td><td>No catálogo e no schema</td></tr>
+                        <tr><td><code>MODIFY</code> e <code>SELECT</code></td><td>Na tabela (o EMR vai escrever e ler)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Depois, confere-se com o <code>SHOW GRANTS</code> na tabela-alvo.</p>
+
+            <h3>O lado AWS</h3>
+            <p>Os scripts de referência para montar o EMR são fornecidos, mas a demo assume o ambiente pronto:</p>
+            <ol>
+                <li>conectar ao EMR por <strong>SSH</strong> ao nó master e abrir o PySpark;</li>
+                <li>definir as variáveis de ambiente (o host do workspace, o client ID e o secret do service principal), de preferência pelo <strong>AWS Secrets Manager</strong>;</li>
+                <li>rodar o script <code>mutate_uc_table</code> com o <code>spark-submit</code>.</li>
+            </ol>
+            <p>O script lê o host, o catálogo, o <code>CLIENT_ID</code> e o <code>CLIENT_SECRET</code> dessas variáveis, define as propriedades Spark do catálogo Iceberg REST e executa um <strong>INSERT</strong> e um <strong>UPDATE</strong> na <code>store_sales_iceberg</code>.</p>
+
+            <h3>Validação no Databricks</h3>
+            <p>O <code>DESCRIBE HISTORY</code> mostra 3 operações: a criação da tabela e dois <strong>writes</strong>.</p>
+
+            <div class="callout">
+                <p><strong>Observação:</strong> no Delta, o histórico distingue write, update, merge e delete. Mas o <strong>Iceberg REST catalog expõe tudo como "write"</strong>. Por isso o INSERT e o UPDATE do EMR aparecem os dois como write.</p>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Comparação</th><th>O que mostra</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Versão 0 e versão 1</td><td>O script duplicou de propósito as linhas de certos item keys, então esses itens têm o <strong>dobro de linhas</strong></td></tr>
+                        <tr><td>Versão 1 e versão 2</td><td>Aparece o <strong>UPDATE</strong> feito pelo EMR</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Resumo</h3>
+            <ul>
+                <li>Uma computação externa (EMR e Spark) pode <strong>ler e escrever</strong> tabelas Iceberg gerenciadas, pelo endpoint REST.</li>
+                <li>Escrever exige o <code>MODIFY</code>, além do <code>EXTERNAL USE SCHEMA</code>, do <code>USE CATALOG</code> e do <code>USE SCHEMA</code>.</li>
+                <li>Todas as mudanças ficam no <strong>audit log</strong> do Unity Catalog, por service principal.</li>
+                <li>O lineage e a governança permanecem iguais <strong>independentemente de onde a carga roda</strong>.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Comparando com a Demo 2:</strong> o Snowflake lê (o service principal precisa de <code>SELECT</code>), e o EMR escreve (precisa também de <code>MODIFY</code>). Os dois usam o mesmo endpoint, as mesmas credenciais distribuídas e o mesmo <code>EXTERNAL USE SCHEMA</code>, mas com identidades separadas. Em ambos, o storage precisa ser gerenciado pelo cliente.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> pelo endpoint Iceberg REST, um engine externo pode ler e escrever as tabelas Iceberg gerenciadas do Unity Catalog. Use um service principal dedicado por engine (separação de responsabilidades e auditoria por principal). Para escrever, o <code>MODIFY</code> é necessário, e a tabela precisa estar em storage gerenciado pelo cliente. No histórico, o Iceberg REST mostra todas as operações como write, e a governança e o lineage continuam no Unity Catalog.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="interoperabilidade-demo-2.html">&larr; Powering Downstream Analytics in Snowflake</a>
+            <a href="interoperabilidade-demo-4.html">Federation to SQL Server and Snowflake &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

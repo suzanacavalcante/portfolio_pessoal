@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Lakehouse Federation Overview do treinamento Data Interoperability with Unity Catalog: catalog federation e lakehouse federation, as connections, os foreign catalogs e o pushdown.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Lakehouse Federation Overview</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Lakehouse Federation Overview</h1>
+        <p>Data Interoperability with Unity Catalog · Lição 8</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-8">
+            <p class="lead">Esta lição abre o Módulo 5 (Lakehouse Federation). Ela apresenta a federação no Unity Catalog e distingue as suas duas formas: a <strong>catalog federation</strong> (espelha um metastore legado) e a <strong>lakehouse federation</strong> (expõe um banco externo no próprio local). As duas se constroem sobre as mesmas primitivas: <strong>connection</strong> e <strong>foreign catalog</strong>.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição. Segundo o resumo, a lição foi lida por completo (a página não tinha blocos expansíveis), e os links dela apontam para as lições 5.2 a 5.5 do próprio curso. A prática são as <a href="interoperabilidade-demo-4.html">Demos 4</a>, <a href="interoperabilidade-demo-5.html">5</a> e <a href="interoperabilidade-demo-6.html">6</a>.</p>
+
+            <h3>O que é a Lakehouse Federation</h3>
+            <p>É um termo guarda-chuva para os recursos do Unity Catalog que permitem consultar dados que vivem <strong>fora</strong> dele como se fossem um ativo seu, <strong>sem copiar ou mover</strong> os dados.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 120" role="img" aria-label="Fonte externa, connection, foreign catalog, Unity Catalog e consultas federadas">
+                    <defs>
+                        <marker id="ar16" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="30" width="120" height="56" rx="6"/>
+                        <rect x="165" y="30" width="130" height="56" rx="6"/>
+                        <rect x="330" y="30" width="130" height="56" rx="6"/>
+                        <rect x="495" y="30" width="120" height="56" rx="6"/>
+                        <rect x="650" y="30" width="100" height="56" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="11" text-anchor="middle">
+                        <text x="70" y="54" font-weight="700">Fonte externa</text>
+                        <text x="70" y="70">catálogo ou banco</text>
+                        <text x="230" y="54" font-weight="700">Connection</text>
+                        <text x="230" y="70">credenciais + config</text>
+                        <text x="395" y="54" font-weight="700">Foreign Catalog</text>
+                        <text x="395" y="70">espelho no UC</text>
+                        <text x="555" y="54" font-weight="700">Unity Catalog</text>
+                        <text x="555" y="70">governança + consulta</text>
+                        <text x="700" y="54" font-weight="700">Consultas</text>
+                        <text x="700" y="70">federadas e joins</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar16)">
+                        <path d="M130,58 L163,58"/>
+                        <path d="M295,58 L328,58"/>
+                        <path d="M460,58 L493,58"/>
+                        <path d="M615,58 L648,58"/>
+                    </g>
+                </svg>
+            </div>
+
+            <p>Os dois blocos de construção, comuns às duas formas:</p>
+            <ul>
+                <li><strong>Connection:</strong> guarda as credenciais e a configuração da fonte externa.</li>
+                <li><strong>Foreign Catalog:</strong> espelha o namespace da fonte dentro do Unity Catalog.</li>
+            </ul>
+
+            <h3>Catalog federation × lakehouse federation</h3>
+            <p>Elas diferem no <strong>que</strong> é federado: a catalog federation aponta para outro <strong>metastore</strong>, e a lakehouse federation aponta para outro <strong>banco de dados</strong>.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Dimensão</th><th>Catalog federation</th><th>Lakehouse federation</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>O que é federado</strong></td><td>Um metastore externo</td><td>Um banco de dados externo</td></tr>
+                        <tr><td><strong>Fontes</strong></td><td>Hive Metastore e AWS Glue</td><td>PostgreSQL (inclusive o Lakebase), SQL Server, Snowflake, MySQL, Redshift, BigQuery e outros</td></tr>
+                        <tr><td><strong>Tabelas expostas</strong></td><td>As tabelas existentes no metastore de origem</td><td>As tabelas e views do banco de origem</td></tr>
+                        <tr><td><strong>Leitura e escrita</strong></td><td>Lê no Unity Catalog, e escreve pelo engine de origem</td><td>Lê no Unity Catalog, e algumas fontes suportam escrita</td></tr>
+                        <tr><td><strong>Caso de uso principal</strong></td><td>Migrar de um metastore legado para o Unity Catalog</td><td>Consultar dados de OLTP ou de um warehouse externo junto com os do lakehouse</td></tr>
+                        <tr><td><strong>Direção de longo prazo</strong></td><td>Uma ponte para tabelas gerenciadas do Unity Catalog</td><td>Uma federação duradoura, e os dados ficam na fonte</td></tr>
+                        <tr><td><strong>Coberto em</strong></td><td>5.3 (aula) e 5.4 (demo)</td><td>5.2 (demo) e 5.5 (lab com o Lakebase)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>No que estudei, a catalog federation é a <a href="interoperabilidade-demo-5.html">Demo 5</a> (o Glue), e a lakehouse federation são as <a href="interoperabilidade-demo-4.html">Demos 4</a> (SQL Server e Snowflake) e <a href="interoperabilidade-demo-6.html">6</a> (o Lakebase). A correspondência é minha. Como as demos aparecem aqui como 5.2, 5.4 e 5.5, a numeração delas no meu site (Demo 4, 5 e 6) é só a ordem em que as recebi.</p>
+
+            <h3>Catalog federation: a ponte para metastores legados</h3>
+            <p>É usada principalmente para migrar de um Hive Metastore ou de um catálogo AWS Glue legado para o Unity Catalog <strong>sem interromper</strong> as cargas que já rodam sobre essas tabelas. O caminho típico de adoção:</p>
+            <ol>
+                <li>Registrar o metastore legado como um foreign catalog: as tabelas existentes ficam consultáveis pelo Unity Catalog imediatamente.</li>
+                <li>Os workloads passam gradualmente a ler pelo Unity Catalog, ganhando a governança dele.</li>
+                <li>As tabelas são migradas no local, de foreign para external e depois para managed.</li>
+                <li>Com todas as tabelas migradas, o foreign catalog pode ser aposentado.</li>
+            </ol>
+
+            <h3>Lakehouse federation: juntando bancos externos</h3>
+            <p>Expõe um banco externo "vivo" pelo Unity Catalog, para consultar e fazer join dos dados no local. Os predicados, as projeções e as agregações suportados são empurrados (<strong>pushdown</strong>) para a fonte. Os casos de uso típicos:</p>
+            <ul>
+                <li>juntar dados operacionais do PostgreSQL, do MySQL ou do SQL Server com dados analíticos do lakehouse, sem ETL;</li>
+                <li>ler de outro data warehouse (Snowflake, Redshift ou BigQuery) sob a governança do Unity Catalog;</li>
+                <li>expor dados OLTP no <strong>Lakebase</strong> (o PostgreSQL gerenciado pela Databricks) para as cargas do lakehouse.</li>
+            </ul>
+
+            <h3>O comportamento de pushdown</h3>
+            <p>O desempenho da lakehouse federation depende muito do que o Unity Catalog consegue empurrar para a fonte, em vez de trazer linhas para a Databricks.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Pushdown</th><th>Normalmente suportado</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Filtros, projeções e limits</td><td>Todas as fontes</td></tr>
+                        <tr><td>Agregações e operadores aritméticos</td><td>A maioria das fontes, em DBR 13.3 LTS ou superior e em SQL Warehouses</td></tr>
+                        <tr><td>Ordenação (com limit)</td><td>A maioria das fontes, em DBR 13.3 LTS ou superior e em SQL Warehouses</td></tr>
+                        <tr><td>Joins</td><td>Em DBR mais novo (por exemplo, o PostgreSQL exige DBR 17.2 ou superior, ou SQL Warehouses 2025.30 ou superior)</td></tr>
+                        <tr><td>Window functions</td><td>Geralmente não são empurradas</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Os detalhes variam por fonte. O lab 5.5 mostra como ler a saída do <code>EXPLAIN</code> para confirmar o que foi empurrado em uma consulta federada ao PostgreSQL, que é o que a Demo 6 faz com o <code>EXPLAIN FORMATTED</code>.</p>
+
+            <h3>Key Takeaways</h3>
+            <ul>
+                <li>A Lakehouse Federation cobre dois padrões distintos, construídos sobre as mesmas primitivas: connection e foreign catalog.</li>
+                <li>A <strong>catalog federation</strong> aponta o Unity Catalog para outro metastore (HMS e Glue), tipicamente uma ponte de migração.</li>
+                <li>A <strong>lakehouse federation</strong> aponta o Unity Catalog para outro banco (PostgreSQL/Lakebase, SQL Server, Snowflake e outros), tipicamente uma integração de longa duração.</li>
+                <li>As duas mantêm os dados no lugar: as <strong>credenciais e a configuração</strong> ficam na connection, e o <strong>namespace</strong> no foreign catalog.</li>
+                <li>O <strong>pushdown</strong> determina o desempenho da federação de lakehouse, e se verifica com o <code>EXPLAIN</code>.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> a pergunta é "o que estou federando?". Um <strong>metastore</strong> (Hive ou Glue) é catalog federation, uma ponte de migração: foreign, depois external, depois managed. Um <strong>banco</strong> (PostgreSQL, SQL Server, Snowflake e outros) é lakehouse federation, e os dados ficam na fonte. A infraestrutura é a mesma, connection e foreign catalog, e o desempenho depende do pushdown, conferido pelo <code>EXPLAIN</code>.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="interoperabilidade-licao-7.html">&larr; Governance with External Compute Engines</a>
+            <a href="interoperabilidade-licao-9.html">Migration to UC using a Federated Catalog &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

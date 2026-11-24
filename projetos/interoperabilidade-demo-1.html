@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Interoperability and Performance Benefits of Managed Tables do treinamento Data Interoperability with Unity Catalog: liquid clustering, tabelas Iceberg gerenciadas, Delta com UniForm e o endpoint Iceberg REST.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Interoperability and Performance Benefits of Managed Tables</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Interoperability and Performance Benefits of Managed Tables</h1>
+        <p>Data Interoperability with Unity Catalog · Demo 1</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-1">
+            <p class="lead">Esta demo, de cerca de 9 minutos, tem duas partes: o efeito do <strong>liquid clustering</strong> no desempenho de uma tabela com bilhões de linhas, e a criação de uma <strong>tabela Iceberg gerenciada</strong> e de uma <strong>tabela Delta com UniForm</strong>, para verificar que clientes Iceberg externos conseguem acessá-las.</p>
+
+            <p>Estas anotações partem de um resumo da demo, não da transcrição. Segundo o resumo, a única legenda do vídeo está em chinês simplificado, e o resumo foi feito a partir dela, então algum detalhe pode ter se perdido na tradução. O SQL que aparece é um esboço meu e não foi executado.</p>
+
+            <h3>O cenário</h3>
+            <p>A demo usa o dataset <strong>TPC-DS com scale factor 1000</strong>. A tabela <code>store_sales</code> tem cerca de <strong>2,8 bilhões de linhas</strong>.</p>
+
+            <h3>Parte 1: liquid clustering e desempenho</h3>
+            <p>O liquid clustering melhora as consultas porque permite ao planejador <strong>pular arquivos</strong>. O notebook de setup do instrutor já criou duas tabelas com os mesmos dados (cerca de 2,8 bilhões de linhas):</p>
+            <ul>
+                <li><code>store_sales_unclustered</code>, sem clustering;</li>
+                <li><code>store_sales_clustered</code>, com liquid clustering pelas colunas de <strong>date key e item key</strong>.</li>
+            </ul>
+            <p>A mesma consulta seletiva (uma janela de 7 dias e uma faixa de 11 itens) é rodada nas duas, comparando os <strong>arquivos lidos</strong> e os <strong>bytes lidos</strong>.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>Sem clustering</th><th>Com liquid clustering</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Tempo da consulta</td><td>cerca de <strong>1 minuto</strong></td><td><strong>3,45 s</strong></td></tr>
+                        <tr><td>Arquivos lidos</td><td><strong>1.024</strong></td><td><strong>1</strong></td></tr>
+                        <tr><td>Dados escaneados</td><td>mais de <strong>13,75 GB</strong></td><td>cerca de <strong>7 MB</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-container">
+                <pre><code>-- esboço meu: os nomes das colunas são os do TPC-DS e são só uma suposição
+CREATE TABLE store_sales_clustered
+CLUSTER BY (ss_sold_date_sk, ss_item_sk)
+AS SELECT * FROM store_sales;</code></pre>
+            </div>
+            <p>No vídeo, o DDL da tabela clusterizada aparece só como referência, e a consulta é literalmente a mesma nas duas tabelas.</p>
+
+            <h4>O layout físico e a poda de arquivos</h4>
+            <p>O <code>DESCRIBE DETAIL</code> mostra o layout físico (o número de arquivos, o tamanho e as colunas de clustering). Via Python, o tamanho em bytes é parecido nas duas tabelas, mas a clusterizada tem <strong>mais arquivos</strong>, porque o liquid clustering controla o layout, e mostra as colunas date key e item key.</p>
+            <p>Depois, mede-se quantos arquivos o Spark realmente abre, usando a coluna oculta <code>_metadata.file_path</code>, para calcular o <strong>percentual de poda</strong>:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tabela</th><th>Arquivos podados</th><th>Poda</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Sem clustering</td><td>676 arquivos</td><td><strong>66%</strong></td></tr>
+                        <tr><td>Com liquid clustering</td><td>só 1 arquivo foi lido</td><td><strong>99,96%</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>É isso que explica a diferença de cerca de 4 segundos contra cerca de 60.</p>
+
+            <div class="callout">
+                <p><strong>Ponto a conferir:</strong> o resumo diz que a tabela sem clustering leu 1.024 arquivos e que a poda dela foi de 676 arquivos (66%). Pelas contas, 676 de 1.024 dá 66%, então o número de 1.024 parece ser o total que ela poderia ter lido, e não o que a consulta leu depois da poda. Não tenho como confirmar qual das duas leituras é a do vídeo.</p>
+            </div>
+
+            <h3>Parte 2: interoperabilidade</h3>
+            <p>Os mesmos dados <code>store_sales</code> e as mesmas chaves de clustering, agora para interoperar com sistemas externos:</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Iceberg</span>
+                    <h4>Tabela Iceberg gerenciada</h4>
+                    <p>Criada com liquid clustering. Aqui, <strong>desabilita-se o deletion vectors e o row tracking</strong>, porque o leitor Iceberg do <strong>Snowflake</strong> não é compatível com esses recursos.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">UniForm</span>
+                    <h4>Tabela Delta com UniForm</h4>
+                    <p>Com a propriedade <code>delta.universalFormat.enabledFormats = iceberg</code>, que permite aos clientes Iceberg lerem a tabela Delta. Nas propriedades, a compatibilidade Iceberg (v3) aparece como habilitada.</p>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <pre><code>-- esboço meu: só a propriedade do UniForm vem do resumo
+CREATE TABLE store_sales_uniform
+CLUSTER BY (ss_sold_date_sk, ss_item_sk)
+TBLPROPERTIES ('delta.universalFormat.enabledFormats' = 'iceberg')
+AS SELECT * FROM store_sales;</code></pre>
+            </div>
+
+            <h3>Verificação com PyIceberg</h3>
+            <p>Cria-se também uma tabela Delta comum (<code>store_sales_delta_plain</code>, sem UniForm) como referência. Instala-se o <code>pyiceberg</code> e conecta-se ao <strong>endpoint Iceberg REST do Unity Catalog</strong>, com a URL do workspace, um token de API e o catálogo e o schema da sessão. Carrega-se o metadado de três tabelas:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tabela</th><th>Esperado</th><th>Resultado</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Iceberg gerenciada</td><td>Sucesso</td><td>Conectou</td></tr>
+                        <tr><td>Delta com UniForm</td><td>Sucesso</td><td>Conectou</td></tr>
+                        <tr><td>Delta comum</td><td>Falha</td><td><strong>Não é visível</strong> ao Iceberg REST</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Isso demonstra a conectividade a partir de clientes Iceberg externos. As demos seguintes conectam o <strong>Snowflake</strong> e o <strong>AWS EMR</strong> a essas tabelas.</p>
+
+            <h3>Conclusão</h3>
+            <p>O liquid clustering dá ganhos enormes de poda de arquivos e de tempo. E tanto a tabela Iceberg gerenciada quanto a Delta com UniForm ficam acessíveis a clientes Iceberg externos pelo catálogo REST do Unity Catalog, enquanto uma Delta comum não fica.</p>
+
+            <div class="callout">
+                <p><strong>Ligação com o treinamento anterior:</strong> as tabelas gerenciadas e as external locations vistas na <a href="data-governance-licao-1.html">lição Unity Catalog Fundamentals</a> são a base para entender por que o catálogo consegue expor as tabelas por um endpoint aberto. A ligação é minha.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o liquid clustering faz o planejador pular arquivos (neste caso, de 1.024 arquivos e cerca de 13 GB para 1 arquivo e cerca de 7 MB, e de cerca de 60 s para 3,45 s). Para os clientes Iceberg externos acessarem os dados, há duas opções: uma tabela Iceberg gerenciada (sem deletion vectors nem row tracking, para o Snowflake) ou uma tabela Delta com o UniForm. Uma tabela Delta comum não aparece no endpoint Iceberg REST do Unity Catalog.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+            <a href="interoperabilidade-demo-2.html">Powering Downstream Analytics in Snowflake &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

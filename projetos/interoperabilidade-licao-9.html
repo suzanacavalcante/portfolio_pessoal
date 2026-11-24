@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Migration to UC using a Federated Catalog do treinamento Data Interoperability with Unity Catalog: a catalog federation como ponte de migração, os comandos SET EXTERNAL e SET MANAGED, o dry run e o rollback.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Migration to UC using a Federated Catalog</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Migration to UC using a Federated Catalog</h1>
+        <p>Data Interoperability with Unity Catalog · Lição 9</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-9">
+            <p class="lead">Esta lição, do Módulo 5 (Lakehouse Federation), trata da <strong>catalog federation como ponte de migração</strong>: sair de metastores legados (Hive Metastore e AWS Glue) para o Unity Catalog <strong>sem interromper</strong> as cargas existentes. Cobre os prós e contras, a criação dos foreign catalogs, a migração in-place de foreign para managed e a validação.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição. Segundo o resumo, a lição foi lida por completo (a página não tinha blocos expansíveis), e o diagrama do contexto apareceu como texto Mermaid sem renderizar. A prática é a <a href="interoperabilidade-demo-5.html">Demo 5</a>, com o AWS Glue.</p>
+
+            <h3>O contexto</h3>
+            <p>A federação permite que o Unity Catalog atue como uma <strong>camada de leitura</strong> sobre um metastore existente: os usuários consultam o catálogo legado pelo Unity Catalog, enquanto as tabelas são migradas em etapas.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 150" role="img" aria-label="Catálogos legados, federação, Unity Catalog e tabelas gerenciadas, com a migração faseada em tracejado">
+                    <defs>
+                        <marker id="ar17" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="30" width="150" height="56" rx="6"/>
+                        <rect x="250" y="30" width="150" height="56" rx="6"/>
+                        <rect x="490" y="30" width="150" height="56" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="85" y="54" font-weight="700">Catálogos legados</text>
+                        <text x="85" y="71">Hive Metastore, Glue</text>
+                        <text x="325" y="54" font-weight="700">Unity Catalog</text>
+                        <text x="325" y="71">governança unificada</text>
+                        <text x="565" y="54" font-weight="700">Tabelas gerenciadas</text>
+                        <text x="565" y="71">recursos completos do UC</text>
+                        <text x="205" y="24" class="muted" font-size="11">federação</text>
+                        <text x="445" y="24" class="muted" font-size="11">migração</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar17)">
+                        <path d="M160,58 L248,58"/>
+                        <path d="M400,58 L488,58"/>
+                        <path d="M85,86 C85,140 565,140 565,88" stroke-dasharray="6 4"/>
+                    </g>
+                    <text x="325" y="136" fill="currentColor" font-size="11" text-anchor="middle" class="muted">migração faseada, direto dos legados para os recursos completos</text>
+                </svg>
+                <figcaption>A federação como ponte. O diagrama é meu, a partir do resumo</figcaption>
+            </div>
+
+            <ul>
+                <li>Estabelecer um caminho de migração dos catálogos legados para o Unity Catalog.</li>
+                <li>Manter a continuidade operacional.</li>
+                <li>Usar a federação como uma tecnologia-ponte, para a migração em fases.</li>
+                <li>Consolidar a governança gradualmente, minimizando as interrupções.</li>
+            </ul>
+
+            <h3>Prós e contras</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Prós</th><th>Contras</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Acesso aos recursos de governança do Unity Catalog, mantendo os workflows existentes</td><td>Overhead de desempenho ao consultar entre catálogos federados</td></tr>
+                        <tr><td>Migração sem downtime e com a mínima disrupção</td><td>Complexidade extra de gerenciar vários sistemas de catálogo</td></tr>
+                        <tr><td>As consultas entre catálogos permitem analytics sobre ativos legados e novos</td><td>Muitos recursos do Unity Catalog só existem para tabelas totalmente migradas</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Configurando foreign catalogs</h3>
+            <p>Os foreign catalogs são configurados encadeando <strong>IAM roles</strong>, <strong>credenciais de storage</strong>, um objeto de <strong>connection</strong> e o próprio <strong>foreign catalog</strong>. Os quatro passos para o AWS Glue:</p>
+            <ol>
+                <li><strong>Criar a(s) IAM Role(s)</strong> na AWS, com acesso ao Glue e ao storage S3 subjacente.</li>
+                <li><strong>Criar as credenciais de storage e de serviço</strong> na Databricks, usando a(s) role(s).</li>
+                <li><strong>Criar um objeto Connection</strong> na Databricks.</li>
+                <li><strong>Criar o Foreign Catalog,</strong> espelhando o banco do Glue.</li>
+            </ol>
+            <p>A abordagem varia por provedor, e o mesmo padrão vale para o Hive Metastore, o Snowflake e outras fontes federadas. Os passos são os da <a href="interoperabilidade-demo-5.html">Demo 5</a>, com o detalhe das duas roles, dos external IDs e da external location.</p>
+
+            <h3>A migração para tabelas gerenciadas</h3>
+            <p>A federação é um <strong>estado temporário</strong>. O objetivo de longo prazo é converter as tabelas foreign em tabelas gerenciadas pelo Unity Catalog, para liberar o conjunto completo de recursos.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Benefício</th><th>Detalhe</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Conjunto completo de recursos</strong></td><td>Os recursos de otimização, o monitoramento de qualidade e os ganhos de desempenho</td></tr>
+                        <tr><td><strong>Leitura e escrita</strong></td><td>Converte tabelas foreign, somente leitura, em tabelas gerenciadas de leitura e escrita</td></tr>
+                        <tr><td><strong>Governança aprimorada</strong></td><td>Gestão centralizada de metadados, com políticas unificadas</td></tr>
+                        <tr><td><strong>Administração simplificada</strong></td><td>Sem manter a sincronização com catálogos externos</td></tr>
+                        <tr><td><strong>Ganhos de desempenho</strong></td><td>Melhorias significativas em relação às foreign tables</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Os comandos de migração</h4>
+            <p>Dois <code>ALTER TABLE</code> movem a tabela de foreign para external e depois para managed. Na página, o nome da tabela aparece em branco, como um placeholder:</p>
+            <div class="code-container">
+                <pre><code>-- Converter tabela foreign em external
+ALTER TABLE &lt;tabela&gt; SET EXTERNAL;
+
+-- Converter tabela external em managed
+ALTER TABLE &lt;tabela&gt; SET MANAGED;</code></pre>
+            </div>
+
+            <div class="callout">
+                <p><strong>A migração in-place é a abordagem preferida,</strong> porque mantém os identificadores, as ACLs e as consultas downstream inalterados: preserva o <strong>namespace</strong> (os mesmos identificadores nas consultas), a <strong>continuidade de permissões</strong> (as ACLs intactas), exige <strong>mudanças mínimas de código</strong>, reduz o <strong>risco</strong> (com a possibilidade de rollback) e tem <strong>zero downtime</strong> (as cargas de produção continuam durante a migração).</p>
+            </div>
+
+            <h3>Testes e validação</h3>
+            <p>Antes de confirmar a migração, dry runs e verificações permitem confirmar a compatibilidade <strong>sem alterar o estado das tabelas</strong>.</p>
+
+            <h4>O dry run</h4>
+            <div class="code-container">
+                <pre><code>ALTER TABLE {foreign_table} SET {EXTERNAL|MANAGED} DRY RUN</code></pre>
+            </div>
+            <p>Valida a migração sem executá-la. As verificações da fase de dry run são:</p>
+            <ul>
+                <li>a compatibilidade do formato da tabela (Delta, Iceberg e outros);</li>
+                <li>as permissões do local de storage;</li>
+                <li>a compatibilidade de schema;</li>
+                <li>os benchmarks de desempenho.</li>
+            </ul>
+
+            <h4>O rollback</h4>
+            <p>Reverte tanto o estado da tabela quanto o dos dados. O comando <code>UNSET MANAGED</code> está disponível para as tabelas gerenciadas, e o <code>RESTORE</code> volta a versões anteriores.</p>
+
+            <h4>As considerações comuns</h4>
+            <ul>
+                <li>As tabelas gerenciadas exigem um storage location do Unity Catalog.</li>
+                <li>A cópia inicial dos dados pode causar uma latência temporária.</li>
+                <li>As tabelas apoiadas em DBFS exigem um tratamento especial.</li>
+                <li>Use utilitários Python para a conversão em lote de várias tabelas.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Sobre a Demo 5:</strong> a demo termina falando da trilha foreign → external → managed e dos comandos <code>SET EXTERNAL</code> e <code>SET MANAGED</code>, "sem reescrever dados quando possível". Esta lição é a que detalha essa etapa, com o dry run e o rollback. A ligação é minha.</p>
+            </div>
+
+            <h3>Key Takeaways</h3>
+            <ul>
+                <li>A federação é uma ponte <strong>zero-downtime</strong> para migrar ao Unity Catalog.</li>
+                <li>A migração <strong>in-place</strong> preserva os namespaces, as permissões e a compatibilidade das consultas.</li>
+                <li>O suporte a <strong>dry run</strong> permite validar com segurança antes de confirmar a migração.</li>
+                <li>As tabelas gerenciadas liberam o <strong>conjunto completo de recursos</strong> do Unity Catalog, incluindo o Predictive Optimization.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> a federação de um metastore legado é temporária. O caminho é registrar o legado como foreign catalog (IAM roles, credenciais, connection e foreign catalog), consultar pelo Unity Catalog e migrar tabela a tabela, no local: <code>SET EXTERNAL</code> e depois <code>SET MANAGED</code>. Antes, faz-se o <code>DRY RUN</code>, e há rollback pelo <code>UNSET MANAGED</code> e pelo <code>RESTORE</code>. O ganho é o conjunto completo de recursos, com a escrita e o Predictive Optimization.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="interoperabilidade-licao-8.html">&larr; Lakehouse Federation Overview</a>
+            <a href="interoperabilidade-licao-10.html">Data Interoperability Best Practices &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

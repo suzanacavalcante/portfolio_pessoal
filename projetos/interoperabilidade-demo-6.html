@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Implementing Lakehouse Federation do treinamento Data Interoperability with Unity Catalog: um projeto Lakebase Postgres federado como foreign catalog, joins entre sistemas e pushdown.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Implementing Lakehouse Federation</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Implementing Lakehouse Federation</h1>
+        <p>Data Interoperability with Unity Catalog · Demo 6</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-6">
+            <p class="lead">Esta demo, de cerca de 15 minutos, percorre o fluxo completo do <strong>Lakehouse Federation</strong>: criar um projeto <strong>Lakebase Postgres</strong>, popular uma pequena tabela de operações de loja, federá-la ao Unity Catalog como <strong>foreign catalog</strong>, e rodar uma consulta federada e um <strong>join entre sistemas</strong> com uma tabela fato TPC-DS nativa.</p>
+
+            <p>Estas anotações partem de um resumo da demo, não da transcrição. Segundo o resumo, a única legenda do vídeo está em chinês simplificado, e o resumo foi feito a partir dela. O resumo não traz o texto dos scripts, e por isso não escrevi código aqui.</p>
+
+            <h3>Objetivo, requisitos e setup</h3>
+            <p>A demo roda em <strong>serverless compute versão 5</strong>. O passo do Lakebase exige que a região do workspace suporte o <strong>Lakebase autoscaling</strong>.</p>
+            <p>O <strong>Lakebase</strong> é um Postgres gerenciado pela Databricks, para cargas <strong>OLTP</strong>, ao lado do lakehouse. A versão com autoscaling traz compute que <strong>escala até zero</strong>, <strong>branches</strong> e <strong>recuperação instantânea</strong>. Aqui ele faz o papel de um Postgres externo, então a mecânica de federação é a mesma de uma instância própria. Primeiro roda-se a célula de setup, que define o catálogo e o schema de trabalho do usuário.</p>
+
+            <h3>Os passos</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Passo</th><th>O que acontece</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>1. Criar o projeto Lakebase</strong></td><td>Na UI: abrir o Lakebase pelo app switcher, escolher Lakebase Postgres e <em>Create Project</em> ("My Project", com os padrões). Depois de implantado, capturam-se o <strong>host</strong> (a parte do Postgres URI após o <code>@</code>, até o <code>.com</code>), o <strong>usuário</strong> e o <strong>OAuth token</strong> (em <em>Connect</em> e <em>Copy OAuth Token</em>), guardados em um arquivo de texto</td></tr>
+                        <tr><td><strong>2. Tabelas no Lakebase</strong></td><td>No <strong>SQL Editor</strong> do Lakebase (banco <code>databricks_postgres</code>), o script padrão cria uma tabela de exemplo. Depois, um script da demo cria o schema <code>tpcds_ops</code>, recria a tabela <code>store_ops</code> e a preenche com dados gerados: <strong>4 registros</strong></td></tr>
+                        <tr><td><strong>3. Tabela no lado lakehouse</strong></td><td>Cria-se, por CTAS a partir de outro schema, a tabela <code>demo_store_sales_by_store</code> no schema <code>data_interoperability_tpcds</code>. No Catalog Explorer aparece como <strong>Delta gerenciada</strong></td></tr>
+                        <tr><td><strong>4. Connection</strong></td><td>Aponta para o projeto Postgres. Precisa do <strong>host</strong>, do <strong>usuário</strong> e do <strong>OAuth token</strong> capturados no início. Valida-se com o <code>DESCRIBE CONNECTION EXTENDED</code>, e ela aparece em Catalog e Connections</td></tr>
+                        <tr><td><strong>5. Foreign catalog</strong></td><td>O <code>CREATE FOREIGN CATALOG IF NOT EXISTS demo_store_ops_catalog</code>, usando a connection e o banco principal <code>databricks_postgres</code>. O Catalog Explorer mostra o tipo <strong>foreign</strong>, e dá para navegar nos schemas (incluindo o <code>tpcds_ops</code> e a tabela <code>store_ops</code>)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Com isso há uma conexão federada completa entre o Lakebase (OLTP Postgres) e o Unity Catalog. Os comandos SQL, como o <code>SHOW SCHEMAS</code> e o <code>DESCRIBE</code>, e as consultas também funcionam por um notebook.</p>
+
+            <div class="callout">
+                <p><strong>Diferença para a Demo 4:</strong> lá, a connection do SQL Server usava usuário e senha, e a do Snowflake, uma chave RSA. Aqui a autenticação é por <strong>OAuth token</strong>. Como o token do Lakebase é emitido pela própria Databricks, é provável que ele expire, mas o resumo não diz isso, e não tenho como confirmar.</p>
+            </div>
+
+            <h3>Consulta e join entre sistemas</h3>
+            <p>A consulta à <code>store_ops</code> retorna os dados fictícios inseridos. Depois, faz-se um <strong>join entre uma tabela do Lakebase e uma tabela do Unity Catalog</strong>, com <code>GROUP BY</code> e <code>COUNT</code>. As duas são tratadas como tabelas em schemas do mesmo ambiente: é uma consulta totalmente federada entre o OLTP Postgres e o lakehouse.</p>
+
+            <h3>Pushdown</h3>
+            <p>Uma agregação <code>COUNT</code> simples é enviada ao Postgres pela connection, e usa-se o <strong><code>EXPLAIN FORMATTED</code></strong>. O plano mostra que:</p>
+            <ul>
+                <li>a consulta inteira foi <strong>enviada ao Lakebase</strong> e executada no Postgres;</li>
+                <li>só o resultado voltou ao notebook;</li>
+                <li>aparece o operador de pushdown e a indicação de que o select é executado pelo <strong>engine externo</strong>.</li>
+            </ul>
+            <p>A conclusão é que o <strong>predicate pushdown é totalmente suportado</strong>: pela federação, o trabalho roda no sistema externo, para a máxima performance, e o resultado volta ao lakehouse.</p>
+
+            <h3>Limpeza</h3>
+            <p>Para repetir a demo, roda-se a célula de cleanup, que remove os objetos criados e permite uma execução limpa.</p>
+
+            <div class="callout">
+                <p><strong>Ligação com as outras demos:</strong> o padrão connection + foreign catalog é o mesmo da <a href="interoperabilidade-demo-4.html">Demo 4</a> e da <a href="interoperabilidade-demo-5.html">Demo 5</a>. O Lakebase Postgres também apareceu no <a href="data-governance-demo-1.html">tour pelo workspace</a>, como o banco operacional gerenciado. As ligações são minhas.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> um projeto Lakebase Postgres pode ser federado ao Unity Catalog como qualquer Postgres: uma connection (host, usuário e OAuth token) e um foreign catalog para o banco. Depois, as tabelas do Postgres se consultam e se juntam às do lakehouse em um mesmo SQL. O <code>EXPLAIN FORMATTED</code> confirma o pushdown: a consulta roda no Postgres, e só o resultado volta.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="interoperabilidade-demo-5.html">&larr; Foreign Catalog Connection to AWS Glue</a>
+            <a href="databricks-academy-unity-catalog-interoperability.html">Voltar ao treinamento &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

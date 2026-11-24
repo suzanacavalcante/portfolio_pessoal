@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Interoperability Patterns Overview do treinamento Data Interoperability with Unity Catalog: Iceberg REST Catalog, catalog federation e lakehouse federation.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Interoperability Patterns Overview</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Interoperability Patterns Overview</h1>
+        <p>Data Interoperability with Unity Catalog · Lição 3</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-3">
+            <p class="lead">Esta lição (a 1.3 do Módulo 1) apresenta os <strong>três padrões principais de interoperabilidade</strong> do Unity Catalog: o <strong>Iceberg REST Catalog</strong>, a <strong>catalog federation</strong> e a <strong>lakehouse federation</strong>. Em todos eles, o Unity Catalog é a camada central de governança. A lição também mapeia cada padrão à seção do curso em que ele é detalhado.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição. Segundo o resumo, a lição foi lida por completo, e os cartões da matriz de escolha já exibiam as respostas. As demos do treinamento são a prática de cada padrão, e a tabela mais abaixo as relaciona.</p>
+
+            <h3>O Unity Catalog como camada central de governança</h3>
+            <p>O Unity Catalog fica acima da camada de armazenamento e aplica um único conjunto de controles de governança, <strong>independentemente do formato da tabela ou do engine</strong> que consulta. Ele cobre as tabelas gerenciadas, as tabelas Iceberg, as tabelas externas, as foreign tables, os volumes e os modelos. Seja qual for o padrão, o ativo é governado no Unity Catalog com:</p>
+            <ul>
+                <li>o <strong>controle de acesso</strong> (inclusive o de granularidade fina);</li>
+                <li>a <strong>auditoria</strong>;</li>
+                <li>o <strong>lineage automatizado</strong>;</li>
+                <li>a <strong>descoberta</strong>.</li>
+            </ul>
+
+            <h3>Padrão 1: Iceberg REST Catalog</h3>
+            <p>O Unity Catalog implementa a especificação aberta <strong>Apache Iceberg REST Catalog</strong>. Assim, engines externos compatíveis com o Iceberg podem <strong>ler (e, em alguns casos, escrever)</strong> as tabelas gerenciadas do Unity Catalog diretamente, sem copiar dados.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 130" role="img" aria-label="Clientes Iceberg externos acessam o Unity Catalog pelo Iceberg REST com credential vending, e o Unity Catalog governa as tabelas no cloud storage">
+                    <defs>
+                        <marker id="ar13" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="30" width="190" height="62" rx="6"/>
+                        <rect x="285" y="30" width="190" height="62" rx="6"/>
+                        <rect x="560" y="30" width="190" height="62" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="105" y="54" font-weight="700">Clientes Iceberg</text>
+                        <text x="105" y="72">Snowflake, Trino, PyIceberg, Flink</text>
+                        <text x="380" y="54" font-weight="700">Unity Catalog</text>
+                        <text x="380" y="72">governança unificada</text>
+                        <text x="655" y="54" font-weight="700">Cloud storage</text>
+                        <text x="655" y="72">tabelas gerenciadas do UC</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar13)">
+                        <path d="M200,61 L283,61"/>
+                        <path d="M475,61 L558,61"/>
+                    </g>
+                    <text x="242" y="24" fill="currentColor" font-size="11" text-anchor="middle" class="muted">Iceberg REST + credential vending</text>
+                </svg>
+                <figcaption>O padrão Iceberg REST Catalog. O diagrama é meu, a partir do resumo</figcaption>
+            </div>
+
+            <p><strong>Quando usar:</strong></p>
+            <ul>
+                <li>engines analíticos downstream (Snowflake, Trino, Dremio e Starburst) precisam acessar as tabelas do Unity Catalog;</li>
+                <li>clientes Spark, Flink ou PyIceberg externos processam, fora da Databricks, dados governados pelo Unity Catalog;</li>
+                <li>quer-se <strong>uma única cópia</strong> no cloud storage, lida por vários engines.</li>
+            </ul>
+
+            <h3>Padrão 2: Catalog Federation</h3>
+            <p>Registra um <strong>metastore externo</strong> (Hive Metastore ou AWS Glue) como <strong>foreign catalog</strong> no Unity Catalog, para que as suas tabelas sejam consultáveis por ele, <strong>sem mudar onde os dados vivem</strong>. Há ainda uma migração opcional, in-place, para tabelas gerenciadas.</p>
+            <p><strong>Quando usar:</strong></p>
+            <ul>
+                <li>migrar de um metastore legado para o Unity Catalog sem interromper as cargas existentes;</li>
+                <li>dar a governança do Unity Catalog às tabelas gerenciadas por outro catálogo;</li>
+                <li>fazer uma adoção em fases, em que as tabelas foreign viram uma <strong>ponte</strong> para as tabelas gerenciadas.</li>
+            </ul>
+
+            <h3>Padrão 3: Lakehouse Federation</h3>
+            <p>Registra uma <strong>connection</strong> com um banco operacional ou analítico externo (por exemplo, o PostgreSQL via Lakebase, o SQL Server ou o Snowflake) e cria um <strong>foreign catalog</strong> para consultar essa fonte <strong>no lugar</strong>, a partir do Unity Catalog. Isso permite consultas federadas e <strong>joins entre sistemas</strong>.</p>
+            <p><strong>Quando usar:</strong></p>
+            <ul>
+                <li>juntar dados operacionais de um OLTP com dados analíticos do lakehouse, sem ETL;</li>
+                <li>expor dados de outro warehouse pela governança do Unity Catalog, com a movimentação mínima;</li>
+                <li>fazer o <strong>pushdown</strong> de filtros, projeções, agregações e joins para a fonte, onde houver suporte.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Cuidado com o nome:</strong> a catalog federation e a lakehouse federation às vezes são chamadas, as duas, de "Lakehouse Federation". A diferença está em <strong>o que é federado</strong>: um metastore (Hive Metastore ou Glue) ou um banco (SQL Server, PostgreSQL ou Snowflake).</p>
+            </div>
+
+            <h3>Relacionado: Open Sharing</h3>
+            <p>É um protocolo aberto <strong>separado</strong>, para compartilhar dados vivos com destinatários externos sem copiá-los, entre organizações e clouds. Está <strong>fora do escopo deste curso</strong>: a lição só o menciona por completude, porque ele foca no compartilhamento entre organizações, e não na consulta entre engines. (O treinamento anterior o citou na <a href="data-governance-demo-2.html">Demo 2</a>, com os privilégios de open sharing.)</p>
+
+            <h3>Escolhendo um padrão</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Preciso...</th><th>Padrão</th><th>Onde estudei</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Acessar as tabelas do Unity Catalog de outro engine (Snowflake ou EMR)</td><td><strong>Iceberg REST Catalog</strong></td><td><a href="interoperabilidade-demo-1.html">Demo 1</a>, <a href="interoperabilidade-demo-2.html">Demo 2</a> e <a href="interoperabilidade-demo-3.html">Demo 3</a></td></tr>
+                        <tr><td>Migrar do Hive Metastore ou do Glue para o Unity Catalog</td><td><strong>Catalog Federation</strong></td><td><a href="interoperabilidade-demo-5.html">Demo 5</a> (Glue)</td></tr>
+                        <tr><td>Juntar dados de um OLTP ou de um warehouse externo com o Unity Catalog</td><td><strong>Lakehouse Federation</strong></td><td><a href="interoperabilidade-demo-4.html">Demo 4</a> e <a href="interoperabilidade-demo-6.html">Demo 6</a></td></tr>
+                        <tr><td>Compartilhar dados com outra organização</td><td><strong>Open Sharing</strong></td><td>Fora do escopo do curso</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>As três primeiras linhas da matriz são da lição, com as seções 3 e 4 (Iceberg REST) e a seção 5 (as duas federações). A coluna "Onde estudei" é minha, e liga cada padrão às demos.</p>
+
+            <h3>Key Takeaways</h3>
+            <ul>
+                <li>O Unity Catalog é a camada central de governança em qualquer padrão.</li>
+                <li>O <strong>Iceberg REST Catalog</strong> conecta engines Iceberg externos às tabelas gerenciadas do Unity Catalog.</li>
+                <li>A <strong>catalog federation</strong> liga os metastores legados (Hive Metastore e Glue) ao Unity Catalog.</li>
+                <li>A <strong>lakehouse federation</strong> expõe bancos externos (PostgreSQL/Lakebase, SQL Server e Snowflake) pelo Unity Catalog.</li>
+                <li>O <strong>Open Sharing</strong> serve ao compartilhamento entre organizações (fora de escopo aqui).</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> a pergunta que escolhe o padrão é "o que eu quero fazer?". Se é <strong>servir</strong> as tabelas do Unity Catalog a outro engine, é o Iceberg REST. Se é <strong>trazer</strong> um metastore externo (Hive ou Glue), é a catalog federation. Se é <strong>consultar</strong> um banco externo no lugar, é a lakehouse federation. Nos três, a governança é a do Unity Catalog. O Open Sharing é um caso à parte, para outra organização.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="interoperabilidade-licao-2.html">&larr; Introduction to Open Table Formats</a>
+            <a href="interoperabilidade-licao-4.html">Performance Optimization with Managed Tables &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

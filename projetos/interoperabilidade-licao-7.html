@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Centralized Governance with UC with External Compute Engines do treinamento Data Interoperability with Unity Catalog: engines externos transformando e escrevendo em tabelas governadas pelo Unity Catalog.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Centralized Governance with UC with External Compute Engines</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Centralized Governance with UC with External Compute Engines</h1>
+        <p>Data Interoperability with Unity Catalog · Lição 7</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-7">
+            <p class="lead">Esta lição, do Módulo 3 (casos de uso de interoperabilidade), apresenta o segundo grande caso de uso: as cargas de <strong>transformação e escrita rodam em engines externos</strong> (EMR e Flink), enquanto o Unity Catalog continua impondo a <strong>governança</strong> sobre os dados que eles leem e escrevem.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição. Segundo o resumo, a lição foi lida por completo (a página não tinha blocos expansíveis), e o diagrama da seção de contexto apareceu como texto Mermaid sem renderizar. A prática é a <a href="interoperabilidade-demo-3.html">Demo 3</a>, com o AWS EMR.</p>
+
+            <h3>O contexto</h3>
+            <p>Aqui a Databricks <strong>deixa de ser o hub de computação</strong>. Os engines externos fazem o trabalho pesado, e o Unity Catalog permanece como o único ponto de governança sobre as tabelas.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 230" role="img" aria-label="O Unity Catalog governa; o AWS EMR, o Flink e o Spark externo escrevem no cloud storage, nas tabelas gerenciadas">
+                    <defs>
+                        <marker id="ar15" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="85" width="170" height="60" rx="6"/>
+                        <rect x="300" y="15" width="170" height="50" rx="6"/>
+                        <rect x="300" y="90" width="170" height="50" rx="6"/>
+                        <rect x="300" y="165" width="170" height="50" rx="6"/>
+                        <rect x="590" y="85" width="160" height="60" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="95" y="108" font-weight="700">Unity Catalog</text>
+                        <text x="95" y="126">governança central</text>
+                        <text x="385" y="36" font-weight="700">AWS EMR</text>
+                        <text x="385" y="52">ETL</text>
+                        <text x="385" y="111" font-weight="700">Apache Flink</text>
+                        <text x="385" y="127">streaming</text>
+                        <text x="385" y="186" font-weight="700">Spark externo</text>
+                        <text x="385" y="202">batch</text>
+                        <text x="670" y="108" font-weight="700">Cloud storage</text>
+                        <text x="670" y="126">tabelas gerenciadas do UC</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar15)">
+                        <path d="M180,105 L298,42"/>
+                        <path d="M180,115 L298,115"/>
+                        <path d="M180,125 L298,188"/>
+                        <path d="M470,42 L588,105"/>
+                        <path d="M470,115 L588,115"/>
+                        <path d="M470,188 L588,125"/>
+                    </g>
+                    <text x="240" y="62" fill="currentColor" font-size="11" text-anchor="middle" class="muted">credential vending / Iceberg REST</text>
+                </svg>
+                <figcaption>O fluxo do caso de uso. O diagrama é meu, a partir do resumo</figcaption>
+            </div>
+
+            <div class="callout">
+                <p><strong>A diferença-chave em relação ao caso de uso 1:</strong> as transformações e atualizações são feitas pelo <strong>compute externo</strong>, e não pela plataforma Databricks. O Unity Catalog atua puramente como camada de governança e de metadados.</p>
+            </div>
+
+            <h3>Os cenários de uso</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Cenário</th><th>Descrição</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Cientistas de dados no EMR</strong></td><td>O processamento especializado no EMR, mantendo a governança do Unity Catalog</td></tr>
+                        <tr><td><strong>Times de compliance</strong></td><td>A segurança de dados consistente, independentemente de onde roda o compute</td></tr>
+                        <tr><td><strong>ETL em engines externos</strong></td><td>Processos de ETL que atualizam tabelas gerenciadas pelo Unity Catalog</td></tr>
+                        <tr><td><strong>BI via Snowflake</strong></td><td>Os times de BI consultam pelo Snowflake, respeitando as políticas de acesso centralizadas</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>As metas:</p>
+            <ul>
+                <li>estabelecer o Unity Catalog como a camada central de governança e de metadados;</li>
+                <li>permitir que os engines externos executem transformações diretamente em tabelas Iceberg gerenciadas do Unity Catalog;</li>
+                <li>manter a governança unificada, aproveitando a computação especializada.</li>
+            </ul>
+
+            <h3>A implementação de referência: escrevendo dados do Unity Catalog a partir do EMR</h3>
+            <p>Ela espelha o padrão do processamento centralizado, mas <strong>acrescenta os privilégios de escrita</strong>, já que o engine externo vai modificar as tabelas do Unity Catalog. O pré-requisito é um usuário ou service principal com o papel Account Admin habilitado, e um papel equivalente no sistema externo.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Lado</th><th>Passos</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Databricks</strong></td>
+                            <td>
+                                <ol>
+                                    <li><strong>Habilitar o External Data Access</strong> no nível do metastore (Iceberg REST).</li>
+                                    <li><strong>Criar as tabelas gerenciadas:</strong> Iceberg gerenciada ou Delta com UniForm.</li>
+                                    <li><strong>Criar uma service principal,</strong> com um client secret.</li>
+                                    <li><strong>Conceder os privilégios:</strong> <code>EXTERNAL USE SCHEMA</code>, <code>SELECT</code>, <strong><code>MODIFY</code></strong> e <code>USE</code> no catálogo e no schema, para a service principal.</li>
+                                </ol>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>EMR</strong></td>
+                            <td>
+                                <ol>
+                                    <li><strong>Provisionar o cluster EMR,</strong> com o Spark e as bibliotecas de runtime do Iceberg.</li>
+                                    <li><strong>Configurar o Spark para o Unity Catalog:</strong> a URI do catálogo REST, a URI do token e o client ID e o secret da service principal, na configuração do Spark.</li>
+                                    <li><strong>Rodar o ETL contra as tabelas do Unity Catalog:</strong> referenciar as tabelas como destino dos jobs Spark e gravar de volta pelo REST catalog.</li>
+                                </ol>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>O privilégio MODIFY:</strong> diferentemente do padrão somente leitura, este cenário exige o <code>MODIFY</code> no schema, porque o engine externo faz operações de <strong>escrita</strong>.</p>
+            </div>
+
+            <p><strong>Outros sistemas:</strong> o mesmo padrão vale para o Spark standalone em Kubernetes, o Dataproc, o Trino e o Flink. Cada um tem a sua sintaxe de configuração do Iceberg REST catalog e das credenciais.</p>
+
+            <div class="callout">
+                <p><strong>Ligação com a Demo 3:</strong> é exatamente o que a <a href="interoperabilidade-demo-3.html">Demo 3</a> faz: uma service principal dedicada (<code>EMR Integration</code>) com o <code>MODIFY</code> e o <code>SELECT</code>, o Spark no EMR escrevendo na <code>store_sales_iceberg</code> e a auditoria por principal. A ligação é minha.</p>
+            </div>
+
+            <h3>Comparação com a lição anterior</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th><a href="interoperabilidade-licao-6.html">Processamento centralizado</a></th><th>Governança com compute externo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Quem processa</strong></td><td>A Databricks</td><td>O engine externo (EMR, Flink e outros)</td></tr>
+                        <tr><td><strong>O engine externo</strong></td><td>Só lê (o Snowflake, por <code>SELECT</code>)</td><td>Transforma e escreve</td></tr>
+                        <tr><td><strong>Privilégios da service principal</strong></td><td><code>EXTERNAL USE SCHEMA</code>, <code>SELECT</code> e <code>USE</code></td><td>Os mesmos, mais o <code>MODIFY</code></td></tr>
+                        <tr><td><strong>O Unity Catalog</strong></td><td>Governa os dados que a Databricks produz</td><td>É apenas governança e metadados</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>A comparação é uma síntese minha. Segundo o resumo, ela foi montada a partir dos textos das duas lições, e não é um trecho da página original.</p>
+
+            <h3>Key Takeaways</h3>
+            <ul>
+                <li>O Unity Catalog oferece governança centralizada mesmo quando o compute é externo.</li>
+                <li>Os engines externos precisam do privilégio <code>MODIFY</code> para escrever (ao contrário do acesso somente leitura).</li>
+                <li>O Iceberg REST Catalog e o credential vending permitem um compute externo seguro.</li>
+                <li>Todas as operações são auditadas e governadas pelo Unity Catalog, independentemente do engine.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> neste caso, o trabalho pesado roda no engine externo (EMR, Flink ou Spark), e o Unity Catalog só governa. A receita é a da leitura, mais o <code>MODIFY</code>: o external data access no metastore, as tabelas Iceberg ou Delta com UniForm, uma service principal com os grants e, no engine, a configuração do catálogo REST, com as credenciais da service principal. Tudo é auditado no Unity Catalog, seja qual for o engine.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="interoperabilidade-licao-6.html">&larr; Centralized Data Processing with External Analytics</a>
+            <a href="interoperabilidade-licao-8.html">Lakehouse Federation Overview &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

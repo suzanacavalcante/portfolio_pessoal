@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição External Access to Managed Tables do treinamento Data Interoperability with Unity Catalog: Unity REST API, Iceberg REST Catalog, credential vending e os quatro passos para configurar o acesso externo.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>External Access to Managed Tables</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>External Access to Managed Tables</h1>
+        <p>Data Interoperability with Unity Catalog · Lição 5</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-5">
+            <p class="lead">Esta lição trata do <strong>acesso externo às tabelas gerenciadas</strong> do Unity Catalog: os dois padrões de acesso (a <strong>Unity REST API</strong> e o <strong>Iceberg REST Catalog</strong>), o <strong>credential vending</strong> que sustenta os dois e os quatro passos para configurar o acesso de um cliente externo.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição. Segundo o resumo, a lição foi lida por completo, incluindo os blocos expansíveis, mas o bloco "Show Sequence Diagram" abriu sem conteúdo visível, então o fluxo do credential vending vem do texto da página. As demos <a href="interoperabilidade-demo-2.html">2</a> e <a href="interoperabilidade-demo-3.html">3</a> são a prática, com o Snowflake e o EMR.</p>
+
+            <h3>Dois padrões de acesso aberto</h3>
+            <p>O Unity Catalog expõe dois padrões de acesso aberto, que abrem as tabelas gerenciadas a vários engines externos sem abrir mão da governança. Os dois são especificações abertas.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>Unity REST API</th><th>Iceberg REST Catalog (IRC)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Para quem</strong></td><td>Clientes nativos de Delta: Apache Spark externo (com o conector Spark do Unity Catalog), DuckDB, Daft e Microsoft Fabric</td><td>Qualquer engine que fale a spec Iceberg REST: Snowflake, Trino, Dremio, Flink, Spark com o conector Iceberg e PyIceberg</td></tr>
+                        <tr><td><strong>Endpoint</strong></td><td><code>/api/2.1/unity-catalog</code>, na URL do workspace</td><td><code>/api/2.1/unity-catalog/iceberg-rest</code></td></tr>
+                        <tr><td><strong>O que suporta</strong></td><td>Ler, escrever e criar em tabelas gerenciadas e externas</td><td>Ler, escrever e criar em tabelas <strong>Iceberg</strong> gerenciadas, e <strong>somente leitura</strong> em tabelas gerenciadas Delta com UniForm</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>O Spark aparece nos dois grupos. A regra da lição é usar a <strong>Unity REST API</strong> para as tabelas gerenciadas Delta e o <strong>IRC</strong> para as tabelas Iceberg. O credential vending, com credenciais curtas e restritas a um caminho, é o mecanismo por baixo das duas.</p>
+
+            <h3>A Unity Catalog API</h3>
+            <p>É a superfície programática principal para os metadados, as permissões e o lineage.</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Área</th><th>Detalhe</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Cobertura</strong></td><td>A gestão de tabelas, schemas e catálogos, as permissões e o controle de acesso, a exploração de metadados, e o lineage e os audit logs</td></tr>
+                        <tr><td><strong>Autenticação</strong></td><td>OAuth 2.0 e service principals, personal access tokens, e a integração com AWS IAM e Azure AD</td></tr>
+                        <tr><td><strong>Casos de uso</strong></td><td>Aplicações de catálogo customizadas, automação DevOps, integração de ferramentas de terceiros e orquestração guiada por metadados</td></tr>
+                        <tr><td><strong>Métodos de acesso</strong></td><td>CLI, SDK e REST API</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>A especificação da API é open source (o repositório <code>unitycatalog/unitycatalog</code>, no GitHub).</p>
+
+            <h3>O Iceberg REST Catalog</h3>
+            <p>O IRC padroniza como os engines descobrem e leem as tabelas Iceberg, e o Unity Catalog implementa a spec diretamente. Ele é um <strong>serviço de diretório centralizado</strong>, que dá metadados e acesso às tabelas Iceberg por uma API padrão. No exemplo da lição, o Spark cria a tabela, o Unity Catalog implementa a spec, e então o Trino a enxerga, o Flink a processa e o Snowflake a consulta.</p>
+            <p>Os benefícios são uma API padronizada para qualquer engine, uma interoperabilidade real sem duplicar dados e a implementação completa da spec pelo Unity Catalog.</p>
+
+            <h4>Os engines externos</h4>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Engine</th><th>Acesso</th><th>Capacidades</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Snowflake</td><td>Leitura</td><td>Consulta as tabelas do Unity Catalog como Iceberg, por uma catalog integration</td></tr>
+                        <tr><td>Trino / Presto</td><td>Leitura e escrita</td><td>SQL completo em tabelas gerenciadas</td></tr>
+                        <tr><td>Apache Flink</td><td>Leitura e escrita</td><td>Streaming e batch</td></tr>
+                        <tr><td>Iceberg Kafka Connect</td><td>Escrita</td><td>Stream direto para tabelas Iceberg gerenciadas</td></tr>
+                        <tr><td>Apache Spark</td><td>Leitura e escrita</td><td>Acesso nativo ao catálogo Iceberg, de clusters Spark externos</td></tr>
+                        <tr><td>PyIceberg</td><td>Leitura</td><td>Um cliente Python, para acesso programático</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>O Snowflake aparece aqui só com leitura, como na <a href="interoperabilidade-demo-2.html">Demo 2</a>. E o Spark do EMR, com leitura e escrita, como na <a href="interoperabilidade-demo-3.html">Demo 3</a>. O PyIceberg foi o cliente de verificação da <a href="interoperabilidade-demo-1.html">Demo 1</a>.</p>
+
+            <h3>Credential vending: o mecanismo por baixo</h3>
+            <p>O credential vending <strong>não é um terceiro padrão de acesso</strong>. É o mecanismo que tanto a Unity REST API quanto o IRC usam para emitir <strong>credenciais curtas e restritas</strong> a clientes externos, sob demanda, mantendo a governança mesmo com a computação fora da Databricks.</p>
+            <ul>
+                <li>A spec Iceberg REST carrega as credenciais emitidas direto na resposta do <code>loadTable</code> (nos campos <code>config</code> e <code>storage-credentials</code>). Assim, toda chamada REST Iceberg já é uma chamada de credential vending.</li>
+                <li>É o <strong>mesmo mecanismo</strong> usado quando um cluster Databricks lê uma tabela gerenciada. O acesso externo só expõe a maquinaria existente a engines que não são da Databricks.</li>
+                <li>O <strong>Delta Sharing</strong> é um protocolo irmão, governado pelo Unity Catalog, mas com desenho próprio: o servidor pré-assina as URLs dos arquivos de dados, sem emitir credenciais de storage ao cliente. Por isso, ele não usa o credential vending.</li>
+            </ul>
+
+            <h4>O fluxo</h4>
+            <ol>
+                <li>O cliente externo se autentica no Unity Catalog.</li>
+                <li>É autorizado no nível da tabela.</li>
+                <li>A decisão de acesso é registrada, para a auditoria.</li>
+                <li>Ele recebe uma credencial curta, restrita ao caminho, para ler ou escrever direto no cloud storage.</li>
+            </ol>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Aspecto</th><th>Detalhe</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Mecanismo</strong></td><td>Gera credenciais temporárias e restritas para o acesso externo</td></tr>
+                        <tr><td><strong>Governança</strong></td><td>Mantém a governança do Unity Catalog ao permitir o acesso externo</td></tr>
+                        <tr><td><strong>Controles de segurança</strong></td><td>Escopos de acesso finos, expiração e rotação de tokens, e restrições por IP</td></tr>
+                        <tr><td><strong>Auditoria</strong></td><td>Audit logging completo de todo acesso externo</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Boa prática de segurança:</strong> use sempre o credential vending, com tokens de vida curta, no lugar de credenciais de longa duração. Configure restrições por IP e audite todos os padrões de acesso externo.</p>
+            </div>
+
+            <h3>Configurando o acesso externo: quatro passos</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Passo</th><th>O que é</th><th>Detalhes</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1. Habilitar</strong></td>
+                            <td>Abrir as portas no nível de workspace e de metastore</td>
+                            <td>Um toggle expõe o endpoint Iceberg REST do Unity Catalog, junto com as políticas de rede e de IP. As allow-lists são aplicadas antes de qualquer tráfego externo. Feito uma vez, por um responsável de plataforma ou governança, no console admin do workspace e nas configurações do metastore</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. Autenticar</strong></td>
+                            <td>Identificar e confiar no chamador externo</td>
+                            <td>Uma <strong>service principal OAuth</strong> (ou um token por usuário, para dev e teste) é a identidade dos engines externos, com os grants do Unity Catalog e a allow-list de IP. O Unity Catalog emite tokens de acesso curtos e faz o vending das credenciais de storage só para os arquivos necessários. Configurado no Unity Catalog (a service principal e os grants) e no secret scope do workspace, que guarda o segredo</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3. Conectar</strong></td>
+                            <td>Ligar o engine externo ao Unity Catalog</td>
+                            <td>O engine recebe a URL do endpoint Iceberg REST, as credenciais da service principal, o nome do warehouse ou catálogo e as opções específicas. Depois disso, ele descobre, carrega e (com o <code>MODIFY</code> concedido) escreve nas tabelas, como em um catálogo Iceberg nativo. O mecanismo varia: o Snowflake usa uma <code>CATALOG INTEGRATION</code>, o EMR usa a configuração de catálogo do Spark e o PyIceberg usa <code>load_catalog("rest", ...)</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>4. Monitorar</strong></td>
+                            <td>Verificar, auditar e rotacionar as credenciais</td>
+                            <td>As operações do dia 2: a revisão de audit logs, as consultas a system tables, a rotação de segredos e a verificação de pushdown. A <code>system.access.audit</code> mostra quem acessou o quê, e a <code>system.query.history</code> mostra as consultas executadas pelo engine externo. Os segredos devem ser rotacionados periodicamente, e os grants ajustados conforme a necessidade</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Os passos nas demos:</strong> a Demo 2 percorre os passos 1 a 3 com o Snowflake (o external data access no metastore, a service principal com os grants e a catalog integration), e a Demo 3 faz o mesmo com o EMR, acrescentando o <code>MODIFY</code>. O passo 4 (a auditoria por service principal) aparece na Demo 3. A ligação é minha.</p>
+            </div>
+
+            <h3>Key Takeaways</h3>
+            <ul>
+                <li>A <strong>UC REST API</strong> dá acesso programático aos metadados, à governança e ao lineage.</li>
+                <li>O <strong>Iceberg REST Catalog</strong> permite que qualquer engine compatível com o Iceberg descubra e leia ou escreva as tabelas do Unity Catalog, pela spec aberta.</li>
+                <li>O <strong>credential vending</strong> é o mecanismo por trás dos dois: credenciais curtas e restritas a um caminho a cada acesso, o mesmo usado internamente na computação Databricks.</li>
+                <li>O <strong>Delta Sharing</strong> é um protocolo irmão, governado pelo Unity Catalog, mas com URLs pré-assinadas, distinto do credential vending.</li>
+                <li>O acesso externo mantém <strong>toda a governança</strong> do Unity Catalog (permissões, auditoria e lineage).</li>
+                <li>O setup segue 4 passos: Habilitar, Autenticar, Conectar e Monitorar.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que não vi:</strong> o bloco "Show Sequence Diagram" abriu sem conteúdo visível, então o fluxo do credential vending, acima, vem do texto da própria lição, e não do diagrama.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> há duas portas de entrada, a Unity REST API (para clientes Delta) e o Iceberg REST Catalog (para engines Iceberg), e as duas usam o credential vending: credenciais curtas, restritas ao caminho, emitidas a cada acesso e auditadas. O IRC lê as tabelas Iceberg e as Delta com UniForm (esta só leitura), e escreve nas Iceberg gerenciadas. Para configurar: habilitar o acesso externo, criar uma service principal OAuth, configurar o engine e monitorar e rotacionar.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="interoperabilidade-licao-4.html">&larr; Performance Optimization with Managed Tables</a>
+            <a href="interoperabilidade-licao-6.html">Centralized Data Processing with External Analytics &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

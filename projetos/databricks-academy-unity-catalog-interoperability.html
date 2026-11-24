@@ -24,7 +24,111 @@
     <main>
         <section id="resumo">
             <h2>O que aprendi</h2>
-            <p>Conteúdo em preparação.</p>
+            <div class="card-grid">
+                <a class="info-card" href="interoperabilidade-licao-1.html">
+                    <span class="tag tag-core">Lição</span>
+                    <h4>Understanding Data Interoperability</h4>
+                    <p>Por que a interoperabilidade importa, as quatro barreiras comuns e o valor de negócio de quebrar os silos.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-licao-2.html">
+                    <span class="tag tag-core">Lição</span>
+                    <h4>Introduction to Open Table Formats</h4>
+                    <p>A anatomia do Delta Lake e do Apache Iceberg, as otimizações de cada um, o UniForm e o Iceberg v3.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-licao-3.html">
+                    <span class="tag tag-core">Lição</span>
+                    <h4>Interoperability Patterns Overview</h4>
+                    <p>Os três padrões, Iceberg REST Catalog, catalog federation e lakehouse federation, e como escolher entre eles.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-licao-4.html">
+                    <span class="tag tag-core">Lição</span>
+                    <h4>Interoperability and Performance Optimization with Managed Tables in Unity Catalog</h4>
+                    <p>Os tipos de tabela, as otimizações das gerenciadas e como escolher entre Delta, Delta com UniForm e Iceberg gerenciada.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-licao-5.html">
+                    <span class="tag tag-core">Lição</span>
+                    <h4>External Access to Managed Tables</h4>
+                    <p>A Unity REST API, o Iceberg REST Catalog, o credential vending e os quatro passos para configurar o acesso de um cliente externo.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-licao-6.html">
+                    <span class="tag tag-core">Lição</span>
+                    <h4>Centralized Data Processing with External Analytics</h4>
+                    <p>A Databricks como hub central de processamento, com Snowflake e Trino lendo as mesmas tabelas governadas pelo Unity Catalog.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-licao-7.html">
+                    <span class="tag tag-core">Lição</span>
+                    <h4>Centralized Governance with UC with External Compute Engines</h4>
+                    <p>Engines externos, como o EMR e o Flink, transformando e escrevendo em tabelas governadas pelo Unity Catalog, com o privilégio MODIFY.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-licao-8.html">
+                    <span class="tag tag-core">Lição</span>
+                    <h4>Lakehouse Federation Overview</h4>
+                    <p>Catalog federation e lakehouse federation, as connections e os foreign catalogs, os casos de uso e o comportamento de pushdown.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-licao-9.html">
+                    <span class="tag tag-core">Lição</span>
+                    <h4>Migration to UC using a Federated Catalog</h4>
+                    <p>A catalog federation como ponte de migração: os foreign catalogs, o SET EXTERNAL e o SET MANAGED, o dry run e o rollback.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-licao-10.html">
+                    <span class="tag tag-core">Lição</span>
+                    <h4>Data Interoperability Best Practices</h4>
+                    <p>A comparação dos três casos de uso, os princípios, as armadilhas comuns e o framework de decisão.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-demo-1.html">
+                    <span class="tag tag-core">Demo 1</span>
+                    <h4>Interoperability and Performance Benefits of Managed Tables</h4>
+                    <p>O ganho do liquid clustering em uma tabela de bilhões de linhas, e as tabelas Iceberg gerenciada e Delta com UniForm acessadas por clientes Iceberg externos.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-demo-2.html">
+                    <span class="tag tag-generic">Demo 2</span>
+                    <h4>Powering Downstream Analytics in Snowflake using UC Managed Tables</h4>
+                    <p>O Snowflake lendo as tabelas do Unity Catalog pelo endpoint Iceberg REST, com service principal, catalog integration e credenciais distribuídas.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-demo-3.html">
+                    <span class="tag tag-support">Demo 3</span>
+                    <h4>Processing UC Managed Iceberg Tables with AWS EMR</h4>
+                    <p>O Spark no AWS EMR escrevendo em uma tabela Iceberg gerenciada pelo Unity Catalog, com um INSERT e um UPDATE, e a validação no Databricks.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-demo-4.html">
+                    <span class="tag tag-core">Demo 4</span>
+                    <h4>Federation to SQL Server and Snowflake</h4>
+                    <p>O Lakehouse Federation: connections e foreign catalogs para consultar o SQL Server e o Snowflake no lugar, com predicate pushdown e joins entre plataformas.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-demo-5.html">
+                    <span class="tag tag-generic">Demo 5</span>
+                    <h4>Creating a Foreign Catalog Connection to AWS Glue Catalog</h4>
+                    <p>A federação do Glue: duas roles IAM de menor privilégio, as credenciais, a external location, a connection e o caminho de migração foreign, external e managed.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-demo-6.html">
+                    <span class="tag tag-support">Demo 6</span>
+                    <h4>Implementing Lakehouse Federation</h4>
+                    <p>Um projeto Lakebase Postgres federado como foreign catalog, com um join entre sistemas e a confirmação do pushdown pelo EXPLAIN FORMATTED.</p>
+                    <span class="card-link">Ver o que aprendi →</span>
+                </a>
+                <a class="info-card" href="interoperabilidade-quiz.html">
+                    <span class="tag tag-support">Quiz</span>
+                    <h4>Quiz do treinamento</h4>
+                    <p>20 perguntas sobre as lições e as demos, com explicação após cada resposta.</p>
+                    <span class="card-link">Fazer o quiz →</span>
+                </a>
+            </div>
+            <p>Os próximos conteúdos serão adicionados aqui conforme eu for estudando.</p>
         </section>
     </main>
 </body>

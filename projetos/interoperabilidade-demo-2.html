@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Powering Downstream Analytics in Snowflake using UC Managed Tables do treinamento Data Interoperability with Unity Catalog: o endpoint Iceberg REST, o service principal e a catalog integration do Snowflake.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Powering Downstream Analytics in Snowflake</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Powering Downstream Analytics in Snowflake using UC Managed Tables</h1>
+        <p>Data Interoperability with Unity Catalog · Demo 2</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-2">
+            <p class="lead">Esta demo, de cerca de 9 minutos, expõe ao <strong>Snowflake</strong> as tabelas da demo anterior (a <strong>Iceberg gerenciada</strong> e a <strong>Delta com UniForm</strong>), como motor analítico downstream. O caminho é o <strong>endpoint Iceberg REST</strong> do Unity Catalog e uma <strong>catalog integration</strong> do Snowflake. No fim, um analista do Snowflake faz um join em uma única consulta entre a tabela fato (no Unity Catalog) e uma dimensão (no Snowflake), <strong>sem copiar dados</strong>.</p>
+
+            <p>Estas anotações partem de um resumo da demo, não da transcrição. Segundo o resumo, a única legenda do vídeo está em chinês simplificado, e o resumo foi feito a partir dela. O SQL que aparece é um esboço meu, com marcadores no lugar dos valores, e não foi executado. A sintaxe exata deve ser conferida na documentação dos dois produtos.</p>
+
+            <h3>Objetivo e pré-requisitos</h3>
+            <p>As tabelas são a <code>store_sales_iceberg</code> e a <code>store_sales_delta_uniform</code>, criadas na <a href="interoperabilidade-demo-1.html">demo anterior</a>. O Unity Catalog continua sendo a <strong>autoridade de governança</strong> (as permissões, o lineage e a auditoria).</p>
+            <ul>
+                <li>Acesso em nível de conta nas duas plataformas: <strong>metastore admin ou account admin</strong> no Databricks, e <strong>account admin</strong> no Snowflake.</li>
+                <li>Uso de <strong>armazenamento gerenciado pelo cliente</strong>. Não funciona com o storage serverless gerenciado pela Databricks.</li>
+            </ul>
+
+            <h3>A arquitetura</h3>
+            <div class="diagram">
+                <svg viewBox="0 0 760 210" role="img" aria-label="O Snowflake autentica via OAuth como service principal no endpoint Iceberg REST do Unity Catalog e lê os dados direto do storage, com credenciais distribuídas">
+                    <defs>
+                        <marker id="ar8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="30" width="190" height="60" rx="6"/>
+                        <rect x="285" y="30" width="190" height="60" rx="6"/>
+                        <rect x="560" y="30" width="190" height="60" rx="6"/>
+                        <rect x="285" y="140" width="190" height="50" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="105" y="55" font-weight="700">Snowflake</text>
+                        <text x="105" y="73">catalog integration</text>
+                        <text x="380" y="55" font-weight="700">Unity Catalog</text>
+                        <text x="380" y="73">endpoint Iceberg REST</text>
+                        <text x="655" y="55" font-weight="700">Storage do cliente</text>
+                        <text x="655" y="73">dados das tabelas</text>
+                        <text x="380" y="161" font-weight="700">Service principal</text>
+                        <text x="380" y="178">OAuth, na conta Databricks</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar8)">
+                        <path d="M200,60 L283,60"/>
+                        <path d="M105,90 C105,130 200,165 283,165"/>
+                        <path d="M105,90 C105,10 640,0 655,28"/>
+                    </g>
+                    <text x="240" y="50" fill="currentColor" font-size="11" text-anchor="middle" class="muted">metadados</text>
+                    <text x="380" y="14" fill="currentColor" font-size="11" text-anchor="middle" class="muted">dados lidos direto, com credenciais distribuídas (vended)</text>
+                </svg>
+                <figcaption>A arquitetura da demo. O diagrama é meu, a partir do resumo</figcaption>
+            </div>
+            <p>No Snowflake, a catalog integration autentica via <strong>OAuth como service principal</strong> e cria referências a tabelas Iceberg. O analista consulta essas referências, e os dados são lidos direto do storage do Unity Catalog com <strong>credenciais distribuídas (vended)</strong>.</p>
+            <p>As verificações iniciais: as duas tabelas existem (uma Delta gerenciada e uma Iceberg gerenciada) e têm <strong>1 milhão de linhas</strong> cada. O primeiro passo de setup é habilitar o <strong>external data access</strong> no <strong>metastore</strong> (Catalog Explorer, a engrenagem e Metastore). Já estava ligado.</p>
+
+            <h3>Service principal e permissões (Databricks)</h3>
+            <ul>
+                <li>O <strong>service principal</strong> é a identidade com que o Snowflake se autentica. O Snowflake guarda credenciais OAuth, não tokens de usuário. Ele pode ser criado por SDK, API ou infraestrutura como código. Aqui já existia (<code>Snowflake Integration</code>, em Account Console, User Management e Service Principals).</li>
+                <li>Guarda-se o <strong>application ID</strong> (um UUID), usado na catalog integration e nos GRANTs, e o <strong>OAuth secret</strong> (só o secret ID é visível).</li>
+                <li>O service principal existe no nível da conta e <strong>não é membro de nenhum workspace</strong>. Precisa ser adicionado ao workspace de destino, em Permissions.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Cuidado com o secret:</strong> trate o OAuth secret como segredo. Não o versione, e use um gerenciador de segredos.</p>
+            </div>
+
+            <p>As permissões no Unity Catalog, em ordem:</p>
+            <ol>
+                <li><strong>EXTERNAL USE SCHEMA</strong> no schema: permite o acesso via Iceberg REST. Sem ele, o acesso só seria interno.</li>
+                <li>Os privilégios padrão: <strong>USE CATALOG</strong>, <strong>USE SCHEMA</strong> e <strong>SELECT</strong> nas duas tabelas.</li>
+            </ol>
+            <p>No GRANT, o principal é identificado pelo application ID. Depois, os grants são conferidos com o <code>SHOW GRANTS</code>.</p>
+
+            <div class="code-container">
+                <pre><code>-- esboço meu, com marcadores no lugar dos valores
+GRANT EXTERNAL USE SCHEMA ON SCHEMA &lt;catalogo&gt;.&lt;schema&gt; TO `&lt;application-id&gt;`;
+GRANT USE CATALOG ON CATALOG &lt;catalogo&gt; TO `&lt;application-id&gt;`;
+GRANT USE SCHEMA ON SCHEMA &lt;catalogo&gt;.&lt;schema&gt; TO `&lt;application-id&gt;`;
+GRANT SELECT ON TABLE &lt;catalogo&gt;.&lt;schema&gt;.store_sales_iceberg TO `&lt;application-id&gt;`;
+GRANT SELECT ON TABLE &lt;catalogo&gt;.&lt;schema&gt;.store_sales_delta_uniform TO `&lt;application-id&gt;`;</code></pre>
+            </div>
+
+            <h3>Catalog integration (Snowflake)</h3>
+            <p>Já como account admin no Snowflake, cria-se uma <strong>catalog integration</strong>, que é uma referência nomeada a um catálogo Iceberg externo. Ela empacota a URI do endpoint REST, as credenciais OAuth e o modo de distribuição de credenciais.</p>
+            <ul>
+                <li>A <strong>catalog URI</strong> e a <strong>OAuth token URI</strong> usam o nome de deployment do workspace.</li>
+                <li>O <strong>client ID</strong> é o ID do service principal (o client ID e o secret aparecem tarjados no vídeo).</li>
+                <li>O <strong>access delegation</strong> é configurado como credenciais distribuídas: o Unity Catalog entrega ao Snowflake <strong>credenciais de curta duração</strong>, em vez de ele manter credenciais de longa duração.</li>
+            </ul>
+            <p>Verifica-se com o <code>SHOW CATALOG INTEGRATIONS</code> e o <code>DESCRIBE</code>.</p>
+
+            <h3>Tabelas Iceberg no Snowflake</h3>
+            <p>Cada tabela Iceberg no Snowflake é <strong>uma referência</strong> à tabela do Unity Catalog, acessada pela catalog integration: <strong>nenhuma cópia dos dados</strong>, só metadados. Os comandos apontam o <code>CATALOG</code> para a integration criada e usam o <strong>auto-refresh = true</strong>, para o Snowflake reconsultar o Unity Catalog e atualizar os metadados no intervalo configurado.</p>
+
+            <h3>Consultas e conclusões</h3>
+            <ol>
+                <li><strong>Smoke test:</strong> 1 milhão de linhas nas duas tabelas, igual ao Unity Catalog, e o <code>DESCRIBE TABLE</code> mostra as colunas.</li>
+                <li><strong>Join:</strong> entre a tabela fato do Unity Catalog e a dimensão do Snowflake (com uma CTE de datas de exemplo), com sucesso.</li>
+            </ol>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Aspecto</th><th>Onde acontece</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Cópia de dados</td><td><strong>Nenhuma</strong>, em nenhum dos lados</td></tr>
+                        <tr><td>Compute da consulta</td><td>Inteiro no <strong>Snowflake</strong></td></tr>
+                        <tr><td>Governança e gestão das tabelas</td><td>No <strong>Unity Catalog</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Ligação com o treinamento anterior:</strong> o <code>EXTERNAL USE SCHEMA</code> é mais um privilégio na cadeia que a <a href="data-governance-licao-3.html">lição Privileges in Unity Catalog</a> descreve (<code>USE CATALOG</code>, <code>USE SCHEMA</code> e <code>SELECT</code>), e o service principal é um dos principais da ACL. A ligação é minha.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> para o Snowflake ler as tabelas do Unity Catalog sem copiar os dados, são necessários: o external data access habilitado no metastore, um service principal (adicionado ao workspace) com <code>EXTERNAL USE SCHEMA</code>, <code>USE CATALOG</code>, <code>USE SCHEMA</code> e <code>SELECT</code>, e uma catalog integration no Snowflake, com credenciais distribuídas de curta duração. As tabelas ficam como referências, com auto-refresh. O compute roda no Snowflake, e a governança continua no Unity Catalog.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="interoperabilidade-demo-1.html">&larr; Interoperability and Performance Benefits</a>
+            <a href="interoperabilidade-demo-3.html">Processing UC Managed Iceberg Tables with AWS EMR &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

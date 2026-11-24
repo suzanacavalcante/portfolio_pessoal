@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Federation to SQL Server and Snowflake do treinamento Data Interoperability with Unity Catalog: Lakehouse Federation, connections, foreign catalogs e predicate pushdown.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Federation to SQL Server and Snowflake</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-unity-catalog-interoperability.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Federation to SQL Server and Snowflake</h1>
+        <p>Data Interoperability with Unity Catalog · Demo 4</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-4">
+            <p class="lead">Esta demo, de cerca de 8 minutos e meio, mostra o <strong>Lakehouse Federation</strong>, o "outro lado" da interoperabilidade. Nas demos anteriores, o Unity Catalog servia tabelas a motores externos pelo Iceberg REST. Agora o Unity Catalog <strong>alcança sistemas externos e os consulta no lugar</strong>, sem mover dados: primeiro o SQL Server, depois o Snowflake.</p>
+
+            <p>Estas anotações partem de um resumo da demo, não da transcrição. Segundo o resumo, a única legenda do vídeo está em chinês simplificado, e o resumo foi feito a partir dela. O resumo não traz o texto dos comandos, e por isso não escrevi código aqui.</p>
+
+            <h3>Pré-requisitos</h3>
+            <ul>
+                <li>No Databricks: <strong>metastore admin</strong> (ou, no mínimo, o privilégio <code>CREATE CONNECTION</code>).</li>
+                <li>No SQL Server: um login <strong>sysadmin</strong>, para provisionar o login de federação.</li>
+                <li>No Snowflake: <strong>account admin</strong>.</li>
+                <li>Conectividade de rede do workspace para as duas fontes.</li>
+            </ul>
+
+            <h3>O padrão: connection e foreign catalog</h3>
+            <div class="diagram">
+                <svg viewBox="0 0 760 140" role="img" aria-label="Fonte externa, connection, foreign catalog e consulta no Unity Catalog">
+                    <defs>
+                        <marker id="ar9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="30" width="150" height="56" rx="6"/>
+                        <rect x="220" y="30" width="150" height="56" rx="6"/>
+                        <rect x="430" y="30" width="150" height="56" rx="6"/>
+                        <rect x="640" y="30" width="110" height="56" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="85" y="53" font-weight="700">Fonte externa</text>
+                        <text x="85" y="71">SQL Server, Snowflake</text>
+                        <text x="295" y="53" font-weight="700">Connection</text>
+                        <text x="295" y="71">host, porta, credenciais</text>
+                        <text x="505" y="53" font-weight="700">Foreign catalog</text>
+                        <text x="505" y="71">referencia o banco</text>
+                        <text x="695" y="53" font-weight="700">SQL</text>
+                        <text x="695" y="71">consulta no lugar</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar9)">
+                        <path d="M220,58 L162,58"/>
+                        <path d="M430,58 L372,58"/>
+                        <path d="M640,58 L582,58"/>
+                    </g>
+                    <text x="380" y="120" fill="currentColor" font-size="12" text-anchor="middle" class="muted">As setas mostram quem depende de quem: a consulta usa o foreign catalog, que usa a connection, que alcança a fonte</text>
+                </svg>
+                <figcaption>O padrão geral da federação. O diagrama é meu, a partir do resumo</figcaption>
+            </div>
+            <ul>
+                <li>A <strong>connection</strong> é um objeto do Unity Catalog que guarda o host, a porta e as credenciais da fonte. É criada uma vez e pode ser reutilizada em vários foreign catalogs. As opções dependem do sistema de origem.</li>
+                <li>O <strong>foreign catalog</strong> referencia um banco da fonte e o expõe como um catálogo do Unity Catalog.</li>
+            </ul>
+
+            <h3>SQL Server</h3>
+            <p>A fonte é uma instância SQL Server com o banco de exemplo <strong>AdventureWorksDW</strong> (mostrado no SSMS).</p>
+
+            <h4>Login e connection</h4>
+            <ol>
+                <li>No SQL Server, provisiona-se um <strong>login SQL dedicado</strong>, com <strong>menor privilégio</strong>: cria-se o login, cria-se o usuário do banco e adiciona-se a uma role com acesso aos dados, com uma instrução para validar as credenciais.</li>
+                <li>No Unity Catalog, cria-se a <strong>connection</strong>. Aqui se usa usuário e senha, só para a clareza da demo.</li>
+                <li>Valida-se com o <code>DESCRIBE CONNECTION EXTENDED</code>.</li>
+            </ol>
+
+            <div class="callout">
+                <p><strong>Em produção:</strong> não use a senha escrita direto na connection. Use um <strong>secret scope</strong>.</p>
+            </div>
+
+            <h4>Foreign catalog</h4>
+            <p>Com a connection, cria-se um foreign catalog que referencia o banco AdventureWorksDW. O <code>DESCRIBE</code> mostra o tipo <strong>foreign</strong>. Na exploração:</p>
+            <ul>
+                <li>o <code>SHOW SCHEMAS</code> devolve a mesma lista que o SQL Server direto;</li>
+                <li>o <code>SHOW TABLES</code> no schema <code>dbo</code> lista as tabelas fato e dimensão;</li>
+                <li>o <code>DESCRIBE</code> da dimensão account mostra as colunas, retornadas do SQL Server;</li>
+                <li>uma consulta sobre fato e dimensão do foreign catalog retorna dados.</li>
+            </ul>
+
+            <h3>Snowflake</h3>
+            <p>O padrão é semelhante, mas como o Snowflake <strong>depreciou a autenticação só por senha</strong>, usa-se um <strong>par de chaves RSA</strong>.</p>
+
+            <h4>No Snowflake</h4>
+            <ol>
+                <li>Cria-se uma <strong>role de federação</strong>.</li>
+                <li>Cria-se um <strong>service user</strong>, que usa essa role, e concede-se a role ao usuário.</li>
+                <li>Concedem-se à role os privilégios nos objetos permitidos.</li>
+                <li>Atribui-se a <strong>chave pública</strong> ao usuário.</li>
+                <li>Valida-se com o <code>DESCRIBE USER</code> e o <code>SHOW GRANTS</code>.</li>
+            </ol>
+
+            <h4>No Unity Catalog</h4>
+            <p>A connection do Snowflake tem propriedades diferentes das do SQL Server: o <strong>warehouse</strong> virtual, a <strong>role</strong> criada e a <strong>pem_private_key</strong>, que vem de um <strong>secret scope</strong> (<code>Snowflake Migration</code>). O <code>DESCRIBE CONNECTION EXTENDED</code> mostra as opções.</p>
+            <p>Depois, cria-se um foreign catalog para o banco de dados de amostra do Snowflake. O <code>SHOW SCHEMAS</code> mostra os schemas TPC-DS e TPC-H, lista-se as tabelas do <code>tpch_sf_1</code> e faz-se o <code>DESCRIBE</code> da tabela <code>nation</code>.</p>
+
+            <div class="callout">
+                <p><strong>O ponto alto:</strong> uma única SQL faz um <strong>join entre a <code>nation</code> do Snowflake e a <code>samples.tpch.nation</code> do Databricks</strong>, atravessando dois sistemas sem mover dados.</p>
+            </div>
+
+            <h3>Pushdown e conclusões</h3>
+            <p>As duas connections suportam o <strong>predicate pushdown</strong>, em que os filtros são enviados à fonte. Dá para ver pelo <code>EXPLAIN</code>. Há diferenças sutis entre os conectores (Snowflake e SQL Server) a considerar.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Ponto</th><th>O que lembrar</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>O padrão</td><td><strong>Connection + foreign catalog</strong> é o padrão geral de federação, igual para o SQL Server, o Snowflake e qualquer outra fonte suportada</td></tr>
+                        <tr><td>A configuração</td><td>O provisionamento na fonte é <strong>desacoplado</strong> da configuração no Databricks, então há configuração nas duas pontas</td></tr>
+                        <tr><td>A governança</td><td>O Unity Catalog governa a federação, mas, diferente das demos de Iceberg e UniForm, <strong>os dados são governados pela plataforma de origem</strong></td></tr>
+                        <tr><td>Joins entre plataformas</td><td>São possíveis em uma única SQL, e o planejador empurra os filtros e as agregações quando possível (confirma-se com o <code>EXPLAIN FORMATTED</code>)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Ligação com as outras páginas:</strong> a connection e o foreign catalog são os conceitos que a <a href="data-governance-licao-2.html">lição Centralized Governance and Visibility</a> apresentou como a base da federação lakehouse. E o <code>CREATE CONNECTION</code> é um dos privilégios do metastore na <a href="data-governance-licao-3.html">lição Privileges in Unity Catalog</a>. As ligações são minhas.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> a federação é o caminho contrário do Iceberg REST: em vez de servir os dados a um engine externo, o Unity Catalog consulta a fonte no lugar. O padrão é criar uma connection (com as credenciais, de preferência em um secret scope) e um foreign catalog por banco. A fonte é configurada com o menor privilégio (no Snowflake, com um par de chaves RSA). Os filtros são empurrados à fonte, e dá para fazer joins entre plataformas, mas a governança dos dados continua na plataforma de origem.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="interoperabilidade-demo-3.html">&larr; Processing UC Managed Iceberg Tables with AWS EMR</a>
+            <a href="interoperabilidade-demo-5.html">Foreign Catalog Connection to AWS Glue &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>
