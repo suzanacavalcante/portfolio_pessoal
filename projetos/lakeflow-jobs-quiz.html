@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Quiz interativo com 20 perguntas sobre os conceitos do treinamento Deploy Workloads with Lakeflow Jobs: jobs, tasks, compute, triggers, tarefas condicionais, reparo e produção.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Quiz: Deploy Workloads with Lakeflow Jobs</title>
+    <style>
+        .quiz {
+            --ok: #3ecf8e;
+            --ok-bg: rgba(62, 207, 142, .12);
+            --bad: #ff6b81;
+            --bad-bg: rgba(255, 107, 129, .12);
+            margin: 2rem 0 4rem;
+        }
+
+        .quiz-intro {
+            text-align: center;
+            padding: 3.2rem 2rem;
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .quiz-intro h2 {
+            border: 0;
+            padding: 0;
+            margin-bottom: 1rem;
+        }
+
+        .quiz-intro h2::after { display: none; }
+
+        .quiz-intro ul {
+            display: inline-block;
+            text-align: left;
+            margin: 1.2rem 0 2rem;
+            padding-left: 2rem;
+            font-size: 1.4rem;
+        }
+
+        .quiz-btn {
+            display: inline-block;
+            padding: 1.1rem 2.8rem;
+            border: 0;
+            border-radius: 999px;
+            background: var(--gradient-brand);
+            color: #fff;
+            font-family: inherit;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .2s var(--ease), box-shadow .2s var(--ease), opacity .2s var(--ease);
+        }
+
+        .quiz-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -10px var(--color-blue); }
+        .quiz-btn:focus-visible, .quiz-opt:focus-visible { outline: 3px solid var(--color-azul); outline-offset: 3px; }
+
+        .quiz-btn.ghost {
+            background: transparent;
+            border: 1px solid var(--border-soft);
+            color: var(--color-white);
+        }
+
+        .quiz-btn.ghost:hover { border-color: var(--color-blue-light); box-shadow: none; }
+
+        .quiz-card {
+            padding: 2.4rem;
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .quiz-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--color-white-dim);
+        }
+
+        .quiz-bar {
+            height: .8rem;
+            border-radius: 999px;
+            background: var(--surface-2);
+            overflow: hidden;
+            margin-bottom: 2.4rem;
+        }
+
+        .quiz-bar span {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: 999px;
+            background: var(--gradient-brand);
+            transition: width .4s var(--ease);
+        }
+
+        .quiz-q {
+            margin: 0 0 2rem;
+            color: var(--color-white);
+            font-size: 2rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .quiz-opts {
+            display: grid;
+            gap: 1.1rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .quiz-opt {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.4rem;
+            width: 100%;
+            padding: 1.4rem 1.6rem;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+            background: var(--surface-2);
+            color: var(--color-white);
+            font-family: inherit;
+            font-size: 1.5rem;
+            text-align: left;
+            cursor: pointer;
+            transition: border-color .2s var(--ease), background .2s var(--ease), transform .2s var(--ease);
+        }
+
+        .quiz-opt:hover:not(:disabled) { border-color: var(--color-blue-light); transform: translateX(3px); }
+        .quiz-opt:disabled { cursor: default; }
+
+        .quiz-key {
+            flex: none;
+            display: grid;
+            place-items: center;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--color-blue-light);
+        }
+
+        .quiz-opt.correct { border-color: var(--ok); background: var(--ok-bg); }
+        .quiz-opt.correct .quiz-key { background: var(--ok); border-color: var(--ok); color: #04130c; }
+        .quiz-opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+        .quiz-opt.wrong .quiz-key { background: var(--bad); border-color: var(--bad); color: #1a0409; }
+        .quiz-opt.dim { opacity: .55; }
+
+        .quiz-feedback {
+            display: none;
+            margin-top: 2rem;
+            padding: 1.6rem 1.8rem;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--color-blue-light);
+            background: var(--surface-2);
+            font-size: 1.4rem;
+        }
+
+        .quiz-feedback.show { display: block; animation: quizIn .3s var(--ease); }
+        .quiz-feedback.ok { border-left-color: var(--ok); }
+        .quiz-feedback.bad { border-left-color: var(--bad); }
+        .quiz-feedback strong { display: block; margin-bottom: .4rem; color: var(--color-white); font-size: 1.5rem; }
+
+        .quiz-next { margin-top: 2rem; text-align: right; }
+        .quiz-next .quiz-btn[hidden] { display: none; }
+
+        .quiz-result { text-align: center; }
+
+        .quiz-ring {
+            position: relative;
+            width: 16rem;
+            height: 16rem;
+            margin: 1rem auto 2rem;
+        }
+
+        .quiz-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .quiz-ring circle { fill: none; stroke-width: 10; }
+        .quiz-ring .track { stroke: var(--surface-2); }
+        .quiz-ring .value { stroke: url(#quizGrad); stroke-linecap: round; transition: stroke-dashoffset 1s var(--ease); }
+
+        .quiz-ring .score {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-content: center;
+            color: var(--color-white);
+            font-size: 3.6rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .quiz-ring .score small { display: block; margin-top: .6rem; font-size: 1.3rem; font-weight: 500; color: var(--color-white-dim); }
+
+        .quiz-result h2 { border: 0; padding: 0; margin-bottom: .8rem; }
+        .quiz-result h2::after { display: none; }
+
+        .quiz-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.2rem; margin: 2rem 0; }
+
+        .quiz-review { margin-top: 3rem; text-align: left; }
+        .quiz-review h3 { margin-bottom: 1.4rem; }
+
+        .quiz-review-item {
+            margin-bottom: 1.4rem;
+            padding: 1.6rem 1.8rem;
+            border-radius: var(--radius-sm);
+            background: var(--surface-2);
+            border-left: 4px solid var(--bad);
+            font-size: 1.4rem;
+        }
+
+        .quiz-review-item p { margin: 0 0 .6rem; }
+        .quiz-review-item .q { color: var(--color-white); font-weight: 600; }
+        .quiz-review-item .mine { color: var(--bad); }
+        .quiz-review-item .right { color: var(--ok); }
+
+        .quiz-perfect {
+            padding: 1.6rem;
+            border-radius: var(--radius-sm);
+            background: var(--ok-bg);
+            border: 1px solid var(--ok);
+            color: var(--color-white);
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        .quiz-best { margin-top: 1.4rem; font-size: 1.3rem; }
+
+        @keyframes quizIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: none; }
+        }
+
+        @media (max-width: 600px) {
+            .quiz-card { padding: 1.6rem; }
+            .quiz-q { font-size: 1.7rem; }
+            .quiz-opt { font-size: 1.4rem; padding: 1.2rem; }
+            .quiz-next { text-align: center; }
+            .quiz-next .quiz-btn { width: 100%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .quiz *, .quiz *::before { transition: none !important; animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-jobs.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Quiz do treinamento de Lakeflow Jobs</h1>
+        <p>Databricks Academy · Treinamento 7 de 9</p>
+        <span>Quiz</span>
+    </header>
+
+    <main>
+        <div class="quiz" id="quiz" aria-live="polite">
+            <div class="quiz-intro" id="quizIntro">
+                <h2>Teste o que aprendeu em Deploy Workloads with Lakeflow Jobs</h2>
+                <p>Este quiz tem 20 perguntas de múltipla escolha sobre os conceitos das lições e das demos do treinamento. As perguntas são minhas, escritas a partir do que estudei.</p>
+                <ul>
+                    <li>Uma pergunta por vez, com a explicação logo após cada resposta</li>
+                    <li>Ao final, a pontuação e a revisão do que você errou</li>
+                    <li>As alternativas mudam de ordem a cada tentativa</li>
+                    <li>Você pode usar as teclas 1 a 4 para responder e Enter para avançar</li>
+                </ul>
+                <div><button class="quiz-btn" id="quizStart" type="button">Começar o quiz</button></div>
+                <p class="quiz-best" id="quizBest" hidden></p>
+            </div>
+
+            <div class="quiz-card" id="quizCard" hidden>
+                <div class="quiz-top">
+                    <span id="quizCount">Pergunta 1 de 20</span>
+                    <span id="quizScoreLive">0 acertos</span>
+                </div>
+                <div class="quiz-bar" role="progressbar" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" id="quizBar"><span></span></div>
+                <h2 class="quiz-q" id="quizQuestion" style="border:0;padding:0;"></h2>
+                <ul class="quiz-opts" id="quizOptions"></ul>
+                <div class="quiz-feedback" id="quizFeedback" role="status"></div>
+                <div class="quiz-next"><button class="quiz-btn" id="quizNext" type="button" hidden>Próxima pergunta</button></div>
+            </div>
+
+            <div class="quiz-card quiz-result" id="quizResult" hidden>
+                <div class="quiz-ring">
+                    <svg viewBox="0 0 120 120" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="quizGrad" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0" stop-color="#8A2BE2"/>
+                                <stop offset="1" stop-color="#e0388f"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="track" cx="60" cy="60" r="52"/>
+                        <circle class="value" id="quizRing" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+                    </svg>
+                    <div class="score"><span id="quizScoreText">0/20</span><small id="quizPercent">0%</small></div>
+                </div>
+                <h2 id="quizVerdict"></h2>
+                <p id="quizVerdictText"></p>
+                <div class="quiz-actions">
+                    <button class="quiz-btn" id="quizRetry" type="button">Refazer o quiz</button>
+                    <a class="quiz-btn ghost" href="databricks-academy-lakeflow-jobs.html">Rever o treinamento</a>
+                </div>
+                <div class="quiz-review" id="quizReview"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        (function () {
+            var QUESTIONS = [
+                {
+                    q: "O que é um job no Lakeflow Jobs?",
+                    o: ["Um conjunto de uma ou mais tasks, que são as unidades individuais de trabalho", "Um cluster que fica ligado o tempo todo", "Uma tabela do Unity Catalog que guarda o histórico de execuções", "Um tipo de task que só roda notebooks"],
+                    a: 0,
+                    e: "O job é o contêiner de nível superior. Cada task tem um tipo (notebook, SQL, pipeline, dbt, dashboard e outros), uma origem de código e um compute."
+                },
+                {
+                    q: "Qual tipo de task serve para rodar o mesmo script com parâmetros diferentes, uma vez para cada item de uma lista?",
+                    o: ["For Each", "If/Else", "Run Job", "Notebook, com um laço dentro do código"],
+                    a: 0,
+                    e: "O For Each tem um iterador (o contêiner, com as entradas) e uma tarefa aninhada, que roda uma vez por item e recebe o valor da iteração."
+                },
+                {
+                    q: "O que significa a letra \"A\" de \"acíclico\" em um DAG?",
+                    o: ["Não há ciclos: uma task nunca depende, direta ou indiretamente, dela mesma", "Todas as tasks rodam ao mesmo tempo", "Cada task tem exatamente uma dependência", "As tasks não podem ter dependências"],
+                    a: 0,
+                    e: "DAG é um grafo direcionado (cada aresta tem uma direção), acíclico (sem ciclos) e feito de vértices ligados por arestas. As dependências definem a ordem de execução."
+                },
+                {
+                    q: "Qual padrão de workflow distribui uma única fonte para vários destinos?",
+                    o: ["Fan-out (estrela)", "Sequence", "Funnel", "Loop condicional"],
+                    a: 0,
+                    e: "O fan-out serve à ingestão e à distribuição. O funnel faz o contrário, com várias fontes convergindo, e o sequence encadeia etapas, como bronze, silver e gold."
+                },
+                {
+                    q: "Qual opção de compute NÃO é recomendada para produção, por causa do custo?",
+                    o: ["Interactive (all-purpose) clusters", "Job clusters", "Serverless", "SQL warehouse"],
+                    a: 0,
+                    e: "Os interactive clusters servem ao desenvolvimento, à análise ad hoc e à exploração. Para produção, usam-se job clusters ou serverless."
+                },
+                {
+                    q: "O que muda ao ativar o \"Performance optimized\" em uma task com compute serverless?",
+                    o: ["O start e a execução ficam mais rápidos, em vez do modo Standard, focado em custo, com start de 4 a 6 minutos", "O job passa a rodar em um cluster clássico", "O custo cai, mas a execução fica mais lenta", "A task passa a ignorar as dependências"],
+                    a: 0,
+                    e: "O modo Standard é para cargas não urgentes. O Optimized é para cargas sensíveis a tempo, e vale só para as tasks com compute serverless."
+                },
+                {
+                    q: "O que é preciso garantir para usar uma query SQL em uma task de job?",
+                    o: ["Que a query esteja salva e que um SQL warehouse esteja selecionado", "Que ela rode em um job cluster dedicado", "Que ela esteja escrita em Python", "Que ela só leia tabelas externas"],
+                    a: 0,
+                    e: "A task SQL não usa cluster: ela recebe o acesso ao SQL warehouse. Se a query não estiver salva, não pode ser usada no job."
+                },
+                {
+                    q: "Como um notebook lê o valor de um parâmetro (de job ou de task) passado pelo job?",
+                    o: ["Com o dbutils.widgets.get(\"nome\")", "Com o spark.read.parameters(\"nome\")", "Com uma variável de ambiente chamada JOB_PARAM", "O notebook não consegue ler parâmetros"],
+                    a: 0,
+                    e: "Em notebook tasks, os parâmetros chegam como widgets. O método de leitura varia conforme o tipo da task (notebook, SQL ou Python wheel)."
+                },
+                {
+                    q: "Como uma task passa um valor para outra task do mesmo job durante a execução?",
+                    o: ["Com os task values: dbutils.jobs.taskValues.set(...) em uma e taskValues.get(...) na outra", "Gravando o valor em um widget da outra task", "Reiniciando o job com um novo parâmetro", "Não é possível, as tasks são isoladas"],
+                    a: 0,
+                    e: "Os task values são pares chave-valor dinâmicos. As tasks downstream referenciam os valores das upstream, e a condição do If/Else pode consumi-los."
+                },
+                {
+                    q: "Qual é a notação das dynamic value references, como {{job.start_time.day}} ou {{task.name}}?",
+                    o: ["Chaves duplas: {{ }}", "Colchetes: [[ ]]", "Cifrão e chaves: ${ }", "Aspas triplas: \"\"\" \"\"\""],
+                    a: 0,
+                    e: "Elas referenciam, em tempo de execução, valores do contexto do job ou da task: saídas, parâmetros, task values e metadados da execução. A UI oferece o autocompletar."
+                },
+                {
+                    q: "O que acontece quando um arquivo com o mesmo nome de um já ingerido chega ao local monitorado por um trigger de file arrival?",
+                    o: ["Ele não dispara uma nova ingestão, porque o gatilho não distingue arquivos de mesmo nome", "Ele sobrescreve o anterior e dispara o job", "O job falha com um erro de duplicidade", "O trigger é excluído automaticamente"],
+                    a: 0,
+                    e: "O file arrival monitora um local, como um volume do Unity Catalog, e pode ser testado, editado, pausado ou excluído. Nomes repetidos não geram uma nova execução."
+                },
+                {
+                    q: "Qual é a diferença entre as condições \"Any table is updated\" e \"All tables are updated\" do Table Update trigger?",
+                    o: ["A primeira dispara na primeira mudança em qualquer tabela, e a segunda só quando todas as tabelas selecionadas forem atualizadas", "A primeira vale para tabelas Delta, e a segunda para tabelas Iceberg", "A primeira dispara de hora em hora, e a segunda uma vez por dia", "Não há diferença: as duas disparam com a primeira mudança"],
+                    a: 0,
+                    e: "O trigger aceita até 10 tabelas por trigger e monitora insert, update, delete e merge. O \"Minimum time between triggers\" evita disparos em excesso."
+                },
+                {
+                    q: "Para que tipo de carga o trigger Continuous é ideal?",
+                    o: ["Streaming: uma nova execução começa assim que a anterior termina ou falha", "Cargas diárias em um horário fixo", "Execuções ad hoc de debug", "Jobs que só devem rodar quando um arquivo chega"],
+                    a: 0,
+                    e: "No Continuous, a lógica de retry embutida é gerenciada pelo Databricks. O Scheduled usa horários ou cron, e o Manual roda sob demanda."
+                },
+                {
+                    q: "Uma task depende de dois ramos de um If/Else, e um deles é sempre ignorado. Qual condição de Run if faz a task rodar?",
+                    o: ["None failed", "All succeeded", "All failed", "At least one failed"],
+                    a: 0,
+                    e: "Com \"All succeeded\", a task nunca rodaria, porque um dos ramos é sempre ignorado. O \"None failed\" roda se nada falhou, mesmo que uma dependência tenha sido ignorada."
+                },
+                {
+                    q: "O que a task If/Else faz?",
+                    o: ["Ramifica o workflow em True e False a partir de uma condição, como o valor de um task value comparado com \"true\"", "Repete uma task para cada item de uma lista", "Reinicia o job quando uma task falha", "Escolhe automaticamente o tipo de compute"],
+                    a: 0,
+                    e: "Ela acrescenta uma lógica booleana baseada nos resultados das tasks, com os operadores ==, !=, >, >=, < e <=. Serve, por exemplo, para checar duplicatas."
+                },
+                {
+                    q: "Em uma task For Each, a que as tasks downstream se ligam e qual é a concorrência padrão?",
+                    o: ["Ao container (o iterador), e a concorrência padrão é 1 iteração por vez", "À task aninhada, e a concorrência padrão é ilimitada", "Ao container, e a concorrência padrão é 3", "À primeira iteração, e a concorrência padrão é 10"],
+                    a: 0,
+                    e: "Depender do container garante que todas as iterações terminem. A concorrência é configurável, e sem preencher ela fica em 1, o que evita sobrecarregar o cluster."
+                },
+                {
+                    q: "O que o Repair run faz quando uma task de um job falha?",
+                    o: ["Reexecuta apenas as tasks que falharam, podendo sobrescrever parâmetros, sem repetir o job inteiro", "Reexecuta o job inteiro do zero, com um novo ID", "Corrige automaticamente o código da task", "Apaga a execução com falha do histórico"],
+                    a: 0,
+                    e: "Isso economiza tempo e dinheiro. Mas corrigir uma task pelo repair run não corrige o job: se o problema era um parâmetro errado, é preciso editar o job também."
+                },
+                {
+                    q: "Qual tabela do system.lakeflow registra cada execução de job ao longo do tempo?",
+                    o: ["job_run_timeline", "jobs", "pipelines", "job_tasks"],
+                    a: 0,
+                    e: "A jobs e a job_tasks guardam as definições, e a job_task_run_timeline registra cada execução de task. As timeline tables usam o period_start_time e o period_end_time."
+                },
+                {
+                    q: "Qual é um benefício de rodar os notebooks de produção a partir do Git?",
+                    o: ["Evitar mudanças não intencionais no job, como alguém editar localmente o repositório ou trocar de branch, e ter uma fonte única da verdade", "Dispensar o uso de compute", "Permitir que qualquer usuário edite o job sem versionamento", "Eliminar a necessidade de testes"],
+                    a: 0,
+                    e: "O Git também facilita o deploy CI/CD. Configura-se a task com o Git provider como Source, com o repositório, a branch ou tag e o path do notebook principal."
+                },
+                {
+                    q: "Como o serverless simplifica a estrutura de preço de um job, em comparação com o modelo Classic?",
+                    o: ["O faturamento inclui a infraestrutura e o custo operacional em um único preço de DBU", "Ele cobra apenas a infraestrutura da nuvem, sem DBUs", "Ele é sempre gratuito para jobs agendados", "Ele cobra um valor fixo por task, independente do uso"],
+                    a: 0,
+                    e: "No Classic há três componentes: os DBUs (pagos à Databricks), a infraestrutura (paga ao provedor de nuvem) e o custo operacional (da própria organização)."
+                }
+            ];
+
+            var LETTERS = ["A", "B", "C", "D"];
+            var STORE = "dbx-quiz-jobs-best";
+            var $ = function (id) { return document.getElementById(id); };
+            var intro = $("quizIntro"), card = $("quizCard"), result = $("quizResult");
+            var order, index, score, answered, missed, current;
+
+            function shuffle(arr) {
+                var a = arr.slice();
+                for (var i = a.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var t = a[i]; a[i] = a[j]; a[j] = t;
+                }
+                return a;
+            }
+
+            function getBest() {
+                try { var v = parseInt(localStorage.getItem(STORE), 10); return isNaN(v) ? null : v; } catch (e) { return null; }
+            }
+
+            function setBest(v) {
+                try { localStorage.setItem(STORE, String(v)); } catch (e) {}
+            }
+
+            function showBest() {
+                var b = getBest(), el = $("quizBest");
+                if (b === null) { el.hidden = true; return; }
+                el.hidden = false;
+                el.textContent = "Seu melhor resultado neste navegador: " + b + " de " + QUESTIONS.length;
+            }
+
+            function start() {
+                order = shuffle(QUESTIONS);
+                index = 0; score = 0; missed = [];
+                intro.hidden = true; result.hidden = true; card.hidden = false;
+                card.scrollIntoView({ behavior: "smooth", block: "start" });
+                render();
+            }
+
+            function render() {
+                answered = false;
+                var item = order[index];
+                var opts = shuffle(item.o.map(function (text, i) { return { text: text, right: i === item.a }; }));
+                current = { item: item, opts: opts };
+
+                $("quizCount").textContent = "Pergunta " + (index + 1) + " de " + order.length;
+                $("quizScoreLive").textContent = score + (score === 1 ? " acerto" : " acertos");
+                var bar = $("quizBar");
+                bar.setAttribute("aria-valuenow", String(index));
+                bar.firstElementChild.style.width = (index / order.length * 100) + "%";
+                $("quizQuestion").textContent = item.q;
+
+                var list = $("quizOptions");
+                list.innerHTML = "";
+                opts.forEach(function (opt, i) {
+                    var li = document.createElement("li");
+                    var btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "quiz-opt";
+                    btn.innerHTML = '<span class="quiz-key">' + LETTERS[i] + '</span><span></span>';
+                    btn.lastChild.textContent = opt.text;
+                    btn.addEventListener("click", function () { choose(i); });
+                    li.appendChild(btn);
+                    list.appendChild(li);
+                });
+
+                var fb = $("quizFeedback");
+                fb.className = "quiz-feedback";
+                fb.innerHTML = "";
+                $("quizNext").hidden = true;
+                $("quizNext").textContent = index === order.length - 1 ? "Ver o resultado" : "Próxima pergunta";
+            }
+
+            function choose(i) {
+                if (answered) return;
+                answered = true;
+                var buttons = $("quizOptions").querySelectorAll(".quiz-opt");
+                var opt = current.opts[i];
+                buttons.forEach(function (b, k) {
+                    b.disabled = true;
+                    if (current.opts[k].right) b.classList.add("correct");
+                    else if (k === i) b.classList.add("wrong");
+                    else b.classList.add("dim");
+                });
+
+                var fb = $("quizFeedback");
+                var title = document.createElement("strong");
+                var body = document.createElement("span");
+                body.textContent = current.item.e;
+                if (opt.right) {
+                    score++;
+                    fb.classList.add("ok");
+                    title.textContent = "Correto!";
+                } else {
+                    fb.classList.add("bad");
+                    title.textContent = "Não foi dessa vez.";
+                    var right = current.opts.filter(function (o) { return o.right; })[0].text;
+                    missed.push({ q: current.item.q, mine: opt.text, right: right, e: current.item.e });
+                }
+                fb.appendChild(title);
+                fb.appendChild(body);
+                fb.classList.add("show");
+
+                $("quizScoreLive").textContent = score + (score === 1 ? " acerto" : " acertos");
+                $("quizBar").firstElementChild.style.width = ((index + 1) / order.length * 100) + "%";
+                var next = $("quizNext");
+                next.hidden = false;
+                next.focus({ preventScroll: true });
+            }
+
+            function next() {
+                if (!answered) return;
+                index++;
+                if (index < order.length) { render(); card.scrollIntoView({ behavior: "smooth", block: "start" }); }
+                else finish();
+            }
+
+            function finish() {
+                card.hidden = true; result.hidden = false;
+                var total = order.length;
+                var pct = Math.round(score / total * 100);
+                $("quizScoreText").textContent = score + "/" + total;
+                $("quizPercent").textContent = pct + "%";
+
+                var circ = 326.7, ring = $("quizRing");
+                ring.style.strokeDashoffset = circ;
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () { ring.style.strokeDashoffset = circ * (1 - score / total); });
+                });
+
+                var v, t;
+                if (pct === 100) { v = "Perfeito!"; t = "Você acertou todas as perguntas. Os conceitos do treinamento estão firmes."; }
+                else if (pct >= 80) { v = "Muito bem!"; t = "Você domina a maior parte dos conceitos. Dê uma olhada nas que errou para fechar as lacunas."; }
+                else if (pct >= 60) { v = "Bom caminho"; t = "Os conceitos principais estão ali, mas vale rever alguns vídeos e tentar de novo."; }
+                else { v = "Vale revisar"; t = "Sem problema: revise os vídeos, veja as explicações abaixo e refaça o quiz."; }
+                $("quizVerdict").textContent = v;
+                $("quizVerdictText").textContent = t;
+
+                var best = getBest();
+                if (best === null || score > best) setBest(score);
+
+                var box = $("quizReview");
+                box.innerHTML = "";
+                if (!missed.length) {
+                    var ok = document.createElement("div");
+                    ok.className = "quiz-perfect";
+                    ok.textContent = "Nenhum erro para revisar.";
+                    box.appendChild(ok);
+                } else {
+                    var h = document.createElement("h3");
+                    h.textContent = "Para revisar (" + missed.length + ")";
+                    box.appendChild(h);
+                    missed.forEach(function (m) {
+                        var d = document.createElement("div");
+                        d.className = "quiz-review-item";
+                        var p1 = document.createElement("p"); p1.className = "q"; p1.textContent = m.q;
+                        var p2 = document.createElement("p"); p2.className = "mine"; p2.textContent = "Sua resposta: " + m.mine;
+                        var p3 = document.createElement("p"); p3.className = "right"; p3.textContent = "Resposta certa: " + m.right;
+                        var p4 = document.createElement("p"); p4.textContent = m.e;
+                        d.appendChild(p1); d.appendChild(p2); d.appendChild(p3); d.appendChild(p4);
+                        box.appendChild(d);
+                    });
+                }
+                result.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+
+            $("quizStart").addEventListener("click", start);
+            $("quizRetry").addEventListener("click", start);
+            $("quizNext").addEventListener("click", next);
+
+            document.addEventListener("keydown", function (e) {
+                if (card.hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+                if (!answered && e.key >= "1" && e.key <= "4") {
+                    var i = parseInt(e.key, 10) - 1;
+                    if (i < current.opts.length) { e.preventDefault(); choose(i); }
+                } else if (answered && e.key === "Enter" && document.activeElement !== $("quizNext")) {
+                    e.preventDefault(); next();
+                }
+            });
+
+            showBest();
+        })();
+    </script>
+</body>
+</html>

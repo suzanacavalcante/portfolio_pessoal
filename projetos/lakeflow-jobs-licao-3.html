@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Creating and Scheduling Jobs do treinamento Deploy Workloads with Lakeflow Jobs: parâmetros, notificações, retries e triggers.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Creating and Scheduling Jobs</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-jobs.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Creating and Scheduling Jobs</h1>
+        <p>Deploy Workloads with Lakeflow Jobs · Lição</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-3">
+            <p class="lead">Esta lição tem duas partes. A primeira trata das opções comuns de configuração de uma task: <strong>parâmetros e referências dinâmicas</strong>, <strong>alertas de notificação</strong> e <strong>retries</strong>. A segunda trata das <strong>schedules e triggers</strong>, as regras que iniciam um job automaticamente, com destaque para o trigger de atualização de tabela.</p>
+
+            <p>Estas anotações partem de um resumo da lição, não do material original. O resumo avisa que a aba "Job Parameters" e a maioria das notas "Saiba mais" não foram abertas. Os trechos de código vêm das chamadas citadas no resumo, e eu os organizei em exemplos meus, que não foram executados.</p>
+
+            <h3>Opções comuns de configuração de tasks</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">1</span>
+                    <h4>Parâmetros</h4>
+                    <p>E as referências dinâmicas de valor.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">2</span>
+                    <h4>Notificações</h4>
+                    <p>Os alertas de início, sucesso, falha e duração.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">3</span>
+                    <h4>Retries</h4>
+                    <p>As novas tentativas depois de uma falha.</p>
+                </div>
+            </div>
+
+            <h3>Parâmetros</h3>
+            <p>Há dois tipos:</p>
+            <ul>
+                <li><strong>Task parameters:</strong> pares chave-valor definidos no nível da task, usados para passar valores a ela. Suportam a orquestração avançada: execução condicional, loops e passagem de contexto entre tasks.</li>
+                <li><strong>Job parameters:</strong> definidos no nível do job. A aba existe na lição, mas o resumo não a detalha.</li>
+            </ul>
+
+            <h4>Definindo e acessando pela UI</h4>
+            <p>Os <em>job parameters</em> são adicionados, como pares chave-valor, na seção Parameters do job. Os <em>task parameters</em> são adicionados na task, em Parameters, junto ao nome, ao tipo e ao path. Em notebook tasks, os dois são lidos com o <code>dbutils.widgets.get("nome")</code>, por exemplo <code>catalog_name</code> e <code>schema_name</code>. O método de leitura varia conforme o tipo da task (notebook, SQL ou Python wheel).</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">catalog_name = dbutils.widgets.get("catalog_name")
+schema_name = dbutils.widgets.get("schema_name")</code></pre>
+            </div>
+
+            <h4>Definição e acesso dinâmicos: task values</h4>
+            <p>Os task values são pares chave-valor dinâmicos, criados e compartilhados pelas tasks durante a execução. As tasks <em>downstream</em> referenciam os valores das tasks <em>upstream</em>.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python"># na task upstream
+dbutils.jobs.taskValues.set(key="catalog_name", value="dbacademy")
+
+# em outra task
+catalog_name = dbutils.jobs.taskValues.get(taskKey="task-name", key="catalog_name")</code></pre>
+            </div>
+
+            <h4>Dynamic value references</h4>
+            <p>Permitem referenciar, em tempo de execução, valores do contexto do job ou da task: as saídas de tasks, os parâmetros, os task values e os metadados da execução. Usam a notação <code>{{ }}</code>, e a UI oferece o autocompletar.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Referência</th><th>O que dá</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>{{job.start_time.day}}</code></td><td>O dia da execução</td></tr>
+                        <tr><td><code>{{task.name}}</code></td><td>O nome da task</td></tr>
+                        <tr><td><code>job.trigger.type</code></td><td>O tipo do trigger</td></tr>
+                        <tr><td><code>task.run_id</code></td><td>O id da execução da task</td></tr>
+                        <tr><td><code>tasks.&lt;task&gt;.values</code></td><td>Os task values de uma task</td></tr>
+                        <tr><td><code>tasks.&lt;task&gt;.result_state</code></td><td>O resultado de uma task</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Alertas de notificação</h3>
+            <ul>
+                <li><strong>Nível de job:</strong> alerta enviado depois da conclusão bem-sucedida do job, configurado em Job Details, no painel direito.</li>
+                <li><strong>Nível de task:</strong> alerta quando a task conclui com sucesso, configurável por task.</li>
+            </ul>
+
+            <h4>Estratégias eficazes</h4>
+            <ul>
+                <li><strong>Destinos:</strong> e-mail, Microsoft Teams, PagerDuty, Slack e Webhook (uma integração customizada com APIs de terceiros).</li>
+                <li>Cada task pode ter notificações diferentes, e o job dispara notificações ao iniciar, concluir ou falhar.</li>
+                <li><strong>Eventos configuráveis:</strong> Start, Success, Failure, Duration warning e Streaming backlog. Eles alertam também sobre jobs atrasados, pelo limite de duração (timeout) e pelo backlog de streaming.</li>
+                <li><strong>Silenciar:</strong> as execuções puladas, as canceladas ou até o último retry.</li>
+            </ul>
+
+            <h3>Retry policy</h3>
+            <p>É a política que define quando e quantas vezes as execuções com falha são repetidas. Na UI configuram-se:</p>
+            <ul>
+                <li>o número máximo de tentativas (5, 6, 7, 8, 10, 20, 30 ou ilimitado);</li>
+                <li>o intervalo mínimo entre as tentativas, por exemplo 15 minutos;</li>
+                <li>o retry em timeout.</li>
+            </ul>
+            <p>O padrão visto na tela é "Immediately, at most 3x (4 total attempts)".</p>
+
+            <h3>Schedules e triggers</h3>
+            <p>Um <strong>trigger</strong> é uma regra que inicia automaticamente uma execução de job, com base em uma condição ou em uma agenda. Eles habilitam a automação sem intervenção manual.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Trigger</th><th>Como funciona</th><th>Bom para</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Scheduled</strong></td><td>Roda em horários ou intervalos (hora, dia etc.), pela UI ou por <strong>expressões cron</strong>, nos modos Simple e Advanced</td><td>Cargas periódicas</td></tr>
+                        <tr><td><strong>File arrival</strong></td><td>Dispara quando novos arquivos chegam a um local (AWS S3, Azure Storage, GCP GS ou Databricks Volumes). É orientado a eventos, e as opções avançadas são o tempo mínimo entre triggers e a espera depois da última mudança</td><td>Ingestão imprevisível ou irregular</td></tr>
+                        <tr><td><strong>Continuous</strong></td><td>Inicia uma nova execução assim que a anterior termina ou falha, com a lógica de retry embutida gerenciada pelo Databricks</td><td>Streaming</td></tr>
+                        <tr><td><strong>Manual (None)</strong></td><td>Roda sob demanda, sem agenda, pela UI (Run now, inclusive com configurações diferentes), pela API, pela CLI, pelo SDK ou pelos Declarative Automation Bundles. Pode ser combinado com outros triggers</td><td>Execuções ad hoc, debug e backfills</td></tr>
+                        <tr><td><strong>Table update</strong></td><td>Inicia o job quando tabelas especificadas são atualizadas, monitorando insert, update, delete ou merge</td><td>Orquestração em tempo quase real, no lugar do cron</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Configurando o Table Update trigger</h3>
+            <ol>
+                <li>Selecionar <strong>Table update</strong> como o tipo de trigger.</li>
+                <li><strong>Adicionar as tabelas de origem:</strong> até 10 por trigger. Funciona com tabelas Delta gerenciadas pelo Unity Catalog, Iceberg, tabelas externas do UC, materialized views e streaming tables.</li>
+                <li><strong>Definir a condição:</strong> <em>Any table is updated</em> dispara na primeira mudança, e <em>All tables are updated</em> só dispara quando todas as tabelas selecionadas forem atualizadas.</li>
+                <li><strong>(Opcional) Avançado:</strong> o <em>Minimum time between triggers</em> evita disparos em excesso, impondo um intervalo mínimo entre as execuções, e o <em>Wait after last change</em> espera depois da última mudança. Há também o botão <strong>Test trigger</strong>.</li>
+            </ol>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> os parâmetros, as referências dinâmicas, as notificações e os retries tornam os workflows reutilizáveis, adaptáveis, monitoráveis e resilientes. Os triggers iniciam as execuções por agenda ou por condição, e o Table Update trigger permite a orquestração em tempo real, monitorando tabelas. A próxima etapa do curso é a demonstração prática dos tipos de trigger.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="lakeflow-jobs-licao-2.html">&larr; Course Project Overview</a>
+            <a href="lakeflow-jobs-licao-4.html">Conditional and Iterative Tasks &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

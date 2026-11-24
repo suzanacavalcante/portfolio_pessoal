@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Creating a Job Using Lakeflow Jobs UI do treinamento Deploy Workloads with Lakeflow Jobs.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Creating a Job Using Lakeflow Jobs UI</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-jobs.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Creating a Job Using Lakeflow Jobs UI</h1>
+        <p>Deploy Workloads with Lakeflow Jobs · Demo 1</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-1">
+            <p class="lead">Esta é a primeira demonstração do curso: criar um job pela interface do Lakeflow Jobs. O job tem <strong>duas tarefas</strong>, uma de notebook e uma de SQL, que ingerem dados do varejo em tabelas bronze. A demo mostra como criar as tarefas, escolher o compute, executar o job, ler o gráfico de execução e conferir os resultados.</p>
+
+            <p>Estas anotações partem de um resumo da demo com marcação de tempo, não da transcrição. A página não tem código, porque a demo trabalha na interface.</p>
+
+            <h3>O ambiente do curso</h3>
+            <p>O curso usa a plataforma Vocareum. Ao entrar no ambiente de treinamento, aparece a página "Agenda" com <strong>sete exercícios</strong>:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Exercício</th><th>Tipo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1º, 3º, 4º e 6º</td><td>Demonstrações</td></tr>
+                        <tr><td>2º, 5º e 7º</td><td>Laboratórios (o 7º é opcional)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Em vez de abrir o link da demo em uma nova aba, usa-se o ícone de arquivos para navegar dentro da mesma aba. Na primeira demo, conecta-se ao cluster <code>labuser_&lt;seu ID&gt;</code> e roda-se o <strong>script de configuração da sala de aula</strong>.</p>
+
+            <h3>O que o setup faz e os datasets</h3>
+            <p>O script cria automaticamente, no backend, os recursos necessários para a aula. No catálogo, o schema fica em <code>dbacademy</code> com o mesmo nome do seu usuário e começa <strong>vazio</strong>.</p>
+            <p>O curso usa dois datasets:</p>
+            <ul>
+                <li><code>dbacademy_bank</code>, nos laboratórios;</li>
+                <li><code>dbacademy_retail</code>, nas demos, com três tabelas: clientes, vendas e pedidos.</li>
+            </ul>
+            <p>O objetivo de longo prazo é montar um <strong>pipeline de varejo</strong> ao longo do curso.</p>
+
+            <h3>Os artefatos que serão orquestrados</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Notebook</span>
+                    <h4>Criar tabela de pedidos</h4>
+                    <p>Ingere os dados do <code>dbacademy_retail</code>, guarda em um DataFrame e salva como a tabela <code>orders_bronze</code>.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">SQL Query</span>
+                    <h4>Salvar a sales_bronze</h4>
+                    <p>Salva a tabela <code>sales_bronze</code> no schema do labuser, lendo do <code>dbacademy_retail</code>.</p>
+                </div>
+            </div>
+
+            <div class="callout">
+                <p><strong>Atenção:</strong> na query SQL, confirme que o <strong>SQL warehouse</strong> está selecionado e <strong>salve a query</strong>. Se ela não estiver salva, não pode ser usada em um job.</p>
+            </div>
+
+            <h3>Plano e criação do job</h3>
+            <p>O job terá <strong>duas tarefas</strong>: uma de notebook (<code>ingesting_orders</code>) e uma de SQL (<code>ingesting_sales</code>). Copia-se o nome sugerido para o job e, no menu, vai-se em <strong>Jobs &amp; Pipelines → Create Job</strong>.</p>
+            <p>O painel direito mostra o criador, o job ID, o "run as" (que permite executar como um service principal), as agendas e os gatilhos, os parâmetros do job, as notificações e outros detalhes que o curso aborda adiante.</p>
+
+            <h3>Tipos de tarefa</h3>
+            <ul>
+                <li>Notebook (e Python);</li>
+                <li>SQL Query;</li>
+                <li>Pipeline de ingestão ou ETL;</li>
+                <li>dbt;</li>
+                <li>Em "Advanced": <strong>If/Else</strong> e <strong>For-Each</strong>, vistos mais adiante no curso.</li>
+            </ul>
+
+            <h3>Tarefa 1: ingesting_orders (notebook)</h3>
+            <p>O tipo é Notebook, e a origem é o Workspace (ou um provedor Git, se o código estiver em uma pasta Git). Seleciona-se o notebook da Lição 1, que cria a tabela de pedidos.</p>
+            <p>No compute, a escolha é o <strong>serverless</strong>, que é rápido e eficiente. Há alternativas, como o job cluster e o all-purpose cluster.</p>
+
+            <div class="callout">
+                <p><strong>Dica:</strong> mantenha a <strong>performance optimization</strong> ativada. Sem ela, só iniciar a execução leva de 6 a 7 minutos.</p>
+            </div>
+
+            <h3>Tarefa 2: ingesting_sales (SQL Query)</h3>
+            <p>Seleciona-se a query salva, e o <strong>warehouse compartilhado</strong> é escolhido automaticamente. Em uma tarefa SQL, a opção de all-purpose ou job cluster não aparece: ela recebe apenas o acesso ao SQL warehouse.</p>
+            <p>Como a <code>ingesting_sales</code> <strong>não depende</strong> da <code>ingesting_orders</code>, desmarca-se a dependência que a UI sugere por padrão. Depois cria-se a tarefa, o job é atualizado e renomeado com o nome copiado.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 200" role="img" aria-label="O job tem duas tarefas independentes: ingesting_orders, de notebook, que grava a tabela orders_bronze, e ingesting_sales, de SQL, que grava a tabela sales_bronze">
+                    <defs>
+                        <marker id="jb1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <rect x="10" y="10" width="700" height="180" rx="14" fill="none" stroke="#8A2BE2" stroke-width="2" stroke-dasharray="6 5"/>
+                    <g stroke="#b6b6c3" stroke-width="1.5" fill="none" marker-end="url(#jb1)">
+                        <line x1="280" y1="62" x2="440" y2="62"/>
+                        <line x1="280" y1="142" x2="440" y2="142"/>
+                    </g>
+                    <g font-size="13" font-weight="700">
+                        <text x="26" y="30" font-size="12" class="muted">Job · sem dependência entre as tarefas</text>
+
+                        <rect x="30" y="38" width="250" height="48" rx="12" fill="#201a33" stroke="#e0388f" stroke-width="2"/>
+                        <text x="155" y="59" text-anchor="middle">ingesting_orders</text>
+                        <text x="155" y="76" text-anchor="middle" font-size="11" class="muted">notebook · serverless</text>
+
+                        <rect x="440" y="38" width="250" height="48" rx="12" fill="#1b1b29" stroke="#6495ED" stroke-width="2"/>
+                        <text x="565" y="68" text-anchor="middle">orders_bronze</text>
+
+                        <rect x="30" y="118" width="250" height="48" rx="12" fill="#201a33" stroke="#e0388f" stroke-width="2"/>
+                        <text x="155" y="139" text-anchor="middle">ingesting_sales</text>
+                        <text x="155" y="156" text-anchor="middle" font-size="11" class="muted">SQL query · SQL warehouse</text>
+
+                        <rect x="440" y="118" width="250" height="48" rx="12" fill="#1b1b29" stroke="#6495ED" stroke-width="2"/>
+                        <text x="565" y="148" text-anchor="middle">sales_bronze</text>
+                    </g>
+                </svg>
+                <figcaption>O job da demo. O diagrama é meu, a partir do resumo</figcaption>
+            </div>
+
+            <h3>Execução e monitoramento</h3>
+            <p>Roda-se o job e abre-se o "View Run" ou a aba Runs para ver o gráfico. As cores significam:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Cor</th><th>Significado</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Verde piscando</td><td>Em execução</td></tr>
+                        <tr><td>Verde intenso</td><td>Sucesso</td></tr>
+                        <tr><td>Vermelho</td><td>Falha</td></tr>
+                        <tr><td>Cinza</td><td>Ignorada</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Há indicadores por tarefa e um para o job. Além do gráfico, existe a visualização de <strong>linha do tempo</strong>, a preferida do instrutor, que mostra o início e o fim das tarefas, enquanto o painel direito traz o início e o fim do job. Na demo, a <code>ingesting_sales</code> termina primeiro, e a <code>ingesting_orders</code> segue rodando.</p>
+
+            <h3>Verificação dos resultados</h3>
+            <p>Com o sucesso, duas tabelas aparecem no schema:</p>
+            <ul>
+                <li><code>sales_bronze</code>: dados do cliente, produto em alto nível e preço;</li>
+                <li><code>orders_bronze</code>: detalhes do pedido (data e hora, quantidade de itens, produtos) e informações em <code>promo_info</code>.</li>
+            </ul>
+            <p>A demo termina indicando a documentação do Lakeflow Jobs para saber mais.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> um job é um conjunto de tarefas, e cada tarefa tem um tipo (notebook, SQL, pipeline, dbt, If/Else ou For-Each), uma origem de código e um compute. As tarefas só dependem uma da outra se você definir isso, e a UI pode sugerir uma dependência que precisa ser removida quando ela não existe. O serverless com a performance optimization reduz muito o tempo de partida, e as tarefas SQL usam um SQL warehouse, e não clusters. O gráfico de execução usa cores (verde piscando, verde, vermelho e cinza) e tem a alternativa da linha do tempo. As queries SQL precisam estar salvas para serem usadas em um job.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="databricks-academy-lakeflow-jobs.html">&larr; Voltar ao treinamento</a>
+            <a href="lakeflow-jobs-demo-3.html">Schedulers and Triggers &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

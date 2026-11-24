@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Course Project Overview do treinamento Deploy Workloads with Lakeflow Jobs: o pipeline de varejo em sete passos.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Course Project Overview</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-jobs.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Course Project Overview</h1>
+        <p>Deploy Workloads with Lakeflow Jobs · Lição</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-2">
+            <p class="lead">O objetivo desta lição é apresentar o <strong>projeto do curso</strong>: um pipeline de processamento de dados de varejo (<em>retail</em>) que demonstra todos os conceitos do Lakeflow Jobs. A lição é um diagrama interativo em <strong>sete passos</strong>, que vai montando o pipeline aos poucos.</p>
+
+            <p>Estas anotações partem de um resumo da lição, não do material original. O resumo avisa que os rótulos dentro do diagrama são pequenos e que só o que estava legível foi transcrito. O diagrama desta página é meu, desenhado a partir da descrição.</p>
+
+            <h3>Os sete passos</h3>
+            <ol>
+                <li><strong>Cloud Storage:</strong> o ponto de partida. Os dados de varejo (<em>Retail Data</em>) ficam no armazenamento em nuvem.</li>
+                <li><strong>Ingesting Data:</strong> três tasks de ingestão, a <em>Ingesting Orders</em> (Notebook task), a <em>Ingesting Customers</em> (SQL task) e a <em>Ingesting Sales</em> (Notebook task).</li>
+                <li><strong>Joining Data:</strong> duas tasks Notebook de junção. A <em>Joining Customers &amp; Orders</em> usa as ingestões de customers e orders, e a <em>Joining Customers &amp; Sales</em> usa customers e sales.</li>
+                <li><strong>If/Else Block:</strong> sobre o resultado de customers e sales. Verifica-se se há duplicatas em <code>customers_sales</code>: se sim (True), uma task remove as duplicatas, e se não (False), aplica-se a lógica de transformação.</li>
+                <li><strong>For Each Task:</strong> sobre <code>customers_orders</code>. Um iterador executa uma task em loop, e a "loop condition" faz a transformação em cada iteração.</li>
+                <li><strong>Transforming Data:</strong> uma task Notebook transforma a <code>customers_orders</code> depois do For Each.</li>
+                <li><strong>Dashboard Creation:</strong> uma task de Dashboard (o "Retail Dashboard") consome os resultados das duas ramificações, a do If/Else e a do For Each com a transformação.</li>
+            </ol>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 300" role="img" aria-label="O pipeline de varejo: o armazenamento em nuvem alimenta três tasks de ingestão, que alimentam duas de junção. A junção de clientes e vendas segue para o If/Else, e a de clientes e pedidos para o For Each. As duas ramificações terminam no painel.">
+                    <defs>
+                        <marker id="jp1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <g stroke="#b6b6c3" stroke-width="1.5" fill="none" marker-end="url(#jp1)">
+                        <line x1="100" y1="152" x2="120" y2="52"/>
+                        <line x1="100" y1="152" x2="120" y2="152"/>
+                        <line x1="100" y1="152" x2="120" y2="252"/>
+                        <line x1="245" y1="52" x2="270" y2="84"/>
+                        <line x1="245" y1="152" x2="270" y2="100"/>
+                        <line x1="245" y1="152" x2="270" y2="204"/>
+                        <line x1="245" y1="252" x2="270" y2="220"/>
+                        <line x1="400" y1="92" x2="425" y2="92"/>
+                        <line x1="400" y1="212" x2="425" y2="212"/>
+                        <line x1="550" y1="92" x2="575" y2="140"/>
+                        <line x1="550" y1="212" x2="575" y2="164"/>
+                    </g>
+                    <g font-size="12" font-weight="700" text-anchor="middle">
+                        <rect x="10" y="130" width="90" height="44" rx="12" fill="#1b1b29" stroke="#b6b6c3" stroke-width="2"/>
+                        <text x="55" y="149">Cloud</text>
+                        <text x="55" y="165">Storage</text>
+
+                        <rect x="120" y="30" width="125" height="44" rx="12" fill="#201a33" stroke="#e0388f" stroke-width="2"/>
+                        <text x="182" y="49">Ingesting Orders</text>
+                        <text x="182" y="65" font-size="10" class="muted">Notebook task</text>
+                        <rect x="120" y="130" width="125" height="44" rx="12" fill="#201a33" stroke="#e0388f" stroke-width="2"/>
+                        <text x="182" y="149">Ingesting Customers</text>
+                        <text x="182" y="165" font-size="10" class="muted">SQL task</text>
+                        <rect x="120" y="230" width="125" height="44" rx="12" fill="#201a33" stroke="#e0388f" stroke-width="2"/>
+                        <text x="182" y="249">Ingesting Sales</text>
+                        <text x="182" y="265" font-size="10" class="muted">Notebook task</text>
+
+                        <rect x="270" y="70" width="130" height="44" rx="12" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="335" y="89">Joining</text>
+                        <text x="335" y="105" font-size="11">Customers &amp; Orders</text>
+                        <rect x="270" y="190" width="130" height="44" rx="12" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="335" y="209">Joining</text>
+                        <text x="335" y="225" font-size="11">Customers &amp; Sales</text>
+
+                        <rect x="425" y="70" width="125" height="44" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="487" y="89">For Each</text>
+                        <text x="487" y="105" font-size="10" class="muted">customers_orders</text>
+                        <rect x="425" y="190" width="125" height="44" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="487" y="209">If/Else</text>
+                        <text x="487" y="225" font-size="10" class="muted">customers_sales</text>
+
+                        <rect x="575" y="130" width="135" height="44" rx="12" fill="#1b1b29" stroke="#e0388f" stroke-width="2"/>
+                        <text x="642" y="149">Retail</text>
+                        <text x="642" y="165">Dashboard</text>
+                    </g>
+                </svg>
+                <figcaption>O pipeline do projeto. O ramo do For Each termina na transformação, e o do If/Else remove as duplicatas (True) ou transforma (False). O diagrama é meu, simplificado a partir da descrição</figcaption>
+            </div>
+
+            <h3>Os conceitos que o projeto reúne</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Tasks</span>
+                    <h4>Tipos de task</h4>
+                    <p>Notebook, SQL e Dashboard.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">DAG</span>
+                    <h4>Dependências</h4>
+                    <p>As tasks dependem umas das outras, em padrões como o funil.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Controle</span>
+                    <h4>If/Else e For Each</h4>
+                    <p>O fluxo condicional e a iteração.</p>
+                </div>
+            </div>
+
+            <p>Tudo isso é orquestrado ponta a ponta, com um dashboard final.</p>
+
+            <h3>Como isso aparece nas demos</h3>
+            <p>As demos do curso constroem esse pipeline passo a passo:</p>
+            <ul>
+                <li><a href="lakeflow-jobs-demo-1.html">Demo 1</a>: um job com duas tasks de ingestão, uma de notebook e uma de SQL;</li>
+                <li><a href="lakeflow-jobs-demo-3.html">Demo 3</a>: a terceira ingestão, a de clientes, com o gatilho de chegada de arquivo;</li>
+                <li><a href="lakeflow-jobs-demo-4.html">Demo 4</a>: as junções, o If/Else e o For Each;</li>
+                <li><a href="lakeflow-jobs-demo-6.html">Demo 6</a>: a transformação, o reparo de uma tarefa e a task de dashboard, que fecha o pipeline.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Uma diferença que notei:</strong> neste resumo da lição, a <em>Ingesting Customers</em> é uma SQL task, e a <em>Ingesting Sales</em> é uma Notebook task. Nos resumos das demos, é o contrário: a ingestão de vendas é uma query SQL, e a de clientes é um notebook. Como o próprio resumo avisa que os rótulos do diagrama eram pequenos, pode ser só um erro de leitura. Vale conferir na lição original.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o projeto do curso é um pipeline de varejo em sete passos: o armazenamento em nuvem, a ingestão em três tasks, as junções, o If/Else sobre as duplicatas, o For Each sobre os pedidos, a transformação e o dashboard final. Ele reúne os tipos de task, as dependências do DAG, o controle de fluxo condicional, a iteração e a orquestração ponta a ponta.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="lakeflow-jobs-licao-1.html">&larr; Core Components</a>
+            <a href="lakeflow-jobs-licao-3.html">Creating and Scheduling Jobs &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

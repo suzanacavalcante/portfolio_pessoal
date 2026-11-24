@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Handling Task Failures and Monitoring Jobs Performance do treinamento Deploy Workloads with Lakeflow Jobs: Repair run, system tables e Spark UI.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Handling Failures and Monitoring Jobs</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-jobs.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Handling Task Failures and Monitoring Jobs Performance</h1>
+        <p>Deploy Workloads with Lakeflow Jobs · Lição</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-5">
+            <p class="lead">Esta lição ensina a se recuperar de falhas de tasks e a monitorar a performance dos jobs. O <strong>Repair and Rerun</strong> permite uma recuperação eficiente, e as <strong>system tables</strong> e a <strong>Spark UI</strong> ajudam a achar gargalos, acompanhar SLAs e medir a eficiência dos recursos.</p>
+
+            <p>Estas anotações partem de um resumo da lição, não do material original. O resumo avisa que a aba Spark UI foi lida só em parte e que a maioria das notas "Saiba mais" não foi aberta. O exemplo de consulta é meu, e não foi executado.</p>
+
+            <h3>Objetivos</h3>
+            <ol>
+                <li>Usar o recurso <em>repair run</em> para se recuperar de execuções com falha.</li>
+                <li>Otimizar o monitoramento de performance e a gestão de custo com o <code>system.lakeflow</code> e a Spark UI, achando gargalos, acompanhando SLAs e medindo a eficiência dos recursos.</li>
+            </ol>
+
+            <h3>Tratando falhas de tasks</h3>
+            <p>Tratar falhas não é só reiniciar: é construir sistemas <strong>resilientes</strong>, que se recuperam com eficiência e mantêm a consistência dos dados.</p>
+
+            <h4>Repair and Rerun</h4>
+            <p>Num DAG em que uma task falhou, como a <code>transforming_customers_o...</code> do exemplo da lição, re-executa-se só a task que falhou. O recurso <strong>Repair</strong> permite re-executar e <strong>sobrescrever os parâmetros</strong> da task, o que reduz o tempo e os recursos gastos para recuperar uma execução malsucedida. Em caso de falha, há dois caminhos:</p>
+            <ul>
+                <li>modificar a task e rodar de novo;</li>
+                <li>modificar os parâmetros e rodar de novo.</li>
+            </ul>
+
+            <h4>Repair run, na interface</h4>
+            <p>Ao clicar na task com falha, abre-se o detalhe da execução do job, com o botão <strong>Repair run</strong>, que abre o painel de reparo. Ele permite <strong>rodar apenas as tasks que falharam</strong>, economizando tempo e dinheiro em vez de repetir o job inteiro.</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Tempo</span>
+                    <h4>Recuperação mais curta</h4>
+                    <p>A re-execução seletiva pode reduzir o tempo de recuperação em 80% a 90% em pipelines complexos.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Risco</span>
+                    <h4>Menos impacto</h4>
+                    <p>Menor impacto no sistema e menos falhas em cascata.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">SLA</span>
+                    <h4>Resolução mais rápida</h4>
+                    <p>Melhor aderência aos SLAs.</p>
+                </div>
+            </div>
+
+            <div class="callout">
+                <p><strong>Atenção:</strong> <strong>corrigir uma task não corrige o job.</strong> Se um parâmetro errado foi consertado pelo repair run, ainda é preciso editar o job para que a correção valha nas próximas execuções.</p>
+            </div>
+
+            <p>Depois do repair run, o DAG final mostra todas as tasks com sucesso, e a task reparada indica o número de tentativas, como "3 attempts". A <a href="lakeflow-jobs-demo-6.html">Demo 6</a> mostra esse ciclo na prática.</p>
+
+            <h3>Monitorando a performance de jobs</h3>
+
+            <h4>System tables</h4>
+            <p>O <code>system.lakeflow</code> é um catálogo nativo e <strong>somente leitura</strong>, que registra toda a atividade de jobs em todos os workspaces da região. As <strong>timeline tables</strong> fatiam as execuções longas por hora, usando o <code>period_start_time</code> e o <code>period_end_time</code>, o que permite análises confiáveis de duração, concorrência e SLA. As tabelas-chave:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tabela</th><th>O que tem</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>jobs</code></td><td>Informações básicas do job</td></tr>
+                        <tr><td><code>job_tasks</code></td><td>Definições básicas das tasks</td></tr>
+                        <tr><td><code>job_run_timeline</code></td><td>Cada execução de job ao longo do tempo</td></tr>
+                        <tr><td><code>job_task_run_timeline</code></td><td>Cada execução de task ao longo do tempo</td></tr>
+                        <tr><td><code>pipelines</code></td><td>Informações básicas dos pipelines</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="code-container">
+                <pre><code>SELECT job_id, run_id, period_start_time, period_end_time
+FROM system.lakeflow.job_run_timeline
+ORDER BY period_start_time DESC
+LIMIT 20;</code></pre>
+            </div>
+
+            <h4>Spark UI</h4>
+            <ul>
+                <li><strong>Query e code details:</strong> mostra os detalhes da query ou do código. O exemplo da lição é um <code>saveAsTable</code>, com os bytes lidos e escritos, as linhas e os arquivos.</li>
+                <li><strong>Timeline:</strong> na execução do job, destaca o início e o fim das tasks, a duração e a sobreposição, para localizar os gargalos rapidamente. Clicando em uma task, vê-se o status, os timestamps, a duração, o cluster e o runtime, os logs e o I/O rápido.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> os repair runs reexecutam só o que falhou, permitem sobrescrever parâmetros, reduzem o tempo e o custo e registram a recuperação no histórico. O <code>system.lakeflow</code> registra a atividade e oferece as timeline tables para duração, concorrência e SLA, e a Spark UI mostra o tempo e a sobreposição das tasks, o planejamento e a execução, para a otimização. A próxima etapa do curso é uma demo com o ciclo completo de tratamento de falhas.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="lakeflow-jobs-licao-4.html">&larr; Conditional and Iterative Tasks</a>
+            <a href="lakeflow-jobs-licao-6.html">Jobs in Production &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

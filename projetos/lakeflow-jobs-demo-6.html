@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Monitoring and Repairing Task do treinamento Deploy Workloads with Lakeflow Jobs: reparar tarefas, tarefa de painel e tabelas de sistema.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Monitoring and Repairing Task</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-jobs.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Monitoring and Repairing Task</h1>
+        <p>Deploy Workloads with Lakeflow Jobs · Demo 6</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-6">
+            <p class="lead">Esta é a última demo do curso e ensina a <strong>reexecutar apenas as tarefas que falharam</strong>. Em um pipeline grande, se uma tarefa falha, não é preciso rodar tudo de novo: o Lakeflow Jobs permite rodar só o que falhou. A demo também acrescenta ao job uma tarefa de painel, que fecha o pipeline de varejo, e explora as tabelas de sistema que guardam o histórico dos jobs.</p>
+
+            <p>Estas anotações partem de um resumo da demo com marcação de tempo, não da transcrição. Os trechos de código são exemplos escritos por mim a partir desse resumo, e não foram executados. A numeração segue a da Agenda do curso, em que as demos são os exercícios 1, 3, 4 e 6, e os outros três são laboratórios.</p>
+
+            <h3>Ponto de partida</h3>
+            <p>O job já tem as tarefas For-Each e If/Else, e agora entram mais um notebook e uma tarefa de painel. Conecta-se ao cluster e roda-se o setup. No catálogo estão as tabelas criadas pelas tarefas anteriores (<code>ca_silver</code>, <code>ny_silver</code>, <code>va_silver</code> e a tabela gerada depois do If/Else). Quem não acompanhou as demos anteriores deve rodar o "job inicial", que cria o job com todo o trabalho feito até aqui.</p>
+
+            <h3>O notebook com erro proposital</h3>
+            <p>O notebook cria DataFrames das tabelas prata e prepara os dados. As transformações por estado (CA, NY e VA) ficam em funções separadas, porque em um cenário real cada tabela pode exigir uma lógica diferente. No fim, os DataFrames são salvos na tabela final "ouro".</p>
+            <p>O instrutor insere <strong>de propósito</strong> um nome de coluna errado, <code>customer</code> no lugar de <code>customer_name</code>, para demonstrar o reparo.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">df = spark.table("customers_orders_ca_silver")
+
+df.select("customer")        # erro proposital: a coluna não existe
+# df.select("customer_name") # o nome correto</code></pre>
+            </div>
+
+            <h3>A nova tarefa</h3>
+            <p>No job, adiciona-se o notebook <code>transforming_customers_orders_state_wise_table</code>, apontando para o notebook da Lição 6. O seletor abre por padrão no caminho da Lição 4, então é preciso trocar. Também se <strong>desativa a nova tentativa</strong> (sem retries), porque se sabe que a tarefa vai falhar e não faz sentido tentar três vezes.</p>
+
+            <h3>Duas formas de executar</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Forma</th><th>O que roda</th><th>Tempo na demo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>O job inteiro</td><td>Todas as tarefas</td><td>Cerca de 5 min 12 s</td></tr>
+                        <tr><td>Uma tarefa específica</td><td>Só a tarefa escolhida, aproveitando que as anteriores já rodaram na Demo 4</td><td>Cerca de 1 min 15 s</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>O Lakeflow Jobs permite rodar tarefas selecionadas, mas é preciso garantir que as tarefas das quais ela depende <strong>já tenham rodado antes</strong>. O instrutor dispara as duas formas e aguarda de 8 a 10 minutos.</p>
+
+            <h3>Diagnóstico da falha</h3>
+            <p>Na execução da tarefa única, o erro diz que a coluna <code>customer</code> não pode ser resolvida, que é o nome errado inserido de propósito.</p>
+
+            <div class="callout">
+                <p><strong>Importante:</strong> o job guarda uma <strong>cópia (snapshot)</strong> do código usado, então não dá para editar o código durante ou depois da execução dentro da própria run. A correção é feita na origem.</p>
+            </div>
+
+            <h3>Reparo</h3>
+            <ol>
+                <li>Edita-se o notebook de origem: copia-se o <code>customer_name</code> e substitui-se o nome errado.</li>
+                <li>Volta-se à run e clica-se em <strong>Repair Task</strong>, com a performance optimization. Os pares chave-valor dos parâmetros permanecem iguais.</li>
+                <li>Isso vira uma "execução de reparo": a UI mostra <strong>duas tentativas</strong>, a original, que falhou, e a de reparo, a mais recente. O menu suspenso permite ver cada uma.</li>
+                <li>O reparo conclui com sucesso.</li>
+            </ol>
+
+            <h3>Tarefa de painel (dashboard)</h3>
+            <p>O arquivo da Lição 6 traz um JSON de entrada, com o código para criar o painel automaticamente. O curso não ensina a construir painéis do zero, e há outros cursos na Academy para isso. Ao abrir o painel, aparece um erro até anexar o <strong>shared warehouse</strong>. Depois de atualizar, o painel funciona e é publicado. Ele usa as tabelas ouro de Virgínia e Nova York e a tabela de resumo de vendas.</p>
+
+            <h4>Adicionando a tarefa ao job</h4>
+            <ul>
+                <li>Tarefa do tipo painel, chamada <code>refreshing_dashboard</code>.</li>
+                <li>Seleciona-se o painel e o warehouse <code>shared_warehouse</code>.</li>
+                <li>Em "subscribers", poderia ser colocado um e-mail, o que não foi usado aqui.</li>
+                <li>Depende da <code>customers_sales</code> e da <code>customers_orders_state_wise_table</code>.</li>
+            </ul>
+            <p>Este é o <strong>pipeline de varejo final</strong>. Roda-se o job inteiro, o que leva de 6 a 8 minutos.</p>
+
+            <h3>Tabelas de sistema</h3>
+            <p>Enquanto o job roda, explora-se o catálogo <code>system</code>, onde o Databricks guarda automaticamente metadados de atividades e operações. Na demo há apenas o <code>lakeflow</code> e o compute. Em <code>lakeflow</code> existem estas tabelas:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tabela</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>pipelines</code></td></tr>
+                        <tr><td><code>jobs</code></td></tr>
+                        <tr><td><code>job_tasks</code></td></tr>
+                        <tr><td><code>job_task_run_timeline</code></td></tr>
+                        <tr><td><code>job_run_timeline</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Uma consulta ao job <code>demo_06_retail_job</code> mostra o <code>workspace_id</code>, o nome do job, os horários de início e fim e os demais metadados. O instrutor indica a documentação das tabelas de sistema do Lakeflow Jobs.</p>
+
+            <div class="code-container">
+                <pre><code>SELECT *
+FROM system.lakeflow.jobs
+WHERE name = 'demo_06_retail_job';</code></pre>
+            </div>
+
+            <h3>Fechamento</h3>
+            <p>O job conclui com sucesso. A atualização do painel como <strong>última tarefa</strong> é útil para entregar o relatório final a stakeholders de negócio e clientes. É o pipeline de varejo construído passo a passo nas demos.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o <strong>Repair Run</strong> ou <strong>Repair Task</strong> reexecuta só as tarefas que falharam, e as dependentes, sem rodar o job inteiro, e a UI mostra as tentativas anteriores e a de reparo. É possível rodar <strong>uma tarefa específica</strong> de um job, desde que as dependências já tenham sido executadas. O código executado fica em snapshot na run, então se corrige na origem e usa-se o Repair. Os retries podem ser desativados para tarefas que se sabe que vão falhar. A <strong>tarefa de painel</strong> atualiza dashboards ao fim do pipeline, com um warehouse e, opcionalmente, assinantes por e-mail. As <strong>tabelas de sistema</strong> (<code>system.lakeflow.*</code>) permitem auditar e monitorar os jobs.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="lakeflow-jobs-demo-4.html">&larr; Advanced Tasks</a>
+            <a href="databricks-academy-lakeflow-jobs.html">Voltar ao treinamento &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

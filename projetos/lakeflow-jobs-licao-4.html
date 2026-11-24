@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Conditional and Iterative Tasks do treinamento Deploy Workloads with Lakeflow Jobs: Run if, If/Else e For Each.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Conditional and Iterative Tasks</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-jobs.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Conditional and Iterative Tasks</h1>
+        <p>Deploy Workloads with Lakeflow Jobs · Lição</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-4">
+            <p class="lead">Nesta lição, os workflows deixam de ser sequências lineares e passam a <strong>ramificar, repetir e decidir</strong> com base em dados e em resultados. Ela apresenta três tipos avançados de task: as dependências condicionais <strong>Run if</strong>, a task <strong>If/Else</strong> e a task <strong>For Each</strong>, que o curso usa para criar workflows dinâmicos e resilientes.</p>
+
+            <p>Estas anotações partem de um resumo da lição, não do material original. O resumo avisa que as etapas 2 e 3 do diagrama de execução e a maioria das notas "Saiba mais" não foram abertas. O diagrama desta página é meu.</p>
+
+            <h3>Run if: dependências condicionais</h3>
+            <p>O <em>Run if</em> dá um controle fino sobre a execução de uma task, segundo o resultado das tasks upstream. Estas são as condições da UI:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Condição</th><th>A task roda quando</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>All succeeded</strong></td><td>Todas as dependências tiveram sucesso. É o padrão</td></tr>
+                        <tr><td><strong>At least one succeeded</strong></td><td>Ao menos uma teve sucesso. Mesmo que a Task-3 falhe, a Task-4 ainda roda</td></tr>
+                        <tr><td><strong>None failed</strong></td><td>Nenhuma falhou e pelo menos uma foi executada</td></tr>
+                        <tr><td><strong>All done</strong></td><td>Todas foram concluídas, com ou sem sucesso</td></tr>
+                        <tr><td><strong>At least one failed</strong></td><td>Ao menos uma falhou</td></tr>
+                        <tr><td><strong>All failed</strong></td><td>Todas falharam</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Representação visual no DAG</h4>
+            <ul>
+                <li>Os estilos e as cores das linhas indicam o tipo de dependência, o que visualiza a lógica.</li>
+                <li><strong>Solução de problemas:</strong> quando algo falha, vê-se quais tasks foram afetadas e quais podem continuar.</li>
+                <li><strong>Comunicação em equipe:</strong> o fluxo visual funciona como documentação para perfis técnicos e de negócio.</li>
+            </ul>
+            <p>No exemplo da UI, a task <code>Clean_Data</code> depende da <code>Ingest_Source_1</code>, da <code>Ingest_Source_2</code> e da <code>Ingest_Source_3</code>, com "Run if dependencies" igual a "All succeeded".</p>
+
+            <h4>O fluxo de execução, em três etapas</h4>
+            <ol>
+                <li><strong>Job initialization:</strong> o sistema avalia as dependências e determina o conjunto inicial de execução. As três ingestões rodam ao mesmo tempo, e a task agregadora (<code>All_Data_Ingested</code>) fica <em>Blocked</em>.</li>
+                <li><strong>Waiting for all tasks to complete (All succeeded):</strong> a task dependente espera todas terminarem.</li>
+                <li><strong>Dependent task started:</strong> ao cumprir a condição, a task dependente inicia.</li>
+            </ol>
+
+            <h3>Task If/Else</h3>
+            <p>Ela implementa a <strong>lógica de negócio</strong> direto no workflow, indo além do sucesso ou da falha para decisões baseadas em dados. Adiciona uma lógica booleana baseada nos resultados das tasks, e permite ramificar por verificações de qualidade de dados e por contagens de registros.</p>
+            <p>O exemplo é a <code>checking_for_duplicates</code>, que avalia uma condição (o valor igual a <code>"true"</code>) com duas saídas, <strong>True</strong> e <strong>False</strong>. O ramo leva à <code>dropping_duplicate_records</code>, e a <code>transforming_customers_sales</code> roda com a condição "If none failed", que é o caso da pegadinha da <a href="lakeflow-jobs-demo-4.html">Demo 4</a>.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Operador</th><th>Significado</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>==</code></td><td>Igual</td></tr>
+                        <tr><td><code>!=</code></td><td>Diferente</td></tr>
+                        <tr><td><code>&gt;</code> e <code>&gt;=</code></td><td>Maior e maior ou igual</td></tr>
+                        <tr><td><code>&lt;</code> e <code>&lt;=</code></td><td>Menor e menor ou igual</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Task For Each</h3>
+            <p>É um padrão iterativo que mantém a gestão visual do workflow ao tratar operações repetitivas. O mecanismo:</p>
+            <ol>
+                <li>Um <strong>input array</strong>, como <code>["A","B","C"]</code>, é percorrido.</li>
+                <li>A <strong>mesma task aninhada</strong> roda uma vez por item, recebendo o valor como <code>{{input}}</code>.</li>
+                <li>A task downstream espera o conjunto todo.</li>
+            </ol>
+            <p>As iterações podem rodar em <strong>paralelo</strong>, com uma <strong>concorrência</strong> configurável. As dependências downstream se ligam ao <strong>container</strong> For Each, e não à task aninhada.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 200" role="img" aria-label="O For Each: um array de entradas com CA, NY e VA alimenta o container, que roda a task aninhada uma vez para cada item, e a task downstream depende do container inteiro">
+                    <defs>
+                        <marker id="jc1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <rect x="190" y="14" width="330" height="172" rx="14" fill="none" stroke="#6495ED" stroke-width="2" stroke-dasharray="6 5"/>
+                    <g stroke="#b6b6c3" stroke-width="1.5" fill="none" marker-end="url(#jc1)">
+                        <line x1="150" y1="100" x2="190" y2="100"/>
+                        <line x1="520" y1="100" x2="570" y2="100"/>
+                    </g>
+                    <g font-size="13" font-weight="700" text-anchor="middle">
+                        <rect x="10" y="76" width="140" height="48" rx="12" fill="#1b1b29" stroke="#b6b6c3" stroke-width="2"/>
+                        <text x="80" y="97">Inputs</text>
+                        <text x="80" y="114" font-size="11" class="muted">["CA","NY","VA"]</text>
+
+                        <text x="355" y="34" font-size="11" class="muted">Container For Each</text>
+                        <rect x="215" y="44" width="280" height="32" rx="10" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="355" y="65" font-size="12">Task aninhada · {{input}} = CA</text>
+                        <rect x="215" y="84" width="280" height="32" rx="10" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="355" y="105" font-size="12">Task aninhada · {{input}} = NY</text>
+                        <rect x="215" y="124" width="280" height="32" rx="10" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="355" y="145" font-size="12">Task aninhada · {{input}} = VA</text>
+
+                        <rect x="570" y="76" width="140" height="48" rx="12" fill="#201a33" stroke="#e0388f" stroke-width="2"/>
+                        <text x="640" y="97">Task downstream</text>
+                        <text x="640" y="114" font-size="11" class="muted">depende do container</text>
+                    </g>
+                </svg>
+                <figcaption>O For Each com o exemplo dos estados. O diagrama é meu</figcaption>
+            </div>
+
+            <h4>Os dois componentes</h4>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">1</span>
+                    <h4>A For Each task</h4>
+                    <p>O contêiner de nível superior, que gerencia o loop. Tem o nome (como <code>customers_orders_state_wise_report_iterator</code>), o tipo "For each", os <strong>Inputs</strong> (como <code>["CA","NY","VA"]</code>), a <strong>Concurrency</strong> (opcional), o Depends on, o Run if dependencies e as notificações.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">2</span>
+                    <h4>A nested task</h4>
+                    <p>A task que de fato executa a cada iteração, como um notebook "For Each: Customer orders State" em compute serverless.</p>
+                </div>
+            </div>
+
+            <h4>Mais detalhes</h4>
+            <ul>
+                <li><strong>Processamento dos inputs:</strong> cada item vai como <code>{{input}}</code> para a task aninhada, com a mesma lógica sobre partições diferentes.</li>
+                <li><strong>Execução em paralelo:</strong> a concorrência configurável acelera as tarefas independentes.</li>
+                <li><strong>Dependências:</strong> as tasks downstream dependem do container inteiro, o que garante que todas as iterações terminem.</li>
+                <li><strong>Casos de uso:</strong> processamento geográfico (por estado ou região), por períodos, por segmento de cliente e por arquivo.</li>
+                <li><strong>O container</strong> age como uma unidade lógica única no workflow, simplifica as dependências e gerencia os recursos entre as iterações.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o <strong>Run if</strong> controla a execução pelo resultado das tasks upstream, o <strong>If/Else</strong> acrescenta a ramificação booleana, com os operadores <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code> e <code>&lt;=</code>, e o <strong>For Each</strong> itera sobre arrays com tasks aninhadas. A próxima etapa do curso é uma demo construindo um workflow dinâmico que une todos os tipos avançados, que é a <a href="lakeflow-jobs-demo-4.html">Demo 4</a> do site.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="lakeflow-jobs-licao-3.html">&larr; Creating and Scheduling Jobs</a>
+            <a href="lakeflow-jobs-licao-5.html">Handling Failures and Monitoring &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

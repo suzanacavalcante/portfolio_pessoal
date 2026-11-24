@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Lakeflow Jobs Core Components do treinamento Deploy Workloads with Lakeflow Jobs: jobs, tasks, compute, triggers e DAGs.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Lakeflow Jobs Core Components</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-jobs.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Lakeflow Jobs Core Components</h1>
+        <p>Deploy Workloads with Lakeflow Jobs · Lição</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-1">
+            <p class="lead">Esta lição apresenta os blocos fundamentais de todo job do Lakeflow e como as tarefas são orquestradas com o conceito de <strong>DAG</strong>. Ela passa pelos jobs e tasks, pelos tipos de task, pelas linguagens, pelos triggers, pelas opções de compute e pelos padrões comuns de workflow.</p>
+
+            <p>Estas anotações partem de um resumo da lição, não do material original. Os diagramas são meus, desenhados a partir dos exemplos do resumo.</p>
+
+            <h3>Objetivos</h3>
+            <ol>
+                <li>Entender jobs e tasks.</li>
+                <li>Identificar os tipos de task e as opções de configuração.</li>
+                <li>Explicar como os DAGs permitem a orquestração e os padrões de workflow.</li>
+                <li>Saber criar e configurar jobs pela UI do Lakeflow Jobs.</li>
+            </ol>
+
+            <h3>Job e tasks</h3>
+            <p>Um <strong>job</strong> é composto por uma ou mais <strong>tasks</strong>, que são as unidades individuais de trabalho. As tasks são adicionadas pelo botão "Add another task type" do job. O exemplo da lição é a task <code>customers_orders_report</code>, do tipo Notebook, com a source no Workspace e o compute Serverless, que <strong>depende</strong> da <code>ingesting_customers</code> e da <code>ingesting_orders</code>, com "Run if dependencies" igual a "All succeeded".</p>
+
+            <h4>Tipos de task</h4>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Código</span>
+                    <h4>Notebooks e scripts</h4>
+                    <p>Databricks Notebooks, scripts Python, Python wheels, Spark Submit e Java JAR.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Dados</span>
+                    <h4>SQL e pipelines</h4>
+                    <p>Arquivos e queries SQL, Spark Declarative Pipelines e dbt.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">BI</span>
+                    <h4>Painéis</h4>
+                    <p>Dashboards AI/BI e Power BI.</p>
+                </div>
+            </div>
+
+            <p>As opções de configuração variam conforme o tipo da task: o caminho (<em>path</em>), as bibliotecas, os parâmetros e as notificações são todos específicos do tipo selecionado.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tipo</th><th>O que se configura</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Notebook task</strong></td><td>A source, o path, as opções de compute, os parâmetros, as notificações e as bibliotecas dependentes</td></tr>
+                        <tr><td><strong>SQL task</strong></td><td>O nome da task, o tipo de SQL task (por exemplo, Query), a query SQL, o SQL warehouse, os parâmetros, as notificações e os retries</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Linguagens suportadas</h4>
+            <p>Python, SQL, Scala, R e Java (via arquivos JAR). As equipes podem usar as linguagens e o código que já têm.</p>
+
+            <h3>Fluxo de controle e triggers</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Fluxo de controle entre tasks</th><th>Triggers</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Sequencial</td><td>Agendado (cron)</td></tr>
+                        <tr><td>Paralelo</td><td>API</td></tr>
+                        <tr><td>Condicional (If/Else)</td><td>Chegada de arquivo (<em>file arrival</em>)</td></tr>
+                        <tr><td>Run Job (modular)</td><td>Table triggers (mudanças em uma tabela)</td></tr>
+                        <tr><td>For each</td><td>Contínuo (streaming)</td></tr>
+                        <tr><td></td><td>Manual</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>A camada de compute suporta todos esses padrões.</p>
+
+            <h3>Opções de compute</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Opção</th><th>Uso</th><th>Pontos-chave</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Interactive (all-purpose) clusters</td><td>Desenvolvimento, análise ad hoc e exploração</td><td>Compartilháveis entre usuários, mas <strong>não recomendados em produção</strong>, por causa do custo</td></tr>
+                        <tr><td>Job clusters</td><td>Produção e operação</td><td>Cerca de 50% mais baratos, encerram ao fim do job, sujeitos ao tempo de start-up do provedor de nuvem e podem ser reutilizados entre as tasks do mesmo job</td></tr>
+                        <tr><td>Serverless</td><td>Simples, rápido, confiável e econômico</td><td>Serviço totalmente gerenciado, com clusters e autoscaling mais rápidos, otimizações prontas e menor TCO</td></tr>
+                        <tr><td>SQL Warehouse</td><td>Consultas SQL, dashboards e BI</td><td>Serverless por padrão, com alta concorrência e autoscaling (Intelligent Workload Management), auto-start, auto-stop e tamanho ajustável</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Cada task pode ter o próprio compute. As tasks do mesmo job podem compartilhar o compute ou usar computes diferentes: por exemplo, a Task-1 e a Task-2 em um all-purpose cluster, a Task-3 em serverless e a Task-N em um job cluster.</p>
+
+            <h4>Serverless Performance Mode</h4>
+            <p>No painel de detalhes do job há o toggle <strong>Performance optimized</strong>, que vale apenas para as tasks com compute serverless.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Modo</th><th>Característica</th><th>Quando usar</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Standard</td><td>Foco em custo, com um start mais longo, tipicamente de 4 a 6 minutos</td><td>Cargas não urgentes</td></tr>
+                        <tr><td>Optimized</td><td>Start e execução mais rápidos</td><td>Cargas sensíveis a tempo</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Orquestração de tasks: o DAG</h3>
+            <p>Um <strong>DAG</strong> é a representação conceitual de uma série de atividades, incluindo os fluxos de processamento de dados. A sigla diz o que ele é:</p>
+            <ul>
+                <li><strong>D</strong>irected: cada aresta tem uma direção inequívoca;</li>
+                <li><strong>A</strong>cyclic: não há ciclos;</li>
+                <li><strong>G</strong>raph: vértices ligados por arestas.</li>
+            </ul>
+            <p>Os jobs executam várias tasks como um DAG, e a orquestração pode ser feita pela UI, pela API, pelo SDK ou pelos Declarative Automation Bundles. A ordem é definida configurando as <strong>dependências</strong>. No exemplo, a Task-2 e a Task-3 dependem da Task-1, e a Task-4 depende da Task-2 e da Task-3.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 190" role="img" aria-label="Exemplo de DAG: a Task-1 leva à Task-2 e à Task-3, e as duas levam à Task-4">
+                    <defs>
+                        <marker id="jl1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <g stroke="#b6b6c3" stroke-width="1.5" fill="none" marker-end="url(#jl1)">
+                        <line x1="170" y1="84" x2="295" y2="44"/>
+                        <line x1="170" y1="96" x2="295" y2="136"/>
+                        <line x1="425" y1="44" x2="550" y2="84"/>
+                        <line x1="425" y1="136" x2="550" y2="96"/>
+                    </g>
+                    <g font-size="13" font-weight="700">
+                        <rect x="40" y="68" width="130" height="44" rx="12" fill="#201a33" stroke="#e0388f" stroke-width="2"/>
+                        <text x="105" y="95" text-anchor="middle">Task-1</text>
+                        <rect x="295" y="18" width="130" height="44" rx="12" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="360" y="45" text-anchor="middle">Task-2</text>
+                        <rect x="295" y="118" width="130" height="44" rx="12" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="360" y="145" text-anchor="middle">Task-3</text>
+                        <rect x="550" y="68" width="130" height="44" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="615" y="95" text-anchor="middle">Task-4</text>
+                    </g>
+                </svg>
+                <figcaption>O exemplo de DAG da lição. O diagrama é meu</figcaption>
+            </div>
+
+            <h3>Padrões comuns</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Sequence</span>
+                    <h4>Em sequência</h4>
+                    <p>Transformação e limpeza em etapas, como as tabelas bronze, silver e gold da arquitetura medalhão.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Funnel</span>
+                    <h4>Funil</h4>
+                    <p>Várias fontes de dados convergindo, na coleta e na consolidação.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Fan-out</span>
+                    <h4>Fan-out (estrela)</h4>
+                    <p>Uma fonte distribuída para vários destinos, na ingestão e na distribuição.</p>
+                </div>
+            </div>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 170" role="img" aria-label="Os três padrões: sequência, com três etapas em linha; funil, com três fontes convergindo para um destino; e fan-out, com uma fonte indo para três destinos">
+                    <defs>
+                        <marker id="jl2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <g stroke="#b6b6c3" stroke-width="1.5" fill="none" marker-end="url(#jl2)">
+                        <line x1="58" y1="90" x2="92" y2="90"/>
+                        <line x1="128" y1="90" x2="162" y2="90"/>
+                        <line x1="282" y1="52" x2="424" y2="84"/>
+                        <line x1="282" y1="90" x2="424" y2="90"/>
+                        <line x1="282" y1="128" x2="424" y2="96"/>
+                        <line x1="508" y1="90" x2="666" y2="52"/>
+                        <line x1="508" y1="90" x2="666" y2="90"/>
+                        <line x1="508" y1="90" x2="666" y2="128"/>
+                    </g>
+                    <g fill="#201a33" stroke-width="2">
+                        <circle cx="40" cy="90" r="18" stroke="#e0388f"/>
+                        <circle cx="110" cy="90" r="18" stroke="#8A2BE2"/>
+                        <circle cx="180" cy="90" r="18" stroke="#6495ED"/>
+                        <circle cx="264" cy="52" r="18" stroke="#b6b6c3"/>
+                        <circle cx="264" cy="90" r="18" stroke="#b6b6c3"/>
+                        <circle cx="264" cy="128" r="18" stroke="#b6b6c3"/>
+                        <circle cx="442" cy="90" r="18" stroke="#6495ED"/>
+                        <circle cx="490" cy="90" r="18" stroke="#e0388f"/>
+                        <circle cx="684" cy="52" r="18" stroke="#6495ED"/>
+                        <circle cx="684" cy="90" r="18" stroke="#6495ED"/>
+                        <circle cx="684" cy="128" r="18" stroke="#6495ED"/>
+                    </g>
+                    <g font-size="13" font-weight="700" text-anchor="middle">
+                        <text x="110" y="24">Sequence</text>
+                        <text x="353" y="24">Funnel</text>
+                        <text x="587" y="24">Fan-out</text>
+                    </g>
+                    <g font-size="11" text-anchor="middle" class="muted">
+                        <text x="110" y="160">bronze → silver → gold</text>
+                        <text x="353" y="160">várias fontes → um destino</text>
+                        <text x="587" y="160">uma fonte → vários destinos</text>
+                    </g>
+                </svg>
+                <figcaption>Os três padrões de workflow. O diagrama é meu</figcaption>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o Lakeflow Jobs combina jobs, tasks, opções de configuração, linguagens, triggers, fluxos de controle e compute para uma orquestração flexível. Os DAGs dão dependências claras, e as tasks podem ser organizadas em sequência, funil ou fan-out. Os job clusters servem à produção, os all-purpose clusters ao desenvolvimento, o serverless à simplicidade e à velocidade, e o SQL warehouse às consultas, aos dashboards e ao BI. A próxima lição do curso é a visão geral do projeto do curso (<em>Course Project Overview</em>).</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="databricks-academy-lakeflow-jobs.html">&larr; Voltar ao treinamento</a>
+            <a href="lakeflow-jobs-licao-2.html">Course Project Overview &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

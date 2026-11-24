@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Building Dynamic Workloads with Advanced Tasks do treinamento Deploy Workloads with Lakeflow Jobs: task values, If/Else, Run if e For-Each.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Dynamic Workloads with Advanced Tasks</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-jobs.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Building Dynamic Workloads with Advanced Tasks</h1>
+        <p>Deploy Workloads with Lakeflow Jobs · Demo 4</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-4">
+            <p class="lead">Esta demo, de cerca de 15 minutos de fala, acrescenta ao job as <strong>tarefas avançadas</strong>. Os <strong>task values</strong> passam informações de uma tarefa para outra, a tarefa <strong>If/Else</strong> escolhe um caminho conforme esse valor, a condição <strong>Run if</strong> resolve uma dependência delicada entre os ramos, e a tarefa <strong>For-Each</strong> repete a mesma lógica para vários estados.</p>
+
+            <p>Estas anotações partem de um resumo da demo com marcação de tempo, não da transcrição. Os trechos de código são exemplos escritos por mim a partir desse resumo, e não foram executados. Os códigos de estado do exemplo (<code>CA</code>, <code>NY</code> e <code>VA</code>) são minha interpretação de Califórnia, Nova York e Virgínia, que o resumo cita só pelo nome.</p>
+
+            <h3>Ponto de partida e plano do pipeline</h3>
+            <p>No Vocareum, conecta-se o compute clássico e roda-se o script de setup. Já existem três tabelas bronze (<code>customers_bronze</code>, <code>orders_bronze</code> e <code>sales_bronze</code>), ingeridas por três tarefas. Agora entram as transformações e os joins:</p>
+            <ul>
+                <li><code>customers_sales_summary</code>: join de vendas com clientes;</li>
+                <li><code>customers_orders_report</code>: join de clientes com pedidos;</li>
+                <li>uma tarefa <strong>If/Else</strong>, para a checagem de duplicatas;</li>
+                <li>uma tarefa <strong>For-Each</strong>.</li>
+            </ul>
+
+            <h3>Os notebooks da Lição 4</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Clientes + pedidos</span>
+                    <h4>customers_orders_silver</h4>
+                    <p>Faz o join da <code>customers_bronze</code> com a <code>orders_bronze</code>.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Clientes + vendas</span>
+                    <h4>customers_sales_silver</h4>
+                    <p>Faz o join da <code>customers_bronze</code> com a <code>sales_bronze</code>, verifica as duplicatas e guarda o resultado em <code>duplicate_exists</code>.</p>
+                </div>
+            </div>
+
+            <p>No segundo notebook, depois da verificação, define-se um <strong>task value</strong> com a chave <code>has_duplicates</code>, que a condição If/Else vai consumir.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">df = spark.table("customers_sales_silver")
+
+duplicate_exists = df.count() != df.dropDuplicates().count()
+
+dbutils.jobs.taskValues.set(key="has_duplicates", value=duplicate_exists)</code></pre>
+            </div>
+
+            <h3>Job inicial e dependências</h3>
+            <p>Quem não acompanhou pode rodar o "job inicial", que cria o job com tudo o que foi feito até aqui. O job tem <strong>cinco tarefas</strong>:</p>
+            <ul>
+                <li>a <code>customer_sales_summary</code> depende da <code>ingesting_customers</code> e da <code>ingesting_sales</code>, com a condição "todas concluídas com êxito";</li>
+                <li>a <code>customers_orders_report</code>, que cria a <code>customers_orders_silver</code>, é definida para depender da <code>ingesting_customers</code> e da <code>ingesting_orders</code>, também com "todas com êxito".</li>
+            </ul>
+
+            <h3>Tarefa If/Else</h3>
+            <p>Adiciona-se uma tarefa do tipo If/Else (em "Advanced") chamada <code>checking_for_duplicates</code>. A condição usa o task value, referenciado como:</p>
+
+            <div class="code-container">
+                <pre><code>tasks.customers_sales_summary.values.has_duplicates</code></pre>
+            </div>
+
+            <p>Se for verdadeiro, executa o ramo <strong>true</strong>. Se for falso, o ramo <strong>false</strong>.</p>
+
+            <h4>Ramo true: remover duplicatas</h4>
+            <p>A tarefa de notebook <code>dropping_duplicate_records</code> aplica o <code>distinct</code> na <code>customers_sales_silver</code> e <strong>sobrescreve a mesma tabela</strong>. É o terceiro notebook da Lição 4 e depende do ramo true.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">(spark.table("customers_sales_silver")
+    .distinct()
+    .write.mode("overwrite")
+    .saveAsTable("customers_sales_silver"))</code></pre>
+            </div>
+
+            <h4>Ramo false: transformar a tabela</h4>
+            <p>A tarefa <code>transforming_customers_sales_table</code> cria um DataFrame da <code>customers_sales_silver</code>, faz uma limpeza leve, deriva o <code>order_year</code> e o <code>order_month</code> a partir do <code>order_date</code>, calcula o <code>avg_price_per_unit</code> (<code>total_price / units_purchased</code>) e salva a <code>customers_sales_gold</code>. Ela depende do ramo false do If/Else.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">from pyspark.sql import functions as F
+
+gold_df = (spark.table("customers_sales_silver")
+    .withColumn("order_year", F.year("order_date"))
+    .withColumn("order_month", F.month("order_date"))
+    .withColumn("avg_price_per_unit", F.col("total_price") / F.col("units_purchased")))
+
+gold_df.write.mode("overwrite").saveAsTable("customers_sales_gold")</code></pre>
+            </div>
+
+            <h3>A "pegadinha" da dependência: Run if</h3>
+            <p>Depois que a <code>dropping_duplicate_records</code> termina, a transformação também deve rodar. Então ela passa a depender das duas tarefas. Mas a condição "todas concluídas com êxito" <strong>não serve</strong>, porque os dois ramos nunca ocorrem ao mesmo tempo: um deles é sempre ignorado.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Condição (Run if)</th><th>Quando usar</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Todas concluídas com êxito</td><td>É o padrão. Falha aqui, porque um dos ramos é ignorado</td></tr>
+                        <tr><td><strong>Nenhum falhou</strong> (<em>none failed</em>)</td><td>Roda se nada falhou, mesmo que uma dependência tenha sido ignorada. É a escolha correta aqui</td></tr>
+                        <tr><td>Pelo menos uma com êxito</td><td>Quando algumas dependências podem falhar</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 270" role="img" aria-label="Grafo do job: três tarefas de ingestão alimentam o resumo de vendas e o relatório de pedidos. O resumo leva à tarefa If/Else, cujo ramo true remove duplicatas e cujo ramo false transforma a tabela. A remoção de duplicatas também alimenta a transformação. O relatório de pedidos alimenta o For-Each por estado.">
+                    <defs>
+                        <marker id="jd4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0 0 L10 5 L0 10 z" fill="#b6b6c3"/>
+                        </marker>
+                    </defs>
+                    <g stroke="#b6b6c3" stroke-width="1.5" fill="none" marker-end="url(#jd4)">
+                        <line x1="150" y1="42" x2="190" y2="74"/>
+                        <line x1="150" y1="122" x2="190" y2="90"/>
+                        <line x1="150" y1="122" x2="190" y2="152"/>
+                        <line x1="150" y1="202" x2="190" y2="172"/>
+                        <line x1="340" y1="76" x2="380" y2="50"/>
+                        <line x1="340" y1="162" x2="380" y2="162"/>
+                        <line x1="540" y1="150" x2="555" y2="128"/>
+                        <line x1="540" y1="174" x2="555" y2="216"/>
+                        <line x1="635" y1="144" x2="635" y2="200"/>
+                    </g>
+                    <g font-size="12" font-weight="700">
+                        <rect x="10" y="20" width="140" height="44" rx="12" fill="#1b1b29" stroke="#b6b6c3" stroke-width="2"/>
+                        <text x="80" y="47" text-anchor="middle">ingesting_orders</text>
+                        <rect x="10" y="100" width="140" height="44" rx="12" fill="#1b1b29" stroke="#b6b6c3" stroke-width="2"/>
+                        <text x="80" y="127" text-anchor="middle">ingesting_customers</text>
+                        <rect x="10" y="180" width="140" height="44" rx="12" fill="#1b1b29" stroke="#b6b6c3" stroke-width="2"/>
+                        <text x="80" y="207" text-anchor="middle">ingesting_sales</text>
+
+                        <rect x="190" y="60" width="150" height="44" rx="12" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="265" y="78" text-anchor="middle">Relatório de pedidos</text>
+                        <text x="265" y="94" text-anchor="middle" font-size="10" class="muted">cria customers_orders_silver</text>
+                        <rect x="190" y="140" width="150" height="44" rx="12" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="265" y="158" text-anchor="middle">Resumo de vendas</text>
+                        <text x="265" y="174" text-anchor="middle" font-size="10" class="muted">define o task value</text>
+
+                        <rect x="380" y="20" width="160" height="44" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="460" y="38" text-anchor="middle">For-Each por estado</text>
+                        <text x="460" y="54" text-anchor="middle" font-size="10" class="muted">uma tabela por estado</text>
+                        <rect x="380" y="140" width="160" height="44" rx="12" fill="#201a33" stroke="#e0388f" stroke-width="2"/>
+                        <text x="460" y="158" text-anchor="middle">If/Else</text>
+                        <text x="460" y="174" text-anchor="middle" font-size="10" class="muted">has_duplicates?</text>
+
+                        <rect x="555" y="100" width="155" height="44" rx="12" fill="#201a33" stroke="#e0388f" stroke-width="2"/>
+                        <text x="632" y="118" text-anchor="middle">Remover duplicatas</text>
+                        <text x="632" y="134" text-anchor="middle" font-size="10" class="muted">ramo true</text>
+                        <rect x="555" y="200" width="155" height="44" rx="12" fill="#201a33" stroke="#e0388f" stroke-width="2"/>
+                        <text x="632" y="218" text-anchor="middle">Transformar a tabela</text>
+                        <text x="632" y="234" text-anchor="middle" font-size="10" class="muted">ramo false · Run if: nenhum falhou</text>
+                    </g>
+                </svg>
+                <figcaption>O grafo do job. O diagrama é meu, a partir do resumo. A ligação do relatório de pedidos com o For-Each é minha leitura, porque o For-Each usa a tabela que esse relatório cria</figcaption>
+            </div>
+
+            <h3>Tarefa For-Each</h3>
+            <p>Usa-se o For-Each sempre que se quer rodar <strong>o mesmo script com parâmetros diferentes</strong>. Ele fica em "Advanced" e tem duas etapas: o <strong>iterador</strong> (a tarefa contêiner), com as entradas, e a <strong>tarefa aninhada</strong>.</p>
+            <p>Aqui, o <code>state_wise_iterator</code> tem as entradas Califórnia, Nova York e Virgínia, para gerar um relatório por estado. Há uma opção de <strong>concorrência</strong>, de até 3 iterações em paralelo. Sem preencher, o padrão é 1, ou seja, uma iteração por vez, o que evita sobrecarregar o cluster.</p>
+
+            <h4>A tarefa aninhada</h4>
+            <p>O notebook <code>customers_orders_state_wise_report</code> lê o estado de um widget, filtra a <code>customers_orders_silver</code> por estado e grava uma tabela com o código do estado no nome, como a <code>customers_orders_ca_silver</code>. Na tarefa aninhada, define-se o parâmetro <code>state</code>, que recebe automaticamente o valor da iteração atual do contêiner.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">state = dbutils.widgets.get("state")
+
+(spark.table("customers_orders_silver")
+    .filter(f"state = '{state}'")
+    .write.mode("overwrite")
+    .saveAsTable(f"customers_orders_{state.lower()}_silver"))</code></pre>
+            </div>
+
+            <h3>Execução e resultados</h3>
+            <p>O job leva cerca de <strong>7 a 8 minutos</strong>. Na aba Runs, vê-se o For-Each processando as entradas uma a uma (primeiro a Califórnia, depois Nova York e assim por diante), porque a concorrência não foi definida.</p>
+            <p>No fim existem a <code>customers_sales_gold</code> e as tabelas por estado. As colunas incluem <code>customer_id</code>, <code>customer_name</code>, <code>total_price</code>, <code>order_year</code>, <code>order_month</code> e <code>avg_price_per_unit</code>. Nas tabelas por estado há uma nova coluna, a <code>is_large_order</code>, aplicada igualmente a Nova York e à Virgínia.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> os <strong>task values</strong> permitem que uma tarefa passe valores a outras, com a referência <code>tasks.&lt;tarefa&gt;.values.&lt;chave&gt;</code>, e são a base da condição do If/Else. No <strong>If/Else</strong>, cada ramo (true e false) tem as próprias dependências, e a tarefa que une os ramos deve usar um <em>Run if</em> adequado, como "nenhum falhou", e não "todas com êxito". O <strong>For-Each</strong> é um contêiner (o iterador com as entradas) mais uma tarefa aninhada parametrizada, e a concorrência padrão é 1. Por padrão, as dependências são "todas com êxito", e as tarefas ignoradas não contam como falha.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="lakeflow-jobs-demo-3.html">&larr; Schedulers and Triggers</a>
+            <a href="lakeflow-jobs-demo-6.html">Monitoring and Repairing Task &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>

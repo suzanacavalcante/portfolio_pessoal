@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Automating Workloads with Schedulers and Triggers do treinamento Deploy Workloads with Lakeflow Jobs: agendas, gatilhos de chegada de arquivo e parâmetros.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.css" rel="stylesheet"/>
+    <title>Schedulers and Triggers</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-jobs.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Automating Workloads with Schedulers and Triggers</h1>
+        <p>Deploy Workloads with Lakeflow Jobs · Demo 3</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-3">
+            <p class="lead">Nesta demo, o job deixa de rodar só manualmente e passa a rodar sozinho. Ela adiciona ao job uma terceira tarefa, a ingestão de clientes, e configura um <strong>gatilho de chegada de arquivo</strong> (<em>file arrival</em>): sempre que um arquivo novo cai em um volume, o job é disparado.</p>
+
+            <p>Estas anotações partem de um resumo da demo com marcação de tempo, não da transcrição. Os trechos de código são exemplos escritos por mim a partir desse resumo, e não foram executados. O resumo cita nomes diferentes para os parâmetros (<code>my_catalog</code> e <code>my_schema</code> no notebook, e <code>catalog</code> e <code>schema</code> na tarefa), e no exemplo eu os uni, lendo os widgets <code>catalog</code> e <code>schema</code> em variáveis <code>my_catalog</code> e <code>my_schema</code>.</p>
+
+            <h3>Contexto</h3>
+            <p>É a terceira demonstração do ambiente Vocareum. Conecta-se primeiro ao cluster <code>labuser_&lt;ID&gt;</code> e roda-se o script de configuração. O foco é automatizar a carga de trabalho com <strong>programações e gatilhos</strong>.</p>
+
+            <h3>A nova tabela e o notebook</h3>
+            <p>No catálogo já existem as duas tabelas da Demo 1, a <code>orders</code> e a <code>sales</code>. Agora será ingerida a terceira, a <strong>customers</strong>. O notebook da Lição 3:</p>
+            <ol>
+                <li>recebe dois parâmetros, o catálogo e o schema, lidos de <strong>widgets</strong>;</li>
+                <li>monta o caminho do volume e cria o DataFrame <code>customers_df</code>;</li>
+                <li>salva o DataFrame como <code>customers_bronze</code> no catálogo e no schema de destino.</li>
+            </ol>
+            <p>Como o script de setup não foi usado para fixar esses valores, o catálogo e o schema precisam ser informados <strong>explicitamente</strong> ao salvar.</p>
+
+            <div class="code-container">
+                <pre><code class="language-python">my_catalog = dbutils.widgets.get("catalog")
+my_schema = dbutils.widgets.get("schema")
+
+customers_df = spark.read.csv(
+    f"/Volumes/{my_catalog}/{my_schema}/caminho_do_volume/customers.csv",
+    header=True,
+    inferSchema=True,
+)
+
+customers_df.write.mode("overwrite").saveAsTable(f"{my_catalog}.{my_schema}.customers_bronze")</code></pre>
+            </div>
+
+            <h3>O job inicial</h3>
+            <p>Existe um "job inicial" que cria automaticamente o job desta demo. Quem não fez a Demo 1 pode rodá-lo, e todo o processamento anterior é refeito em segundo plano. Em Jobs &amp; Pipelines há então dois jobs: o criado manualmente na Demo 1 e o criado automaticamente, já com as duas tarefas anteriores.</p>
+            <p>Adiciona-se uma tarefa de notebook chamada <code>ingesting_customers</code>, do tipo Notebook e com a origem no Workspace, apontando para o notebook da Lição 3.</p>
+
+            <h3>Programações e gatilhos disponíveis</h3>
+            <p>Para rodar em um horário específico, quando chegar um arquivo novo ou continuamente, é preciso adicionar uma <strong>agenda</strong> ou um <strong>gatilho</strong>. Sem nenhum dos dois, o job só roda manualmente, com o "Run now".</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Opção</th><th>Como funciona</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Manual</td><td>Só com o "Run now"</td></tr>
+                        <tr><td>Agendado</td><td>Por hora, dia ou semana, ou, nas configurações avançadas, por uma <strong>expressão Cron</strong></td></tr>
+                        <tr><td>Contínuo</td><td>O job roda continuamente</td></tr>
+                        <tr><td>File arrival</td><td>Dispara na chegada de um arquivo, e pede o local de armazenamento a ser monitorado</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>A demo usa o <strong>file arrival</strong>.</p>
+
+            <h3>Preparando o local do gatilho</h3>
+            <p>O caso de uso é iniciar o job sempre que um arquivo novo cair em um local. Cria-se, no schema do usuário, um <strong>volume</strong> chamado <code>trigger_storage_location</code>, vazio no início. O caminho completo do volume é obtido por um comando e deve ser copiado por inteiro.</p>
+
+            <div class="code-container">
+                <pre><code>CREATE VOLUME IF NOT EXISTS trigger_storage_location;
+
+-- o caminho completo tem o formato /Volumes/catalogo/schema/trigger_storage_location/</code></pre>
+            </div>
+
+            <h3>Configurando o gatilho</h3>
+            <ol>
+                <li>Adiciona-se o gatilho <strong>File arrival</strong>.</li>
+                <li>Cola-se o caminho do volume.</li>
+                <li>Antes de salvar, usa-se o <strong>teste do gatilho</strong>, e o êxito significa teste aprovado.</li>
+                <li>Depois de salvar, a aba Runs mostra que a chegada de arquivos está sendo avaliada.</li>
+            </ol>
+
+            <h3>Parâmetros de tarefa</h3>
+            <p>O notebook lê valores de widgets, que são os <strong>parâmetros passados pelo job</strong>. Na <code>ingesting_customers</code> definem-se dois:</p>
+            <ul>
+                <li><code>catalog</code>, com o valor <code>dbacademy</code>;</li>
+                <li><code>schema</code>, com o schema do usuário, copiado antes.</li>
+            </ul>
+
+            <h3>O gatilho em ação</h3>
+            <p>O gatilho foi avaliado, mas o volume acabou de ser criado e está vazio, então não há arquivos novos. Uma função copia então os dados do <code>dbacademy_retail</code> (o <code>customers.csv</code>) para o volume do gatilho. A atualização de estado pode levar de 1 a 2 minutos.</p>
+            <p>Depois de atualizar, a execução <strong>inicia sozinha</strong>, com o tipo de acionamento "file arrival" e o estado em execução. Na linha do tempo, como nenhuma tarefa depende de outra, todas começam ao mesmo tempo. O gatilho pode ser editado, pausado ou excluído.</p>
+
+            <div class="callout">
+                <p><strong>Detalhe importante:</strong> se um <strong>arquivo com o mesmo nome</strong> chegar de novo ao local, ele <strong>não é ingerido</strong>, porque o gatilho não distingue arquivos de mesmo nome.</p>
+            </div>
+
+            <h3>Verificação</h3>
+            <p>O <code>SHOW TABLES</code> confirma as três tabelas: <code>customers_bronze</code>, <code>orders_bronze</code> e <code>sales_bronze</code>. Uma query em <code>customers_bronze</code> mostra os dados de cliente: <code>customer_id</code>, nome, <code>tax_id</code>, estado, cidade e CEP.</p>
+
+            <div class="code-container">
+                <pre><code>SHOW TABLES;
+
+SELECT * FROM customers_bronze;</code></pre>
+            </div>
+
+            <p>As próximas demos aplicam transformações e lógica de negócio sobre essas tabelas e, por fim, um painel na última demo. A demo indica a documentação sobre a parametrização de jobs e a automação com agendas e gatilhos.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> um job pode rodar manualmente, em uma agenda (com Cron incluso), de forma contínua ou por chegada de arquivo. O gatilho de chegada de arquivo monitora um local, aqui um volume do Unity Catalog, pode ser testado antes de salvar e pode ser editado, pausado ou excluído. Arquivos de mesmo nome não disparam uma nova ingestão. Os parâmetros do job ou da tarefa alimentam os widgets dos notebooks, e é preciso definir o <code>catalog</code> e o <code>schema</code> na tarefa. As tarefas independentes rodam em paralelo.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="lakeflow-jobs-demo-1.html">&larr; Creating a Job Using the UI</a>
+            <a href="lakeflow-jobs-demo-4.html">Advanced Tasks &rarr;</a>
+        </nav>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</body>
+</html>
