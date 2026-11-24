@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Quiz interativo com 20 perguntas sobre os conceitos do treinamento Data Ingestion with Lakeflow Connect: CTAS, COPY INTO, Auto Loader, metadados, dados resgatados, JSON, conectores gerenciados e MERGE INTO.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Quiz: Data Ingestion with Lakeflow Connect</title>
+    <style>
+        .quiz {
+            --ok: #3ecf8e;
+            --ok-bg: rgba(62, 207, 142, .12);
+            --bad: #ff6b81;
+            --bad-bg: rgba(255, 107, 129, .12);
+            margin: 2rem 0 4rem;
+        }
+
+        .quiz-intro {
+            text-align: center;
+            padding: 3.2rem 2rem;
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .quiz-intro h2 {
+            border: 0;
+            padding: 0;
+            margin-bottom: 1rem;
+        }
+
+        .quiz-intro h2::after { display: none; }
+
+        .quiz-intro ul {
+            display: inline-block;
+            text-align: left;
+            margin: 1.2rem 0 2rem;
+            padding-left: 2rem;
+            font-size: 1.4rem;
+        }
+
+        .quiz-btn {
+            display: inline-block;
+            padding: 1.1rem 2.8rem;
+            border: 0;
+            border-radius: 999px;
+            background: var(--gradient-brand);
+            color: #fff;
+            font-family: inherit;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .2s var(--ease), box-shadow .2s var(--ease), opacity .2s var(--ease);
+        }
+
+        .quiz-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -10px var(--color-blue); }
+        .quiz-btn:focus-visible, .quiz-opt:focus-visible { outline: 3px solid var(--color-azul); outline-offset: 3px; }
+
+        .quiz-btn.ghost {
+            background: transparent;
+            border: 1px solid var(--border-soft);
+            color: var(--color-white);
+        }
+
+        .quiz-btn.ghost:hover { border-color: var(--color-blue-light); box-shadow: none; }
+
+        .quiz-card {
+            padding: 2.4rem;
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .quiz-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--color-white-dim);
+        }
+
+        .quiz-bar {
+            height: .8rem;
+            border-radius: 999px;
+            background: var(--surface-2);
+            overflow: hidden;
+            margin-bottom: 2.4rem;
+        }
+
+        .quiz-bar span {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: 999px;
+            background: var(--gradient-brand);
+            transition: width .4s var(--ease);
+        }
+
+        .quiz-q {
+            margin: 0 0 2rem;
+            color: var(--color-white);
+            font-size: 2rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .quiz-opts {
+            display: grid;
+            gap: 1.1rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .quiz-opt {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.4rem;
+            width: 100%;
+            padding: 1.4rem 1.6rem;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+            background: var(--surface-2);
+            color: var(--color-white);
+            font-family: inherit;
+            font-size: 1.5rem;
+            text-align: left;
+            cursor: pointer;
+            transition: border-color .2s var(--ease), background .2s var(--ease), transform .2s var(--ease);
+        }
+
+        .quiz-opt:hover:not(:disabled) { border-color: var(--color-blue-light); transform: translateX(3px); }
+        .quiz-opt:disabled { cursor: default; }
+
+        .quiz-key {
+            flex: none;
+            display: grid;
+            place-items: center;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--color-blue-light);
+        }
+
+        .quiz-opt.correct { border-color: var(--ok); background: var(--ok-bg); }
+        .quiz-opt.correct .quiz-key { background: var(--ok); border-color: var(--ok); color: #04130c; }
+        .quiz-opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+        .quiz-opt.wrong .quiz-key { background: var(--bad); border-color: var(--bad); color: #1a0409; }
+        .quiz-opt.dim { opacity: .55; }
+
+        .quiz-feedback {
+            display: none;
+            margin-top: 2rem;
+            padding: 1.6rem 1.8rem;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--color-blue-light);
+            background: var(--surface-2);
+            font-size: 1.4rem;
+        }
+
+        .quiz-feedback.show { display: block; animation: quizIn .3s var(--ease); }
+        .quiz-feedback.ok { border-left-color: var(--ok); }
+        .quiz-feedback.bad { border-left-color: var(--bad); }
+        .quiz-feedback strong { display: block; margin-bottom: .4rem; color: var(--color-white); font-size: 1.5rem; }
+
+        .quiz-next { margin-top: 2rem; text-align: right; }
+        .quiz-next .quiz-btn[hidden] { display: none; }
+
+        .quiz-result { text-align: center; }
+
+        .quiz-ring {
+            position: relative;
+            width: 16rem;
+            height: 16rem;
+            margin: 1rem auto 2rem;
+        }
+
+        .quiz-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .quiz-ring circle { fill: none; stroke-width: 10; }
+        .quiz-ring .track { stroke: var(--surface-2); }
+        .quiz-ring .value { stroke: url(#quizGrad); stroke-linecap: round; transition: stroke-dashoffset 1s var(--ease); }
+
+        .quiz-ring .score {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-content: center;
+            color: var(--color-white);
+            font-size: 3.6rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .quiz-ring .score small { display: block; margin-top: .6rem; font-size: 1.3rem; font-weight: 500; color: var(--color-white-dim); }
+
+        .quiz-result h2 { border: 0; padding: 0; margin-bottom: .8rem; }
+        .quiz-result h2::after { display: none; }
+
+        .quiz-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.2rem; margin: 2rem 0; }
+
+        .quiz-review { margin-top: 3rem; text-align: left; }
+        .quiz-review h3 { margin-bottom: 1.4rem; }
+
+        .quiz-review-item {
+            margin-bottom: 1.4rem;
+            padding: 1.6rem 1.8rem;
+            border-radius: var(--radius-sm);
+            background: var(--surface-2);
+            border-left: 4px solid var(--bad);
+            font-size: 1.4rem;
+        }
+
+        .quiz-review-item p { margin: 0 0 .6rem; }
+        .quiz-review-item .q { color: var(--color-white); font-weight: 600; }
+        .quiz-review-item .mine { color: var(--bad); }
+        .quiz-review-item .right { color: var(--ok); }
+
+        .quiz-perfect {
+            padding: 1.6rem;
+            border-radius: var(--radius-sm);
+            background: var(--ok-bg);
+            border: 1px solid var(--ok);
+            color: var(--color-white);
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        .quiz-best { margin-top: 1.4rem; font-size: 1.3rem; }
+
+        @keyframes quizIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: none; }
+        }
+
+        @media (max-width: 600px) {
+            .quiz-card { padding: 1.6rem; }
+            .quiz-q { font-size: 1.7rem; }
+            .quiz-opt { font-size: 1.4rem; padding: 1.2rem; }
+            .quiz-next { text-align: center; }
+            .quiz-next .quiz-btn { width: 100%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .quiz *, .quiz *::before { transition: none !important; animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-lakeflow-connect.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Quiz do treinamento de Lakeflow Connect</h1>
+        <p>Databricks Academy · Treinamento 5 de 9</p>
+        <span>Quiz</span>
+    </header>
+
+    <main>
+        <div class="quiz" id="quiz" aria-live="polite">
+            <div class="quiz-intro" id="quizIntro">
+                <h2>Teste o que aprendeu em Data Ingestion with Lakeflow Connect</h2>
+                <p>Este quiz tem 20 perguntas de múltipla escolha sobre os conceitos das lições e das demos do treinamento. As perguntas são minhas, escritas a partir do que estudei.</p>
+                <ul>
+                    <li>Uma pergunta por vez, com a explicação logo após cada resposta</li>
+                    <li>Ao final, a pontuação e a revisão do que você errou</li>
+                    <li>As alternativas mudam de ordem a cada tentativa</li>
+                    <li>Você pode usar as teclas 1 a 4 para responder e Enter para avançar</li>
+                </ul>
+                <div><button class="quiz-btn" id="quizStart" type="button">Começar o quiz</button></div>
+                <p class="quiz-best" id="quizBest" hidden></p>
+            </div>
+
+            <div class="quiz-card" id="quizCard" hidden>
+                <div class="quiz-top">
+                    <span id="quizCount">Pergunta 1 de 20</span>
+                    <span id="quizScoreLive">0 acertos</span>
+                </div>
+                <div class="quiz-bar" role="progressbar" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" id="quizBar"><span></span></div>
+                <h2 class="quiz-q" id="quizQuestion" style="border:0;padding:0;"></h2>
+                <ul class="quiz-opts" id="quizOptions"></ul>
+                <div class="quiz-feedback" id="quizFeedback" role="status"></div>
+                <div class="quiz-next"><button class="quiz-btn" id="quizNext" type="button" hidden>Próxima pergunta</button></div>
+            </div>
+
+            <div class="quiz-card quiz-result" id="quizResult" hidden>
+                <div class="quiz-ring">
+                    <svg viewBox="0 0 120 120" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="quizGrad" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0" stop-color="#8A2BE2"/>
+                                <stop offset="1" stop-color="#e0388f"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="track" cx="60" cy="60" r="52"/>
+                        <circle class="value" id="quizRing" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+                    </svg>
+                    <div class="score"><span id="quizScoreText">0/20</span><small id="quizPercent">0%</small></div>
+                </div>
+                <h2 id="quizVerdict"></h2>
+                <p id="quizVerdictText"></p>
+                <div class="quiz-actions">
+                    <button class="quiz-btn" id="quizRetry" type="button">Refazer o quiz</button>
+                    <a class="quiz-btn ghost" href="databricks-academy-lakeflow-connect.html">Rever o treinamento</a>
+                </div>
+                <div class="quiz-review" id="quizReview"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        (function () {
+            var QUESTIONS = [
+                {
+                    q: "Quais são os três tipos de conector do Lakeflow Connect?",
+                    o: ["Upload Files, Standard Connectors e Managed Connectors", "Batch, Streaming e Federation", "CTAS, COPY INTO e Auto Loader", "Bronze, Silver e Gold"],
+                    a: 0,
+                    e: "O Upload Files envia arquivos locais. Os Standard Connectors cobrem fontes como o armazenamento em nuvem e o Kafka. Os Managed Connectors ingerem aplicações SaaS e bancos de dados."
+                },
+                {
+                    q: "O que caracteriza a ingestão em batch incremental?",
+                    o: ["Ingere apenas os dados novos, pulando os registros já carregados", "Reingere todos os dados a cada execução", "Só funciona com streaming de eventos", "Descarta os dados antigos da tabela"],
+                    a: 0,
+                    e: "O batch tradicional reingere tudo a cada execução. O incremental é mais rápido e econômico, e pode ser feito com COPY INTO, com o Auto Loader (trigger temporizado) ou com um CREATE OR REFRESH STREAMING TABLE."
+                },
+                {
+                    q: "Qual função lê arquivos do armazenamento em nuvem e devolve os dados em forma tabular, usada no CTAS?",
+                    o: ["read_files()", "from_json()", "unbase64()", "schema_of_json()"],
+                    a: 0,
+                    e: "O padrão é CREATE TABLE nova_tabela AS SELECT * FROM read_files(...). Ela detecta o formato e infere um schema unificado entre os arquivos."
+                },
+                {
+                    q: "Por que o COPY INTO é indicado para a ingestão batch incremental?",
+                    o: ["Porque é idempotente: ignora os arquivos já carregados e só os novos entram", "Porque reprocessa todos os arquivos a cada execução", "Porque só aceita um arquivo por vez", "Porque dispensa o caminho de origem"],
+                    a: 0,
+                    e: "O FORMAT_OPTIONS() diz como interpretar os arquivos, e o COPY_OPTIONS() define o comportamento da operação, como o mergeSchema (evolução de schema) e o force (reprocessamento forçado)."
+                },
+                {
+                    q: "Como o Auto Loader é habilitado em Python?",
+                    o: ["Com o readStream no formato cloudFiles, e um cloudFiles.schemaLocation para acompanhar o schema", "Com um spark.read comum no formato csv", "Com o comando COPY INTO", "Com uma view temporária"],
+                    a: 0,
+                    e: "O Auto Loader é a ingestão incremental, em batch ou streaming. Escala para bilhões de arquivos e se apoia no Spark Structured Streaming."
+                },
+                {
+                    q: "Para que serve a coluna oculta _metadata na ingestão?",
+                    o: ["Anexar o contexto do arquivo de origem (como file_name e file_modification_time) a cada linha", "Guardar o schema da tabela", "Armazenar os valores incompatíveis com o schema", "Controlar as permissões da tabela"],
+                    a: 0,
+                    e: "Como ela é oculta, precisa ser selecionada explicitamente na consulta de leitura. Preserva o contexto da origem, útil para auditoria, linhagem e depuração."
+                },
+                {
+                    q: "O que a coluna _rescued_data guarda?",
+                    o: ["Os valores que não batem com o schema, como strings JSON, em vez de descartá-los", "Os arquivos que falharam na leitura, copiados inteiros", "O histórico de versões da tabela", "As linhas duplicadas"],
+                    a: 0,
+                    e: "Nas linhas sem incompatibilidade, a _rescued_data é null. Um exemplo é o valor \"$100\" em uma coluna BIGINT: o cost fica null, e o valor é resgatado."
+                },
+                {
+                    q: "Em quais métodos de ingestão a coluna _rescued_data está disponível?",
+                    o: ["read_files(), spark.read e Auto Loader", "Somente no COPY INTO", "Somente no Upload Files", "Em nenhum, só em tabelas externas"],
+                    a: 0,
+                    e: "No diagrama da lição, o COPY INTO aparece desabilitado, ou seja, não fornece essa coluna. O CTAS e o Auto Loader fornecem."
+                },
+                {
+                    q: "Qual é a diferença de acesso a um campo em uma coluna JSON do tipo STRING e em uma do tipo STRUCT?",
+                    o: ["No STRING usa-se a sintaxe de dois-pontos (json_column:name), e no STRUCT, o acesso com ponto (value.geo.city)", "No STRING usa-se o ponto, e no STRUCT, os dois-pontos", "Os dois exigem um novo CTAS a cada consulta", "Nenhum dos dois permite acessar campos aninhados"],
+                    a: 0,
+                    e: "O STRUCT tem schema definido e é mais eficiente em consultas. O STRING é texto bruto, sem restrições, e é o menos performático."
+                },
+                {
+                    q: "Qual é a vantagem do tipo VARIANT para dados semiestruturados?",
+                    o: ["É flexível, sem schema prévio, e tem desempenho melhor que o STRING e o STRUCT", "Exige um schema fixo desde o início", "Só armazena números", "É o menos performático dos três"],
+                    a: 0,
+                    e: "O VARIANT é o tipo mais novo para JSON no Databricks, em public preview desde o segundo trimestre de 2025 (a lição pede para acompanhar o lançamento GA)."
+                },
+                {
+                    q: "Qual par de funções deriva e aplica um schema ao converter uma string JSON em STRUCT?",
+                    o: ["schema_of_json e from_json", "get_json_object e unbase64", "read_files e COPY INTO", "explode e size"],
+                    a: 0,
+                    e: "O schema_of_json obtém o schema de um valor de exemplo, e o from_json o aplica à coluna de string. O schema também pode ser escrito à mão."
+                },
+                {
+                    q: "Na Demo 3, como os eventos do tópico Kafka chegam, e como são decodificados?",
+                    o: ["Com key e value em base64, decodificados com unbase64 e CAST AS STRING", "Em XML, convertidos com from_xml", "Como tabelas Delta já decodificadas", "Em Parquet, lidos com spark.read"],
+                    a: 0,
+                    e: "Primeiro salva-se o dado bruto em uma tabela bronze (kafka_events_bronze_raw), e depois se decodifica (kafka_events_bronze_decoded). Daí partem as três opções: string achatada, STRUCT e VARIANT."
+                },
+                {
+                    q: "Qual é a principal desvantagem do STRUCT em relação ao VARIANT?",
+                    o: ["O schema é fixado desde o início, e uma mudança na estrutura do JSON complica o tratamento", "É mais lento que o STRING", "Não suporta objetos aninhados", "Não pode ser consultado com SQL"],
+                    a: 0,
+                    e: "Como vantagens, o STRUCT garante a integridade dos dados e tem melhor desempenho que o JSON como string."
+                },
+                {
+                    q: "Qual é a diferença entre uma tabela gerenciada e uma externa ao executar DROP TABLE?",
+                    o: ["Na gerenciada, os dados são apagados, e na externa só os metadados", "Nas duas os dados são mantidos", "Na externa os dados são apagados, e na gerenciada só os metadados", "O DROP TABLE não funciona em tabelas externas"],
+                    a: 0,
+                    e: "A gerenciada é o padrão e a recomendada. A externa serve a diretrizes de onde guardar os dados, ao compartilhamento entre plataformas e ao uso de dados já existentes."
+                },
+                {
+                    q: "O que o schemaHints permite na função read_files?",
+                    o: ["Declarar agora colunas que podem chegar no futuro, que ficam null até haver dados", "Apagar colunas inferidas", "Mudar o formato do arquivo", "Definir as colunas de partição"],
+                    a: 0,
+                    e: "Quando os dados chegam, entram na tabela. As colunas de partição são definidas pelo partitionColumns, e o tipo do arquivo, pelo format."
+                },
+                {
+                    q: "Qual é a arquitetura de ingestão de bancos de dados com os Managed Connectors?",
+                    o: ["Um Ingestion Gateway em compute clássico, com o estado e os dados de staging em um volume do Unity Catalog, e um pipeline serverless gravando nas streaming tables", "Uma consulta direta do banco para um dashboard, sem tabelas", "Um upload manual de arquivos pela UI", "Um job que copia o banco inteiro todas as noites"],
+                    a: 0,
+                    e: "Na ingestão de aplicações SaaS não há o gateway: o pipeline serverless acessa direto a fonte publicamente acessível (como uma API) e grava nas streaming tables."
+                },
+                {
+                    q: "Para que serve o Partner Connect, segundo a lição de dados corporativos?",
+                    o: ["Como alternativa para as fontes sem conector gerenciado nativo", "Para compartilhar dados com outras organizações", "Para aplicar updates em tabelas Delta", "Para escrever eventos em tempo real no lakehouse"],
+                    a: 0,
+                    e: "Os Managed Connectors cobrem fontes como Workday, Salesforce, PostgreSQL e SQL Server, com estados de lançamento variados (public preview ou GA)."
+                },
+                {
+                    q: "O que é o Zerobus, citado na lição de recursos adicionais?",
+                    o: ["Uma API do Lakeflow Connect, indicada como \"coming soon\", para escrever dados de eventos direto no lakehouse, com latência quase em tempo real", "Um tipo de tabela do Unity Catalog", "Um formato de arquivo", "Um conector gerenciado para o Salesforce"],
+                    a: 0,
+                    e: "A lição cita 100 MB/s de vazão e latência abaixo de 5 segundos, para IoT, clickstreams, telemetria e logs. Já a Lakehouse Federation consulta fontes externas sem mover os dados."
+                },
+                {
+                    q: "Como se obtém um ativo gratuito no Databricks Marketplace?",
+                    o: ["Com o \"Get instant access\": ele é adicionado ao Unity Catalog, sem copiar os dados, via Delta Sharing", "Com um pedido de aprovação ao provedor, que demora dias", "Baixando o arquivo e fazendo o upload manual", "Só por meio do Partner Connect"],
+                    a: 0,
+                    e: "Foi assim que o catálogo dbacademy_ecommerce, fonte das demos, chegou ao workspace. O Marketplace é baseado no padrão open source Delta Sharing."
+                },
+                {
+                    q: "Como o MERGE INTO trata as linhas que casam e as que não casam entre a fonte e o destino?",
+                    o: ["Nas que casam faz update ou delete, e nas que não casam faz insert, tudo em uma operação atômica", "Nas que casam faz insert, e nas que não casam faz update", "Só apaga as linhas que casam", "Só insere, e nunca atualiza"],
+                    a: 0,
+                    e: "O MERGE INTO aplica updates, inserts e deletes de uma tabela fonte em uma tabela Delta existente, com suporte à imposição ou à evolução de schema."
+                }
+            ];
+
+            var LETTERS = ["A", "B", "C", "D"];
+            var STORE = "dbx-quiz-connect-best";
+            var $ = function (id) { return document.getElementById(id); };
+            var intro = $("quizIntro"), card = $("quizCard"), result = $("quizResult");
+            var order, index, score, answered, missed, current;
+
+            function shuffle(arr) {
+                var a = arr.slice();
+                for (var i = a.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var t = a[i]; a[i] = a[j]; a[j] = t;
+                }
+                return a;
+            }
+
+            function getBest() {
+                try { var v = parseInt(localStorage.getItem(STORE), 10); return isNaN(v) ? null : v; } catch (e) { return null; }
+            }
+
+            function setBest(v) {
+                try { localStorage.setItem(STORE, String(v)); } catch (e) {}
+            }
+
+            function showBest() {
+                var b = getBest(), el = $("quizBest");
+                if (b === null) { el.hidden = true; return; }
+                el.hidden = false;
+                el.textContent = "Seu melhor resultado neste navegador: " + b + " de " + QUESTIONS.length;
+            }
+
+            function start() {
+                order = shuffle(QUESTIONS);
+                index = 0; score = 0; missed = [];
+                intro.hidden = true; result.hidden = true; card.hidden = false;
+                card.scrollIntoView({ behavior: "smooth", block: "start" });
+                render();
+            }
+
+            function render() {
+                answered = false;
+                var item = order[index];
+                var opts = shuffle(item.o.map(function (text, i) { return { text: text, right: i === item.a }; }));
+                current = { item: item, opts: opts };
+
+                $("quizCount").textContent = "Pergunta " + (index + 1) + " de " + order.length;
+                $("quizScoreLive").textContent = score + (score === 1 ? " acerto" : " acertos");
+                var bar = $("quizBar");
+                bar.setAttribute("aria-valuenow", String(index));
+                bar.firstElementChild.style.width = (index / order.length * 100) + "%";
+                $("quizQuestion").textContent = item.q;
+
+                var list = $("quizOptions");
+                list.innerHTML = "";
+                opts.forEach(function (opt, i) {
+                    var li = document.createElement("li");
+                    var btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "quiz-opt";
+                    btn.innerHTML = '<span class="quiz-key">' + LETTERS[i] + '</span><span></span>';
+                    btn.lastChild.textContent = opt.text;
+                    btn.addEventListener("click", function () { choose(i); });
+                    li.appendChild(btn);
+                    list.appendChild(li);
+                });
+
+                var fb = $("quizFeedback");
+                fb.className = "quiz-feedback";
+                fb.innerHTML = "";
+                $("quizNext").hidden = true;
+                $("quizNext").textContent = index === order.length - 1 ? "Ver o resultado" : "Próxima pergunta";
+            }
+
+            function choose(i) {
+                if (answered) return;
+                answered = true;
+                var buttons = $("quizOptions").querySelectorAll(".quiz-opt");
+                var opt = current.opts[i];
+                buttons.forEach(function (b, k) {
+                    b.disabled = true;
+                    if (current.opts[k].right) b.classList.add("correct");
+                    else if (k === i) b.classList.add("wrong");
+                    else b.classList.add("dim");
+                });
+
+                var fb = $("quizFeedback");
+                var title = document.createElement("strong");
+                var body = document.createElement("span");
+                body.textContent = current.item.e;
+                if (opt.right) {
+                    score++;
+                    fb.classList.add("ok");
+                    title.textContent = "Correto!";
+                } else {
+                    fb.classList.add("bad");
+                    title.textContent = "Não foi dessa vez.";
+                    var right = current.opts.filter(function (o) { return o.right; })[0].text;
+                    missed.push({ q: current.item.q, mine: opt.text, right: right, e: current.item.e });
+                }
+                fb.appendChild(title);
+                fb.appendChild(body);
+                fb.classList.add("show");
+
+                $("quizScoreLive").textContent = score + (score === 1 ? " acerto" : " acertos");
+                $("quizBar").firstElementChild.style.width = ((index + 1) / order.length * 100) + "%";
+                var next = $("quizNext");
+                next.hidden = false;
+                next.focus({ preventScroll: true });
+            }
+
+            function next() {
+                if (!answered) return;
+                index++;
+                if (index < order.length) { render(); card.scrollIntoView({ behavior: "smooth", block: "start" }); }
+                else finish();
+            }
+
+            function finish() {
+                card.hidden = true; result.hidden = false;
+                var total = order.length;
+                var pct = Math.round(score / total * 100);
+                $("quizScoreText").textContent = score + "/" + total;
+                $("quizPercent").textContent = pct + "%";
+
+                var circ = 326.7, ring = $("quizRing");
+                ring.style.strokeDashoffset = circ;
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () { ring.style.strokeDashoffset = circ * (1 - score / total); });
+                });
+
+                var v, t;
+                if (pct === 100) { v = "Perfeito!"; t = "Você acertou todas as perguntas. Os conceitos do treinamento estão firmes."; }
+                else if (pct >= 80) { v = "Muito bem!"; t = "Você domina a maior parte dos conceitos. Dê uma olhada nas que errou para fechar as lacunas."; }
+                else if (pct >= 60) { v = "Bom caminho"; t = "Os conceitos principais estão ali, mas vale rever alguns vídeos e tentar de novo."; }
+                else { v = "Vale revisar"; t = "Sem problema: revise os vídeos, veja as explicações abaixo e refaça o quiz."; }
+                $("quizVerdict").textContent = v;
+                $("quizVerdictText").textContent = t;
+
+                var best = getBest();
+                if (best === null || score > best) setBest(score);
+
+                var box = $("quizReview");
+                box.innerHTML = "";
+                if (!missed.length) {
+                    var ok = document.createElement("div");
+                    ok.className = "quiz-perfect";
+                    ok.textContent = "Nenhum erro para revisar.";
+                    box.appendChild(ok);
+                } else {
+                    var h = document.createElement("h3");
+                    h.textContent = "Para revisar (" + missed.length + ")";
+                    box.appendChild(h);
+                    missed.forEach(function (m) {
+                        var d = document.createElement("div");
+                        d.className = "quiz-review-item";
+                        var p1 = document.createElement("p"); p1.className = "q"; p1.textContent = m.q;
+                        var p2 = document.createElement("p"); p2.className = "mine"; p2.textContent = "Sua resposta: " + m.mine;
+                        var p3 = document.createElement("p"); p3.className = "right"; p3.textContent = "Resposta certa: " + m.right;
+                        var p4 = document.createElement("p"); p4.textContent = m.e;
+                        d.appendChild(p1); d.appendChild(p2); d.appendChild(p3); d.appendChild(p4);
+                        box.appendChild(d);
+                    });
+                }
+                result.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+
+            $("quizStart").addEventListener("click", start);
+            $("quizRetry").addEventListener("click", start);
+            $("quizNext").addEventListener("click", next);
+
+            document.addEventListener("keydown", function (e) {
+                if (card.hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+                if (!answered && e.key >= "1" && e.key <= "4") {
+                    var i = parseInt(e.key, 10) - 1;
+                    if (i < current.opts.length) { e.preventDefault(); choose(i); }
+                } else if (answered && e.key === "Enter" && document.activeElement !== $("quizNext")) {
+                    e.preventDefault(); next();
+                }
+            });
+
+            showBest();
+        })();
+    </script>
+</body>
+</html>
