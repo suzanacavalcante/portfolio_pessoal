@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Databricks Roles do treinamento Get Started with Data Governance on Databricks: os papéis de Account, Workspace, Metastore e Marketplace Administrator e a cadeia de ownership.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Databricks Roles</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-data-governance.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Databricks Roles</h1>
+        <p>Get Started with Data Governance on Databricks · Lição 4</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-4">
+            <p class="lead">Esta lição, do Módulo 3 (Unity Catalog Permission Model), apresenta os <strong>papéis administrativos</strong> que tornam possível a governança distribuída: do Account Administrator ao dono do objeto. O modelo é descentralizado e divide as responsabilidades por fronteiras claras: a conta, os workspaces, o metastore do Unity Catalog e o Databricks Marketplace.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição, não da lição inteira. Algumas partes não foram abertas, e isso está indicado no fim da página.</p>
+
+            <h3>Governança distribuída: quatro escopos</h3>
+            <p>A autoridade administrativa é repartida em quatro escopos, para que ninguém precise gerenciar tudo. O <strong>Account Admin</strong> está no topo e se ramifica em três, cada um com o seu administrador:</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 230" role="img" aria-label="O Account Admin no topo, e três ramos: Workspace Admin, Metastore Admin e Marketplace Admin">
+                    <defs>
+                        <marker id="ar7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="280" y="10" width="200" height="44" rx="6"/>
+                        <rect x="20" y="150" width="200" height="54" rx="6"/>
+                        <rect x="280" y="150" width="200" height="54" rx="6"/>
+                        <rect x="540" y="150" width="200" height="54" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="380" y="36" font-weight="700">Account Administrator</text>
+                        <text x="120" y="173" font-weight="700">Workspace Admin</text>
+                        <text x="120" y="192" class="muted">um workspace</text>
+                        <text x="380" y="173" font-weight="700">Metastore Admin</text>
+                        <text x="380" y="192" class="muted">metastore do Unity Catalog</text>
+                        <text x="640" y="173" font-weight="700">Marketplace Admin</text>
+                        <text x="640" y="192" class="muted">Databricks Marketplace</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar7)">
+                        <path d="M330,54 L150,148"/>
+                        <path d="M380,54 L380,148"/>
+                        <path d="M430,54 L610,148"/>
+                    </g>
+                </svg>
+                <figcaption>Os quatro papéis administrativos. O diagrama é meu, a partir do resumo</figcaption>
+            </div>
+
+            <h3>Account Administrator</h3>
+            <p>É o maior nível de controle administrativo da conta, e atua principalmente pelo <strong>Account Console</strong>. Ele:</p>
+            <ul>
+                <li>habilita o Unity Catalog e cria o metastore;</li>
+                <li>gerencia os usuários e grupos em nível de conta;</li>
+                <li>integra a conta a um <strong>IdP</strong> externo;</li>
+                <li>cria e gerencia os workspaces (na AWS e no GCP);</li>
+                <li>cria as <strong>storage credentials</strong>, que integram os contêineres de storage externos e protegem a conexão com o cloud object storage.</li>
+            </ul>
+            <p>Controla a configuração do ambiente, a sincronização de usuários e a alocação de recursos da plataforma. O recomendado é que seja o <strong>Platform Ops</strong> ou um <strong>time central de governança</strong>.</p>
+
+            <h3>Workspace Administrator</h3>
+            <p>Gerencia as operações e a segurança de <strong>um workspace</strong> individual: o controle de acesso, as configurações e os recursos.</p>
+            <ul>
+                <li>Governa o acesso dos usuários da conta aos recursos de compute (clusters e SQL warehouses), muitas vezes restringindo quem pode criar compute, para controlar o custo e a segurança.</li>
+                <li>Gerencia a atribuição de usuários e grupos da conta ao workspace (adicionar e remover localmente).</li>
+                <li>Mantém a segurança local, complementando a governança centralizada do Unity Catalog.</li>
+            </ul>
+            <p>O recomendado é o time de <strong>TI, Plataforma ou DevOps</strong>, com auditorias regulares dos service principals.</p>
+
+            <h3>Metastore Administrator</h3>
+            <p>Governa a camada de metadados centralizada do Unity Catalog. Pode gerenciar <strong>todos os objetos</strong> do metastore e <strong>vincular catálogos a workspaces</strong>. Cria e remove catálogos e outros objetos de dados, concede privilégios e <strong>transfere o ownership</strong>, para delegar o controle pela cadeia:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Dono</th><th>O que gerencia</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Catalog Owner</strong></td><td>O catálogo, seus schemas e os objetos dos schemas. Vincula os catálogos a workspaces</td></tr>
+                        <tr><td><strong>Schema Owner</strong></td><td>O schema e seus objetos</td></tr>
+                        <tr><td><strong>Table/View Owner</strong></td><td>O objeto de dados ou IA individual</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>Também gerencia o acesso externo, criando as <strong>external locations</strong> e as relações de <strong>OpenSharing</strong>. O recomendado é o Platform Ops ou o time central de governança, delegando o ownership aos <strong>Data Owners</strong>. Para os catálogos, um time de governança da unidade de negócio ou o time central.</p>
+
+            <h3>Marketplace Administrator</h3>
+            <p>Habilita e gerencia a troca de dados pelo <strong>Databricks Marketplace</strong>, por meio do <strong>Marketplace Provider Console</strong>.</p>
+            <ul>
+                <li>Gerencia o <strong>perfil de provedor</strong>, que representa a organização como fornecedora de dados.</li>
+                <li>Cria e gerencia as listagens, para o compartilhamento aberto e o privado, promovendo produtos de dados para o consumo interno ou externo.</li>
+                <li>Cria os <strong>shares</strong> usados no Marketplace, com a base de governança do OpenSharing.</li>
+            </ul>
+            <p>O recomendado é o time responsável pela estratégia de compartilhamento e monetização de dados.</p>
+
+            <h3>Resumo dos papéis</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Papel</th><th>Escopo</th><th>Time recomendado</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Account Administrator</strong></td><td>A conta inteira: metastores, workspaces, identidades e storage credentials</td><td>Platform Ops ou governança central</td></tr>
+                        <tr><td><strong>Workspace Administrator</strong></td><td>Um workspace: acesso, configurações e compute</td><td>TI, Plataforma ou DevOps</td></tr>
+                        <tr><td><strong>Metastore Administrator</strong></td><td>O metastore: objetos, privilégios e delegação de ownership</td><td>Platform Ops ou governança central</td></tr>
+                        <tr><td><strong>Marketplace Administrator</strong></td><td>O Marketplace: perfil de provedor, listagens e shares</td><td>Estratégia de compartilhamento de dados</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Ligação com as demos:</strong> a <a href="data-governance-demo-2.html">Demo 2</a> exige ser account administrator (por isso, no laboratório, o papel é só observar) e mostra o Account Console e o metastore. Os privilégios <code>USE PROVIDER</code>, <code>USE RECIPIENT</code> e <code>USE SHARE</code> do open sharing vêm do metastore admin. Essas ligações são minhas.</p>
+            </div>
+
+            <h3>Conclusão</h3>
+            <ul>
+                <li><strong>Account Administrator:</strong> o maior nível de controle, sobre os metastores, workspaces, identidades e storage credentials da conta inteira.</li>
+                <li><strong>Workspace Administrator:</strong> o controle de acesso, as configurações e os recursos dentro de um workspace.</li>
+                <li><strong>Metastore Administrator:</strong> governa o metastore e delega o ownership pela cadeia Catalog, Schema e Table/View.</li>
+                <li><strong>Marketplace Administrator:</strong> o perfil de provedor e as listagens, para a troca segura de dados.</li>
+            </ul>
+            <p>A próxima lição é sobre a exploração e a gestão de dados e ativos de IA no Databricks.</p>
+
+            <div class="callout">
+                <p><strong>O que não li:</strong> o botão "Complete Diagram" do diagrama interativo e os textos "Metastore/Account User" ao redor dos nós. Os quatro papéis foram lidos pelas caixas de descrição. O diagrama que desenhei acima segue só a estrutura descrita no resumo.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> a administração é dividida em quatro escopos. O Account Admin cuida da conta (metastore, identidades, workspaces e storage credentials), o Workspace Admin de um workspace (acesso e compute), o Metastore Admin dos objetos do Unity Catalog (e delega o ownership pela cadeia catálogo, schema e tabela ou view), e o Marketplace Admin da troca de dados (perfil de provedor, listagens e shares).</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="data-governance-licao-3.html">&larr; Privileges in Unity Catalog</a>
+            <a href="data-governance-licao-5.html">Privilege Model and Governance Approaches &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

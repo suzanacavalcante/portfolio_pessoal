@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Privileges in Unity Catalog do treinamento Get Started with Data Governance on Databricks: ownership, ACLs, GRANT e REVOKE, tipos de privilégio e herança.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Privileges in Unity Catalog</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-data-governance.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Privileges in Unity Catalog</h1>
+        <p>Get Started with Data Governance on Databricks · Lição 3</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-3">
+            <p class="lead">Esta lição, do Módulo 3 (Unity Catalog Permission Model), trata dos <strong>privilégios</strong>: o mecanismo, baseado no <strong>ANSI SQL DCL</strong> (Data Control Language), que controla quem pode fazer o quê em cada objeto securável da hierarquia. Cobre a propriedade (ownership), as concessões explícitas, as ACLs, os tipos de privilégio e a herança.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição, não da lição inteira. Algumas partes não foram abertas, e isso está indicado no fim da página. A prática é a <a href="data-governance-demo-4.html">Demo 4</a>, que concede a cadeia de privilégios ao secondary principal.</p>
+
+            <h3>O modelo de segurança de dados</h3>
+            <p>O modelo opera por <strong>ACLs</strong>, apoiado em <strong>ownership</strong> e em <strong>grants explícitos</strong>:</p>
+            <ul>
+                <li>o <strong>dono</strong> do objeto tem implicitamente o <code>ALL PRIVILEGES</code>;</li>
+                <li>os demais <strong>principais</strong> (usuários ou grupos, como o <code>analysts</code>) precisam receber os privilégios explicitamente (por exemplo, o <code>SELECT</code>).</li>
+            </ul>
+            <p>Isso facilita a governança descentralizada, porque os donos de domínio gerenciam o acesso aos seus próprios ativos. No exemplo, a tabela <code>t</code> pertence a um usuário (que tem todos os privilégios implícitos), o grupo <code>analysts</code> recebeu o <code>SELECT</code> e o <code>dbadmins</code> recebeu o <code>ALL PRIVILEGES</code>.</p>
+
+            <h3>Controles de acesso centralizados</h3>
+            <p>Há dois métodos, que ficam sincronizados:</p>
+            <ol>
+                <li>a sintaxe explícita do <strong>ANSI SQL DCL</strong>;</li>
+                <li>a UI do <strong>Catalog Explorer</strong>.</li>
+            </ol>
+            <div class="code-container">
+                <pre><code>GRANT &lt;privilege&gt; ON &lt;securable_type&gt; &lt;securable_name&gt; TO &lt;principal&gt;
+
+-- exemplo da lição
+GRANT SELECT ON iot.events TO engineers</code></pre>
+            </div>
+            <p>O comando define o nível de permissão e o objeto securável (catálogo, schema, tabela, view, volume, modelo e outros), e concede a grupos sincronizados do provedor de identidade. O DCL centralizado é uma boa prática, porque aplica a segurança em todas as cargas de trabalho e em bancos federados.</p>
+
+            <h3>ACLs</h3>
+            <p>Uma ACL liga <strong>principais</strong> a <strong>privilégios</strong> sobre <strong>securáveis</strong>. A verificação ocorre sempre contra os metadados centrais do metastore, <strong>independentemente do compute</strong> usado. As listas do diagrama da lição, que não são exaustivas, são:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Elemento</th><th>Exemplos</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Principais</strong></td><td>User, Service principal e Group</td></tr>
+                        <tr><td><strong>Privilégios</strong></td><td><code>USE CATALOG</code>, <code>USE SCHEMA</code>, <code>CREATE TABLE</code>, <code>SELECT</code>, <code>MODIFY</code>, <code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code>, <code>EXECUTE</code>, <code>BROWSE</code> e <code>READ METADATA</code></td></tr>
+                        <tr><td><strong>Securáveis</strong></td><td>Metastore, External Metadata, Storage Credential, External Location, Catalog, Schema, View, Table, Function, Volume, Model, Lakehouse Federation, Foreign Catalog, Connection, Open Sharing, Share, Recipient e Provider</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Gerenciando ACLs</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">SQL</span>
+                    <h4>GRANT e REVOKE</h4>
+                    <p>Em um notebook ou no Lakehouse: <code>GRANT SELECT ON TABLE t TO analysts</code> e <code>REVOKE SELECT ON TABLE t FROM analysts</code>.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">UI</span>
+                    <h4>Catalog Explorer</h4>
+                    <p>A interface visual, no workspace.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Código</span>
+                    <h4>Programático</h4>
+                    <p>Databricks CLI, Terraform e REST APIs. É o altamente recomendado para implantações auditáveis, seguras e repetíveis em produção.</p>
+                </div>
+            </div>
+
+            <h3>Tipos de privilégio</h3>
+            <p>A lista é detalhada e granular, por tipo de ativo, e segue o <strong>princípio do menor privilégio</strong>: da criação ampla (<code>CREATE CATALOG</code>) ao acesso específico a dados (<code>SELECT</code>, <code>READ FILES</code> e <code>EXECUTE</code>). Essa granularidade é essencial para a segurança corporativa e a conformidade.</p>
+            <ul>
+                <li><strong>No metastore</strong> (lista não exaustiva): <code>CREATE CATALOG</code>, <code>CREATE CONNECTION</code>, <code>CREATE EXTERNAL LOCATION</code>, <code>CREATE PROVIDER</code>, <code>CREATE RECIPIENT</code>, <code>CREATE SHARE</code>, <code>CREATE STORAGE CREDENTIAL</code>, <code>SET SHARE PERMISSION</code>, <code>USE MARKETPLACE ASSETS</code>, <code>USE PROVIDER</code>, <code>USE RECIPIENT</code> e <code>USE SHARE</code>.</li>
+                <li><strong>Em objetos:</strong> <code>READ FILES</code>, <code>WRITE FILES</code>, <code>CREATE EXTERNAL LOCATION</code> e <code>CREATE EXTERNAL TABLE</code>, <code>USE SCHEMA</code>, <code>CREATE TABLE</code>, <code>CREATE VOLUME</code>, <code>CREATE FUNCTION</code>, <code>CREATE MODEL</code>, <code>CREATE MATERIALIZED VIEW</code> e outros.</li>
+            </ul>
+            <p>Os privilégios de compartilhamento (<code>USE PROVIDER</code>, <code>USE RECIPIENT</code> e <code>USE SHARE</code>) são os mesmos que a <a href="data-governance-demo-2.html">Demo 2</a> cita no open sharing.</p>
+
+            <h3>Cenário: consultar uma tabela</h3>
+            <p>As verificações de acesso ocorrem <strong>hierarquicamente</strong>, no namespace de três níveis, a partir da tabela e subindo pelo schema e pelo catálogo. A consulta exige:</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 170" role="img" aria-label="Para consultar uma tabela, é preciso USE CATALOG no catálogo, USE SCHEMA no schema e SELECT na tabela">
+                    <defs>
+                        <marker id="ar6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="30" width="200" height="60" rx="6"/>
+                        <rect x="280" y="30" width="200" height="60" rx="6"/>
+                        <rect x="550" y="30" width="200" height="60" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="110" y="55">Catálogo</text>
+                        <text x="110" y="75" font-weight="700">USE CATALOG</text>
+                        <text x="380" y="55">Schema</text>
+                        <text x="380" y="75" font-weight="700">USE SCHEMA</text>
+                        <text x="650" y="55">Tabela</text>
+                        <text x="650" y="75" font-weight="700">SELECT</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar6)">
+                        <path d="M210,60 L278,60"/>
+                        <path d="M480,60 L548,60"/>
+                    </g>
+                    <text x="380" y="140" fill="currentColor" font-size="12" text-anchor="middle" class="muted">Os três privilégios são necessários. Cada um pode ser explícito ou herdado.</text>
+                </svg>
+            </div>
+
+            <p>Um stepper interativo da lição compara o modelo <strong>explícito</strong> (fino, mas com mais trabalho administrativo) com os modelos <strong>herdados do schema</strong> e <strong>do catálogo</strong> (escaláveis, com o escopo limitado à fronteira do contêiner).</p>
+
+            <h3>Cenário: criar uma tabela</h3>
+            <ul>
+                <li>Criar uma tabela exige o <code>CREATE TABLE</code> no <strong>schema</strong> pai (além do <code>USE CATALOG</code> e do <code>USE SCHEMA</code>, acima na hierarquia).</li>
+                <li>Criar um catálogo exige o <code>CREATE CATALOG</code> no <strong>metastore</strong>.</li>
+            </ul>
+            <p>Como na consulta, os privilégios podem ser concedidos <strong>explicitamente</strong> ou <strong>herdados do catálogo</strong>, e governam quem pode contribuir com novos ativos para um domínio.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Modelo</th><th>Onde os privilégios são concedidos</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Explícito</strong></td><td><code>USE CATALOG</code> no catálogo, e <code>USE SCHEMA</code> mais <code>CREATE TABLE</code> no schema</td></tr>
+                        <tr><td><strong>Herdado</strong></td><td>Os três privilégios (<code>USE CATALOG</code>, <code>USE SCHEMA</code> e <code>CREATE TABLE</code>) concedidos no catálogo</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Conclusão</h3>
+            <ul>
+                <li><strong>Ownership e grants:</strong> o dono tem o <code>ALL PRIVILEGES</code> implícito, e os demais precisam de um grant explícito.</li>
+                <li><strong>ACLs:</strong> ligam os principais aos privilégios sobre os securáveis.</li>
+                <li><strong>DCL centralizado:</strong> o <code>GRANT</code> e o <code>REVOKE</code> em ANSI SQL, ou o Catalog Explorer, de forma consistente em todas as cargas e bancos federados.</li>
+                <li><strong>Explícito × herdado:</strong> consultar exige <code>USE CATALOG</code>, <code>USE SCHEMA</code> e <code>SELECT</code>, e os privilégios podem ser herdados do schema ou do catálogo, o que reduz o overhead.</li>
+            </ul>
+            <p>A próxima lição é a <em>Databricks Roles</em>, sobre os papéis administrativos.</p>
+
+            <div class="callout">
+                <p><strong>O que não li:</strong> as etapas 2 a 9 do stepper de "consultar uma tabela" (só abri a etapa 1) e a parte final da lista de privilégios do metastore, que estava só parcialmente visível. Por isso a comparação entre os modelos explícito e herdado, nestas anotações, vem da conclusão da lição.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o dono de um objeto tem tudo implicitamente, e os outros precisam de um <code>GRANT</code>. Para <strong>consultar</strong> uma tabela, são necessários <code>USE CATALOG</code>, <code>USE SCHEMA</code> e <code>SELECT</code>. Para <strong>criar</strong> uma tabela, o <code>CREATE TABLE</code> no schema, e para criar um catálogo, o <code>CREATE CATALOG</code> no metastore. Os privilégios podem ser explícitos ou herdados do schema ou do catálogo, e a verificação é sempre feita contra o metastore, seja qual for o compute.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="data-governance-licao-2.html">&larr; Centralized Governance and Visibility</a>
+            <a href="data-governance-licao-4.html">Databricks Roles &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

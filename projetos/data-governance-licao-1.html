@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Unity Catalog Fundamentals do treinamento Get Started with Data Governance on Databricks: governança unificada e aberta, metastore, hierarquia de objetos, tabelas gerenciadas e externas, funções e modelos.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Unity Catalog Fundamentals</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-data-governance.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Unity Catalog Fundamentals</h1>
+        <p>Get Started with Data Governance on Databricks · Lição 1</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-1">
+            <p class="lead">Esta lição apresenta as bases do <strong>Unity Catalog</strong>: como ele entrega a governança <strong>unificada e aberta</strong> para todos os dados e ativos de IA, o papel do <strong>metastore</strong>, a hierarquia de objetos securáveis e a diferença entre as tabelas e volumes <strong>gerenciados</strong> e <strong>externos</strong>.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição, não da lição inteira. Algumas partes não foram abertas, e isso está indicado no fim da página. A prática dos conceitos é a <a href="data-governance-demo-2.html">Demo 2</a>.</p>
+
+            <h3>Governança unificada e aberta</h3>
+            <p>O Unity Catalog se destaca por oferecer a governança unificada e aberta para todos os dados e IA. Ele consolida quatro áreas em uma só camada:</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Segurança</span>
+                    <h4>Acesso e auditoria</h4>
+                    <p>O controle de acesso e a auditoria.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Colaboração</span>
+                    <h4>Descoberta e compartilhamento</h4>
+                    <p>A descoberta e o compartilhamento seguro de dados.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Qualidade</span>
+                    <h4>Lineage e monitoramento</h4>
+                    <p>O lineage e o monitoramento de qualidade.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-core">Gestão</span>
+                    <h4>Custos e semântica</h4>
+                    <p>O controle de custos e a semântica de negócio.</p>
+                </div>
+            </div>
+
+            <p>Ele governa todos os tipos de ativos (tabelas, modelos de IA, arquivos, notebooks e dashboards) e se baseia em padrões abertos: conecta-se a qualquer fonte externa e colabora com qualquer ferramenta, engine ou plataforma, sobre formatos abertos (Delta Lake, Parquet e Iceberg).</p>
+
+            <h3>Unity Catalog open source</h3>
+            <p>O controle centralizado vem junto com a <strong>abertura</strong>. O Unity Catalog é o catálogo universal para dados e IA ("qualquer engine, cliente, ativo e formato"), e suporta Delta Lake, Parquet, Apache Iceberg (e Hudi). A camada de governança central da versão open source expõe:</p>
+            <ul>
+                <li>a <strong>Unity REST API</strong>;</li>
+                <li>a <strong>Iceberg REST catalog API</strong>;</li>
+                <li>o <strong>OpenSharing</strong>.</li>
+            </ul>
+            <p>Entre o ecossistema de parceiros (as grandes clouds, as plataformas de dados e IA e as engines de compute, como Spark, DuckDB e Trino) e os ativos governados: tabelas (gerenciadas, externas e views), objetos (volumes, com imagem, áudio e PDF) e IA e ML (funções, modelos de ML e vector DBs). O resultado é a máxima interoperabilidade, sem lock-in.</p>
+
+            <h4>Recursos para desenvolvedores</h4>
+            <ul>
+                <li>A gestão programática e a integração com o ecossistema: a <strong>especificação OpenAPI</strong> completa, o <strong>servidor OSS</strong>, as REST APIs e os SDKs (Java, Python e Go).</li>
+                <li>Recomenda-se integrar a administração do Unity Catalog a plataformas de infraestrutura como código, para implantações de segurança auditáveis e repetíveis.</li>
+                <li>O <strong>secure credential vending</strong> protege os tokens de acesso usados na integração com o cloud storage.</li>
+            </ul>
+
+            <h3>O metastore e a hierarquia de objetos securáveis</h3>
+            <p>No topo está o <strong>metastore</strong>: o contêiner de topo e o ponto central de controle de acesso em uma região de nuvem. Ele também aplica a <strong>separação entre os metadados (no Control Plane) e os dados (no Cloud Storage)</strong>. Em geral é criado pelo Account Administrator. Seus elementos são o acesso a storage externo, os catálogos, a Lakehouse Federation e o OpenSharing.</p>
+
+            <p>Abaixo dele vem o namespace de <strong>três níveis</strong>, <code>catalog.schema.object</code>:</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 130" role="img" aria-label="Hierarquia do Unity Catalog: metastore, catalog, schema e objetos securáveis">
+                    <defs>
+                        <marker id="ar5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="30" width="120" height="44" rx="6"/>
+                        <rect x="190" y="30" width="120" height="44" rx="6"/>
+                        <rect x="370" y="30" width="140" height="44" rx="6"/>
+                        <rect x="570" y="30" width="180" height="44" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="70" y="56">Metastore</text>
+                        <text x="250" y="56">Catalog</text>
+                        <text x="440" y="56">Schema (database)</text>
+                        <text x="660" y="49">Objetos securáveis</text>
+                        <text x="660" y="64">(tabelas, views, volumes...)</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar5)">
+                        <path d="M130,52 L188,52"/>
+                        <path d="M310,52 L368,52"/>
+                        <path d="M510,52 L568,52"/>
+                    </g>
+                    <text x="380" y="110" fill="currentColor" font-size="12" text-anchor="middle" class="muted">catalog.schema.object</text>
+                </svg>
+            </div>
+
+            <p>Os objetos securáveis são: <strong>tabelas, views, volumes, funções, modelos, services, secrets, skills, connections e metric views</strong>.</p>
+
+            <h3>Tabelas gerenciadas e externas</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Característica</th><th>Gerenciada (MANAGED)</th><th>Externa (EXTERNAL)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Propriedade de tipo</td><td>"MANAGED"</td><td>"EXTERNAL"</td></tr>
+                        <tr><td><code>DROP TABLE</code></td><td>Descarta os metadados <strong>e apaga os dados</strong> (existe o <code>UNDROP</code>)</td><td>Descarta só os metadados. Para apagar os dados, é preciso removê-los à parte</td></tr>
+                        <tr><td>Criação</td><td><code>CREATE TABLE</code> normal</td><td>O mesmo, com um <code>LOCATION 'abfss://…'</code> explícito</td></tr>
+                        <tr><td>Local dos dados</td><td>O local gerenciado encontrado primeiro: o schema, depois o catálogo, depois o metastore</td><td>O caminho do <code>LOCATION</code></td></tr>
+                        <tr><td>Otimização de desempenho</td><td>Auto Tune (Predictive Optimization, com mais por vir)</td><td>Manual</td></tr>
+                        <tr><td>Formatos</td><td>DELTA e ICEBERG</td><td>DELTA, ICEBERG, CSV, JSON, AVRO, PARQUET, ORC e TEXT</td></tr>
+                        <tr><td>Vantagens</td><td>Novos recursos, desempenho, simplicidade e acesso mais restrito</td><td>Nomenclatura de storage própria, melhor compatibilidade com leitores e escritores externos, e migração mais simples</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Funções governadas</h3>
+            <p>Usa-se a <strong>sintaxe SQL nativa</strong> para registrar funções customizadas em schemas. As funções SQL ou Python são registradas e governadas pelo Unity Catalog, e exigem o privilégio <code>CREATE FUNCTION</code> no schema. As UDFs Python dão a expressividade para a lógica customizada (hashing condicional e redação complexa) que a conformidade, como o GDPR ou o HIPAA, pede.</p>
+            <p>O exemplo no Catalog Explorer é a função <code>roll_dice</code>: SCALAR, retorna INT, escrita em SQL e não determinística, com a definição <code>(rand() * 6)::INT + 1</code>, no schema <code>psp_turbine_iot</code>. São as mesmas UDFs que a <a href="data-governance-demo-4.html">Demo 4</a> usa nos row filters e column masks.</p>
+
+            <h3>Modelos</h3>
+            <p>O registro de modelos MLflow no Unity Catalog organiza os modelos por catálogo e schema, para uma gestão centralizada e entre workspaces.</p>
+            <ul>
+                <li>Para registrar e gerenciar versões, são necessários <code>USE CATALOG</code>, <code>USE SCHEMA</code> e <code>CREATE MODEL</code> no schema.</li>
+                <li>Os donos criam as novas versões, e toda versão de modelo UC deve ter uma <strong>assinatura de modelo</strong>.</li>
+                <li>A integração permite que todo o ciclo de vida de IA seja auditável e governado em um só sistema.</li>
+            </ul>
+            <p>O exemplo é o modelo <code>dbdemos_turbine_maintenance</code>, versão 1, com o alias <code>@prod</code>.</p>
+
+            <h3>Conclusão</h3>
+            <ul>
+                <li><strong>Unity Catalog:</strong> uma camada única, aberta e padronizada, sobre formatos e padrões abertos.</li>
+                <li><strong>Metastore:</strong> o contêiner e o ponto de controle por região de nuvem, que separa os metadados (control plane) dos dados (cloud storage).</li>
+                <li><strong>Hierarquia de objetos:</strong> o namespace de três níveis.</li>
+                <li><strong>Gerenciado × externo:</strong> nos objetos gerenciados, o Unity Catalog é dono do ciclo de vida dos dados. Nos externos, os dados ficam em um local de nuvem gerenciado pelo cliente.</li>
+            </ul>
+            <p>A próxima lição é a <em>Centralized Governance and Visibility in Unity Catalog</em>, sobre a fragmentação das arquiteturas tradicionais.</p>
+
+            <div class="callout">
+                <p><strong>O que não li:</strong> os botões "Metastore Elements" e "Securable Object Hierarchy" do diagrama interativo (e os subcasos de Table e Volume), a seção de volumes e o início da seção de modelos. Por isso a lição, nestas anotações, quase não fala dos volumes gerenciados e externos, apesar de o objetivo citá-los.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o Unity Catalog é uma camada única e aberta de segurança, colaboração, qualidade e gestão. O metastore é o topo, por região, e separa os metadados dos dados. A hierarquia é <code>catalog.schema.object</code>. Em uma tabela gerenciada, o <code>DROP TABLE</code> apaga os dados (com o <code>UNDROP</code> como rede de segurança), e em uma externa só os metadados. Funções e modelos também são objetos governados, e pedem <code>CREATE FUNCTION</code> e <code>CREATE MODEL</code> no schema.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="databricks-academy-data-governance.html">&larr; Voltar ao treinamento</a>
+            <a href="data-governance-licao-2.html">Centralized Governance and Visibility &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

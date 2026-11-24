@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Implementing Fine-Grained Access Controls do treinamento Get Started with Data Governance on Databricks: row filters, column masks, dynamic views e ABAC.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Implementing Fine-Grained Access Controls</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-data-governance.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Implementing Fine-Grained Access Controls</h1>
+        <p>Get Started with Data Governance on Databricks · Demo 4</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-4">
+            <p class="lead">Esta demo, de cerca de 31 minutos, implementa o <strong>controle de acesso refinado</strong> de três formas: o <strong>DDL SQL nativo</strong> (row filters e column masks, com funções reutilizáveis), as <strong>dynamic views</strong> (uma técnica alternativa) e o <strong>ABAC</strong>, com políticas baseadas em governed tags. No fim, compara as abordagens e depura erros comuns de permissão.</p>
+
+            <p>Estas anotações partem de um resumo cronometrado da demo, não da transcrição. O SQL que aparece é um esboço meu, a partir do que o resumo descreve, e não foi executado. Os nomes dos grupos e das regiões nas funções são suposições minhas.</p>
+
+            <h3>O que a demo faz</h3>
+            <p>Cria o schema HR com dados sensíveis, aplica filtros de linha e máscaras de coluna, constrói views seguras com a mesma lógica, compara com o modelo nativo e depura os erros de permissão. Os requisitos são os mesmos da demo anterior: o Unity Catalog, o Databricks Runtime 17.3 LTS ou superior (ou serverless v4 ou superior) e os privilégios de criar e usar catálogo, schema e tabela.</p>
+
+            <h3>Setup</h3>
+            <p>O setup usa o serverless e reaproveita, em segundos, os objetos da demo anterior (ou os cria em 3 a 4 minutos, com um job Lakeflow). O objeto <code>DA</code> guarda o usuário, o catálogo, o catálogo office, o warehouse (nome e ID) e o <strong>secondary principal</strong> (nome e client ID), que serve para testar as permissões de <strong>outro usuário</strong>.</p>
+            <p>A função <code>is_account_group_member</code> verifica a participação em grupos de conta, para uma segurança condicional (testada com Users, users e admin).</p>
+
+            <h3>Construindo os dados</h3>
+            <ul>
+                <li>As governed tags (<code>PII</code>, <code>classification</code> e <code>geo_access</code>) são de nível de conta, com valores permitidos. Aqui só são referenciadas: <code>PII</code> (SSN e email) nas colunas, e <code>geo_access = region_filter</code> na coluna de região. Essas tags serão os "interruptores" das políticas ABAC.</li>
+                <li>Cria-se e tagueia-se o catálogo <code>db_office_&lt;usuário&gt;</code> e o schema HR, definidos como padrão.</li>
+                <li>As tabelas <code>employees</code> (dados sensíveis) e <code>employee_benefits</code> recebem tags descritivas e dados de teste.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Detalhe da tag:</strong> usa-se <code>contains_pii = true</code> (uma tag livre) porque a <code>PII</code> é <strong>governada</strong> e não aceita valores arbitrários pelo set tags. Ela precisa ser atribuída em uma coluna, com <code>ALTER TABLE ... ALTER COLUMN ... SET TAGS</code> e um valor permitido (SSN, email ou address).</p>
+            </div>
+
+            <h3>Grants para o secondary principal</h3>
+            <p>O Unity Catalog usa um <strong>modelo de permissão explícito</strong>: nada é implícito nem herdado dos contêineres. Para acessar um objeto é preciso <code>USE CATALOG</code> e <code>USE SCHEMA</code> nos contêineres, mais o privilégio no objeto (<code>SELECT</code> na tabela).</p>
+            <p>Concede-se a cadeia (catálogo, schema e <code>SELECT</code> só na <code>employees</code>), e células inline conectam um cliente SQL como o secondary principal. O resultado:</p>
+            <ul>
+                <li>ele consegue consultar a <code>employees</code>;</li>
+                <li>a consulta à <code>employee_benefits</code> <strong>falha</strong>, porque ele nunca recebeu a permissão.</li>
+            </ul>
+            <p>O princípio é que as permissões são aplicadas <strong>por tabela ou view</strong>. O acesso a uma tabela não dá acesso às outras do mesmo schema.</p>
+
+            <h3>Fine-grained nativo</h3>
+            <p>São dois passos: escrever uma <strong>UDF reutilizável</strong> com a lógica de segurança, e anexá-la à tabela. Como a lógica fica na função, aplicada na tabela de origem, a abordagem escala bem.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Mecanismo</th><th>Como funciona</th><th>Aplicação</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Row filter</strong></td><td>A função retorna um predicado booleano, que decide as linhas visíveis</td><td><code>ALTER TABLE ... SET ROW FILTER</code></td></tr>
+                        <tr><td><strong>Column mask</strong></td><td>A função retorna o dado em claro só para quem tem o privilégio</td><td><code>ALTER COLUMN ... SET MASK</code></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>As funções criadas na demo:</p>
+            <ul>
+                <li><code>redact_ssn</code>: a redação total do SSN, com o HR vendo o valor completo;</li>
+                <li>a máscara de e-mail: um regex que ofusca parcialmente;</li>
+                <li><code>redact_salary</code>: o salário visível só para o HR;</li>
+                <li><code>filter_region</code>: o HR vê todas as regiões, e os demais veem apenas a <strong>Americas</strong>.</li>
+            </ul>
+
+            <div class="code-container">
+                <pre><code>-- esboço meu: o grupo 'HR' e a região 'Americas' vêm do resumo, o resto é suposição
+CREATE FUNCTION redact_ssn(ssn STRING)
+RETURN IF(is_account_group_member('HR'), ssn, '***-**-****');
+
+CREATE FUNCTION filter_region(region STRING)
+RETURN IF(is_account_group_member('HR'), true, region = 'Americas');
+
+ALTER TABLE employees ALTER COLUMN ssn SET MASK redact_ssn;
+ALTER TABLE employees SET ROW FILTER filter_region ON (region);</code></pre>
+            </div>
+
+            <h3>Dynamic views</h3>
+            <p>Em vez de impor a política na tabela, a view fica sobre os dados e <strong>embute a lógica</strong> de máscara e de filtro. É flexível, mas exige <strong>uma view por padrão de acesso</strong>. Criam-se duas:</p>
+            <ul>
+                <li><code>employees_secure</code>, com as máscaras;</li>
+                <li><code>employees_multi_secure</code>, com as máscaras e o row filter por <code>filter_region</code>.</li>
+            </ul>
+            <p>O <code>SELECT</code> é concedido ao secondary principal. No teste, o usuário atual vê o SSN, o e-mail e o salário mascarados e, na multi-secure, só as linhas das Américas. O secondary principal (HR) vê tudo.</p>
+
+            <div class="callout">
+                <p><strong>Comparação:</strong> a Databricks <strong>recomenda a segurança nativa de linha e de coluna</strong>, e não as dynamic views. Ela é aplicada na tabela de origem, com melhor desempenho, manutenção e escala, e sem objetos extras. As dynamic views ainda têm o seu lugar, mas cada padrão exige outra view.</p>
+            </div>
+
+            <h3>Inspeção de funções e permissões</h3>
+            <p>Examinam-se as funções <code>redact_salary</code> e <code>filter_region</code> e as permissões: a <code>employees_secure</code> tem <code>SELECT</code> para o service principal, e a <code>employee_benefits</code> não retorna nada, porque não tem grants.</p>
+
+            <h3>ABAC</h3>
+            <p>O ABAC move a governança dos DDLs pontuais para <strong>políticas definidas de forma central</strong>:</p>
+            <ul>
+                <li>elas vivem em catálogos, schemas ou tabelas e são <strong>herdadas para baixo</strong>;</li>
+                <li>têm como alvo <strong>principais</strong> (usuários, grupos e service principals);</li>
+                <li>aplicam-se dinamicamente, conforme as <strong>governed tags</strong> dos objetos;</li>
+                <li>há hoje dois tipos, o <strong>row filter</strong> e o <strong>column mask</strong>;</li>
+                <li>só os donos, ou quem tem <code>MANAGE</code>, podem aplicá-las.</li>
+            </ul>
+            <p>Reaproveitam-se as mesmas UDFs, <strong>sem alterar a definição da tabela</strong>:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Política</th><th>O que faz</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>HR mask SSN</strong></td><td>Associa a <code>redact_ssn</code> à coluna SSN da <code>employees</code>, avaliada em runtime, sem o <code>ALTER TABLE SET MASK</code></td></tr>
+                        <tr><td><strong>HR region filter</strong></td><td>Reutiliza a <code>filter_region</code> na coluna de região. O usuário atual vê só as Americas, e o secondary principal vê todas as regiões. É o equivalente a um row filter de tabela, agora como política de schema</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Depois, as duas políticas são removidas, para restaurar o acesso.</p>
+
+            <div class="callout">
+                <p><strong>Ponto a conferir:</strong> este resumo não traz a sintaxe de criação das políticas ABAC. O resumo da <a href="data-governance-demo-3.html">Demo 3</a> só cita um exemplo, o <code>SET RULE ... COLUMN MASK ... WHEN column tagged as PII</code>. Por isso não escrevi esse SQL aqui. Vale conferir no vídeo e na documentação.</p>
+            </div>
+
+            <h3>Erros comuns de permissão</h3>
+            <p>Os testes usam uma função helper do setup. O acesso à view <code>employees_secure</code> funciona, e o acesso a uma tabela <code>employees</code> antiga retorna <em>not found</em> quando não há acesso. Revoga-se o <code>SELECT</code> do usuário atual na <code>employees</code>, e o teste como secondary principal mostra o erro, sem acesso.</p>
+
+            <h3>Limpeza e conclusão</h3>
+            <p>O <code>run_destroy_pipeline</code> (o job <code>destroy_batch_jobs_demo_5</code>, com 12 tasks tolerantes a falha) remove o catálogo, o schema, as tabelas, as UDFs, as views seguras e as políticas. Segundo o resumo, por ser a última demo, recomenda-se executá-lo para liberar o storage, acompanhando em Jobs &amp; Pipelines.</p>
+            <p>Os dados sensíveis de HR foram protegidos de quatro formas, todas validadas consultando como o usuário atual e como o secondary principal:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Abordagem</th><th>Características</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Row filter</strong> com UDF</td><td>Um predicado booleano (por exemplo, <code>filter_region</code>)</td></tr>
+                        <tr><td><strong>Column mask</strong></td><td><code>redact_ssn</code>, <code>redact_email</code> e <code>redact_salary</code>, condicionais à identidade</td></tr>
+                        <tr><td><strong>Dynamic views</strong></td><td>Flexíveis, mas uma view por padrão de acesso</td></tr>
+                        <tr><td><strong>ABAC</strong></td><td>Políticas de schema que aplicam máscaras e filtros pelas governed tags, sem DDL por objeto</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> as permissões do Unity Catalog são explícitas e por objeto, e é preciso <code>USE CATALOG</code> e <code>USE SCHEMA</code> além do <code>SELECT</code>. O row filter e o column mask nativos usam uma UDF anexada à tabela, e é o recomendado. As dynamic views dão o mesmo resultado com uma view por padrão. O ABAC move a regra para uma política central, herdada e guiada pelas governed tags (<code>PII</code>, <code>geo_access</code>), reaproveitando as mesmas funções.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="data-governance-demo-3.html">&larr; Governed Tagging, Discovery, and Lineage</a>
+            <a href="data-governance-video-2.html">Summary and Next Steps &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

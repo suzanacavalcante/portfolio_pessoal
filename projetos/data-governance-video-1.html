@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi no vídeo Databricks Data Intelligence Platform do treinamento Get Started with Data Governance on Databricks: a plataforma em camadas, da infraestrutura aberta aos apps.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Databricks Data Intelligence Platform</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-data-governance.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Databricks Data Intelligence Platform</h1>
+        <p>Get Started with Data Governance on Databricks · Vídeo 1</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="video-1">
+            <p class="lead">Este vídeo, de cerca de 9 minutos, apresenta a plataforma da Databricks em camadas. Parte do problema dos dados e da IA <strong>fragmentados</strong> e mostra a proposta: <strong>uma fundação aberta e unificada</strong>, com a governança (Unity Catalog e Unity Gateway) no meio dela.</p>
+
+            <p>Estas anotações partem de um resumo cronometrado do vídeo, não da transcrição. O conteúdo é parecido com o da lição <a href="get-started-aula-1.html">Databricks Overview</a>, do treinamento 3, mas aqui a ênfase é a governança, e alguns nomes e detalhes mudam entre os dois.</p>
+
+            <h3>O problema: estruturas fragmentadas</h3>
+            <p>A IA está transformando todos os setores (varejo, indústria, mídia, saúde, serviços financeiros e energia), e muitos casos já rodam em produção: ofertas hiperpersonalizadas no varejo, modelos de célula única para alvos de fármacos e previsão de quedas de energia. Nada disso existiria sem <strong>dados e IA sobre a mesma fundação</strong>.</p>
+            <p>Na maioria das organizações, porém, o patrimônio de dados e IA é <strong>fragmentado</strong>: um warehouse para BI, um data lake para ciência de dados, um banco transacional por aplicação, uma ferramenta de streaming separada e SaaS com dados de clientes. Cada ferramenta quer a sua cópia dos dados, o seu modelo de segurança e o seu compute, e isso gera lock-in. O resultado:</p>
+            <ul>
+                <li><strong>políticas de segurança isoladas</strong>, uma por sistema;</li>
+                <li>o <strong>"AI sprawl"</strong>, a IA espalhada, sem um entendimento comum do significado dos dados.</li>
+            </ul>
+
+            <h3>A abordagem da Databricks</h3>
+            <p>A empresa foi fundada pelos criadores originais do Apache Spark, do Delta Lake e do MLflow, e inventou a arquitetura <strong>Lakehouse</strong>: uma plataforma única em que <strong>uma cópia dos dados serve a todas as cargas</strong>. Mais recentemente, o <strong>Lakebase</strong> trouxe as cargas transacionais, no estilo Postgres, para a mesma fundação governada. A filosofia é <strong>unificar dados e IA em uma fundação aberta</strong>.</p>
+
+            <h3>As camadas da plataforma</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Camada</th><th>O que é</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>1. Infraestrutura aberta</strong></td><td>Os dados em formatos abertos, na nuvem</td></tr>
+                        <tr><td><strong>2. Dados</strong></td><td><strong>Lakeflow</strong> (ingestão, ETL e streaming, com mais de 100 conectores), <strong>Lakehouse Engine</strong> (analytics em tempo real e em batch, com SQL rápido para BI) e <strong>Lakebase</strong> (leituras e escritas rápidas para aplicações transacionais). Todos "prontos para agentes"</td></tr>
+                        <tr><td><strong>3. Governança unificada</strong></td><td><strong>Unity Catalog</strong> e <strong>Unity Gateway</strong></td></tr>
+                        <tr><td><strong>4. Contexto</strong></td><td><strong>Genie Ontology</strong></td></tr>
+                        <tr><td><strong>5. Trabalho</strong></td><td><strong>Genie</strong> e <strong>Agent Bricks</strong> (com o motor aberto Omnigent)</td></tr>
+                        <tr><td><strong>6. Apps prontos</strong></td><td><strong>LakeWatch</strong>, <strong>Customer Lake</strong> e o <strong>Marketplace</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Governança unificada</h3>
+            <p>É a camada que mais interessa a este treinamento. Ela tem duas partes:</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Unity Catalog</span>
+                    <h4>Governa tudo, não só tabelas</h4>
+                    <p>Arquivos, modelos, agentes de IA e as ferramentas que eles usam. Traz o controle de acesso, a descoberta, o monitoramento de qualidade e o <strong>lineage</strong>.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Unity Gateway</span>
+                    <h4>Acesso e custo de IA</h4>
+                    <p>Orçamentos por pessoa e por equipe, visibilidade dos gastos e regras de segurança e conformidade aplicadas centralmente.</p>
+                </div>
+            </div>
+
+            <h3>As camadas acima da governança</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Contexto</span>
+                    <h4>Genie Ontology</h4>
+                    <p>Constrói e mantém continuamente o entendimento do negócio (por exemplo, o que é um "cliente ativo"), usando as definições que a empresa já escreveu e aprendendo como ela trabalha. <strong>Verifica as permissões no Unity Catalog</strong> antes de um agente responder.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Trabalho</span>
+                    <h4>Genie</h4>
+                    <p>Um "colega de IA" conectado aos dados reais e às fontes autoritativas, não só ao treinamento do modelo. Descreve-se um pipeline ou relatório em linguagem natural, e as conversas viram agentes salvos e agendados. Também cria dashboards e pequenos apps sobre dados governados. Roda sobre o motor aberto <strong>Omnigent</strong>.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Agentes</span>
+                    <h4>Agent Bricks</h4>
+                    <p>Plataforma para agentes customizados, com qualquer modelo ou framework, sandboxes seguras, memória entre sessões, busca, avaliação e monitoramento. O Omnigent evita o lock-in.</p>
+                </div>
+            </div>
+
+            <p>Por fim, os <strong>apps prontos</strong>: o <strong>LakeWatch</strong> (agentes para segurança, para caçar e triar ameaças), o <strong>Customer Lake</strong> (marketing, com a visão do cliente e a personalização em escala) e o <strong>Marketplace</strong>, para encontrar, instalar e rodar mais apps, sempre governados no workspace.</p>
+
+            <h3>Recapitulação e convite</h3>
+            <div class="diagram">
+                <svg viewBox="0 0 720 300" role="img" aria-label="As camadas da plataforma, de baixo para cima: armazenamento aberto, dados, governança, contexto, trabalho e apps">
+                    <g font-size="13" font-weight="700">
+                        <rect x="15" y="10" width="690" height="38" rx="10" fill="#1b1b29" stroke="#e0388f" stroke-width="2"/>
+                        <text x="360" y="34" text-anchor="middle">Apps: LakeWatch · Customer Lake · Marketplace</text>
+                        <rect x="15" y="54" width="690" height="38" rx="10" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="360" y="78" text-anchor="middle">Trabalho: Genie · Agent Bricks (Omnigent)</text>
+                        <rect x="15" y="98" width="690" height="38" rx="10" fill="#201a33" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="360" y="122" text-anchor="middle">Contexto: Genie Ontology</text>
+                        <rect x="15" y="142" width="690" height="38" rx="10" fill="#201a33" stroke="#6495ED" stroke-width="3"/>
+                        <text x="360" y="166" text-anchor="middle">Governança: Unity Catalog · Unity Gateway</text>
+                        <rect x="15" y="186" width="690" height="38" rx="10" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="360" y="210" text-anchor="middle">Dados: Lakeflow · Lakehouse Engine · Lakebase</text>
+                        <rect x="15" y="230" width="690" height="38" rx="10" fill="#201a33" stroke="#b6b6c3" stroke-width="2"/>
+                        <text x="360" y="254" text-anchor="middle">Armazenamento aberto</text>
+                    </g>
+                </svg>
+                <figcaption>As camadas da plataforma, de baixo para cima, com a governança em destaque. O diagrama é meu, a partir do resumo do vídeo</figcaption>
+            </div>
+
+            <p>Cada camada é útil sozinha, mas juntas formam uma plataforma unificada. Para experimentar, há a <strong>Databricks Free Edition</strong> (praticamente tudo, gratuita e sem expiração) e um compromisso de <strong>US$ 100 milhões</strong> em treinamento e educação, que inclui o acesso gratuito a mais de 2 mil universidades.</p>
+
+            <div class="callout">
+                <p><strong>Diferenças para a lição do treinamento 3:</strong> aquela lição fala em mais de 1.200 instituições parceiras, e este vídeo fala em mais de 2 mil universidades. Os nomes de alguns produtos também variam entre as duas fontes (aqui aparecem Omnigent, LakeWatch e Customer Lake, e lá, por exemplo, ZeroOps e CustomerLake). Anotei cada página como a fonte a apresentou.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> a Databricks propõe uma plataforma aberta e unificada, com uma cópia dos dados. A governança fica entre os dados e a IA: o <strong>Unity Catalog</strong> governa tabelas, arquivos, modelos, agentes e ferramentas (acesso, descoberta, qualidade e lineage), e o <strong>Unity Gateway</strong> controla o acesso e o custo de IA. A Genie Ontology consulta as permissões do Unity Catalog antes de um agente responder.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="databricks-academy-data-governance.html">&larr; Voltar ao treinamento</a>
+            <a href="data-governance-demo-1.html">Databricks Workspace Walkthrough &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

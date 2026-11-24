@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Centralized Governance and Visibility in Unity Catalog do treinamento Get Started with Data Governance on Databricks: metadados centralizados, credenciais, external locations, volumes e lineage.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Centralized Governance and Visibility in Unity Catalog</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-data-governance.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Centralized Governance and Visibility in Unity Catalog</h1>
+        <p>Get Started with Data Governance on Databricks · Lição 2</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="licao-2">
+            <p class="lead">Esta lição, do Módulo 2 (Core Concepts and Architecture), trata da <strong>governança centralizada</strong> e da <strong>visibilidade</strong>: como o Unity Catalog garante consistência em nível de conta e integra recursos externos com segurança, superando a fragmentação dos workspaces tradicionais.</p>
+
+            <p>Estas anotações partem de um resumo da leitura da lição. Segundo o resumo, todas as seções foram lidas, e a lição não tem elementos interativos. A prática dos conceitos está nas <a href="data-governance-demo-2.html">Demo 2</a> e <a href="data-governance-demo-3.html">Demo 3</a>.</p>
+
+            <h3>Todos os metadados em um só lugar</h3>
+            <p>Sem o Unity Catalog, cada workspace tem o seu próprio gerenciamento de usuários, o seu metastore, os seus controles de acesso e os seus clusters ou SQL warehouses, tudo isolado. Os metadados, as políticas de segurança e a gestão de usuários ficam fragmentados.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th></th><th>Sem o Unity Catalog</th><th>Com o Unity Catalog</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Usuários, metastore e controles de acesso</td><td>Um conjunto por workspace, isolados</td><td>Uma <strong>camada única e centralizada</strong> gerencia o User Management, o Metastore, os Foreign Databases e os Access Controls</td></tr>
+                        <tr><td>Os workspaces</td><td>Cada um governa os seus</td><td>Apenas <strong>consomem</strong> a camada central</td></tr>
+                        <tr><td>Resultado</td><td>Mais carga administrativa e mais risco</td><td>Governança unificada em todos os workspaces, com menos overhead e risco</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Conceitos fundamentais</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Arquivos</span>
+                    <h4>Fontes baseadas em arquivos</h4>
+                    <p>Credentials (a Storage Credential conecta ao storage, e a Cloud Service Credential, aos serviços nativos), External Locations, Tables e Volumes.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Bancos</span>
+                    <h4>Bancos de dados</h4>
+                    <p>Connections e Foreign Catalogs, que são a base da federação lakehouse.</p>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Conceito</th><th>O que é</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Storage Credential</strong></td><td>A credencial para conectar ao storage</td></tr>
+                        <tr><td><strong>Cloud Service Credential</strong></td><td>A credencial para os serviços nativos da nuvem</td></tr>
+                        <tr><td><strong>External Location</strong></td><td>Um local de storage usado por tabelas, arquivos ou volumes</td></tr>
+                        <tr><td><strong>Table</strong></td><td>Os dados tabulares</td></tr>
+                        <tr><td><strong>Volume</strong></td><td>Um contêiner de arquivos, para governar uma pasta no cloud storage</td></tr>
+                        <tr><td><strong>Connection</strong></td><td>A credencial e as informações de conexão com um banco externo</td></tr>
+                        <tr><td><strong>Foreign Catalog</strong></td><td>Um catálogo que representa um banco externo no Unity Catalog, consultável junto com as fontes gerenciadas e de arquivos</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>O namespace de três níveis</h3>
+            <p>É o <code>catalog.schema.object</code>, em contraste com o namespace legado de dois níveis (<code>schema.table</code>). Ele dá clareza organizacional, resolução explícita dos objetos e melhor isolamento. Referenciar as três partes garante que todo acesso ocorra em um contexto de segurança claro:</p>
+            <div class="code-container">
+                <pre><code>SELECT * FROM catalog.schema.object</code></pre>
+            </div>
+
+            <h3>Volumes</h3>
+            <p>Os volumes servem para acessar, armazenar, organizar e processar arquivos com a governança do Unity Catalog. Eles integram o acesso a arquivos brutos ao modelo de segurança:</p>
+            <ul>
+                <li>permitem os caminhos nativos de nuvem (por exemplo, <code>dbutils.fs.ls</code>, <code>ls /Volumes/volume123</code> e o acesso POSIX);</li>
+                <li>todas as operações de arquivo são auditadas e rastreadas no lineage;</li>
+                <li>são criados em locais <strong>gerenciados ou externos</strong>.</li>
+            </ul>
+
+            <p>Eles adicionam governança a dados <strong>não tabulares</strong>:</p>
+            <ul>
+                <li>os não estruturados (imagem, áudio, vídeo e PDF, para ML);</li>
+                <li>os semiestruturados (treino, validação e teste);</li>
+                <li>os arquivos brutos de exploração ad hoc;</li>
+                <li>os arquivos de biblioteca e de configuração usados entre workspaces;</li>
+                <li>os dados operacionais (logs e checkpoints).</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Atenção:</strong> as <strong>tabelas</strong> são registradas em locais gerenciados ou externos, <strong>não em volumes</strong>. A boa prática é registrar em um volume todos os arquivos que interagem com a plataforma.</p>
+            </div>
+
+            <p>É o que a Demo 2 mostra com o volume <code>ml_models</code>, criado junto do ambiente de HR analytics.</p>
+
+            <h3>Lineage automatizado</h3>
+            <p>É a visibilidade ponta a ponta de como os ativos de dados e IA são criados e consumidos. É capturado <strong>automaticamente em runtime</strong>, em clusters ou SQL warehouses, até o nível de <strong>tabela e coluna</strong>, usando o modelo de permissões comum do Unity Catalog. Abrange tabelas, colunas, dashboards, workflows, notebooks, arquivos, fontes externas e modelos, o que dá transparência para a conformidade e para a análise de impacto. O exemplo na tela é o grafo de lineage da tabela <code>uc_d25.sales.sales_fact</code>. A <a href="data-governance-demo-3.html">Demo 3</a> mostra o lineage na prática.</p>
+
+            <h3>Conclusão</h3>
+            <ul>
+                <li><strong>Metadados centralizados:</strong> uma camada governa os usuários, o metastore, os foreign databases e os controles de acesso de todos os workspaces.</li>
+                <li><strong>Conceitos fundamentais:</strong> as credenciais e as external locations, para os arquivos, e as connections e foreign catalogs, para a federação.</li>
+                <li><strong>Namespace de três níveis.</strong></li>
+                <li><strong>Volumes:</strong> os dados não tabulares, com acesso nativo e rastreados no lineage.</li>
+                <li><strong>Lineage automatizado:</strong> em runtime, em tabela e coluna.</li>
+            </ul>
+            <p>A próxima lição é a <em>Privileges in Unity Catalog</em>, sobre controlar quem pode fazer o quê.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o Unity Catalog troca a governança isolada por workspace por uma camada única de conta. As fontes de arquivos usam Storage Credentials e External Locations (e as tabelas e volumes sobre elas), e os bancos externos usam Connections e Foreign Catalogs (a federação). Os volumes governam os arquivos não tabulares, e as tabelas não ficam em volumes. O lineage é automático, em runtime, em tabela e coluna.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="data-governance-licao-1.html">&larr; Unity Catalog Fundamentals</a>
+            <a href="data-governance-licao-3.html">Privileges in Unity Catalog &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

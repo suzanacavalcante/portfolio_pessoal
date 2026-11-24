@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Databricks Workspace Walkthrough do treinamento Get Started with Data Governance on Databricks: o tour pelo workspace, o catálogo, o notebook, o Genie, o Lakebase e os Databricks Apps.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Databricks Workspace Walkthrough</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-data-governance.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Databricks Workspace Walkthrough</h1>
+        <p>Get Started with Data Governance on Databricks · Demo 1</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-1">
+            <p class="lead">Esta demo, de cerca de 13 minutos, é um tour de orientação pelo <strong>workspace</strong> onde os cursos da Databricks Academy são feitos. Passa pela home, pelo compute, pelo catálogo, por um notebook com o Genie Code, e pela plataforma mais ampla: o Genie One, os Databricks Apps e o Lakebase Postgres.</p>
+
+            <p>Estas anotações partem de um resumo cronometrado da demo, não da transcrição. Os nomes das áreas seguem o que o resumo diz, e a interface pode ter mudado desde a gravação.</p>
+
+            <h3>A home</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Área</th><th>O que tem</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Barra de busca</strong> (topo)</td><td>Serve para fazer perguntas, buscar ativos (notebooks, tabelas, jobs e dashboards) e ir direto ao <strong>Genie</strong> e ao <strong>Genie Code</strong>, que ajuda a construir o que se descrever</td></tr>
+                        <tr><td><strong>Barra lateral esquerda</strong></td><td>O <strong>New</strong> (para criar ativos e adicionar ou subir dados), mais ativos ao final, e a opção de minimizar</td></tr>
+                        <tr><td>Topo da barra lateral</td><td>As informações do usuário, o acesso ao Genie Code, um ícone para alternar entre as áreas (por exemplo, o Lakehouse) e o menu do usuário, com as configurações, o acesso ao workspace e ao <strong>Account Console</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>Compute, apps e catálogo</h3>
+            <ul>
+                <li><strong>Compute:</strong> o serverless, o jobs compute e os outros tipos. Os apps ficam agora em <strong>Databricks Apps</strong>.</li>
+                <li><strong>Catalog:</strong> o acesso a todos os dados e ativos. O exemplo é o catálogo <code>samples</code>, o schema <code>nyc</code> e a tabela de corridas de táxi de Nova York.</li>
+            </ul>
+
+            <p>A página de uma tabela no catálogo reúne:</p>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Overview</span>
+                    <h4>Visão geral e amostra</h4>
+                    <p>A descrição da tabela e uma <strong>amostra dos dados</strong>, que pede um compute rodando.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Governança</span>
+                    <h4>Permissões e lineage</h4>
+                    <p>As <strong>permissões</strong>, o <strong>histórico</strong> e o <strong>lineage</strong>, que mostra o uso a montante e a jusante.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Qualidade</span>
+                    <h4>Insights e qualidade</h4>
+                    <p>Os insights sobre a tabela e o monitoramento da qualidade dos dados.</p>
+                </div>
+            </div>
+
+            <div class="callout">
+                <p><strong>Ligação com este treinamento:</strong> as permissões, o lineage e a qualidade, que aparecem na página de uma tabela, são justamente as funções de governança do Unity Catalog que o <a href="data-governance-video-1.html">vídeo anterior</a> apresentou. A ligação entre as duas páginas é minha.</p>
+            </div>
+
+            <h3>Workspace e notebook</h3>
+            <p>A área <strong>Workspace</strong> guarda os seus ativos em pastas. Navega-se por elas, e volta-se ao início clicando em "Databricks". Em seguida, abre-se o notebook do walkthrough:</p>
+            <ol>
+                <li>Conecta-se a um compute <strong>serverless</strong>.</li>
+                <li>Roda-se a célula de setup, que confirma o usuário, o catálogo e o schema.</li>
+                <li>Dá para <strong>inserir o nome de uma tabela direto do catálogo</strong> na célula, sem digitar o namespace completo (<code>samples.nyc.trips</code>).</li>
+            </ol>
+
+            <ul>
+                <li>Os notebooks aceitam <strong>várias linguagens</strong> no mesmo arquivo. O notebook é Python, mas as células podem ser SQL (<code>%sql</code>) ou markdown (<code>%md</code>).</li>
+                <li>Executa-se com Shift+Enter, com o botão de play ou com o <strong>Run All</strong>.</li>
+            </ul>
+
+            <h4>Genie Code</h4>
+            <p>Para quem não domina o código, descreve-se o que se quer (por exemplo, contar as corridas) e clica-se em <strong>Generate</strong>. A sugestão pode ser <strong>rejeitada</strong>, <strong>aceita</strong>, <strong>aceita e executada</strong> ou apenas executada.</p>
+
+            <h3>A plataforma mais ampla</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Área</th><th>O que é</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Genie One</strong></td><td>Uma interface de chat (um menu suspenso no topo) para perguntar sobre os dados e a plataforma, analisar dados, criar skills, redigir documentos e agendar tarefas (como relatórios semanais), sem conhecimento técnico de notebook. É onde ficam os <strong>Genie Agents</strong> de domínio. Também se pode pedir ajuda para criar uma skill</td></tr>
+                        <tr><td><strong>Databricks Apps</strong></td><td>Onde os apps são criados, curados e acessados. Cria-se um app "Hello World" com poucos cliques (leva alguns instantes para iniciar), e dá para ver o código-fonte, editar no IDE próprio ou abrir no workspace. Com o Genie Code se constrói uma aplicação inteira e a publica para os usuários do workspace</td></tr>
+                        <tr><td><strong>Lakebase Postgres</strong></td><td>Tudo até aqui serve à análise, mas as aplicações precisam ler e escrever registros únicos quase instantaneamente. O Lakebase é um banco <strong>operacional totalmente gerenciado</strong>. Cria-se um projeto (por exemplo, "Demo") e se vê as configurações, o branch, o monitoramento e um <strong>SQL Editor</strong>, com consultas de exemplo que criam dados de amostra</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Para voltar à tela principal, clica-se em <strong>Lakehouse</strong>.</p>
+
+            <h3>Conclusão</h3>
+            <p>A demo percorreu o Lakehouse, o Genie, o Lakebase Postgres e os Databricks Apps. A recomendação é explorar, experimentar e usar o Genie para tirar dúvidas.</p>
+
+            <div class="callout">
+                <p><strong>Sobre o card do treinamento 3:</strong> o treinamento Get Started with Databricks for Data Engineering também tem um card de espaço reservado chamado "Workspace Walkthrough". Pelo nome, deve ser o mesmo vídeo ou um muito parecido, mas não tenho como confirmar. Por isso anotei esta demo aqui, no treinamento em que a recebi, e deixei o outro card como está.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o workspace tem a busca e o Genie no topo, a barra lateral com o New, o Compute, o Catalog, o Workspace e os Apps. A página de uma tabela no Catalog mostra a amostra, as permissões, o histórico e o lineage. Os notebooks misturam linguagens com <code>%sql</code> e <code>%md</code>, e o Genie Code gera código a partir de uma descrição. O Lakebase Postgres é o banco operacional gerenciado, para as aplicações.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="data-governance-video-1.html">&larr; Databricks Data Intelligence Platform</a>
+            <a href="data-governance-demo-2.html">Exploring Unity Catalog and Governed Assets &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Governed Tagging, Discovery, and Lineage in Unity Catalog do treinamento Get Started with Data Governance on Databricks: governed tags, tag policies, ABAC, descoberta e lineage.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Governed Tagging, Discovery, and Lineage</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-data-governance.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Governed Tagging, Discovery, and Lineage in Unity Catalog</h1>
+        <p>Get Started with Data Governance on Databricks · Demo 3</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-3">
+            <p class="lead">Esta demo, de cerca de 32 minutos, trata de três capacidades do Unity Catalog: as <strong>governed tags</strong> e as <strong>tag policies</strong>, a <strong>descoberta</strong> de ativos (e como as tags alimentam o controle de acesso baseado em atributos, o <strong>ABAC</strong>) e o <strong>lineage</strong> de tabela e de coluna. Juntas, elas apoiam o stewardship dos dados.</p>
+
+            <p>Estas anotações partem de um resumo cronometrado da demo, não da transcrição. O SQL que aparece é um esboço meu, do que o resumo descreve, e não foi executado. A sintaxe exata deve ser conferida na documentação.</p>
+
+            <h3>Requisitos</h3>
+            <ul>
+                <li>Um workspace com Unity Catalog, e o Databricks Runtime 17.3 LTS ou superior (ou serverless v4 ou superior), com o serverless habilitado.</li>
+                <li>Os privilégios CREATE CATALOG e USE CATALOG, CREATE SCHEMA e USE SCHEMA, e CREATE TABLE.</li>
+            </ul>
+            <p>O setup usa o compute serverless, o notebook de classroom (o helper <code>DA</code>) e um job Lakeflow que cria o mesmo ambiente de HR analytics da Demo 2 (o catálogo <code>db_office_&lt;usuário&gt;</code>, o schema HR, as tabelas <code>employees</code> e <code>employee_benefits</code> e as views, entre elas a <code>hr_master</code>). Se o ambiente da demo anterior existir, ele só é detectado e reaproveitado, em segundos. Do zero, leva de 3 a 4 minutos. O job aparece como <code>setup_batch_jobs_demo_4</code>.</p>
+
+            <h3>Conceitos de tags</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Conceito</th><th>O que é</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Tag policies</strong> (nível de conta)</td><td>Governam as <strong>chaves e os valores</strong> permitidos, o que evita o "tag sprawl", e controlam quais tags podem ser referenciadas nas políticas ABAC. Geridas por UI, API ou SQL</td></tr>
+                        <tr><td><strong>Controle de acesso à marcação</strong></td><td>É separado do acesso aos dados. Para <strong>definir</strong> as políticas, o admin precisa de um privilégio como MANAGE ou CREATE. Para <strong>aplicar</strong> uma tag governada, basta a permissão atribuída (aos data stewards e donos de domínio). Os stewards classificam sem mudar o significado da tag</td></tr>
+                        <tr><td><strong>Compatibilidade</strong></td><td>As governed tags se constroem sobre o sistema de tags que já existia no Unity Catalog. O histórico é preservado, e, quando se define uma política para uma chave (por exemplo, PII), as tags existentes com essa chave se tornam governadas</td></tr>
+                        <tr><td><strong>ABAC</strong></td><td>Uma regra reutilizável, como "mascarar toda coluna com a tag PII", aplica a função de máscara automaticamente em todo o Lakehouse. Está em <strong>public preview</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Os três usos das governed tags</h4>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Acesso</span>
+                    <h4>Gestão de acesso</h4>
+                    <p>Servem de base para as regras ABAC, como a máscara automática das colunas PII.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Custo</span>
+                    <h4>Atribuição de custo</h4>
+                    <p>Integram com as budget policies, para atribuir o custo a um centro de custo.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">System</span>
+                    <h4>System tags</h4>
+                    <p>Certificação, deprecação, auto-classificação e as tags de workspace.</p>
+                </div>
+            </div>
+
+            <h4>Data classification</h4>
+            <p>Uma IA agêntica detecta e marca <strong>PII</strong> automaticamente (mais de 12 tipos, além dos classificadores regionais e de domínio). As tabelas e colunas novas são escaneadas em cerca de 24 horas, com re-scans incrementais. Os achados vão para uma UI de revisão e para a tabela <code>system.data_classification.results</code>. Depois de validar, aplicam-se as tags e derivam-se as políticas ABAC (por exemplo, mascarar as colunas classificadas como e-mail). Está em public preview na AWS, no Azure e no GCP.</p>
+
+            <h4>Open sharing</h4>
+            <p>O metastore governa os shares, os recipients e os providers. As políticas do Unity Catalog valem mesmo quando os dados saem do Databricks: uma requisição autorizada recebe um token de curta duração para o storage, e uma não autorizada é negada.</p>
+
+            <h3>Aplicando tags</h3>
+            <p>As células usam o objeto <code>DA</code> (<code>da.username</code>, <code>da.catalog_name</code> e <code>da.office_catalog</code>).</p>
+
+            <h4>Governed tags</h4>
+            <p>São atributos de nível de conta, com <strong>valores permitidos predefinidos</strong>, criados por admins de conta ou de workspace na UI, e não por usuários via SQL. As seis da demo:</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Tag</th><th>Valores de exemplo</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>PII</code></td><td>SSN, email, address</td></tr>
+                        <tr><td><code>classification</code></td><td>salary_masked, confidential e outros</td></tr>
+                        <tr><td><code>geo_access</code></td><td>region_filter</td></tr>
+                        <tr><td><code>environment</code></td><td>production, staging, development</td></tr>
+                        <tr><td><code>data_quality</code></td><td>certified, experimental, deprecated</td></tr>
+                        <tr><td><code>cost_center</code></td><td>HR, finance e outros</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Não dá para criá-las nem renomeá-las por SQL, e só valem os valores permitidos. Por exemplo, <code>environment = prod</code> falha.</p>
+
+            <h4>Tags não governadas</h4>
+            <p>São metadados de negócio: pares chave-valor livres, para quem tem o privilégio de aplicar tags, via <code>SET TAG ON &lt;objeto&gt;</code>. Servem para o dono, o propósito, a sensibilidade, o projeto e assim por diante. O setup já aplicou algumas no catálogo, no schema, nas tabelas e nas views. Na demo, inspecionam-se as existentes e adicionam-se <code>data_steward</code> e <code>contains_pii</code> (livres, em nível de tabela) à <code>employees</code>, e <code>data_quality</code> e <code>report_type</code> (não governadas) à view <code>hr_master</code>.</p>
+
+            <h4>Atribuindo governed tags</h4>
+            <p>Em catálogo, schema, tabela e view, usa-se a mesma sintaxe <code>SET TAG ON</code>, com os valores permitidos: o <code>environment</code> no catálogo, o <code>cost_center</code> no schema HR e o <code>data_quality</code> na view <code>HR_master</code>.</p>
+
+            <div class="callout">
+                <p><strong>Em colunas a sintaxe é diferente:</strong> usa-se <code>ALTER TABLE ... ALTER COLUMN ... SET TAGS</code>, porque as colunas não são objetos securáveis de primeira classe. O <code>SET TAG ON</code> funciona só em catálogos, schemas, tabelas, views e volumes.</p>
+            </div>
+
+            <div class="code-container">
+                <pre><code>-- esboço meu, a partir da descrição do resumo
+-- objeto securável (schema, tabela, view...): SET TAG ON
+SET TAG ON SCHEMA db_office.hr cost_center = 'HR';
+
+-- coluna: ALTER TABLE ... ALTER COLUMN ... SET TAGS
+ALTER TABLE db_office.hr.employees
+ALTER COLUMN email SET TAGS ('PII' = 'email');</code></pre>
+            </div>
+
+            <p>Na demo, a <code>PII</code> vai para as colunas SSN e e-mail, a <code>geo_access</code> para a região e a <code>classification</code> para o salário. Depois, verificam-se todas as tags (da <code>employees</code>, das colunas e do schema inteiro).</p>
+
+            <h3>Lineage</h3>
+            <p>O lineage é capturado de forma automática, em <strong>runtime</strong>, no compute, sem fiação manual, em nível de <strong>tabela e de coluna</strong>. Ele reutiliza o modelo de permissões do Unity Catalog e cobre tabelas, dashboards, notebooks, workflows, feature tables, arquivos e pipelines Lakeflow Spark Declarative. Mesmo datasets derivados por APIs Spark carregam as relações. O serviço de lineage lê os logs do cluster ou do SQL warehouse, monta o metadado e mostra o grafo na UI. Pode ser <strong>exportado por API</strong> para catálogos externos (Alation, Collibra e Microsoft Purview).</p>
+
+            <h4>Bring your own lineage</h4>
+            <p>Registra ativos externos (um dashboard do Tableau ou um objeto do Salesforce) como <strong>metadado externo</strong> no Unity Catalog, ligados a tabelas, modelos ou caminhos (a montante, a jusante e em nível de coluna), pelo Catalog Explorer ou pela API REST. Precisa de CREATE EXTERNAL METADATA no metastore e de MODIFY no objeto. As ressalvas:</p>
+            <ul>
+                <li>o lineage externo <strong>não</strong> vai para as system tables de lineage (recupera-se por API);</li>
+                <li>escala para cerca de 10 mil objetos externos e 100 mil relações por metastore;</li>
+                <li>está em public preview.</li>
+            </ul>
+
+            <h3>Descoberta</h3>
+            <h4>Busca na UI</h4>
+            <p>Usa-se a barra de busca do workspace e o Catalog Explorer. As consultas de tag têm o prefixo <code>tag:</code>: <code>tag:data_quality:certified</code> encontra a <code>hr_master</code>, e <code>tag:cost_center:HR</code> encontra os ativos do centro de custo HR. A busca alcança tabelas, views, modelos, volumes, dashboards, Genie Spaces e notebooks, e só mostra o que o usuário tem o privilégio de ver.</p>
+            <ul>
+                <li>A correspondência é <strong>exata</strong> na chave e no valor (por exemplo, <code>PII:SSN</code>).</li>
+                <li>As governed tags se comportam como as tags normais na busca e têm um ícone de <strong>cadeado</strong>.</li>
+                <li>A busca <strong>não</strong> encontra catálogos, schemas nem colunas por tag. Se não há resultados, a tag deve estar só em um catálogo ou schema, ou faltam privilégios.</li>
+                <li>Para uma exploração mais estruturada, usa-se o filtro de tag do Catalog Explorer.</li>
+            </ul>
+
+            <h4>Busca por SQL</h4>
+            <p>As views do <code>information_schema</code> (<code>table_tags</code> e as de colunas) respondem a perguntas como:</p>
+            <ul>
+                <li>as tabelas e views com <code>sensitivity = high</code> (a <code>employees</code>);</li>
+                <li>os ativos de HR certificados (a <code>hr_master</code>);</li>
+                <li>as colunas com a tag PII (e-mail e SSN da <code>employees</code>);</li>
+                <li>as colunas com qualquer tag governada (e-mail, região, salário e SSN, com a <code>classification = confidential</code> no salário e a <code>geo_access = region_filter</code> na região).</li>
+            </ul>
+            <p>Na próxima demo, essas tags derivam as políticas ABAC de máscara e de filtro.</p>
+
+            <h3>Lineage na prática</h3>
+            <p>Com as tags, sabe-se que a <code>employees</code> tem PII, e o lineage identifica as views e os modelos que herdam dessas colunas. A consulta a <code>information_schema.table_lineage</code> ou a <code>system.access.table_lineage</code> pode retornar <strong>vazio</strong>, porque as system tables atualizam em até 24 horas. Isso é normal, e a UI não tem esse atraso.</p>
+            <ol>
+                <li>No Catalog Explorer, abre-se a <code>HR_master</code> e a aba <strong>Lineage</strong> (alternando entre upstream e downstream). A view é construída por um job Lakeflow, a partir da <code>employees</code> e da <code>employee_benefits</code>.</li>
+                <li>O <strong>See lineage graph</strong> abre um grafo interativo (clicar em um nó o expande).</li>
+                <li>O <strong>lineage de coluna</strong> (o ícone de lineage na coluna) destaca, por exemplo, o <code>employee_ID</code>.</li>
+                <li>A lista mostra cerca de cinco ativos de tabela (duas tabelas e três views) mais dois ativos de job Lakeflow, com um filtro por tipo (notebooks, pipelines, consultas e dashboards).</li>
+                <li>Expandir a <code>employees</code> revela a view <code>manager_employee_summary</code>.</li>
+            </ol>
+
+            <div class="callout">
+                <p><strong>Análise de impacto:</strong> a partir de uma tabela com PII, rastreiam-se todos os ativos que herdam dela. É o que o passo 5 mostra, com a <code>manager_employee_summary</code>.</p>
+            </div>
+
+            <h3>Limpeza e conclusão</h3>
+            <p>A limpeza fica comentada (o <code>run_destroy_pipeline</code> encontra ou cria o job <code>destroy_batch_jobs_demo_4</code> e desfaz tudo, e os recursos ausentes são tratados como limpos). Ela foi mantida comentada porque a próxima demo reaproveita os objetos. Os pontos principais:</p>
+            <ul>
+                <li>as governed tags e as tag policies classificam em nível de conta e controlam quem aplica qual tag;</li>
+                <li>a descoberta acontece pelo Catalog Explorer e pelo <code>information_schema</code>;</li>
+                <li>o lineage automático de tabelas e colunas habilita a análise de impacto;</li>
+                <li>as tags, os metadados e o lineage aparecem juntos (o significado de negócio ao lado da estrutura técnica), o que apoia o stewardship e as decisões de acesso conscientes de risco.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Ponto a conferir:</strong> o resumo menciona um ponto sobre a diferenciação de maiúsculas e minúsculas nas tags, mas diz que o trecho foi cortado na leitura. Não anotei essa regra, e vale conferir no vídeo.</p>
+            </div>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> as governed tags têm chaves e valores definidos por uma tag policy, criada no nível de conta, e quem as aplica não muda o significado delas. Em objetos usa-se o <code>SET TAG ON</code>, e em colunas o <code>ALTER COLUMN ... SET TAGS</code>. As tags alimentam a busca (<code>tag:chave:valor</code>, com correspondência exata) e as regras ABAC (por exemplo, mascarar tudo o que é PII). O lineage é capturado em runtime, em tabela e coluna, e permite a análise de impacto.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="data-governance-demo-2.html">&larr; Exploring Unity Catalog and Governed Assets</a>
+            <a href="data-governance-demo-4.html">Implementing Fine-Grained Access Controls &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

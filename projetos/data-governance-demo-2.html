@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na demo Exploring Unity Catalog and Governed Assets do treinamento Get Started with Data Governance on Databricks: metastore, hierarquia de dados, Catalog Explorer, lineage, open sharing e modelos governados.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Exploring Unity Catalog and Governed Assets</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-data-governance.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Exploring Unity Catalog and Governed Assets</h1>
+        <p>Get Started with Data Governance on Databricks · Demo 2</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="demo-2">
+            <p class="lead">Esta demo, de cerca de 25 minutos, percorre o <strong>Unity Catalog</strong> na prática. Começa no <strong>nível de conta</strong> (metastore, associações de workspace e identidade federada) e desce até um workspace, criando e explorando ativos governados no <strong>Catalog Explorer</strong>: tabelas, views, volumes e modelos de ML.</p>
+
+            <p>Estas anotações partem de um resumo cronometrado da demo, não da transcrição. O trecho final da conclusão foi cortado na leitura do resumo.</p>
+
+            <div class="callout">
+                <p><strong>Aviso da demo:</strong> ela exige ser <strong>account administrator</strong>. No laboratório do curso essa permissão não existe, então o papel é observar. Dá para praticar depois, na conta pessoal.</p>
+            </div>
+
+            <h3>Por que o Unity Catalog</h3>
+            <p>Com o crescimento dos dados, gerir o acesso vira uma dor de cabeça. O Unity Catalog dá um lugar central para as políticas de acesso, as permissões e a descoberta. Foi a primeira solução de governança <strong>unificada e aberta</strong> para todos os dados e IA: funciona com qualquer formato aberto e qualquer ativo de dados e IA, e reúne o controle de acesso, o lineage, a descoberta, a auditoria e o monitoramento. Os catálogos tradicionais ficam no controle de acesso a dados tabulares, e o Unity Catalog é aberto a fontes e ferramentas externas.</p>
+
+            <h3>Account Console, metastore e identidades</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Item</th><th>O que é</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Account Console</strong></td><td>Onde o admin governa de forma central todos os workspaces e personas. Em <em>Workspaces</em> vê-se a lista, e cada um mostra a região, as credenciais, o storage, a rede e o <strong>metastore</strong> (o que habilita o Unity Catalog)</td></tr>
+                        <tr><td><strong>Metastore</strong></td><td>O contêiner de topo dos metadados. Na configuração definem-se o bucket de armazenamento (metadados e tabelas gerenciadas) e o role com acesso. Cada metastore se associa a um ou mais workspaces (aba <em>Workspaces</em>). Aqui está habilitado o <strong>open sharing</strong>, para compartilhar dados fora da organização</td></tr>
+                        <tr><td><strong>Identity federation</strong></td><td>Habilitada: as identidades da conta fluem para o workspace</td></tr>
+                        <tr><td><strong>User management</strong></td><td>Users, Service principals (identidades de automação) e Groups</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>No modelo de <strong>identidade federada</strong>, tudo se gerencia uma vez, no nível de conta, e o acesso aos workspaces é atribuído (manualmente ou sincronizando do provedor de identidade). Isso dá uma fonte única de verdade.</p>
+
+            <h3>A hierarquia de dados</h3>
+            <div class="diagram">
+                <svg viewBox="0 0 760 220" role="img" aria-label="Hierarquia do Unity Catalog: metastore, catalog, schema e objetos securáveis">
+                    <defs>
+                        <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="88" width="120" height="44" rx="6"/>
+                        <rect x="180" y="88" width="110" height="44" rx="6"/>
+                        <rect x="340" y="88" width="110" height="44" rx="6"/>
+                        <rect x="520" y="8" width="130" height="34" rx="6"/>
+                        <rect x="520" y="52" width="130" height="34" rx="6"/>
+                        <rect x="520" y="96" width="130" height="34" rx="6"/>
+                        <rect x="520" y="140" width="130" height="34" rx="6"/>
+                        <rect x="520" y="184" width="130" height="30" rx="6"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="70" y="114">Metastore</text>
+                        <text x="235" y="114">Catalog</text>
+                        <text x="395" y="114">Schema</text>
+                        <text x="585" y="30">Tabelas</text>
+                        <text x="585" y="74">Views</text>
+                        <text x="585" y="118">Volumes</text>
+                        <text x="585" y="162">Models</text>
+                        <text x="585" y="203">Functions</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#ar2)">
+                        <path d="M130,110 L178,110"/>
+                        <path d="M290,110 L338,110"/>
+                        <path d="M450,100 L518,28"/>
+                        <path d="M450,106 L518,70"/>
+                        <path d="M450,110 L518,113"/>
+                        <path d="M450,116 L518,157"/>
+                        <path d="M450,122 L518,199"/>
+                    </g>
+                </svg>
+                <figcaption>A hierarquia do Unity Catalog. O diagrama é meu, a partir do resumo</figcaption>
+            </div>
+
+            <ul>
+                <li><strong>Catalog:</strong> a unidade organizacional mais alta, normalmente por domínio ou por ambiente.</li>
+                <li><strong>Schemas</strong> e, dentro deles, os objetos securáveis: tabelas (gerenciadas e externas), <strong>views</strong> (definições de consulta, para segurança e abstração), <strong>volumes</strong> (arquivos não estruturados, para ML e staging), <strong>models</strong> e <strong>functions</strong>.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>Princípio:</strong> as permissões seguem de cima para baixo (<em>top-down</em>). Conceder no catálogo vale para os schemas e para os objetos abaixo.</p>
+            </div>
+
+            <h4>O namespace de três níveis</h4>
+            <p>O SQL tradicional tem <code>schema.tabela</code>, e o Unity Catalog acrescenta o catálogo: <code>catalog.schema.objeto</code>. Como o modelo é baseado em ANSI SQL, os admins criam e concedem permissões em catálogos, schemas, tabelas, views e arquivos com o SQL que já conhecem.</p>
+
+            <h3>Setup e exploração</h3>
+            <p>A célula de setup cria o objeto helper <code>DA</code> e lança um <strong>job Lakeflow</strong>, que constrói um ambiente de <strong>HR analytics</strong> na ordem das dependências:</p>
+            <ul>
+                <li>o catálogo <code>db_office_&lt;usuário&gt;</code> e o schema HR;</li>
+                <li>as tabelas <code>employees</code> e <code>employee_benefits</code>;</li>
+                <li>seis views;</li>
+                <li>o modelo <code>sklearn_salary_regression</code> e o volume <code>ml_models</code>.</li>
+            </ul>
+            <p>Leva cerca de 3 a 4 minutos em um workspace novo, e segundos se o ambiente já existir. Em <strong>Jobs &amp; Pipelines</strong>, o job <code>setup_batch_jobs_demo_3</code> tem a aba <em>Tasks</em> (o fluxo, com as dependências) e a aba <em>Runs</em> (o progresso até "succeeded"). Depois, no <strong>Catalog Explorer</strong>, a casa base para organizar e buscar os ativos, navega-se até <code>db_office</code> e HR.</p>
+
+            <h3>Inspeção de um ativo</h3>
+            <p>A busca embutida (por exemplo, "HR_Asia_Pacific") só mostra resultados de dados que o usuário pode acessar. Na página de uma view:</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Aba</th><th>O que mostra</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Breadcrumb</td><td>O namespace de três níveis</td></tr>
+                        <tr><td><strong>Schema</strong></td><td>Colunas, tipos e comentários (editáveis, com permissão)</td></tr>
+                        <tr><td><strong>Sample Data</strong></td><td>O conteúdo, sem precisar de uma consulta</td></tr>
+                        <tr><td><strong>Details</strong></td><td>Storage, propriedades e criação</td></tr>
+                        <tr><td><strong>Permissions</strong></td><td>Um pilar do Unity Catalog: concede e restringe a leitura e a modificação a usuários ou grupos, pela UI ou por SQL, em vários níveis</td></tr>
+                        <tr><td><strong>Lineage</strong></td><td>Capturado <strong>automaticamente em runtime</strong>: as fontes a montante e os consumidores a jusante (tabelas, notebooks, workflows e dashboards), com um grafo visual</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout">
+                <p><strong>Ponto sutil:</strong> as permissões são aplicadas silenciosamente em todo o grafo de lineage. Se o usuário não tem browse ou select em um nó, ele fica oculto ou mascarado.</p>
+            </div>
+
+            <h3>Open sharing</h3>
+            <p>Em Manage (a engrenagem), Open Sharing compartilha dados <strong>ao vivo</strong> com parceiros, clientes ou equipes internas, em qualquer plataforma, <strong>sem replicar</strong>. As abas são <em>Shared with me</em> (a entrada) e <em>Shared by me</em> (a saída). Os privilégios vêm do metastore admin:</p>
+            <ul>
+                <li><strong>Use Provider:</strong> ver os shares recebidos;</li>
+                <li><strong>Use Recipient:</strong> ver os destinatários dos shares;</li>
+                <li><strong>Use Share:</strong> acessar os dados compartilhados.</li>
+            </ul>
+
+            <h3>Feature Store e modelos</h3>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Features</span>
+                    <h4>Feature tables</h4>
+                    <p>São registradas, pesquisáveis e protegidas sob schemas. Qualquer tabela Delta ou Iceberg com <strong>primary key</strong> pode ser uma feature table. Pede USE CATALOG, USE SCHEMA e CREATE TABLE.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Modelos</span>
+                    <h4>Registro de modelos MLflow</h4>
+                    <p>O Unity Catalog é o registro unificado: modelos por catálogo e schema, com lineage, segurança, versões e promoção entre estágios. Pede USE CATALOG, USE SCHEMA, CREATE MODEL e CREATE MODEL VERSION.</p>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <pre><code>-- esboço meu: uma tabela vira feature table ao ganhar uma primary key
+ALTER TABLE db_office.hr.employees
+ADD CONSTRAINT employees_pk PRIMARY KEY (employee_id);</code></pre>
+            </div>
+            <p>O nome da tabela, o da constraint e a coluna do esboço são meus: o resumo só cita o <code>ALTER TABLE ... ADD CONSTRAINT ... PRIMARY KEY</code>.</p>
+
+            <h3>Ativos de IA governados</h3>
+            <p>Da view <code>HR_master</code>, o botão <em>Create</em> abre as ações (consultas e dashboards). Pela barra lateral (AI/ML), abre-se:</p>
+            <ul>
+                <li><strong>Models:</strong> mostra o caminho completo, com a governança central, o versionamento e o acesso controlado, a reprodutibilidade e o lineage dos dados até as predições;</li>
+                <li><strong>Features:</strong> lista as feature tables, para a consistência e o reuso, com uma fonte única para o treino e a inferência.</li>
+            </ul>
+            <p>É a mesma governança, a mesma descoberta e a mesma hierarquia dos dados.</p>
+
+            <h3>Limpeza</h3>
+            <p>Para remover tudo, descomenta-se o <code>run_destroy_pipeline</code> na célula e executa-se. É seguro: os recursos que já não existem são tratados como limpos. Na demo ele foi deixado comentado, porque a próxima demo reaproveita os objetos.</p>
+
+            <h3>Por que escolher o Unity Catalog</h3>
+            <ol>
+                <li><strong>Unificado:</strong> descoberta e governança em todo o patrimônio (qualquer formato, ativo de dados e IA, e fonte).</li>
+                <li><strong>Aberto:</strong> qualquer ferramenta, engine ou plataforma, com interoperabilidade e compartilhamento seguro, sem lock-in.</li>
+                <li><strong>Impulsiona a data intelligence:</strong> usa o lineage, a semântica e o uso para construir conhecimento do domínio e otimizações.</li>
+            </ol>
+            <p>Entre o armazenamento aberto e as cargas (Databricks AI, SQL, Lakeflow e AI/BI), ele entrega a governança centralizada de dados e IA, a busca e a descoberta, o desempenho e a escala, o lineage automatizado e a integração com as ferramentas existentes. Centraliza a auditoria e o controle de acesso.</p>
+
+            <h3>Conclusão</h3>
+            <p>A demo mostrou um modelo único de governança, em que o metastore, os catálogos, os schemas, as tabelas, as views, os volumes, os modelos e as features cabem em uma hierarquia. Mostrou a experiência do Catalog Explorer (metadados, sample data, busca, permissões e lineage na interface) e o compartilhamento seguro por open sharing.</p>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> o metastore é o contêiner de topo, e a hierarquia é catalog &rarr; schema &rarr; objetos (tabelas, views, volumes, models e functions), com o namespace <code>catalog.schema.objeto</code>. As permissões descem de cima para baixo. O Catalog Explorer mostra o schema, a amostra, os detalhes, as permissões e o lineage, que é capturado automaticamente. O open sharing compartilha dados ao vivo, sem cópia, e o Unity Catalog também governa as feature tables e os modelos MLflow.</p>
+            </div>
+        </section>
+
+        <nav class="page-nav">
+            <a href="data-governance-demo-1.html">&larr; Databricks Workspace Walkthrough</a>
+            <a href="data-governance-demo-3.html">Governed Tagging, Discovery, and Lineage &rarr;</a>
+        </nav>
+    </main>
+</body>
+</html>

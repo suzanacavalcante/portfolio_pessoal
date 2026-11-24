@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Quiz interativo com 20 perguntas sobre os conceitos do treinamento Get Started with Data Governance on Databricks: Unity Catalog, privilégios, papéis, tags, lineage e controle de acesso fino.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Quiz: Data Governance on Databricks</title>
+    <style>
+        .quiz {
+            --ok: #3ecf8e;
+            --ok-bg: rgba(62, 207, 142, .12);
+            --bad: #ff6b81;
+            --bad-bg: rgba(255, 107, 129, .12);
+            margin: 2rem 0 4rem;
+        }
+
+        .quiz-intro {
+            text-align: center;
+            padding: 3.2rem 2rem;
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .quiz-intro h2 {
+            border: 0;
+            padding: 0;
+            margin-bottom: 1rem;
+        }
+
+        .quiz-intro h2::after { display: none; }
+
+        .quiz-intro ul {
+            display: inline-block;
+            text-align: left;
+            margin: 1.2rem 0 2rem;
+            padding-left: 2rem;
+            font-size: 1.4rem;
+        }
+
+        .quiz-btn {
+            display: inline-block;
+            padding: 1.1rem 2.8rem;
+            border: 0;
+            border-radius: 999px;
+            background: var(--gradient-brand);
+            color: #fff;
+            font-family: inherit;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform .2s var(--ease), box-shadow .2s var(--ease), opacity .2s var(--ease);
+        }
+
+        .quiz-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -10px var(--color-blue); }
+        .quiz-btn:focus-visible, .quiz-opt:focus-visible { outline: 3px solid var(--color-azul); outline-offset: 3px; }
+
+        .quiz-btn.ghost {
+            background: transparent;
+            border: 1px solid var(--border-soft);
+            color: var(--color-white);
+        }
+
+        .quiz-btn.ghost:hover { border-color: var(--color-blue-light); box-shadow: none; }
+
+        .quiz-card {
+            padding: 2.4rem;
+            border-radius: var(--radius-md);
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .quiz-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--color-white-dim);
+        }
+
+        .quiz-bar {
+            height: .8rem;
+            border-radius: 999px;
+            background: var(--surface-2);
+            overflow: hidden;
+            margin-bottom: 2.4rem;
+        }
+
+        .quiz-bar span {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: 999px;
+            background: var(--gradient-brand);
+            transition: width .4s var(--ease);
+        }
+
+        .quiz-q {
+            margin: 0 0 2rem;
+            color: var(--color-white);
+            font-size: 2rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .quiz-opts {
+            display: grid;
+            gap: 1.1rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .quiz-opt {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.4rem;
+            width: 100%;
+            padding: 1.4rem 1.6rem;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+            background: var(--surface-2);
+            color: var(--color-white);
+            font-family: inherit;
+            font-size: 1.5rem;
+            text-align: left;
+            cursor: pointer;
+            transition: border-color .2s var(--ease), background .2s var(--ease), transform .2s var(--ease);
+        }
+
+        .quiz-opt:hover:not(:disabled) { border-color: var(--color-blue-light); transform: translateX(3px); }
+        .quiz-opt:disabled { cursor: default; }
+
+        .quiz-key {
+            flex: none;
+            display: grid;
+            place-items: center;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--color-blue-light);
+        }
+
+        .quiz-opt.correct { border-color: var(--ok); background: var(--ok-bg); }
+        .quiz-opt.correct .quiz-key { background: var(--ok); border-color: var(--ok); color: #04130c; }
+        .quiz-opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+        .quiz-opt.wrong .quiz-key { background: var(--bad); border-color: var(--bad); color: #1a0409; }
+        .quiz-opt.dim { opacity: .55; }
+
+        .quiz-feedback {
+            display: none;
+            margin-top: 2rem;
+            padding: 1.6rem 1.8rem;
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--color-blue-light);
+            background: var(--surface-2);
+            font-size: 1.4rem;
+        }
+
+        .quiz-feedback.show { display: block; animation: quizIn .3s var(--ease); }
+        .quiz-feedback.ok { border-left-color: var(--ok); }
+        .quiz-feedback.bad { border-left-color: var(--bad); }
+        .quiz-feedback strong { display: block; margin-bottom: .4rem; color: var(--color-white); font-size: 1.5rem; }
+
+        .quiz-next { margin-top: 2rem; text-align: right; }
+        .quiz-next .quiz-btn[hidden] { display: none; }
+
+        .quiz-result { text-align: center; }
+
+        .quiz-ring {
+            position: relative;
+            width: 16rem;
+            height: 16rem;
+            margin: 1rem auto 2rem;
+        }
+
+        .quiz-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .quiz-ring circle { fill: none; stroke-width: 10; }
+        .quiz-ring .track { stroke: var(--surface-2); }
+        .quiz-ring .value { stroke: url(#quizGrad); stroke-linecap: round; transition: stroke-dashoffset 1s var(--ease); }
+
+        .quiz-ring .score {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-content: center;
+            color: var(--color-white);
+            font-size: 3.6rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .quiz-ring .score small { display: block; margin-top: .6rem; font-size: 1.3rem; font-weight: 500; color: var(--color-white-dim); }
+
+        .quiz-result h2 { border: 0; padding: 0; margin-bottom: .8rem; }
+        .quiz-result h2::after { display: none; }
+
+        .quiz-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.2rem; margin: 2rem 0; }
+
+        .quiz-review { margin-top: 3rem; text-align: left; }
+        .quiz-review h3 { margin-bottom: 1.4rem; }
+
+        .quiz-review-item {
+            margin-bottom: 1.4rem;
+            padding: 1.6rem 1.8rem;
+            border-radius: var(--radius-sm);
+            background: var(--surface-2);
+            border-left: 4px solid var(--bad);
+            font-size: 1.4rem;
+        }
+
+        .quiz-review-item p { margin: 0 0 .6rem; }
+        .quiz-review-item .q { color: var(--color-white); font-weight: 600; }
+        .quiz-review-item .mine { color: var(--bad); }
+        .quiz-review-item .right { color: var(--ok); }
+
+        .quiz-perfect {
+            padding: 1.6rem;
+            border-radius: var(--radius-sm);
+            background: var(--ok-bg);
+            border: 1px solid var(--ok);
+            color: var(--color-white);
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        .quiz-best { margin-top: 1.4rem; font-size: 1.3rem; }
+
+        @keyframes quizIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: none; }
+        }
+
+        @media (max-width: 600px) {
+            .quiz-card { padding: 1.6rem; }
+            .quiz-q { font-size: 1.7rem; }
+            .quiz-opt { font-size: 1.4rem; padding: 1.2rem; }
+            .quiz-next { text-align: center; }
+            .quiz-next .quiz-btn { width: 100%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .quiz *, .quiz *::before { transition: none !important; animation: none !important; }
+        }
+    </style>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-data-governance.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Quiz do treinamento de Data Governance</h1>
+        <p>Databricks Academy · Treinamento 8 de 9</p>
+        <span>Quiz</span>
+    </header>
+
+    <main>
+        <div class="quiz" id="quiz" aria-live="polite">
+            <div class="quiz-intro" id="quizIntro">
+                <h2>Teste o que aprendeu em Get Started with Data Governance on Databricks</h2>
+                <p>Este quiz tem 20 perguntas de múltipla escolha sobre os conceitos das lições e das demos do treinamento. As perguntas são minhas, escritas a partir do que estudei.</p>
+                <ul>
+                    <li>Uma pergunta por vez, com a explicação logo após cada resposta</li>
+                    <li>Ao final, a pontuação e a revisão do que você errou</li>
+                    <li>As alternativas mudam de ordem a cada tentativa</li>
+                    <li>Você pode usar as teclas 1 a 4 para responder e Enter para avançar</li>
+                </ul>
+                <div><button class="quiz-btn" id="quizStart" type="button">Começar o quiz</button></div>
+                <p class="quiz-best" id="quizBest" hidden></p>
+            </div>
+
+            <div class="quiz-card" id="quizCard" hidden>
+                <div class="quiz-top">
+                    <span id="quizCount">Pergunta 1 de 20</span>
+                    <span id="quizScoreLive">0 acertos</span>
+                </div>
+                <div class="quiz-bar" role="progressbar" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" id="quizBar"><span></span></div>
+                <h2 class="quiz-q" id="quizQuestion" style="border:0;padding:0;"></h2>
+                <ul class="quiz-opts" id="quizOptions"></ul>
+                <div class="quiz-feedback" id="quizFeedback" role="status"></div>
+                <div class="quiz-next"><button class="quiz-btn" id="quizNext" type="button" hidden>Próxima pergunta</button></div>
+            </div>
+
+            <div class="quiz-card quiz-result" id="quizResult" hidden>
+                <div class="quiz-ring">
+                    <svg viewBox="0 0 120 120" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="quizGrad" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0" stop-color="#8A2BE2"/>
+                                <stop offset="1" stop-color="#e0388f"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="track" cx="60" cy="60" r="52"/>
+                        <circle class="value" id="quizRing" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+                    </svg>
+                    <div class="score"><span id="quizScoreText">0/20</span><small id="quizPercent">0%</small></div>
+                </div>
+                <h2 id="quizVerdict"></h2>
+                <p id="quizVerdictText"></p>
+                <div class="quiz-actions">
+                    <button class="quiz-btn" id="quizRetry" type="button">Refazer o quiz</button>
+                    <a class="quiz-btn ghost" href="databricks-academy-data-governance.html">Rever o treinamento</a>
+                </div>
+                <div class="quiz-review" id="quizReview"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        (function () {
+            var QUESTIONS = [
+                {
+                    q: "O que é o metastore no Unity Catalog?",
+                    o: ["O contêiner de topo dos metadados e o ponto central de controle de acesso em uma região de nuvem", "Uma tabela que guarda os dados brutos de todos os workspaces", "Um tipo de compute para consultas SQL", "O catálogo padrão de cada workspace"],
+                    a: 0,
+                    e: "O metastore também separa os metadados (no control plane) dos dados (no cloud storage). Em geral é criado pelo Account Administrator, e cada metastore se associa a um ou mais workspaces."
+                },
+                {
+                    q: "Qual é a ordem correta da hierarquia de objetos do Unity Catalog?",
+                    o: ["Metastore, catalog, schema e objetos securáveis (tabelas, views, volumes, models e functions)", "Schema, catalog, metastore e tabelas", "Catalog, metastore, tabelas e schemas", "Workspace, tabelas, schemas e catalog"],
+                    a: 0,
+                    e: "O namespace de três níveis é catalog.schema.object. O legado, de dois níveis, era schema.table."
+                },
+                {
+                    q: "O que acontece com os dados ao executar DROP TABLE em uma tabela gerenciada (MANAGED)?",
+                    o: ["Os metadados e os dados são apagados (com o UNDROP como rede de segurança)", "Só os metadados são apagados, e os dados ficam no storage", "Nada, a tabela só fica oculta", "Os dados viram uma tabela externa"],
+                    a: 0,
+                    e: "Em uma tabela externa (EXTERNAL), o DROP TABLE apaga só os metadados, e os dados, que ficam no LOCATION, precisam ser removidos à parte."
+                },
+                {
+                    q: "Para que serve um volume no Unity Catalog?",
+                    o: ["Governar dados não tabulares, como imagens, áudios, PDFs, logs e arquivos de configuração", "Guardar as tabelas Delta do metastore", "Armazenar as permissões dos usuários", "Substituir as external locations"],
+                    a: 0,
+                    e: "Os volumes dão acesso nativo a arquivos (como /Volumes/...), com as operações auditadas e rastreadas no lineage. As tabelas são registradas em locais gerenciados ou externos, não em volumes."
+                },
+                {
+                    q: "Qual é o papel de um Foreign Catalog?",
+                    o: ["Representar um banco de dados externo no Unity Catalog, para consultá-lo junto com as outras fontes (federação)", "Guardar a credencial do cloud storage", "Registrar os modelos de ML", "Controlar o custo dos jobs"],
+                    a: 0,
+                    e: "A Connection guarda a credencial e as informações de conexão com o banco externo, e o Foreign Catalog o expõe. Juntos são a base da federação lakehouse."
+                },
+                {
+                    q: "Como o lineage é capturado no Unity Catalog?",
+                    o: ["Automaticamente, em runtime, até o nível de tabela e de coluna", "Manualmente, por quem escreve cada pipeline", "Só em tabelas gerenciadas, uma vez por dia", "Apenas para dashboards"],
+                    a: 0,
+                    e: "O lineage usa o modelo de permissões do Unity Catalog e cobre tabelas, colunas, notebooks, workflows, dashboards e modelos. Permite a análise de impacto."
+                },
+                {
+                    q: "Quais privilégios são necessários para consultar uma tabela?",
+                    o: ["USE CATALOG, USE SCHEMA e SELECT", "Apenas SELECT na tabela", "ALL PRIVILEGES no metastore", "CREATE TABLE no schema"],
+                    a: 0,
+                    e: "O modelo é explícito: nada é herdado do contêiner por padrão. Os privilégios podem ser concedidos explicitamente ou herdados do schema ou do catálogo."
+                },
+                {
+                    q: "Qual privilégio permite criar uma tabela?",
+                    o: ["CREATE TABLE no schema pai (além de USE CATALOG e USE SCHEMA)", "CREATE CATALOG no metastore", "MODIFY na tabela", "EXECUTE no schema"],
+                    a: 0,
+                    e: "O CREATE CATALOG, no metastore, serve para criar catálogos, e o CREATE TABLE, no schema, serve para criar tabelas."
+                },
+                {
+                    q: "Quem tem implicitamente o ALL PRIVILEGES em um objeto?",
+                    o: ["O dono (owner) do objeto", "Todos os usuários do workspace", "Apenas o Account Administrator", "Quem criou o metastore"],
+                    a: 0,
+                    e: "Os demais principais (usuários, grupos e service principals) precisam receber os privilégios explicitamente, por GRANT. Isso permite que os donos de domínio gerenciem o acesso aos seus ativos."
+                },
+                {
+                    q: "Qual papel cria o metastore, gerencia usuários em nível de conta e integra a conta a um IdP?",
+                    o: ["Account Administrator", "Workspace Administrator", "Marketplace Administrator", "Table Owner"],
+                    a: 0,
+                    e: "O Workspace Admin cuida de um workspace (acesso e compute), o Metastore Admin governa os objetos do metastore e delega o ownership, e o Marketplace Admin cuida do perfil de provedor e das listagens."
+                },
+                {
+                    q: "Como o Metastore Administrator delega o controle pela cadeia de ownership?",
+                    o: ["Transferindo o ownership: Catalog Owner, Schema Owner e Table/View Owner", "Criando um workspace para cada tabela", "Revogando todos os privilégios do metastore", "Usando só tags governadas"],
+                    a: 0,
+                    e: "Cada dono gerencia o seu objeto e o que está abaixo dele. É a base da governança distribuída."
+                },
+                {
+                    q: "O que são governed tags?",
+                    o: ["Tags de nível de conta, com chaves e valores permitidos definidos por uma tag policy", "Tags livres, criadas por qualquer usuário com qualquer valor", "Tags que só existem em colunas", "Tags que substituem os privilégios"],
+                    a: 0,
+                    e: "Elas evitam o tag sprawl. Quem as aplica não muda o significado delas, e só valem os valores permitidos (environment = prod falha, por exemplo)."
+                },
+                {
+                    q: "Qual é a sintaxe para aplicar uma tag em uma coluna?",
+                    o: ["ALTER TABLE ... ALTER COLUMN ... SET TAGS", "SET TAG ON COLUMN", "GRANT TAG ON COLUMN", "CREATE TAG ... ON COLUMN"],
+                    a: 0,
+                    e: "As colunas não são objetos securáveis de primeira classe. O SET TAG ON funciona só em catálogos, schemas, tabelas, views e volumes."
+                },
+                {
+                    q: "Como se busca na UI um ativo pela tag data_quality com o valor certified?",
+                    o: ["Com o prefixo tag:, como em tag:data_quality:certified", "Com a palavra WHERE tag = certified", "Só pelo information_schema", "Não é possível buscar por tag"],
+                    a: 0,
+                    e: "A correspondência é exata na chave e no valor. A busca por tag não encontra catálogos, schemas nem colunas, e só mostra o que o usuário tem o privilégio de ver."
+                },
+                {
+                    q: "Por que a consulta a system.access.table_lineage pode retornar vazio logo após criar os objetos?",
+                    o: ["Porque as system tables atualizam em até 24 horas, e a UI não tem esse atraso", "Porque o lineage só existe para tabelas externas", "Porque o usuário não tem o SELECT", "Porque o lineage precisa ser ativado manualmente"],
+                    a: 0,
+                    e: "É normal. Para ver o lineage na hora, usa-se a aba Lineage do Catalog Explorer."
+                },
+                {
+                    q: "Qual é a abordagem que a Databricks recomenda para o controle de acesso fino?",
+                    o: ["Row and column security nativa, com UDFs anexadas à tabela de origem", "Uma dynamic view para cada padrão de acesso", "Criar uma cópia da tabela para cada grupo", "Dar acesso total e confiar no lineage"],
+                    a: 0,
+                    e: "A segurança nativa é aplicada na tabela de origem, com melhor desempenho, manutenção e escala, e sem objetos extras. As dynamic views exigem uma view por padrão."
+                },
+                {
+                    q: "Qual comando anexa uma função de filtro de linhas a uma tabela?",
+                    o: ["ALTER TABLE ... SET ROW FILTER", "ALTER COLUMN ... SET MASK", "GRANT ROW FILTER ON TABLE", "CREATE VIEW ... WITH FILTER"],
+                    a: 0,
+                    e: "O row filter usa uma UDF que retorna um predicado booleano. O column mask, por sua vez, usa o ALTER COLUMN ... SET MASK, com uma UDF que devolve o dado em claro ou mascarado."
+                },
+                {
+                    q: "O que o ABAC acrescenta em relação ao row filter e ao column mask aplicados tabela a tabela?",
+                    o: ["Políticas centrais, em catálogo ou schema, herdadas para baixo e guiadas por governed tags", "Um novo tipo de tabela", "A substituição das UDFs por views", "A remoção da necessidade de grupos"],
+                    a: 0,
+                    e: "As políticas reaproveitam as mesmas UDFs, sem alterar a definição das tabelas. Hoje há dois tipos, o row filter e o column mask."
+                },
+                {
+                    q: "O que é o secondary principal usado na demo de controle de acesso fino?",
+                    o: ["Um segundo usuário, usado para testar as permissões como outra pessoa", "Um segundo metastore", "Um grupo que substitui o Account Administrator", "Uma tabela de auditoria"],
+                    a: 0,
+                    e: "Ele recebeu só o SELECT na employees. A consulta à employee_benefits falhou, porque as permissões são aplicadas por tabela ou view."
+                },
+                {
+                    q: "O que o Unity Gateway controla na plataforma?",
+                    o: ["O acesso e o custo de IA, com orçamentos por pessoa e equipe e regras de segurança centrais", "A ingestão de dados em streaming", "O armazenamento dos volumes", "A criação de catálogos"],
+                    a: 0,
+                    e: "O Unity Catalog governa os ativos (tabelas, arquivos, modelos, agentes e ferramentas), e o Unity Gateway cuida do acesso e do custo de IA."
+                }
+            ];
+
+            var LETTERS = ["A", "B", "C", "D"];
+            var STORE = "dbx-quiz-gov-best";
+            var $ = function (id) { return document.getElementById(id); };
+            var intro = $("quizIntro"), card = $("quizCard"), result = $("quizResult");
+            var order, index, score, answered, missed, current;
+
+            function shuffle(arr) {
+                var a = arr.slice();
+                for (var i = a.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var t = a[i]; a[i] = a[j]; a[j] = t;
+                }
+                return a;
+            }
+
+            function getBest() {
+                try { var v = parseInt(localStorage.getItem(STORE), 10); return isNaN(v) ? null : v; } catch (e) { return null; }
+            }
+
+            function setBest(v) {
+                try { localStorage.setItem(STORE, String(v)); } catch (e) {}
+            }
+
+            function showBest() {
+                var b = getBest(), el = $("quizBest");
+                if (b === null) { el.hidden = true; return; }
+                el.hidden = false;
+                el.textContent = "Seu melhor resultado neste navegador: " + b + " de " + QUESTIONS.length;
+            }
+
+            function start() {
+                order = shuffle(QUESTIONS);
+                index = 0; score = 0; missed = [];
+                intro.hidden = true; result.hidden = true; card.hidden = false;
+                card.scrollIntoView({ behavior: "smooth", block: "start" });
+                render();
+            }
+
+            function render() {
+                answered = false;
+                var item = order[index];
+                var opts = shuffle(item.o.map(function (text, i) { return { text: text, right: i === item.a }; }));
+                current = { item: item, opts: opts };
+
+                $("quizCount").textContent = "Pergunta " + (index + 1) + " de " + order.length;
+                $("quizScoreLive").textContent = score + (score === 1 ? " acerto" : " acertos");
+                var bar = $("quizBar");
+                bar.setAttribute("aria-valuenow", String(index));
+                bar.firstElementChild.style.width = (index / order.length * 100) + "%";
+                $("quizQuestion").textContent = item.q;
+
+                var list = $("quizOptions");
+                list.innerHTML = "";
+                opts.forEach(function (opt, i) {
+                    var li = document.createElement("li");
+                    var btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "quiz-opt";
+                    btn.innerHTML = '<span class="quiz-key">' + LETTERS[i] + '</span><span></span>';
+                    btn.lastChild.textContent = opt.text;
+                    btn.addEventListener("click", function () { choose(i); });
+                    li.appendChild(btn);
+                    list.appendChild(li);
+                });
+
+                var fb = $("quizFeedback");
+                fb.className = "quiz-feedback";
+                fb.innerHTML = "";
+                $("quizNext").hidden = true;
+                $("quizNext").textContent = index === order.length - 1 ? "Ver o resultado" : "Próxima pergunta";
+            }
+
+            function choose(i) {
+                if (answered) return;
+                answered = true;
+                var buttons = $("quizOptions").querySelectorAll(".quiz-opt");
+                var opt = current.opts[i];
+                buttons.forEach(function (b, k) {
+                    b.disabled = true;
+                    if (current.opts[k].right) b.classList.add("correct");
+                    else if (k === i) b.classList.add("wrong");
+                    else b.classList.add("dim");
+                });
+
+                var fb = $("quizFeedback");
+                var title = document.createElement("strong");
+                var body = document.createElement("span");
+                body.textContent = current.item.e;
+                if (opt.right) {
+                    score++;
+                    fb.classList.add("ok");
+                    title.textContent = "Correto!";
+                } else {
+                    fb.classList.add("bad");
+                    title.textContent = "Não foi dessa vez.";
+                    var right = current.opts.filter(function (o) { return o.right; })[0].text;
+                    missed.push({ q: current.item.q, mine: opt.text, right: right, e: current.item.e });
+                }
+                fb.appendChild(title);
+                fb.appendChild(body);
+                fb.classList.add("show");
+
+                $("quizScoreLive").textContent = score + (score === 1 ? " acerto" : " acertos");
+                $("quizBar").firstElementChild.style.width = ((index + 1) / order.length * 100) + "%";
+                var next = $("quizNext");
+                next.hidden = false;
+                next.focus({ preventScroll: true });
+            }
+
+            function next() {
+                if (!answered) return;
+                index++;
+                if (index < order.length) { render(); card.scrollIntoView({ behavior: "smooth", block: "start" }); }
+                else finish();
+            }
+
+            function finish() {
+                card.hidden = true; result.hidden = false;
+                var total = order.length;
+                var pct = Math.round(score / total * 100);
+                $("quizScoreText").textContent = score + "/" + total;
+                $("quizPercent").textContent = pct + "%";
+
+                var circ = 326.7, ring = $("quizRing");
+                ring.style.strokeDashoffset = circ;
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () { ring.style.strokeDashoffset = circ * (1 - score / total); });
+                });
+
+                var v, t;
+                if (pct === 100) { v = "Perfeito!"; t = "Você acertou todas as perguntas. Os conceitos do treinamento estão firmes."; }
+                else if (pct >= 80) { v = "Muito bem!"; t = "Você domina a maior parte dos conceitos. Dê uma olhada nas que errou para fechar as lacunas."; }
+                else if (pct >= 60) { v = "Bom caminho"; t = "Os conceitos principais estão ali, mas vale rever alguns vídeos e tentar de novo."; }
+                else { v = "Vale revisar"; t = "Sem problema: revise os vídeos, veja as explicações abaixo e refaça o quiz."; }
+                $("quizVerdict").textContent = v;
+                $("quizVerdictText").textContent = t;
+
+                var best = getBest();
+                if (best === null || score > best) setBest(score);
+
+                var box = $("quizReview");
+                box.innerHTML = "";
+                if (!missed.length) {
+                    var ok = document.createElement("div");
+                    ok.className = "quiz-perfect";
+                    ok.textContent = "Nenhum erro para revisar.";
+                    box.appendChild(ok);
+                } else {
+                    var h = document.createElement("h3");
+                    h.textContent = "Para revisar (" + missed.length + ")";
+                    box.appendChild(h);
+                    missed.forEach(function (m) {
+                        var d = document.createElement("div");
+                        d.className = "quiz-review-item";
+                        var p1 = document.createElement("p"); p1.className = "q"; p1.textContent = m.q;
+                        var p2 = document.createElement("p"); p2.className = "mine"; p2.textContent = "Sua resposta: " + m.mine;
+                        var p3 = document.createElement("p"); p3.className = "right"; p3.textContent = "Resposta certa: " + m.right;
+                        var p4 = document.createElement("p"); p4.textContent = m.e;
+                        d.appendChild(p1); d.appendChild(p2); d.appendChild(p3); d.appendChild(p4);
+                        box.appendChild(d);
+                    });
+                }
+                result.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+
+            $("quizStart").addEventListener("click", start);
+            $("quizRetry").addEventListener("click", start);
+            $("quizNext").addEventListener("click", next);
+
+            document.addEventListener("keydown", function (e) {
+                if (card.hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+                if (!answered && e.key >= "1" && e.key <= "4") {
+                    var i = parseInt(e.key, 10) - 1;
+                    if (i < current.opts.length) { e.preventDefault(); choose(i); }
+                } else if (answered && e.key === "Enter" && document.activeElement !== $("quizNext")) {
+                    e.preventDefault(); next();
+                }
+            });
+
+            showBest();
+        })();
+    </script>
+</body>
+</html>
