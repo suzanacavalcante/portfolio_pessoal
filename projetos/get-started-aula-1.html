@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O que aprendi na lição Databricks Overview do treinamento Get Started with Databricks for Data Engineering: a plataforma de dados e IA da Databricks, do Lakehouse aos agentes.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Databricks Overview</title>
+</head>
+<body>
+    <a class="back-link" href="databricks-academy-get-started-data-engineering.html">&larr; Voltar ao treinamento</a>
+
+    <header>
+        <h1>Databricks Overview</h1>
+        <p>Get Started with Databricks for Data Engineering · Lição 1</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <section id="aula-1">
+            <p class="lead">Esta lição é uma apresentação em 14 slides sobre a <strong>Databricks Data + AI Platform</strong>. Ela segue uma narrativa em seis passos: a IA vai impactar todos os setores, os dados e a IA estão hoje fragmentados, a Databricks propõe uma base única (Lakehouse e Lakebase), sobre ela entram a governança, o contexto de negócio e os agentes, e no fim há uma Edição Gratuita para começar a aprender.</p>
+
+            <p>Estas anotações partem de uma descrição escrita dos slides, não dos slides em si. Alguns trechos do material original têm artefatos de tradução automática, e quando isso acontece eu interpreto pelo contexto.</p>
+
+            <h3>1. A IA vai impactar todos os setores</h3>
+            <p>O slide mostra seis setores com exemplos de uso. A ideia central é que a IA não é assunto de uma indústria só.</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Setor</th><th>Exemplos de uso</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Serviços financeiros</td><td>Inteligência de mercado, ofertas personalizadas para venda cruzada, detecção de crimes financeiros, agentes de suporte ao cliente</td></tr>
+                        <tr><td>Saúde e ciências da vida</td><td>Identificação de alvos de medicamentos, "próxima melhor ação", abstração de dados clínicos, análise de conversas</td></tr>
+                        <tr><td>Mídia e entretenimento</td><td>IA conversacional, anúncios contextualizados, conteúdo localizado, detecção de anomalias e fraudes</td></tr>
+                        <tr><td>Varejo e bens de consumo</td><td>Pedidos por loja, agentes de pesquisa, ofertas hiperpersonalizadas, otimização de estoque</td></tr>
+                        <tr><td>Manufatura e automotivo</td><td>Detecção de defeitos por imagem, manutenção proativa, suporte de campo, simulação de cadeia de suprimentos</td></tr>
+                        <tr><td>Energia e serviços públicos</td><td>Prevenção de falta de energia e de incêndios florestais, economia de energia personalizada, copiloto de conformidade</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>2. O problema: dados e IA fragmentados</h3>
+            <p>As empresas usam sistemas separados para BI, IA generativa, SaaS (como Salesforce e SAP), ciência de dados, data warehouses, bancos transacionais, streaming, aplicativos, orquestração e ETL, e machine learning. Cada um tem os próprios dados, controles de acesso e segurança. As consequências:</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">1</span>
+                    <h4>Dados presos em silos</h4>
+                    <p>Bloqueio de dados operacionais e analíticos.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">2</span>
+                    <h4>Segurança isolada</h4>
+                    <p>Cada sistema tem as próprias regras, o que dificulta a governança.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">3</span>
+                    <h4>IA sem semântica</h4>
+                    <p>A IA se espalha sem entender o significado dos dados da empresa.</p>
+                </div>
+            </div>
+
+            <h3>3. A base: infraestrutura unificada e pronta para agentes</h3>
+            <p>A resposta da Databricks são dois conceitos que ela diz ter criado, o <strong>Lakehouse</strong> e o <strong>Lakebase</strong>. Três componentes trabalham sobre o mesmo armazenamento:</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Lakeflow</span>
+                    <h4>Ingestão, ETL e streaming</h4>
+                    <p>Streaming em tempo real, o Zerobus e mais de 100 conectores para fontes de dados e aplicativos.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Lakehouse</span>
+                    <h4>Análise</h4>
+                    <p>Análise em tempo real e em lote, com SQL e data warehouse.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Lakebase</span>
+                    <h4>Transações</h4>
+                    <p>Um Postgres serverless, com serviços nativos para armazenamento de agentes, memória, "viagem no tempo" e recuperação.</p>
+                </div>
+            </div>
+
+            <p>Embaixo de tudo fica um <strong>data lake unificado, de formato aberto</strong>, com <strong>Delta Lake</strong> e <strong>Iceberg</strong>. Isso significa uma <strong>cópia única dos dados</strong>, sem cópia nem sincronização entre sistemas. O armazenamento e o compute são <strong>separados</strong>, então cada um escala de forma independente. O princípio da infraestrutura aberta é: <strong>qualquer nuvem, qualquer modelo, qualquer dado</strong>.</p>
+
+            <h3>4. Governança unificada</h3>
+            <p>O objetivo é unificar a governança de dados e de IA para que os agentes escalem com segurança. São duas metades:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Componente</th><th>O que faz</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Unity Catalog</strong></td><td>Governa todos os ativos (tabelas, arquivos, ferramentas MCP, modelos, agentes, habilidades). Traz descoberta, semântica empresarial, linhagem (lineage), governança de IA, controle de acesso, monitoramento de qualidade, controle de custos e OpenSharing (compartilhamento aberto de dados)</td></tr>
+                        <tr><td><strong>Unity Gateway</strong></td><td>Ponto único de acesso a vários modelos de IA, para todos os agentes e ferramentas. Dá uma entrada unificada, orçamentos de gastos com IA por usuário e por equipe, e aplica conformidade, segurança, auditoria e identidade</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>5. Ontologia: contexto de negócio para a IA</h3>
+            <p>A <strong>Genie Ontology</strong> é uma ontologia aprendida continuamente, que permite à IA entender o contexto da empresa. Ela é alimentada por dois tipos de conhecimento:</p>
+            <ul>
+                <li>a <strong>semântica modelada</strong>, vinda do Unity Catalog Semantics, que é o significado formal dos dados;</li>
+                <li>o <strong>conhecimento aprendido</strong>, extraído do uso e de aplicativos conectados, como ferramentas de produtividade e e-mail.</li>
+            </ul>
+            <p>Um algoritmo chamado <strong>OntoRank</strong>, com reconhecimento de permissões, infere quais fragmentos de conhecimento são relevantes para cada pergunta. Qualquer modelo ou ferramenta de IA pode consumir esse contexto.</p>
+
+            <h3>6. Colegas de IA para todos os funcionários</h3>
+            <p>O <strong>Genie</strong> é o "colega de trabalho com IA", com uma interface de chat e várias vertentes:</p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Vertente</th><th>Para quê</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Genie One</td><td>O colega conectado a todos os dados</td></tr>
+                        <tr><td>Agents</td><td>Criar e compartilhar agentes de negócios para automatizar o trabalho</td></tr>
+                        <tr><td>Code</td><td>Automatizar a construção de pipelines de dados e da infraestrutura na Databricks</td></tr>
+                        <tr><td>App Builder</td><td>Gerar código com agilidade e segurança e implantar aplicativos de negócios conectados aos dados</td></tr>
+                        <tr><td>ZeroOps</td><td>Agentes em segundo plano que detectam problemas e corrigem pipelines de forma autônoma</td></tr>
+                        <tr><td>AI/BI</td><td>Painéis interativos e relatórios baseados em IA</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>7. Construir e escalar agentes</h3>
+            <p>Para equipes técnicas, o <strong>Agent Bricks</strong> é a plataforma aberta de desenvolvimento de agentes ("qualquer modelo, qualquer harness, todos os seus dados"), em três fases:</p>
+
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">Build</span>
+                    <h4>Construir</h4>
+                    <p>Qualquer modelo, agente, framework, harness, MCP e habilidade, com AI Search, AI Functions, identidade e memória.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">Deploy</span>
+                    <h4>Implantar</h4>
+                    <p>Sandbox e Databricks Apps.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Optimize</span>
+                    <h4>Otimizar</h4>
+                    <p>Avaliações, observabilidade e monitoramento.</p>
+                </div>
+            </div>
+
+            <p>Na camada de aplicativos agentes, para escalar nos departamentos, os slides citam três exemplos:</p>
+            <ul>
+                <li><strong>Apps:</strong> "vibe coding" de aplicativos e implantação com segurança.</li>
+                <li><strong>Lakewatch:</strong> combate a ameaças de agentes, com segurança agêntica.</li>
+                <li><strong>CustomerLake:</strong> experiências individualizadas para o cliente, em escala, com agentes.</li>
+            </ul>
+
+            <h3>A plataforma completa em cinco camadas</h3>
+            <p>O slide 11 consolida tudo em quatro palavras: <strong>contexto, controle, custo e escolha</strong>. Os quatro Cs do treinamento de Fundamentals aparecem aqui como o resumo da arquitetura.</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 720 340" role="img" aria-label="As cinco camadas da Databricks Data + AI Platform, de cima para baixo: aplicativos agentes, trabalho e desenvolvimento de agentes, governança unificada, dados agentes e infraestrutura aberta">
+                    <g font-size="13" font-weight="700">
+                        <rect x="15" y="10" width="690" height="56" rx="12" fill="#1b1b29" stroke="#e0388f" stroke-width="2"/>
+                        <text x="360" y="33" text-anchor="middle">1. Aplicativos agentes</text>
+                        <text x="360" y="52" text-anchor="middle" font-size="11" class="muted">AI/BI · Apps · Lakewatch · CustomerLake</text>
+
+                        <rect x="15" y="74" width="690" height="56" rx="12" fill="#1b1b29" stroke="#8A2BE2" stroke-width="2"/>
+                        <text x="360" y="97" text-anchor="middle">2. Trabalho e desenvolvimento de agentes</text>
+                        <text x="360" y="116" text-anchor="middle" font-size="11" class="muted">Genie · Agent Bricks · Genie Ontology</text>
+
+                        <rect x="15" y="138" width="690" height="56" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="360" y="161" text-anchor="middle">3. Governança unificada</text>
+                        <text x="360" y="180" text-anchor="middle" font-size="11" class="muted">Unity Catalog · Unity Gateway</text>
+
+                        <rect x="15" y="202" width="690" height="56" rx="12" fill="#201a33" stroke="#6495ED" stroke-width="2"/>
+                        <text x="360" y="225" text-anchor="middle">4. Dados agentes</text>
+                        <text x="360" y="244" text-anchor="middle" font-size="11" class="muted">Lakeflow · Lakehouse · Lakebase</text>
+
+                        <rect x="15" y="266" width="690" height="56" rx="12" fill="#201a33" stroke="#b6b6c3" stroke-width="2"/>
+                        <text x="360" y="289" text-anchor="middle">5. Infraestrutura aberta</text>
+                        <text x="360" y="308" text-anchor="middle" font-size="11" class="muted">Data lake aberto (Delta Lake e Iceberg) · qualquer nuvem, modelo e dado</text>
+                    </g>
+                </svg>
+                <figcaption>As cinco camadas da plataforma, de cima para baixo. O diagrama é meu, a partir da descrição dos slides</figcaption>
+            </div>
+
+            <h3>Edição Gratuita</h3>
+            <ul>
+                <li>É gratuita <strong>permanentemente</strong>, para aprendizagem e experimentação pessoal.</li>
+                <li>Permite explorar muitos casos de uso de dados e IA em uma única plataforma.</li>
+                <li>A Databricks declara <strong>US$ 100 milhões</strong> comprometidos com dados globais e educação em IA, com mais de <strong>1.200</strong> instituições parceiras.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>O que guardar:</strong> a Databricks propõe uma pilha única e aberta. Lakeflow, Lakehouse e Lakebase fazem a base, com uma cópia dos dados. Por cima vêm a governança unificada (Unity Catalog e Unity Gateway), a Genie Ontology com o contexto de negócio, o Genie como colega de IA e o Agent Bricks para construir agentes. A lição termina com a Edição Gratuita e passa para uma demonstração, o <em>Workspace Walkthrough</em>.</p>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
