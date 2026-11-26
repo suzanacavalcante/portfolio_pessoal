@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Diário de bordo do Tutor AWS, um tutor com IA para a certificação AWS Certified Cloud Practitioner (CLF-C02): arquitetura, decisões, linha do tempo e lições aprendidas.">
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style-banco.css">
+    <link rel="stylesheet" href="style-ddd.css">
+    <title>Tutor AWS</title>
+</head>
+<body>
+    <a class="back-link" href="index.html">&larr; Voltar aos projetos</a>
+
+    <header>
+        <h1>Tutor AWS</h1>
+        <p>End-to-End · AI Engineering · Diário de bordo</p>
+        <span>Em desenvolvimento</span>
+    </header>
+
+    <main>
+        <ul class="toc">
+            <li><a href="#projeto">O projeto</a></li>
+            <li><a href="#como-trabalho">Como estou trabalhando</a></li>
+            <li><a href="#linha-do-tempo">Linha do tempo</a></li>
+            <li><a href="#decisoes">Decisões</a></li>
+            <li><a href="#numeros">Números</a></li>
+            <li><a href="#licoes">Lições aprendidas</a></li>
+            <li><a href="#proximos">Próximos passos</a></li>
+        </ul>
+
+        <!-- ========================= O PROJETO ========================= -->
+        <section id="projeto">
+            <h2>O projeto</h2>
+            <p class="lead">O Tutor AWS é um tutor em formato de chat para quem estuda para a certificação <strong>AWS Certified Cloud Practitioner (CLF-C02)</strong>. O aluno conversa com um agente de IA que aplica questões, corrige, explica os erros, agenda revisões espaçadas (método Leitner) e monta simulados no formato da prova real: 65 questões, 90 minutos e nota estimada de 100 a 1000.</p>
+
+            <div class="two-cols">
+                <div class="info-card">
+                    <span class="tag tag-core">Situação</span>
+                    <h4>Fase 0.5 concluída</h4>
+                    <p>Em 26/11/2026, a fase de arquitetura e domínio está concluída e aprovada. Ainda não há código. A próxima etapa é a Fase 1, a <code>study-api</code>.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">Repositório</span>
+                    <h4>tutor-aws</h4>
+                    <p>O código fica em <a href="https://github.com/suzanacavalcante/tutor-aws" target="_blank" rel="noopener">github.com/suzanacavalcante/tutor-aws</a>, que está privado no momento.</p>
+                </div>
+            </div>
+
+            <h3>A regra de ouro</h3>
+            <div class="callout">
+                <p><strong>O LLM nunca inventa perguntas, respostas nem correções.</strong> As questões vêm de um banco curado, e a correção, a seleção e a nota são feitas por código determinístico. O modelo de linguagem conversa e explica, mas não decide o que está certo. Essa regra orientou quase todas as decisões de arquitetura.</p>
+            </div>
+
+            <h3>A arquitetura</h3>
+            <p>São quatro serviços, um por contexto do domínio (DDD):</p>
+
+            <div class="diagram">
+                <svg viewBox="0 0 760 230" role="img" aria-label="O frontend conversa com a agent-api, que usa o mcp-server para chamar a study-api, dona das regras, do banco e da correção">
+                    <defs>
+                        <marker id="arTutor" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                        </marker>
+                    </defs>
+                    <g fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="10" y="40" width="160" height="70" rx="8"/>
+                        <rect x="205" y="40" width="160" height="70" rx="8"/>
+                        <rect x="400" y="40" width="160" height="70" rx="8"/>
+                        <rect x="595" y="40" width="155" height="70" rx="8"/>
+                    </g>
+                    <g fill="currentColor" font-size="12" text-anchor="middle">
+                        <text x="90" y="65" font-weight="700">frontend</text>
+                        <text x="90" y="83">Apresentação</text>
+                        <text x="90" y="99" class="muted">chat e painel</text>
+                        <text x="285" y="65" font-weight="700">agent-api</text>
+                        <text x="285" y="83">Conversa</text>
+                        <text x="285" y="99" class="muted">LangGraph e memórias</text>
+                        <text x="480" y="65" font-weight="700">mcp-server</text>
+                        <text x="480" y="83">Integração</text>
+                        <text x="480" y="99" class="muted">tools MCP</text>
+                        <text x="672" y="65" font-weight="700">study-api</text>
+                        <text x="672" y="83">Estudo</text>
+                        <text x="672" y="99" class="muted">regras, banco e correção</text>
+                    </g>
+                    <g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#arTutor)">
+                        <path d="M170,75 L203,75"/>
+                        <path d="M365,75 L398,75"/>
+                        <path d="M560,75 L593,75"/>
+                    </g>
+                    <text x="380" y="160" fill="currentColor" font-size="12" text-anchor="middle" class="muted">O LLM fica na agent-api e só conversa e explica.</text>
+                    <text x="380" y="180" fill="currentColor" font-size="12" text-anchor="middle" class="muted">O que está certo ou errado é decidido pelo código da study-api.</text>
+                </svg>
+                <figcaption>Os quatro serviços e o caminho de uma mensagem do aluno. A ordem das setas é uma simplificação minha do fluxo</figcaption>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Serviço</th><th>Contexto</th><th>Responsabilidade</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>study-api</code></td><td>Estudo</td><td>As regras, o banco de questões e a correção</td></tr>
+                        <tr><td><code>agent-api</code></td><td>Conversa</td><td>O agente LangGraph e as memórias</td></tr>
+                        <tr><td><code>mcp-server</code></td><td>Integração</td><td>As tools MCP entre o agente e a API</td></tr>
+                        <tr><td><code>frontend</code></td><td>Apresentação</td><td>O chat e o painel</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p><strong>Stack prevista:</strong> Python, FastAPI, LangGraph, MCP, PostgreSQL com pgvector, Redis, Mem0, Langfuse, Next.js, Docker Compose e Terraform. O LLM roda local com Ollama, e o Bedrock é opcional.</p>
+        </section>
+
+        <!-- ========================= COMO TRABALHO ========================= -->
+        <section id="como-trabalho">
+            <h2>Como estou trabalhando</h2>
+            <p>Comecei pela documentação, antes do código. A Fase 0.5 existe para que as decisões difíceis sejam tomadas no papel, onde mudar é barato.</p>
+
+            <h3>O fluxo com agentes de IA</h3>
+            <p>Eu conduzo o desenvolvimento: defino o produto, dito as diretrizes de arquitetura e organizo o fluxo de trabalho. A execução é feita com o Claude Code e agentes especializados, cada um com um papel:</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Papel</th><th>O que faz</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>docs-architect</code></td><td>Escreve os documentos de arquitetura e domínio</td></tr>
+                        <tr><td><code>tech-lead</code></td><td>Revisa cada PR, verifica executando scripts e pede ajustes até não sobrar nenhum</td></tr>
+                        <tr><td><code>tech-writer</code></td><td>Aplica os ajustes e mantém o README, o ROADMAP e as issues em dia</td></tr>
+                        <tr><td><strong>Eu</strong></td><td>Desenvolvo o produto: defino a visão, o escopo e as regras de negócio. Dito as diretrizes de arquitetura que os agentes seguem. Organizo o fluxo de desenvolvimento, com as fases, os papéis dos agentes e as regras de revisão. Respondo as dúvidas de produto, aprovo ou reprovo cada decisão e faço todo merge</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>As regras do fluxo</h4>
+            <ul class="check-list">
+                <li>Toda dúvida vira um item rastreável (<code>D-NN</code>), com as opções, a recomendação de um agente e quem decide.</li>
+                <li>Nenhuma decisão de produto é tomada pelos agentes sem a minha aprovação explícita.</li>
+                <li>O merge é sempre meu.</li>
+            </ul>
+
+            <h3>Verificação</h3>
+            <p>Todo PR de documentação passa por checagens automáticas:</p>
+            <ul class="check-list">
+                <li>links e âncoras;</li>
+                <li>tabelas com o número certo de colunas;</li>
+                <li>diagramas Mermaid validados com o parser fixado na versão 10.9.1;</li>
+                <li>IDs citados que existem de fato;</li>
+                <li>sequências de IDs sem lacunas.</li>
+            </ul>
+        </section>
+
+        <!-- ========================= LINHA DO TEMPO ========================= -->
+        <section id="linha-do-tempo">
+            <h2>Linha do tempo</h2>
+
+            <h3>16 a 19/11/2026: fundação e domínio</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>PR</th><th>Entrega</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>#58</td><td>A estrutura de <code>docs/</code> e os templates de ADR, RFC, DAS e LLD</td></tr>
+                        <tr><td>#59</td><td>Os requisitos funcionais e não funcionais, e os cenários de qualidade</td></tr>
+                        <tr><td>#60</td><td>O DDD do domínio, com domain storytelling, event storming, glossário (linguagem ubíqua) e agregados</td></tr>
+                        <tr><td>#61</td><td>Os contextos delimitados e o Context Map</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>21 a 23/11/2026: arquitetura</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>PR</th><th>Entrega</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>#62</td><td>O estilo arquitetural, comparando Hexagonal, Onion, Clean e Vertical Slice. Escolhi Clean/Hexagonal, com 4 pastas por serviço (ADR-0008)</td></tr>
+                        <tr><td>#68</td><td>O system design: fluxos, falhas, latência, consistência e capacidade</td></tr>
+                        <tr><td>#70</td><td>A cloud AWS, com o mapa de serviços, o custo estimado e o Terraform, que existe mas não é aplicado por padrão (ADR-0011)</td></tr>
+                        <tr><td>#71</td><td>O HLD, com diagramas C4 nos níveis 1 e 2</td></tr>
+                        <tr><td>#72</td><td>Os ADRs iniciais, entre eles a correção fora do LLM, o MCP como camada de tools, o Redis e o Mem0 para memória, e o LangGraph</td></tr>
+                        <tr><td>#74</td><td>A RFC-0001, "LLM como componente não confiável", que deu origem às guardas de ação</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>26/11/2026: segurança, decisões e fechamento da fase</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>PR</th><th>Entrega</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>#75</td><td>O <strong>threat model v1</strong> (STRIDE, OWASP Top 10:2025 e OWASP Top 10 para aplicações com LLM), com 36 ameaças mapeadas e os riscos aceitos registrados. No mesmo PR, as respostas às dúvidas D-01 a D-56</td></tr>
+                        <tr><td>#78</td><td><strong>As questões não pontuadas no simulado completo.</strong> A prova real tem 15 questões que não contam na nota, e o simulado reproduz isso. A nota estimada considera só as 50 pontuadas (ADR-0009 aceito)</td></tr>
+                        <tr><td>#81</td><td><strong>O banco de questões que cresce com qualidade</strong> (detalhes nas <a href="#decisoes">decisões</a>)</td></tr>
+                        <tr><td>#82</td><td>O <strong>DAS</strong> (Design Approval Sheet), com a matriz de rastreabilidade: 86 requisitos ligados a issues, ADRs e decisões</td></tr>
+                        <tr><td>#83</td><td><strong>A Fase 0.5 aprovada</strong></td></tr>
+                        <tr><td>#87</td><td>O grafo de conhecimento da documentação (graphify), com 397 nós e 28 comunidades</td></tr>
+                        <tr><td>#77 e #79</td><td>O ROADMAP e o README mantidos em dia a cada merge</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ========================= DECISÕES ========================= -->
+        <section id="decisoes">
+            <h2>Decisões que valem destacar</h2>
+
+            <h3>O LLM como componente não confiável</h3>
+            <p>O agente pode errar ou sofrer prompt injection. Por isso, as ações que gravam dados passam por guardas em código:</p>
+            <div class="card-grid">
+                <div class="info-card">
+                    <span class="tag tag-core">A1</span>
+                    <h4>Tools por estado</h4>
+                    <p>Só expõe as tools permitidas para o estado da conversa.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-generic">A2</span>
+                    <h4>Conferência da resposta</h4>
+                    <p>Confere a resposta do aluno antes de registrar.</p>
+                </div>
+                <div class="info-card">
+                    <span class="tag tag-support">A3</span>
+                    <h4>Só questão servida</h4>
+                    <p>A API só aceita resposta para uma questão que foi servida.</p>
+                </div>
+            </div>
+            <p>O envio do simulado é montado pelo código, e não pelo LLM (ADR-0013).</p>
+
+            <h3>As outras decisões</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Decisão</th><th>O que significa</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>O gabarito nunca vaza</strong></td><td>Os campos de gabarito e explicação não saem da API antes da resposta do aluno. Há testes de "varredura" planejados para garantir isso</td></tr>
+                        <tr><td><strong>Fidelidade à prova real</strong></td><td>O simulado completo tem 65 questões, 90 minutos de limite duro, envio automático no fim do prazo, nota estimada de 100 a 1000 e aprovação a partir de 700. Tudo conferido no guia oficial da AWS</td></tr>
+                        <tr><td><strong>Banco de questões finito, mas honesto</strong></td><td>Quando o aluno revê questões que já conhece, o resultado avisa que a nota é menos confiável. O banco cresce com rascunhos gerados por LLM, sempre com revisão humana</td></tr>
+                        <tr><td><strong>Custo sob controle</strong></td><td>O LLM roda local (Ollama) por padrão. A infraestrutura na AWS está descrita em Terraform, mas só é aplicada de forma pontual, com alerta de orçamento</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ========================= NÚMEROS ========================= -->
+        <section id="numeros">
+            <h2>Números até aqui</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Item</th><th>Quantidade</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>PRs mergeados na Fase 0.5</td><td>18</td></tr>
+                        <tr><td>Requisitos (RF, RNF, RN e RC)</td><td>86</td></tr>
+                        <tr><td>Invariantes de domínio</td><td>75</td></tr>
+                        <tr><td>ADRs</td><td>15, todos aceitos</td></tr>
+                        <tr><td>RFCs</td><td>1, aceita</td></tr>
+                        <tr><td>Dúvidas registradas e decididas</td><td>65</td></tr>
+                        <tr><td>Ameaças no threat model</td><td>36</td></tr>
+                        <tr><td>Linhas de código</td><td>0, por enquanto</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ========================= LIÇÕES ========================= -->
+        <section id="licoes">
+            <h2>Lições aprendidas</h2>
+            <ol>
+                <li><strong>Decidir no papel é barato.</strong> Várias contradições foram encontradas e resolvidas antes de existir código. Um exemplo é a regra das questões não pontuadas, que aparecia de formas diferentes em dois lugares.</li>
+                <li><strong>A revisão automatizada pega o que o olho não pega.</strong> Scripts conferiram links, IDs e contagens, e acharam erros em quase toda rodada.</li>
+                <li><strong>Delegar não é abdicar.</strong> Deleguei decisões técnicas ao <code>tech-lead</code>, mas cada uma voltou para mim num relatório, para aprovar ou reprovar.</li>
+                <li><strong>Tokens custam.</strong> Rodadas longas de revisão gastam muito. Passei a juntar entregas pequenas no mesmo PR e a pedir só correções de conteúdo, sem ajustes cosméticos.</li>
+                <li><strong>Uma pergunta de produto pode mudar a arquitetura.</strong> "O que acontece quando o aluno já viu todas as questões?" virou um ADR novo (rascunhos por LLM com revisão humana), cinco requisitos e três issues de implementação.</li>
+            </ol>
+        </section>
+
+        <!-- ========================= PRÓXIMOS ========================= -->
+        <section id="proximos">
+            <h2>Próximos passos</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>Etapa</th><th>O que entra</th><th>Situação</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Fase 1, <code>study-api</code></strong></td><td>O modelo de dados, o Leitner, o simulado e o banco de questões (o lote 1, com pelo menos 65 questões)</td><td>A fazer</td></tr>
+                        <tr><td>Grafo de conhecimento</td><td>Configurar os agentes para consultarem o grafo antes de ler documentos, para gastar menos tokens</td><td>A fazer</td></tr>
+                        <tr><td><strong>Fase 2, <code>mcp-server</code></strong></td><td>As 10 tools MCP, que serão 11 com o reporte de questão</td><td>A fazer</td></tr>
+                        <tr><td><strong>Fase 3, <code>agent-api</code></strong></td><td>O agente LangGraph, com memória curta e longa</td><td>A fazer</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>Este diário será atualizado a cada fase concluída.</p>
+        </section>
+    </main>
+</body>
+</html>
